@@ -1,0 +1,77 @@
+  {% if cv_menu.items.size > 0 %}
+  <div class="cv-mnav" id="cv-mnav" hidden data-cv-drawer>
+    <div class="cv-mnav__backdrop" data-cv-close="cv-mnav"></div>
+    <div class="cv-mnav__panel tf-scheme-{{ settings.color_scheme }}" role="dialog" aria-modal="true" aria-label="{{ 'header.menu' | t }}">
+      <div class="cv-mnav__top">
+        <span class="cv-hd__name cv-hd__name--sm">{{ shop.name }}</span>
+        <button class="cv-hd__icon" type="button" data-cv-close="cv-mnav">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          <span class="cv-sr">{{ 'general.close' | t }}</span>
+        </button>
+      </div>
+      {%- comment -%} Phones: the delivery or pickup choice heads the menu sheet (the last tag keeps the line break before the list, as without pickup). {%- endcomment -%}
+      {%- if shopping.pickup_available -%}
+        {%- if theme.settings.pickup_chip != false -%}
+        <button class="cv-mnav__pk" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-pickup" data-cv-pk-open>
+          {%- if shopping.pickup_location -%}
+          <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20"/></svg><span class="cv-mnav__pk-text"><span>{{ 'pickup.pickup' | t }} · <span dir="auto">{{ shopping.pickup_location.name }}</span></span><small>{{ shopping.pickup_location.ready_in_label }}</small></span>
+          {%- else -%}
+          <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 6.5h11v10h-11zM13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6.5" cy="17.5" r="1.75"/><circle cx="16.5" cy="17.5" r="1.75"/></svg><span class="cv-mnav__pk-text"><span>{{ 'pickup.delivery' | t }}</span><small>{{ 'pickup.or_pick_up' | t }}</small></span>
+          {%- endif -%}
+          <span class="cv-sr">{{ 'pickup.change' | t }}</span>
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        </button>
+        {%- endif -%}
+      {%- elsif design_mode and theme.settings.pickup_chip != false -%}
+        <p class="cv-editor-hint cv-pk-hint">{{ 'pickup.editor_off' | t }}</p>
+      {%- endif %}
+      <nav class="cv-mnav__list" aria-label="{{ 'header.main_navigation' | t }}">
+        {% for item in cv_menu.items %}
+          {% if item.children.size > 0 %}
+            <details class="cv-mnav__group">
+              <summary class="cv-mnav__row">{{ item.title }}<svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+              <div class="cv-mnav__children">
+                {% if item.url != blank %}<a class="cv-mnav__child" href="{{ item.url }}"{% if item.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ 'header.view_all' | t: title: item.title }}</a>{% endif %}
+                {% for child in item.children %}
+                  {% if child.url != blank %}<a class="cv-mnav__child" href="{{ child.url }}"{% if child.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ child.title }}</a>{% else %}<span class="cv-mnav__child">{{ child.title }}</span>{% endif %}
+                  {% for grand in child.children %}
+                    {% if grand.url != blank %}<a class="cv-mnav__child cv-mnav__child--deep" href="{{ grand.url }}"{% if grand.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ grand.title }}</a>{% else %}<span class="cv-mnav__child cv-mnav__child--deep">{{ grand.title }}</span>{% endif %}
+                  {% endfor %}
+                {% endfor %}
+              </div>
+            </details>
+          {% else %}
+            {% if item.url != blank %}<a class="cv-mnav__row" href="{{ item.url }}"{% if item.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ item.title }}</a>{% else %}<span class="cv-mnav__row">{{ item.title }}</span>{% endif %}
+          {% endif %}
+        {% endfor %}
+      </nav>
+      <div class="cv-mnav__foot">
+        {% if cv_account_on %}
+          <a class="cv-mnav__util" href="{% if customer.logged_in %}{{ routes.account_url }}{% else %}{{ routes.login_url }}{% endif %}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+            {% if customer.logged_in %}{{ 'header.account' | t }}{% else %}{{ 'header.sign_in' | t }}{% endif %}
+          </a>
+        {% endif %}
+        {% if customer_settings.wishlist_enabled and cv_wish_on %}
+          <a class="cv-mnav__util" href="{{ routes.wishlist_url }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+            {{ 'header.wishlist' | t }}
+            <span data-tf-refresh="{{ cv_refresh }}">{% if wishlist.item_count > 0 %}<span class="cv-mnav__badge">{{ wishlist.item_count }}</span>{% endif %}</span>
+          </a>
+        {% endif %}
+        {%- comment -%} The header's country and language picker sits here on phones (the bar keeps it on wider screens). {%- endcomment -%}
+        {%- if cv_loc_b -%}
+          {%- assign cv_loc_c = false -%}{%- assign cv_loc_l = false -%}
+          {%- if cv_loc_b.settings.show_country != false and localization.available_countries.size > 1 -%}{%- assign cv_loc_c = true -%}{%- endif -%}
+          {%- if cv_loc_b.settings.show_language != false and localization.available_languages.size > 1 -%}{%- assign cv_loc_l = true -%}{%- endif -%}
+          {%- if cv_loc_c or cv_loc_l -%}
+          <div class="cv-mnav__loc">
+            {%- assign cv_loc_id = 'mnav' -%}{%- assign cv_loc_pick = cv_loc_b.settings.picker_style | default: 'pill' -%}
+            {%- comment -%}partial:loc-picker{%- endcomment -%}{%- comment -%}/partial:loc-picker{%- endcomment -%}
+          </div>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+  {% endif %}

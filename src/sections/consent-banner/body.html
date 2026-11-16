@@ -1,0 +1,109 @@
+{%- comment -%} Cookie banner. Shown while the store asks this visitor for consent and they have not chosen yet; after a choice it stays
+hidden so the footer's cookie preferences link can reopen it. Layouts: a bar along the bottom, a card in a corner, a centred dialog over a
+dimmed page, or a side panel. Categories: compact (behind "Choose cookies") or detailed (every category with what it is for, shown at
+once). In the editor it is rendered hidden so selecting this section can open it. {%- endcomment -%}
+{%- assign cv_cs_show = false -%}
+{%- if consent.required -%}{%- unless consent.given -%}{%- assign cv_cs_show = true -%}{%- endunless -%}{%- endif -%}
+{%- assign cv_cs_layout = settings.layout | default: 'corner' -%}
+{%- assign cv_cs_detailed = false -%}{%- if settings.categories == 'detailed' -%}{%- assign cv_cs_detailed = true -%}{%- endif -%}
+{%- assign cv_cs_links = false -%}
+{%- for p in policies -%}{%- if p.type == 'privacy' or p.type == 'cookie' -%}{%- assign cv_cs_links = true -%}{%- endif -%}{%- endfor -%}
+{%- if consent.required or design_mode -%}
+<div class="cv cv-consent cv-consent--{{ cv_cs_layout }} cv-consent--{{ settings.position | default: 'start' }} tf-scheme-{{ settings.color_scheme }}" data-cv-consent{% unless cv_cs_show %} hidden{% endunless %}
+  role="dialog" aria-modal="{% if cv_cs_layout == 'modal' %}true{% else %}false{% endif %}" {% if settings.heading != blank %}aria-labelledby="cv-consent-title"{% else %}aria-label="{{ 'consent.preferences' | t }}"{% endif %}{% if settings.text != blank %} aria-describedby="cv-consent-text"{% endif %}
+  {% if consent.given %}data-cv-consent-given{% endif %}>
+  <div class="cv-consent__box">
+    {%- if settings.heading != blank -%}<p dir="auto" data-tf-field="heading" class="cv-consent__title" id="cv-consent-title">{{ settings.heading }}</p>{%- endif -%}
+    {%- if settings.text != blank -%}<p dir="auto" data-tf-field="text" class="cv-consent__text" id="cv-consent-text">{{ settings.text }}</p>{%- endif -%}
+    {%- if cv_cs_links -%}
+    <p class="cv-consent__links">
+      {%- for p in policies -%}{%- if p.type == 'privacy' or p.type == 'cookie' -%}<a dir="auto" href="{{ p.url }}">{{ p.title }}</a>{%- endif -%}{%- endfor -%}
+    </p>
+    {%- endif -%}
+    {%- if cv_cs_detailed -%}
+    {% form 'consent_give', class: 'cv-consent__form cv-consent__form--detailed' %}
+      <ul class="cv-consent__cats" role="list">
+        <li class="cv-consent__cat">
+          <span class="cv-consent__cat-text"><span class="cv-consent__cat-name">{{ 'consent.necessary' | t }}</span><span class="cv-consent__cat-desc">{{ 'consent.necessary_desc' | t }}</span></span>
+          <span class="cv-consent__always">{{ 'consent.always_on' | t }}</span>
+        </li>
+        {%- for category in consent.available_categories -%}
+        <li class="cv-consent__cat">
+          <label class="cv-consent__cat-text" for="cv-consent-{{ category }}"><span class="cv-consent__cat-name">{{ 'consent.' | append: category | t }}</span><span class="cv-consent__cat-desc">{{ 'consent.' | append: category | append: '_desc' | t }}</span></label>
+          <span class="cv-switch"><input type="checkbox" role="switch" id="cv-consent-{{ category }}" name="categories" value="{{ category }}"{% if consent.categories contains category %} checked{% endif %}><span aria-hidden="true"></span></span>
+        </li>
+        {%- endfor -%}
+      </ul>
+      <div class="cv-consent__actions">
+        <button class="cv-btn cv-btn--outline cv-btn--sm" type="submit">{{ 'consent.save' | t }}</button>
+        <button class="cv-btn cv-btn--sm" type="submit" name="accept_all" value="1">{{ 'consent.accept_all' | t }}</button>
+      </div>
+    {% endform %}
+    {% form 'consent_give', class: 'cv-consent__only' %}<button class="cv-tbtn" type="submit">{{ 'consent.necessary_only' | t }}</button>{% endform %}
+    {%- else -%}
+    <details class="cv-consent__prefs">
+      <summary class="cv-tbtn">{{ 'consent.choose' | t }}<svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      {% form 'consent_give', class: 'cv-consent__form' %}
+        {%- for category in consent.available_categories -%}
+          <label class="cv-check"><input type="checkbox" name="categories" value="{{ category }}"{% if consent.categories contains category %} checked{% endif %}> {{ 'consent.' | append: category | t }}</label>
+        {%- endfor -%}
+        <button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'consent.save' | t }}</button>
+      {% endform %}
+    </details>
+    <div class="cv-consent__actions">
+      {% form 'consent_give' %}<button class="cv-btn cv-btn--outline cv-btn--sm" type="submit">{{ 'consent.necessary_only' | t }}</button>{% endform %}
+      {% form 'consent_give' %}<button class="cv-btn cv-btn--sm" type="submit" name="accept_all" value="1">{{ 'consent.accept_all' | t }}</button>{% endform %}
+    </div>
+    {%- endif -%}
+    {%- if consent.given -%}
+      {% form 'consent_withdraw', class: 'cv-consent__withdraw' %}<button class="cv-tbtn" type="submit">{{ 'consent.withdraw' | t }}</button>{% endform %}
+    {%- endif -%}
+    {%- if design_mode and consent.required == false -%}<p class="cv-editor-hint cv-consent__hint">{{ 'consent.editor_off' | t }}</p>{%- endif -%}
+  </div>
+</div>
+<script>
+(function () {
+  if (window.__cvConsentOpen) return; window.__cvConsentOpen = true;
+  function banner() { return document.querySelector("[data-cv-consent]"); }
+  function modal(b) { return b.classList.contains("cv-consent--modal"); }
+  function open(b, prefs) {
+    b.hidden = false;
+    document.documentElement.classList.toggle("cv-consent-lock", modal(b));
+    var d = b.querySelector("details"); if (d && prefs) d.open = true;
+    if (modal(b) || prefs) { var f = b.querySelector("button, summary, a[href], input"); if (f) f.focus({ preventScroll: true }); }
+  }
+  function close(b) { b.hidden = true; document.documentElement.classList.remove("cv-consent-lock"); }
+  var b0 = banner(); if (b0 && !b0.hidden) open(b0, false);
+  // A modal keeps Tab inside it until the shopper chooses.
+  document.addEventListener("keydown", function (e) {
+    var b = banner(); if (!b || b.hidden) return;
+    if (e.key === "Escape" && (b.hasAttribute("data-cv-consent-given") || b.hasAttribute("data-cv-editor-was-hidden"))) { close(b); return; }
+    if (e.key !== "Tab" || !modal(b)) return;
+    var items = Array.prototype.filter.call(b.querySelectorAll("a[href], button, input, summary"), function (el) { return el.offsetParent !== null; });
+    if (!items.length) return;
+    var first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+  // Editor: selecting this section shows the banner with its choices open, even after consent was given.
+  document.addEventListener("tf:section-selected", function (e) {
+    var b = banner();
+    if (!b || !e.detail || e.detail.type !== "consent-banner") return;
+    if (!b.hasAttribute("data-cv-editor-was-hidden")) b.setAttribute("data-cv-editor-was-hidden", b.hidden ? "1" : "0");
+    open(b, true);
+  });
+  document.addEventListener("tf:section-deselected", function (e) {
+    var b = document.querySelector("[data-cv-consent][data-cv-editor-was-hidden]");
+    if (!b || !e.detail || e.detail.type !== "consent-banner") return;
+    if (b.getAttribute("data-cv-editor-was-hidden") === "1") close(b);
+    b.removeAttribute("data-cv-editor-was-hidden");
+    var d = b.querySelector("details"); if (d) d.open = false;
+  });
+  // The footer's "Cookie preferences" link reopens the banner with the choices showing.
+  document.addEventListener("click", function (e) {
+    if (!(e.target.closest && e.target.closest("[data-cv-consent-open]"))) return;
+    var b = banner(); if (b) open(b, true);
+  });
+})();
+</script>
+{%- endif -%}

@@ -1,0 +1,80 @@
+{%- comment -%} Gate pages (coming soon, password, maintenance): the top row. The page renders without the header, so the theme-wide
+  variables come with it. The store's logo (the section's own image; gate pages have no header logo), the page's status, and the
+  store's languages from settings.language_options (code, native_name, url, selected; the storefront adds them to every gate page):
+  one, nothing; two to five, the codes inline; more, Canvas's header picker (pill, a list of native names under it, a bottom sheet on
+  phones), with search over ten. Each choice is a link to that language's address. Input: cv_gate_status. {%- endcomment -%}
+{%- comment -%}partial:header-vars{%- endcomment -%}{%- comment -%}/partial:header-vars{%- endcomment -%}
+<header class="cv-gate__top">
+  <div class="cv-gate__id">
+    {%- if settings.logo -%}
+    <img class="cv-gate__logo" src="{{ settings.logo | image_url: width: 480 }}" srcset="{{ settings.logo | image_srcset: max: 960 }}" sizes="160px" alt="{{ shop.name }}" style="--cv-gate-logo-h: {{ settings.logo_height | default: 32 }}px" data-tf-field="logo">
+    {%- else -%}
+    <span class="cv-sr">{{ shop.name }}</span>
+    {%- endif -%}
+    <p class="cv-eyebrow cv-gate__status"><span class="cv-gate__dot" aria-hidden="true"></span><span data-cv-gate-status>{{ cv_gate_status }}</span></p>
+  </div>
+  {%- assign cv_gate_langs = settings.language_options -%}
+  {%- if cv_gate_langs.size > 1 -%}
+    {%- assign cv_gate_lang_now = cv_gate_langs.first -%}
+    {%- for l in cv_gate_langs -%}{%- if l.selected -%}{%- assign cv_gate_lang_now = l -%}{%- endif -%}{%- endfor -%}
+    {%- assign cv_gate_lang_code = cv_gate_lang_now.code | split: '-' | first | upcase -%}
+    {%- if cv_gate_langs.size <= 5 -%}
+    <nav class="cv-gate__langs" aria-label="{{ 'localization.language' | t }}">
+      <ul role="list">
+        {%- for l in cv_gate_langs -%}
+        <li><a href="{{ l.url }}" hreflang="{{ l.code }}" lang="{{ l.code }}" aria-label="{{ l.native_name | default: l.label }}"{% if l.selected %} aria-current="true"{% endif %}>{{ l.code }}</a></li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+    {%- else -%}
+    <div class="cv-gate__pick cv-loc cv-loc--pill">
+      <button class="cv-loc__trigger cv-loc__trigger--pill" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-loc-gate" data-cv-loc-open="cv-loc-gate">
+        <span class="cv-sr">{{ 'localization.language' | t }}:</span><span class="cv-sr">{{ cv_gate_lang_now.native_name | default: cv_gate_lang_now.label }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ cv_gate_lang_code }}</span>
+        <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <dialog class="cv-loc-dlg cv-loc-dlg--pill" id="cv-loc-gate" aria-labelledby="cv-loc-gate-t" data-cv-loc-dlg>
+        <span class="cv-loc-dlg__handle" aria-hidden="true"></span>
+        <div class="cv-loc-dlg__head">
+          <h2 class="cv-loc-dlg__title" id="cv-loc-gate-t">{{ 'localization.language' | t }}</h2>
+          <button class="cv-loc-dlg__close" type="button" data-cv-loc-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+        </div>
+        <div class="cv-loc-dlg__body">
+          <div class="cv-loc-dlg__group">
+            {%- if cv_gate_langs.size > 10 -%}
+            <label class="cv-loc-dlg__search cv-shell">
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <span class="cv-sr">{{ 'localization.lang_search' | t }}</span>
+              <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.lang_search' | t }}" aria-controls="cv-loc-gate-langs" data-cv-loc-search>
+            </label>
+            {%- endif -%}
+            <ul class="cv-loc-dlg__list cv-loc-dlg__list--langs" id="cv-loc-gate-langs" role="list">
+              {%- for l in cv_gate_langs -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ l.native_name | downcase }} {{ l.label | downcase }} {{ l.code | downcase }}">
+                <a class="cv-loc-dlg__opt" href="{{ l.url }}" hreflang="{{ l.code }}" lang="{{ l.code }}"{% if l.selected %} aria-current="true"{% endif %}>
+                  <span class="cv-loc-dlg__name"><bdi>{{ l.native_name | default: l.label }}</bdi></span>
+                  {%- if l.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </a>
+              </li>
+              {%- endfor -%}
+            </ul>
+            <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.lang_none' | t }}</p>
+          </div>
+        </div>
+      </dialog>
+      {%- comment -%} Without script the dialog cannot open: the same links in a disclosure instead (partials/loc-picker.css). {%- endcomment -%}
+      <noscript>
+        <style>.cv-gate__pick > .cv-loc__trigger[data-cv-loc-open] { display: none; }</style>
+        <details class="cv-loc__nojs">
+          <summary class="cv-loc__trigger cv-loc__trigger--pill"><span class="cv-sr">{{ 'localization.language' | t }}:</span><span class="cv-loc__code" dir="ltr">{{ cv_gate_lang_code }}</span><svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="cv-loc__nojs-panel">
+            {%- for l in cv_gate_langs -%}
+            <a class="cv-loc-dlg__opt" href="{{ l.url }}" hreflang="{{ l.code }}"{% if l.selected %} aria-current="true"{% endif %}><span class="cv-loc-dlg__name"><bdi lang="{{ l.code }}">{{ l.native_name | default: l.label }}</bdi></span></a>
+            {%- endfor -%}
+          </div>
+        </details>
+      </noscript>
+    </div>
+{%- comment -%}partial:loc-script{%- endcomment -%}{%- comment -%}/partial:loc-script{%- endcomment -%}
+    {%- endif -%}
+  {%- endif -%}
+</header>

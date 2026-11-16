@@ -1,0 +1,250 @@
+{
+  "page_type": "home",
+  "sections": [
+    {
+      "type": "image-banner",
+      "settings": {
+        "hero_style": "stacked",
+        "height": "large",
+        "layout": "inset",
+        "media_ratio": "21 / 9",
+        "color_scheme": "default",
+        "heading_size": "huge",
+        "fallback_photo": "shelf",
+        "blocks": [
+          {
+            "id": "canvas-night-hero__0",
+            "type": "heading",
+            "settings": {
+              "heading": "@t:styles.night.hero_heading"
+            }
+          },
+          {
+            "id": "canvas-night-hero__1",
+            "type": "text",
+            "settings": {
+              "text": "@t:styles.night.hero_text"
+            }
+          },
+          {
+            "id": "canvas-night-hero__2",
+            "type": "buttons",
+            "settings": {
+              "button_label": "@t:content.new_arrivals",
+              "button2_label": "@t:content.best_sellers"
+            }
+          },
+          {
+            "id": "canvas-night-hero__3",
+            "type": "hotspot",
+            "settings": {
+              "product": "notebook-set",
+              "position": {
+                "x": 35,
+                "y": 60
+              }
+            }
+          },
+          {
+            "id": "canvas-night-hero__4",
+            "type": "hotspot",
+            "settings": {
+              "product": "ceramic-mug",
+              "position": {
+                "x": 46,
+                "y": 46
+              }
+            }
+          }
+        ]
+      },
+      "position": 1
+    },
+    {
+      "type": "marquee",
+      "settings": {
+        "size": "small",
+        "separator": "dot",
+        "blocks": [
+          {
+            "id": "canvas-night-marquee__0",
+            "type": "item",
+            "settings": {
+              "text": "@t:content.new_arrivals"
+            }
+          },
+          {
+            "id": "canvas-night-marquee__1",
+            "type": "item",
+            "settings": {
+              "text": "@t:content.best_sellers"
+            }
+          },
+          {
+            "id": "canvas-night-marquee__2",
+            "type": "item",
+            "settings": {
+              "text": "@t:content.gift_ideas"
+            }
+          }
+        ]
+      },
+      "position": 2
+    },
+    {
+      "type": "featured-products",
+      "settings": {
+        "heading": "@t:content.new_arrivals",
+        "layout": "grid",
+        "columns": 5,
+        "columns_mobile": "2",
+        "products": [
+          "linen-shirt",
+          "wool-beanie",
+          "canvas-tote",
+          "ceramic-mug",
+          "stoneware-vase",
+          "leather-wallet",
+          "cotton-throw",
+          "glass-carafe",
+          "canvas-sneaker",
+          "round-sunglasses"
+        ],
+        "limit": 10,
+        "link_label": "@t:sections.featured_products.link_label",
+        "padding": "compact"
+      },
+      "position": 3
+    },
+    {
+      "type": "shoppable-reels",
+      "settings": {
+        "heading": "@t:sections.reels.heading",
+        "layout": "grid",
+        "card_size": "small",
+        "padding": "compact",
+        "blocks": [
+          {
+            "id": "canvas-night-reels__0",
+            "type": "reel",
+            "settings": {
+              "products": [
+                "round-sunglasses"
+              ]
+            }
+          },
+          {
+            "id": "canvas-night-reels__1",
+            "type": "reel",
+            "settings": {
+              "products": [
+                "leather-wallet",
+                "notebook-set"
+              ]
+            }
+          },
+          {
+            "id": "canvas-night-reels__2",
+            "type": "reel",
+            "settings": {
+              "products": [
+                "canvas-sneaker"
+              ]
+            }
+          },
+          {
+            "id": "canvas-night-reels__3",
+            "type": "reel",
+            "settings": {
+              "products": [
+                "scented-candle"
+              ]
+            }
+          },
+          {
+            "id": "canvas-night-reels__4",
+            "type": "reel",
+            "settings": {
+              "products": [
+                "glass-carafe"
+              ]
+            }
+          }
+        ]
+      },
+      "position": 4
+    },
+    {
+      "type": "promo-grid",
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-night-promo__0",
+            "type": "theme:promo-tile",
+            "settings": {
+              "blocks": [
+                {
+                  "id": "canvas-night-promo__0-promo-tile-copy-to-blocks-1",
+                  "type": "theme:eyebrow",
+                  "settings": {
+                    "text": "@t:content.best_sellers"
+                  }
+                },
+                {
+                  "id": "canvas-night-promo__0-promo-tile-copy-to-blocks-2",
+                  "type": "theme:heading",
+                  "settings": {
+                    "heading": "@t:styles.night.banner_1"
+                  }
+                }
+              ],
+              "fallback_photo": "shelf"
+            }
+          },
+          {
+            "id": "canvas-night-promo__1",
+            "type": "theme:promo-tile",
+            "settings": {
+              "blocks": [
+                {
+                  "id": "canvas-night-promo__1-promo-tile-copy-to-blocks-1",
+                  "type": "theme:eyebrow",
+                  "settings": {
+                    "text": "@t:content.gifts"
+                  }
+                },
+                {
+                  "id": "canvas-night-promo__1-promo-tile-copy-to-blocks-2",
+                  "type": "theme:heading",
+                  "settings": {
+                    "heading": "@t:content.gift_ideas"
+                  }
+                }
+              ],
+              "fallback_photo": "corner"
+            }
+          }
+        ],
+        "layout": "banner",
+        "padding": "compact",
+        "tile_height": 360
+      },
+      "position": 5
+    },
+    {
+      "type": "collection-list",
+      "settings": {
+        "heading": "@t:sections.collection_list.heading",
+        "layout": "row",
+        "collections": [
+          "accessories",
+          "home",
+          "apparel"
+        ],
+        "image_ratio": "square",
+        "padding": "compact"
+      },
+      "position": 6
+    }
+  ]
+}

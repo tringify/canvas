@@ -1,0 +1,28 @@
+{
+  "page_type": "shop",
+  "sections": [
+    {
+      "type": "main-collection",
+      "position": 1,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-shop__breadcrumbs",
+            "type": "breadcrumbs",
+            "settings": {}
+          },
+          {
+            "id": "canvas-shop__banner",
+            "type": "banner",
+            "settings": {}
+          },
+          {
+            "id": "canvas-shop__toolbar",
+            "type": "toolbar",
+            "settings": {}
+          }
+        ]
+      }
+    }
+  ]
+}

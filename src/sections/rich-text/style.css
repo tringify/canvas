@@ -1,0 +1,5 @@
+  .cv-rich__inner { display: grid; gap: 16px; }
+  .cv-rich--center { text-align: center; justify-items: center; }
+  .cv-rich--left { text-align: start; justify-items: start; }
+  .cv-rich--center .cv-blk-buttons { justify-content: center; }
+  .cv-rich .cv-blk-text--auto { font-size: 17px; color: var(--text-muted); }

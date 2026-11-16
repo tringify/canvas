@@ -1,0 +1,253 @@
+{
+  "name": "image-hotspots",
+  "icon": "image-plus",
+  "ctx_needs": [
+    "routes",
+    "csrf_token",
+    "design_mode",
+    "theme_preview", "shopping"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": "@t:sections.image_hotspots.heading"
+    },
+    {
+      "id": "text",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      }
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "content"
+      }
+    },
+    {
+      "id": "fallback_photo",
+      "type": "select",
+      "default": "corner",
+      "options": [
+        {
+          "value": "corner",
+          "label": "opt_photo_corner"
+        },
+        {
+          "value": "room",
+          "label": "opt_photo_room"
+        },
+        {
+          "value": "table",
+          "label": "opt_photo_table"
+        },
+        {
+          "value": "shelf",
+          "label": "opt_photo_shelf"
+        },
+        {
+          "value": "parcel",
+          "label": "opt_photo_parcel"
+        },
+        {
+          "value": "linen",
+          "label": "opt_photo_linen"
+        },
+        {
+          "value": "bedroom",
+          "label": "opt_photo_bedroom"
+        },
+        {
+          "value": "bench",
+          "label": "opt_photo_bench"
+        },
+        {
+          "value": "evening",
+          "label": "opt_photo_evening"
+        },
+        {
+          "value": "off",
+          "label": "opt_photo_none"
+        }
+      ],
+      "editor": {
+        "label": "fallback_photo",
+        "group": "content"
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "pins",
+      "options": [
+        {
+          "value": "pins",
+          "label": "opt_pins_on_image"
+        },
+        {
+          "value": "side",
+          "label": "opt_pins_list"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "ratio",
+      "type": "select",
+      "editor": {
+        "label": "image_ratio",
+        "group": "layout"
+      },
+      "default": "4 / 3",
+      "options": [
+        {
+          "value": "16 / 9",
+          "label": "opt_wide"
+        },
+        {
+          "value": "4 / 3",
+          "label": "opt_landscape"
+        },
+        {
+          "value": "1 / 1",
+          "label": "opt_square"
+        },
+        {
+          "value": "4 / 5",
+          "label": "opt_portrait"
+        }
+      ]
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 6,
+    "default": [
+      "spot",
+      "spot"
+    ],
+    "types": [
+      {
+        "type": "spot",
+        "editor": {
+          "label": "hotspot"
+        },
+        "settings": [
+          {
+            "id": "product",
+            "type": "product",
+            "editor": {
+              "label": "product",
+              "group": "content"
+            }
+          },
+          {
+            "id": "position",
+            "type": "point",
+            "image": "image",
+            "default": {
+              "x": 35,
+              "y": 55
+            },
+            "editor": {
+              "label": "hotspot_position",
+              "group": "layout"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "shop-the-look",
+      "category": "image",
+      "blocks": [
+        {
+          "type": "spot",
+          "settings": {
+            "position": {
+              "x": 30,
+              "y": 60
+            }
+          }
+        },
+        {
+          "type": "spot",
+          "settings": {
+            "position": {
+              "x": 68,
+              "y": 40
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "migrations": [
+    {
+      "id": "spot-position-point",
+      "op": "combine_point",
+      "from": {
+        "block_type": "spot",
+        "setting": "x"
+      },
+      "from_y": {
+        "block_type": "spot",
+        "setting": "y"
+      },
+      "to": {
+        "block_type": "spot",
+        "setting": "position"
+      }
+    }
+  ]
+}

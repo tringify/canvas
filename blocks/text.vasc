@@ -1,0 +1,50 @@
+{%- comment -%} Text: formatted copy. Section's style takes the size and colour the section gives its body text. {%- endcomment -%}
+{%- if settings.text != blank -%}<div dir="auto" class="cv-rte cv-blk-text cv-blk-text--{{ settings.size | default: 'auto' }}" data-tf-field="text">{{ settings.text }}</div>{%- elsif design_mode -%}<p class="cv-editor-hint cv-blk-hint">{{ 'sections.editor_empty_block' | t }}</p>{%- endif -%}
+{% schema %}
+{
+  "name": "text",
+  "kind": "block",
+  "icon": "text",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "text",
+      "type": "richtext",
+      "default": "@t:sections.rich_text.text",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      }
+    },
+    {
+      "id": "size",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "opt_size_section"
+        },
+        {
+          "value": "small",
+          "label": "opt_small"
+        },
+        {
+          "value": "medium",
+          "label": "opt_medium"
+        },
+        {
+          "value": "large",
+          "label": "opt_large"
+        }
+      ],
+      "editor": {
+        "label": "text_size",
+        "group": "design"
+      }
+    }
+  ]
+}
+{% endschema %}

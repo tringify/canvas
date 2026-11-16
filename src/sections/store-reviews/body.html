@@ -1,0 +1,33 @@
+{%- if store_reviews.enabled and store_reviews.items.size > 0 or design_mode -%}
+<section class="cv cv-section cv-sr-s tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}">
+  {%- if design_mode and store_reviews.enabled != true -%}<p class="cv-editor-hint">{{ 'sections.editor_store_reviews_off' | t }}</p>{%- endif -%}
+  <div class="cv-wrap">
+    <div class="cv-head">
+      <div>
+        {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+        {%- assign cv_sc = store_reviews.stats.count | default: 0 -%}
+        {%- if cv_sc > 0 -%}
+          <p class="cv-sr-s__summary"><span class="cv-stars" style="--cv-rating: {{ store_reviews.stats.average | default: 0 | times: 20 }}%" aria-hidden="true"></span>
+            {{ 'reviews.summary' | t: rating: store_reviews.stats.average, count: store_reviews.stats.count }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+    {%- if store_reviews.items.size > 0 -%}
+      <div class="cv-grid" style="--cv-cols: {{ settings.columns }}; --cv-cols-m: 1">
+        {%- for r in store_reviews.items limit: settings.limit -%}
+          <figure class="cv-sr-s__item">
+            <span class="cv-stars" style="--cv-rating: {{ r.rating | times: 20 }}%" role="img" aria-label="{{ 'reviews.stars' | t: rating: r.rating }}"></span>
+            {%- if r.title != blank -%}<p class="cv-sr-s__title">{{ r.title }}</p>{%- endif -%}
+            <blockquote class="cv-sr-s__quote">{{ r.content | truncate: 280 }}</blockquote>
+            <figcaption class="cv-sr-s__by">{{ r.reviewer_name }}{% if r.verification_source == 'order' %}<span class="cv-muted"> · {{ 'reviews.verified' | t }}</span>{% elsif r.verification_source == 'import' %}<span class="cv-muted"> · {{ 'reviews.verified_imported' | t }}</span>{% endif %}
+              {%- if r.product.url -%}<a class="cv-sr-s__product" href="{{ r.product.url }}">{{ r.product.title }}</a>{%- endif -%}
+            </figcaption>
+          </figure>
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <p class="cv-muted">{{ 'reviews.none_store' | t }}</p>
+    {%- endif -%}
+  </div>
+</section>
+{%- endif -%}

@@ -1,0 +1,24 @@
+<script>
+(function () {
+  // Recommendation clicks: following a card (any [data-product-id] item) in a [data-cv-rec] rail sends the platform's rec_click
+  // event (POST /events/rec-click: placement, product_id, and variant_id when the card links one, with
+  // the page's CSRF token). A beacon never holds up the navigation, and a refused one changes nothing.
+  if (window.__cvRecClick) return; window.__cvRecClick = true;
+  function send(e) {
+    if (e.type === "auxclick" && e.button !== 1) return;
+    var a = e.target.closest && e.target.closest("[data-cv-rec] [data-product-id] a[href]");
+    var sec = a && a.closest("[data-cv-rec]"), card = a && a.closest("[data-product-id]");
+    var pid = card && card.getAttribute("data-product-id"), vid = card && card.getAttribute("data-variant-id");
+    if (!sec || !/^[1-9][0-9]*$/.test(pid || "")) return;
+    var fd = new FormData();
+    fd.append("_csrf", sec.getAttribute("data-csrf") || "");
+    fd.append("placement", sec.getAttribute("data-cv-rec"));
+    fd.append("product_id", pid);
+    if (/^[1-9][0-9]*$/.test(vid || "")) fd.append("variant_id", vid);
+    try { if (navigator.sendBeacon && navigator.sendBeacon("/events/rec-click", fd)) return; } catch (_) {}
+    try { fetch("/events/rec-click", { method: "POST", body: fd, credentials: "same-origin", keepalive: true }).catch(function () {}); } catch (_) {}
+  }
+  document.addEventListener("click", send, true);
+  document.addEventListener("auxclick", send, true);
+})();
+</script>

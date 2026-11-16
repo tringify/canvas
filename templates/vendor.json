@@ -1,0 +1,28 @@
+{
+  "page_type": "vendor",
+  "sections": [
+    {
+      "type": "main-collection",
+      "position": 1,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-vendor__breadcrumbs",
+            "type": "breadcrumbs",
+            "settings": {}
+          },
+          {
+            "id": "canvas-vendor__banner",
+            "type": "banner",
+            "settings": {}
+          },
+          {
+            "id": "canvas-vendor__toolbar",
+            "type": "toolbar",
+            "settings": {}
+          }
+        ]
+      }
+    }
+  ]
+}

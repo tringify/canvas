@@ -1,0 +1,234 @@
+{
+  "name": "comparison-table",
+  "icon": "table",
+  "ctx_needs": [
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": "@t:sections.comparison_table.heading"
+    },
+    {
+      "id": "text",
+      "type": "textarea",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      },
+      "default": ""
+    },
+    {
+      "id": "highlight",
+      "type": "select",
+      "editor": {
+        "label": "highlight_column",
+        "group": "design"
+      },
+      "default": "none",
+      "options": [
+        {
+          "value": "none",
+          "label": "opt_none"
+        },
+        {
+          "value": "1",
+          "label": "opt_column_1"
+        },
+        {
+          "value": "2",
+          "label": "opt_column_2"
+        },
+        {
+          "value": "3",
+          "label": "opt_column_3"
+        },
+        {
+          "value": "4",
+          "label": "opt_column_4"
+        }
+      ]
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 24,
+    "default": [
+      "column",
+      "column",
+      "row",
+      "row",
+      "row"
+    ],
+    "types": [
+      {
+        "type": "column",
+        "editor": {
+          "label": "compare_column"
+        },
+        "settings": [
+          {
+            "id": "product",
+            "type": "product",
+            "editor": {
+              "label": "product",
+              "group": "content"
+            }
+          },
+          {
+            "id": "title",
+            "type": "text",
+            "editor": {
+              "label": "title_fallback_product",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "subtitle",
+            "type": "text",
+            "editor": {
+              "label": "compare_subtitle",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "button_label",
+            "type": "text",
+            "editor": {
+              "label": "button_label",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "link",
+            "type": "url",
+            "editor": {
+              "label": "button_link",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "editor": {
+          "label": "compare_row"
+        },
+        "settings": [
+          {
+            "id": "label",
+            "type": "text",
+            "editor": {
+              "label": "compare_row_label",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "value_1",
+            "type": "text",
+            "editor": {
+              "label": "compare_value_1",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "value_2",
+            "type": "text",
+            "editor": {
+              "label": "compare_value_2",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "value_3",
+            "type": "text",
+            "editor": {
+              "label": "compare_value_3",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "value_4",
+            "type": "text",
+            "editor": {
+              "label": "compare_value_4",
+              "group": "content"
+            },
+            "default": ""
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "comparison-table",
+      "category": "products",
+      "blocks": [
+        {
+          "type": "column"
+        },
+        {
+          "type": "column"
+        },
+        {
+          "type": "row"
+        },
+        {
+          "type": "row"
+        },
+        {
+          "type": "row"
+        }
+      ]
+    }
+  ]
+}

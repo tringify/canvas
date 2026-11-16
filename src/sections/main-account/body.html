@@ -1,0 +1,1059 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+<section data-cv-notice-host data-tf-refresh="main-account" data-tf-soft-nav="main-account" data-tf-soft-nav-scroll="keep" class="cv cv-section cv-ac tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-wrap">
+    {%- if customer.logged_in != true -%}
+      <div class="cv-ac__guest"><h1 class="cv-h2">{{ 'account.title' | t }}</h1><a class="cv-btn" href="{{ routes.login_url }}">{{ 'header.sign_in' | t }}</a></div>
+    {%- else -%}
+    <header class="cv-ac__head">
+      {%- comment -%} Greet by name only; an account without a name is titled Account, and every contact it has shows underneath. {%- endcomment -%}
+      {%- assign cv_nm = customer.first_name | append: ' ' | append: customer.last_name | strip -%}
+      <div class="cv-ac__who"><h1 class="cv-ac__title">{%- if cv_nm != blank -%}{{ 'account.hello' | t: name: cv_nm }}{%- else -%}{{ 'account.title' | t }}{%- endif -%}</h1>
+        <p class="cv-muted cv-ac__contacts">{%- if customer.email != blank -%}<span>{{ customer.email }}</span>{%- endif -%}{%- if customer.phone != blank -%}<bdi dir="ltr">{{ customer.phone_display }}</bdi>{%- endif -%}</p></div>
+      {% form 'logout' %}<button class="cv-btn cv-btn--outline cv-btn--sm" type="submit">{{ 'account.sign_out' | t }}</button>{% endform %}
+    </header>
+    {%- comment -%} An email that is not confirmed yet: the platform confirms it when the shopper signs in with a one-time code sent to it
+    (auth_code_send, then login, both for the account's own email). Without email codes on the store there is nothing to send, so only the note shows. {%- endcomment -%}
+    {%- if customer.email != blank and customer.email_verified == false -%}
+      <section class="cv-ac__verify" aria-labelledby="cv-ac-verify-title" data-cv-verify>
+        <svg class="cv-ac__verify-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>
+        <div class="cv-ac__verify-body">
+          <h2 class="cv-h4" id="cv-ac-verify-title">{{ 'account.verify_title' | t }}</h2>
+          <p class="cv-muted">{{ 'account.verify_text' | t: email: customer.email }}{% if customer_settings.email_login_available %} {{ 'account.verify_how' | t }}{% endif %}</p>
+          {%- if customer_settings.email_login_available -%}
+            <p class="cv-notice cv-notice--ok" role="status" data-cv-verify-notice hidden></p>
+            <div class="cv-ac__verify-step" data-cv-verify-step hidden>
+              {% form 'email_add', class: 'cv-ac__verify-form' %}
+                <input type="hidden" name="email" value="{{ customer.email }}">
+                <label class="cv-field"><span class="cv-label">{{ 'auth.code' | t }}</span>
+                  <input class="cv-input cv-ac__verify-code" name="code" required inputmode="numeric" autocomplete="one-time-code" maxlength="8"></label>
+                <button class="cv-btn" type="submit">{{ 'account.verify_confirm' | t }}</button>
+              {% endform %}
+            </div>
+            {% form 'email_add', class: 'cv-ac__verify-send' %}
+              <input type="hidden" name="email" value="{{ customer.email }}">
+              <button class="cv-btn cv-btn--sm cv-btn--outline" type="submit" data-cv-verify-send data-label-again="{{ 'auth.resend' | t }}">{{ 'account.verify_send' | t }}</button>
+            {% endform %}
+          {%- endif -%}
+        </div>
+      </section>
+    {%- endif -%}
+    <p class="cv-notice cv-toast cv-toast--{{ theme.settings.notice_position }}{% if theme.settings.notice_scheme != blank %} tf-scheme-{{ theme.settings.notice_scheme }}{% endif %} {% if form_notice.success %}cv-notice--ok{% else %}cv-notice--error{% endif %}" role="status" data-cv-notice{% if form_notice.message == blank %} hidden{% endif %}>{{ form_notice.message }}</p>
+    {%- if form_error and form_error.message != blank -%}<p class="cv-notice cv-toast cv-toast--{{ theme.settings.notice_position }}{% if theme.settings.notice_scheme != blank %} tf-scheme-{{ theme.settings.notice_scheme }}{% endif %} cv-notice--error" role="alert" data-cv-toast-error>{{ form_error.message }}</p>{%- endif -%}
+
+    <div class="cv-ac__layout" data-cv-tabs>
+    <nav class="cv-ac__nav" aria-label="{{ 'account.title' | t }}">
+      <a class="cv-ac__tab" data-native href="{{ routes.account_url }}#orders" data-cv-tab="orders">{{ 'account.orders' | t }}{%- comment -%} The list's own count: customer.orders_count counts paid orders, not the orders listed here. {%- endcomment -%}{%- assign cv_orders_all = customer.orders.statuses.first.count | default: 0 -%}{% if cv_orders_all > 0 %} <span class="cv-ac__count">{{ cv_orders_all }}</span>{% endif %}</a>
+      <a class="cv-ac__tab" data-native href="{{ routes.account_url }}#gift-cards" data-cv-tab="gift-cards">{{ 'account.gift_cards' | t }}</a>
+      {%- if customer.store_credit -%}<a class="cv-ac__tab" data-native href="{{ routes.account_url }}#store-credit" data-cv-tab="store-credit">{{ 'account.store_credit' | t }}</a>{%- endif -%}
+      <a class="cv-ac__tab" data-native href="{{ routes.account_url }}#addresses" data-cv-tab="addresses">{{ 'account.addresses' | t }}</a>
+      <a class="cv-ac__tab" data-native href="{{ routes.account_url }}#profile" data-cv-tab="profile">{{ 'account.profile' | t }}</a>
+      {%- if customer_settings.wishlist_enabled -%}<a class="cv-ac__tab" data-native href="{{ routes.wishlist_url }}">{{ 'header.wishlist' | t }}</a>{%- endif -%}
+    </nav>
+    <div class="cv-ac__main">
+
+    {%- if customer.order -%}
+      {%- assign o = customer.order -%}
+      <article class="cv-ac__panel" data-cv-panel="orders">
+        <a class="cv-btn cv-btn--link cv-btn--plain cv-ac__back" href="{{ routes.account_url }}#orders"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>{{ 'account.all_orders' | t }}</a>
+        <div class="cv-ac__ohead">
+          <h2 class="cv-h3">{{ 'account.order' | t: number: o.order_number }}</h2>
+          <span class="cv-badge">{{ o.status_name | default: o.fulfillment_status_display }}</span>
+          {%- if o.created_at != blank -%}<p class="cv-muted">{{ o.created_at | date: 'medium' }}</p>{%- endif -%}
+        </div>
+        {%- for f in o.fulfillments -%}
+          <div class="cv-ac__ship">
+            <p><strong>{{ f.status_display }}</strong>{% if f.carrier != blank %} · {{ f.carrier }}{% endif %}{% if f.tracking_number != blank %} · {{ f.tracking_number }}{% endif %}</p>
+            {%- if f.tracking_url != blank -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ f.tracking_url }}" target="_blank" rel="noopener">{{ 'account.track' | t }}</a>{%- endif -%}
+            {%- if f.events.size > 0 -%}
+              <ol class="cv-ac__events">{%- for ev in f.events -%}<li><span class="cv-muted">{{ ev.happened_at_display }}</span> {{ ev.status_display }}{% if ev.location != blank %} · {{ ev.location }}{% endif %}</li>{%- endfor -%}</ol>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+        <ul class="cv-ac__items" role="list">
+          {%- for item in o.items -%}
+            {%- assign cv_si = item.series.index | default: 1 -%}{%- if cv_si > 1 -%}{%- continue -%}{%- endif -%}
+            <li class="cv-ac__item">
+              <span class="cv-ac__thumb cv-media">{%- if item.proof_image_url != blank and item.series == nil -%}<img class="cv-ac__proof" src="{{ item.proof_image_url }}" alt="" loading="lazy">{%- elsif item.image_url != blank -%}<img src="{{ item.image_url | image_url: width: 160 }}" alt="" loading="lazy">{%- endif -%}</span>
+              <div><p class="cv-ac__iname">{{ item.title }}</p>
+                {%- if item.variant_title != blank -%}<p class="cv-muted">{{ item.variant_title }}</p>{%- endif -%}
+                {%- if item.series -%}<p class="cv-muted">{{ 'cart.group_count' | t: count: item.series.count, quantity: item.series.quantity }}</p>
+                {%- else -%}<p class="cv-muted">{{ item.unit_price | money: isolate: true, trim_zeros: cv_tz }} × {{ item.quantity }}</p>{%- endif -%}
+                {%- assign cv_rq = item.refunded_quantity | default: 0 -%}{%- assign cv_fq = item.fulfilled_quantity | default: 0 -%}
+                {%- if cv_rq > 0 or cv_fq > 0 and item.requires_shipping -%}
+                  <p class="cv-ac__istate">{%- if cv_fq > 0 and item.requires_shipping -%}<span>{{ 'account.item_shipped' | t: count: cv_fq, total: item.quantity }}</span>{%- endif -%}{%- if cv_rq > 0 -%}<span class="cv-ac__refund">{{ 'account.item_refunded' | t: count: cv_rq }}</span>{%- endif -%}</p>
+                {%- endif -%}
+                {%- if item.series -%}
+                  <ul class="cv-ac__proofs" role="list">
+                    {%- for m in o.items -%}{%- if m.series.key == item.series.key and m.proof_image_url != blank -%}<li class="cv-media"><img class="cv-ac__proof" src="{{ m.proof_image_url }}" alt="" loading="lazy"></li>{%- endif -%}{%- endfor -%}
+                  </ul>
+                {%- endif -%}
+                {%- comment -%} Order links: an app's page for the line (downloads, a proof). A series shows each link once. {%- endcomment -%}
+                {%- assign cv_nl = 0 -%}
+                {%- for m in o.items -%}{%- if m.id == item.id or item.series and m.series.key == item.series.key -%}{%- assign cv_nl = cv_nl | plus: m.links.size -%}{%- endif -%}{%- endfor -%}
+                {%- if cv_nl > 0 -%}
+                  <div class="cv-ac__links">
+                    {%- assign cv_ls = '|' -%}
+                    {%- for m in o.items -%}{%- if m.id == item.id or item.series and m.series.key == item.series.key -%}
+                      {%- for l in m.links -%}{%- assign cv_lk = '|' | append: l.label | append: '|' -%}{%- unless cv_ls contains cv_lk -%}{%- assign cv_ls = cv_ls | append: l.label | append: '|' -%}
+                        <a class="cv-btn cv-btn--outline cv-btn--sm cv-ac__link" href="{{ l.url }}" target="_blank" rel="noopener">{{ l.label }}<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+                      {%- endunless -%}{%- endfor -%}
+                    {%- endif -%}{%- endfor -%}
+                  </div>
+                {%- endif -%}
+              </div>
+              <p class="cv-ac__iprice">{% if item.series %}{{ item.series.subtotal | money: isolate: true, trim_zeros: cv_tz }}{% else %}{{ item.total | money: isolate: true, trim_zeros: cv_tz }}{%- for t in item.tax_lines -%}<span class="cv-ac__taxline">{{ t.name }} {{ t.rate }}% {{ t.amount | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endfor -%}{% endif %}</p>
+            </li>
+          {%- endfor -%}
+        </ul>
+        {%- assign pr = o.pricing -%}
+        <dl class="cv-ac__totals">
+          <div><dt>{{ 'cart.subtotal' | t }}</dt><dd>{{ pr.subtotal | money: isolate: true, trim_zeros: cv_tz }}</dd></div>
+          {%- for d in pr.discounts -%}<div><dt>{{ d.name | default: d.code }}</dt><dd>−{{ d.amount | money: isolate: true, trim_zeros: cv_tz }}</dd></div>{%- endfor -%}
+          {%- if pr.shipping.has_amount or pr.shipping.is_free -%}<div><dt>{{ 'account.shipping' | t }}{% if pr.shipping.name != blank %} · {{ pr.shipping.name }}{% endif %}</dt><dd>{%- if pr.shipping.is_free -%}{{ 'account.shipping_free' | t }}{%- else -%}{{ pr.shipping.amount | money: isolate: true, trim_zeros: cv_tz }}{%- for t in pr.shipping.tax_lines -%}<span class="cv-ac__taxline">{{ t.name }} {{ t.rate }}% {{ t.amount | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endfor -%}{%- endif -%}</dd></div>{%- endif -%}
+          {%- for fee in pr.checkout_fees -%}<div><dt>{{ fee.name }}</dt><dd>{{ fee.amount | money: isolate: true, trim_zeros: cv_tz }}{%- for t in fee.tax_lines -%}<span class="cv-ac__taxline">{{ t.name }} {{ t.rate }}% {{ t.amount | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endfor -%}</dd></div>{%- endfor -%}
+          {%- if pr.cod.has_amount -%}<div><dt>{{ 'account.cod_fee' | t }}</dt><dd>{{ pr.cod.amount | money: isolate: true, trim_zeros: cv_tz }}{%- for t in pr.cod.tax_lines -%}<span class="cv-ac__taxline">{{ t.name }} {{ t.rate }}% {{ t.amount | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endfor -%}</dd></div>{%- endif -%}
+          {%- if pr.duty and pr.duty.has_amount -%}<div><dt>{{ 'account.duties' | t }}</dt><dd>{{ pr.duty.total | money: isolate: true, trim_zeros: cv_tz }}</dd></div>{%- endif -%}
+          {%- if pr.tax and pr.tax.has_tax -%}
+            {%- if pr.tax.lines.size > 0 -%}
+              {%- for t in pr.tax.lines -%}<div><dt>{% if pr.tax.included %}{{ 'account.tax_included' | t }}{% else %}{{ 'account.tax' | t }}{% endif %} · {{ t.name }} {{ t.rate }}%</dt><dd>{{ t.amount | money: isolate: true, trim_zeros: cv_tz }}</dd></div>{%- endfor -%}
+            {%- else -%}<div><dt>{% if pr.tax.included %}{{ 'account.tax_included' | t }}{% else %}{{ 'account.tax' | t }}{% endif %}</dt><dd>{{ pr.tax.total | money: isolate: true, trim_zeros: cv_tz }}</dd></div>{%- endif -%}
+          {%- endif -%}
+          <div class="cv-ac__grand"><dt>{{ 'cart.total' | t }}</dt><dd>{{ pr.grand_total | money: isolate: true, trim_zeros: cv_tz }}</dd></div>
+        </dl>
+        {%- comment -%} Who pays import duties: the platform's statement below the total, never a charge. {%- endcomment -%}
+        {%- if pr.duty.note != blank -%}<p class="cv-ac__dutynote">{{ pr.duty.note }}</p>{%- endif -%}
+        {%- assign pay = o.payment -%}
+        {%- if pay -%}
+          <h3 class="cv-h4 cv-ac__payhead">{{ 'account.payment' | t }}</h3>
+          <dl class="cv-ac__totals cv-ac__pay">
+            {%- if pay.has_store_credit -%}<div><dt>{{ 'account.store_credit' | t }}</dt><dd>{{ pay.store_credit | money: isolate: true, trim_zeros: cv_tz }}</dd></div>{%- endif -%}
+            {%- if pay.has_gift_card -%}<div><dt>{{ 'account.gift_card' | t }}</dt><dd>{{ pay.gift_card | money: isolate: true, trim_zeros: cv_tz }}</dd></div>{%- endif -%}
+            {%- if pay.has_paid or pay.has_due == false -%}<div><dt>{{ 'account.paid' | t }}</dt><dd>{{ pay.paid | money: isolate: true, trim_zeros: cv_tz }}</dd></div>{%- endif -%}
+            {%- if pay.has_refunded -%}<div><dt>{{ 'account.refunded' | t }}</dt><dd>{{ pay.refunded | money: isolate: true, trim_zeros: cv_tz }}</dd></div>{%- endif -%}
+            {%- comment -%} Each refund: where it went back to, and whether it is done. {%- endcomment -%}
+            {%- for rf in pay.refunds -%}<div class="cv-ac__rf"><dt>{{ rf.label }} <span class="cv-ac__rfstate is-{{ rf.status }}">{%- if rf.status == 'completed' -%}{{ 'account.refund_completed' | t }}{%- elsif rf.status == 'failed' -%}{{ 'account.refund_failed' | t }}{%- else -%}{{ 'account.refund_pending' | t }}{%- endif -%}</span></dt><dd>{{ rf.amount | money: isolate: true, trim_zeros: cv_tz }}</dd></div>{%- endfor -%}
+            {%- if pay.has_due -%}<div class="cv-ac__grand"><dt>{% if pay.due_on_delivery %}{{ 'account.due_on_delivery' | t }}{% elsif pay.due_at_pickup %}{{ 'account.due_at_pickup' | t }}{% else %}{{ 'account.due' | t }}{% endif %}</dt><dd>{{ pay.due | money: isolate: true, trim_zeros: cv_tz }}</dd></div>{%- endif -%}
+          </dl>
+        {%- endif -%}
+        <div class="cv-ac__addrs">
+          {%- if o.shipping_address -%}<div><h3 class="cv-h4">{{ 'account.shipping_address' | t }}</h3>
+            <address>{{ o.shipping_address.first_name }} {{ o.shipping_address.last_name }}<br>{{ o.shipping_address.address1 }}{% if o.shipping_address.address2 != blank %}, {{ o.shipping_address.address2 }}{% endif %}<br>{{ o.shipping_address.city }} {{ o.shipping_address.province_name }} {{ o.shipping_address.postal_code }}<br>{{ o.shipping_address.country_name }}</address></div>{%- endif -%}
+          {%- if o.billing_address -%}<div><h3 class="cv-h4">{{ 'account.billing_address' | t }}</h3>
+            <address>{{ o.billing_address.first_name }} {{ o.billing_address.last_name }}<br>{{ o.billing_address.address1 }}{% if o.billing_address.address2 != blank %}, {{ o.billing_address.address2 }}{% endif %}<br>{{ o.billing_address.city }} {{ o.billing_address.province_name }} {{ o.billing_address.postal_code }}<br>{{ o.billing_address.country_name }}</address></div>{%- endif -%}
+        </div>
+        {%- if o.can_cancel -%}
+          {% form 'order_cancel', class: 'cv-ac__cancel' %}
+            <input type="hidden" name="order_id" value="{{ o.id }}">
+            <button class="cv-btn cv-btn--outline cv-btn--sm" type="submit" data-cv-confirm="{{ 'account.cancel_confirm' | t }}">{{ 'account.cancel_order' | t }}</button>
+          {% endform %}
+        {%- endif -%}{%- if o.return_url -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ o.return_url }}">{{ 'account.return_items' | t }}</a>{%- endif -%}
+      </article>
+    {%- else -%}
+      <section class="cv-ac__panel" data-cv-panel="orders">
+        <div class="cv-ac__phead"><h2 class="cv-h3">{{ 'account.orders' | t }}</h2>
+          {%- assign cv_orders_total = customer.orders.total | default: 0 -%}
+          {%- if cv_orders_total > 0 or customer.orders.active -%}
+          <form class="cv-ac__search" method="get" action="{{ customer.orders.search.action }}">
+            {%- for h in customer.orders.search.hidden_fields -%}<input type="hidden" name="{{ h.name }}" value="{{ h.value }}">{%- endfor -%}
+            <input class="cv-input" type="search" name="{{ customer.orders.search.query_param }}" value="{{ customer.orders.query }}" placeholder="{{ 'account.search_orders' | t }}" aria-label="{{ 'account.search_orders' | t }}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+          </form>
+          {%- endif -%}
+        </div>
+        {%- if customer.orders.statuses.size > 1 -%}
+          <div class="cv-ac__chips">{%- for s in customer.orders.statuses -%}<a class="cv-ac__chip{% if s.selected %} is-on{% endif %}" href="{{ s.url }}#orders">{{ s.name }} <span class="cv-muted">{{ s.count }}</span></a>{%- endfor -%}</div>
+        {%- endif -%}
+        {%- if customer.orders.items.size > 0 -%}
+          <div class="cv-ac__table" role="table">
+            <div class="cv-ac__row cv-ac__row--head" role="row"><span role="columnheader">{{ 'account.order_col' | t }}</span><span role="columnheader">{{ 'account.date' | t }}</span><span role="columnheader">{{ 'account.status' | t }}</span><span role="columnheader">{{ 'cart.total' | t }}</span></div>
+            {%- for ord in customer.orders.items -%}
+              <a class="cv-ac__row" role="row" href="{{ routes.account_url }}/orders/{{ ord.id }}">
+                <span role="cell"><strong>{{ ord.order_number }}</strong></span>
+                <span role="cell" class="cv-muted">{% if ord.created_at != blank %}{{ ord.created_at | date: 'medium' }}{% endif %}</span>
+                <span role="cell">{{ ord.status_label.name | default: ord.fulfillment_status_display }}</span>
+                <span role="cell">{{ ord.total | money: isolate: true, trim_zeros: cv_tz }}</span>
+              </a>
+            {%- endfor -%}
+          </div>
+          {%- assign cv_orders_pages = customer.orders.pages | default: 0 -%}
+          {%- if cv_orders_pages > 1 -%}
+            <nav class="cv-pager" aria-label="{{ 'general.pagination' | t }}">
+              {%- if customer.orders.prev_url != blank -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ customer.orders.prev_url }}#orders">{{ 'general.previous' | t }}</a>{%- endif -%}
+              <span class="cv-muted">{{ 'general.page_of' | t: page: customer.orders.page, pages: customer.orders.pages }}</span>
+              {%- if customer.orders.next_url != blank -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ customer.orders.next_url }}#orders">{{ 'general.next' | t }}</a>{%- endif -%}
+            </nav>
+          {%- endif -%}
+        {%- elsif customer.orders.active -%}
+          <p class="cv-muted">{{ 'account.no_orders_match' | t }}</p>
+        {%- else -%}
+          <div class="cv-ac__empty"><p class="cv-muted">{{ 'account.no_orders' | t }}</p><a class="cv-btn" href="{{ routes.shop_url }}">{{ 'general.continue_shopping' | t }}</a></div>
+        {%- endif -%}
+      </section>
+    {%- endif -%}
+    {%- comment -%} My Gift Cards: received cards carry their code (print it only when it is not null) and balance; sent cards carry only the
+recipient and how delivery went. Print the platform's labels as given. Paging is a cursor: next_url and first_url are ready-made. {%- endcomment -%}
+    {%- assign gcs = customer.gift_cards -%}
+    <section class="cv-ac__panel" data-cv-panel="gift-cards"{% if gcs.active %} data-cv-open{% endif %}>
+      <div class="cv-ac__phead"><h2 class="cv-h3">{{ 'account.gift_cards' | t }}</h2></div>
+      {%- if gcs.items.size > 0 -%}
+        <ul class="cv-ac__gcs" role="list">
+          {%- for g in gcs.items -%}
+            <li class="cv-ac__gc">
+              <div class="cv-ac__gc-top">
+                <span class="cv-badge cv-ac__gc-kind">{{ g.kind_label }}</span>
+                {%- if g.kind == 'received' -%}<span class="cv-muted">{{ g.status_label }}</span>{%- else -%}<span class="cv-muted">{{ g.delivery_status_label }}</span>{%- endif -%}
+              </div>
+              {%- if g.kind == 'received' -%}
+                <p class="cv-ac__gc-code">{%- if g.code != blank -%}<bdi dir="ltr" class="cv-ac__gc-full">{{ g.code }}</bdi>{%- else -%}<bdi dir="ltr" class="cv-muted">{{ g.code_masked }}</bdi>{%- endif -%}</p>
+                <dl class="cv-ac__gc-facts">
+                  <div><dt class="cv-muted">{{ 'gift_card.balance' | t }}</dt><dd><strong>{{ g.balance.formatted }}</strong></dd></div>
+                  <div><dt class="cv-muted">{{ 'gift_card.initial_value' | t }}</dt><dd>{{ g.initial_value.formatted }}</dd></div>
+                  {%- if g.expires_at_label != blank -%}<div><dt class="cv-muted">{{ 'gift_card.expiry' | t }}</dt><dd>{{ g.expires_at_label }}</dd></div>{%- endif -%}
+                </dl>
+              {%- else -%}
+                <dl class="cv-ac__gc-facts">
+                  {%- if g.recipient_name != blank -%}<div><dt class="cv-muted">{{ 'gift_card.recipient' | t }}</dt><dd>{{ g.recipient_name }}</dd></div>{%- endif -%}
+                  <div><dt class="cv-muted">{{ 'gift_card.initial_value' | t }}</dt><dd>{{ g.initial_value.formatted }}</dd></div>
+                  {%- if g.sent_at_display != blank -%}<div><dt class="cv-muted">{{ 'gift_card.sent_at' | t }}</dt><dd><time datetime="{{ g.sent_at }}">{{ g.sent_at_display }}</time></dd></div>
+                  {%- elsif g.scheduled_at_display != blank -%}<div><dt class="cv-muted">{{ 'gift_card.scheduled' | t }}</dt><dd><time datetime="{{ g.scheduled_at }}">{{ g.scheduled_at_display }}</time></dd></div>{%- endif -%}
+                </dl>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+        {%- if gcs.next_url != blank or gcs.active -%}
+          <nav class="cv-pager" aria-label="{{ 'general.pagination' | t }}">
+            {%- if gcs.active and gcs.first_url != blank -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ gcs.first_url }}#gift-cards">{{ 'general.first' | t }}</a>{%- endif -%}
+            {%- if gcs.next_url != blank -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ gcs.next_url }}#gift-cards">{{ 'general.next' | t }}</a>{%- endif -%}
+          </nav>
+        {%- endif -%}
+      {%- else -%}
+        <div class="cv-ac__empty"><p class="cv-muted">{{ 'account.no_gift_cards' | t }}</p></div>
+      {%- endif -%}
+    </section>
+    {%- comment -%} Store Credit: null when the store has Store Credit off or the shopper has none, so the tab and panel show only when there is
+a balance to spend. The balance is formatted by the platform. {%- endcomment -%}
+    {%- if customer.store_credit -%}
+      <section class="cv-ac__panel" data-cv-panel="store-credit">
+        <div class="cv-ac__phead"><h2 class="cv-h3">{{ 'account.store_credit' | t }}</h2></div>
+        <div class="cv-ac__gc">
+          <dl class="cv-ac__gc-facts">
+            <div><dt class="cv-muted">{{ 'account.store_credit_balance' | t }}</dt><dd><strong>{{ customer.store_credit.balance.formatted }}</strong></dd></div>
+          </dl>
+          <p class="cv-muted">{{ 'account.store_credit_hint' | t }}</p>
+        </div>
+        {%- assign cv_sc = customer.store_credit -%}
+        {%- if cv_sc.history.size > 0 -%}
+          {%- comment -%} The latest movements, newest first: what happened, when, the order it belongs to, and the signed amount. {%- endcomment -%}
+          <div class="cv-ac__sch">
+            <h3 class="cv-ac__sch-title">{{ 'account.store_credit_history' | t }}</h3>
+            <ul class="cv-ac__sch-list">
+              {%- for e in cv_sc.history -%}
+                {%- assign cv_out = false -%}{%- if e.amount.amount contains '-' -%}{%- assign cv_out = true -%}{%- endif -%}
+                <li class="cv-ac__sch-row">
+                  <span class="cv-ac__sch-ico{% if cv_out %} is-out{% else %} is-in{% endif %}" aria-hidden="true"><svg class="cv-icon" viewBox="0 0 24 24">{%- if cv_out -%}<path d="M12 5v14M6 13l6 6 6-6"/>{%- else -%}<path d="M12 19V5M6 11l6-6 6 6"/>{%- endif -%}</svg></span>
+                  <span class="cv-ac__sch-what">
+                    <span class="cv-ac__sch-label">{{ e.label }}</span>
+                    <span class="cv-ac__sch-meta cv-muted"><time datetime="{{ e.created_at_iso }}">{{ e.created_at }}</time>{%- if e.order_id and e.order_number %} · <a class="cv-tbtn" href="{{ routes.account_url }}/orders/{{ e.order_id }}" dir="ltr">{{ e.order_number }}</a>{%- endif -%}</span>
+                  </span>
+                  <span class="cv-ac__sch-amt{% if cv_out %} is-out{% else %} is-in{% endif %}" dir="ltr">{% unless cv_out %}+{% endunless %}{{ e.amount.formatted }}</span>
+                </li>
+              {%- endfor -%}
+            </ul>
+            {%- assign cv_sc_pages = cv_sc.history_pages | default: 1 -%}
+            {%- if cv_sc_pages > 1 -%}
+              <nav class="cv-pager" aria-label="{{ 'general.pagination' | t }}">
+                {%- if cv_sc.history_prev_url != blank -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ cv_sc.history_prev_url }}#store-credit">{{ 'general.previous' | t }}</a>{%- endif -%}
+                <span class="cv-muted">{{ 'general.page_of' | t: page: cv_sc.history_page, pages: cv_sc_pages }}</span>
+                {%- if cv_sc.history_next_url != blank -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ cv_sc.history_next_url }}#store-credit">{{ 'general.next' | t }}</a>{%- endif -%}
+              </nav>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </section>
+    {%- endif -%}
+    <div class="cv-app-blocks">{%- blocks -%}</div>
+
+    {%- assign af = customer.address_form -%}
+    <section class="cv-ac__panel" data-cv-panel="addresses">
+      <div class="cv-ac__phead"><h2 class="cv-h3">{{ 'account.addresses' | t }}</h2>
+        <details class="cv-ac__add"><summary class="cv-btn cv-btn--sm">{{ 'account.add_address' | t }}</summary>
+          {%- assign cv_a = af.blank -%}{%- assign cv_action = 'address_create' -%}{%- assign cv_fid = 'new' -%}
+          {% form 'address_create', class: 'cv-ac__aform' %}
+{%- comment -%}partial:address-fields{%- endcomment -%}
+{%- comment -%} Address fields. Inputs: cv_a (address values), cv_fid (unique id), af (customer.address_form).
+The platform decides the fields: af.fields_by_country lists each country's address fields, Country first, then the rest in
+the order that country writes an address, each with its key (the input name), label, requirement, placeholder and input
+rules. Fields with the same row sit side by side. The account script swaps the fields when the country changes. {%- endcomment -%}
+{%- assign cv_cc = cv_a.country_code -%}
+{%- if cv_cc == blank -%}{%- for c in af.countries -%}{%- if c.selected -%}{%- assign cv_cc = c.iso_code -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- if cv_cc == blank -%}{%- assign cv_cc = af.countries.first.iso_code -%}{%- endif -%}
+{%- assign cv_fields = af.fields_by_country[cv_cc] -%}
+<div class="cv-ac__afields" data-cv-afields>
+{%- assign cv_open = false -%}{%- assign cv_line = '' -%}
+{%- for f in cv_fields -%}
+  {%- if f.key == 'phone' -%}{%- continue -%}{%- endif -%}
+  {%- assign cv_fl = f.row | append: '' -%}
+  {%- if cv_fl != cv_line -%}{%- if cv_open -%}</div>{%- endif -%}<div class="cv-ac__two">{%- assign cv_open = true -%}{%- assign cv_line = cv_fl -%}{%- endif -%}
+  {%- case f.key -%}
+    {%- when 'country_code' -%}{%- assign cv_v = cv_cc -%}
+    {%- when 'first_name' -%}{%- assign cv_v = cv_a.first_name -%}
+    {%- when 'last_name' -%}{%- assign cv_v = cv_a.last_name -%}
+    {%- when 'company' -%}{%- assign cv_v = cv_a.company -%}
+    {%- when 'address1' -%}{%- assign cv_v = cv_a.address1 -%}
+    {%- when 'address2' -%}{%- assign cv_v = cv_a.address2 -%}
+    {%- when 'district' -%}{%- assign cv_v = cv_a.district -%}
+    {%- when 'city' -%}{%- assign cv_v = cv_a.city -%}
+    {%- when 'province_code' -%}{%- assign cv_v = cv_a.province_code -%}
+    {%- when 'postal_code' -%}{%- assign cv_v = cv_a.postal_code -%}
+    {%- else -%}{%- assign cv_v = '' -%}
+  {%- endcase -%}
+  <label class="cv-field"><span class="cv-label">{{ f.label }}</span>
+  {%- if f.key == 'country_code' -%}
+    {%- comment -%} The country choices are af.countries; the Country field itself lists none. {%- endcomment -%}
+    <select class="cv-input" name="{{ f.key }}" autocomplete="{{ f.autocomplete }}"{% if f.required %} required{% endif %} data-cv-country>{%- for c in af.countries -%}<option value="{{ c.iso_code }}"{% if c.iso_code == cv_v %} selected{% endif %}>{{ c.name }}</option>{%- endfor -%}</select>
+  {%- elsif f.options.size > 0 -%}
+    <select class="cv-input" name="{{ f.key }}" autocomplete="{{ f.autocomplete }}"{% if f.required %} required{% endif %}><option value="">—</option>{%- for o in f.options -%}<option value="{{ o.value }}"{% if o.value == cv_v %} selected{% endif %}>{{ o.label }}</option>{%- endfor -%}</select>
+  {%- else -%}
+    <input class="cv-input" name="{{ f.key }}" value="{{ cv_v }}" autocomplete="{{ f.autocomplete }}" inputmode="{{ f.input_mode }}" maxlength="{{ f.max_length }}"{% if f.pattern != blank %} pattern="{{ f.pattern | escape }}"{% endif %}{% if f.placeholder != blank %} placeholder="{{ f.placeholder }}"{% endif %}{% if f.required %} required{% endif %}>
+  {%- endif -%}</label>
+{%- endfor -%}
+{%- if cv_open -%}</div>{%- endif -%}
+</div>
+{%- assign cv_ph_label = '' -%}{%- assign cv_ph_required = false -%}{%- assign cv_ph_name = '' -%}
+{%- for f in cv_fields -%}{%- if f.key == 'phone' -%}{%- assign cv_ph_label = f.label -%}{%- assign cv_ph_required = f.required -%}{%- assign cv_ph_name = f.key -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_ph_id = 'cv-ph-' | append: cv_fid -%}{%- assign cv_ph_value = cv_a.phone -%}
+{%- assign cv_ph_country = cv_cc -%}
+{%- assign cv_ph_disabled = false -%}{%- assign cv_ph_describedby = '' -%}{%- assign cv_ph_auto = '' -%}
+{%- comment -%}partial:phone-field{%- endcomment -%}
+{%- comment -%} Phone field with a searchable country picker (country code, name and dial code from ctx.phone_countries; the section needs
+phone_countries and customer_settings in ctx_needs). Set every input before each use, since assigns carry over:
+cv_ph_id (unique id), cv_ph_name (the field the action takes), cv_ph_value (saved number, E.164), cv_ph_label,
+cv_ph_required and cv_ph_disabled (true/false), cv_ph_country (ISO code to start from when it is a phone country; then the store's
+default_phone_country, then the first country), cv_ph_describedby (extra hint id or blank), cv_ph_auto (autocomplete, blank: tel).
+The script sends one E.164 number (+ and digits) under cv_ph_name. Without it, the number field itself is sent and asks for a
++ number; the hint shows the starting country's example in international form. {%- endcomment -%}
+{%- assign cv_ph_start = phone_countries.first -%}
+{%- for pc in phone_countries -%}{%- if pc.iso_code == customer_settings.default_phone_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}
+{%- if cv_ph_country != blank -%}{%- for pc in phone_countries -%}{%- if pc.iso_code == cv_ph_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- assign cv_ph_ex = '' -%}{%- if cv_ph_start.example != blank -%}{%- assign cv_ph_ex = cv_ph_start.dial_code | append: ' ' | append: cv_ph_start.example -%}{%- endif -%}
+{%- assign cv_ph_desc = cv_ph_id | append: '-hint' -%}{%- if cv_ph_describedby != blank -%}{%- assign cv_ph_desc = cv_ph_desc | append: ' ' | append: cv_ph_describedby -%}{%- endif -%}
+{%- assign cv_ph_ac = cv_ph_auto | default: 'tel' -%}
+<div class="cv-field cv-phone" data-cv-phone data-default="{{ cv_ph_start.iso_code }}" data-countries="{{ phone_countries | json | escape }}"
+     data-label-selected="{{ 'phone.selected' | t: country: '__C__' }}" data-label-example="{{ 'phone.example' | t: example: '__EX__' }}">
+  <label class="cv-label" for="{{ cv_ph_id }}">{{ cv_ph_label }}</label>
+  <div class="cv-phone__row" data-cv-phone-row>
+    <button class="cv-phone__cc" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="{{ cv_ph_id }}-pop" hidden data-cv-phone-cc>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <svg class="cv-phone__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </button>
+    <span class="cv-phone__cc cv-phone__cc--fixed" id="{{ cv_ph_id }}-cc" hidden data-cv-phone-fixed>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </span>
+    <input class="cv-input cv-phone__num" id="{{ cv_ph_id }}" type="tel" name="{{ cv_ph_name }}" value="{{ cv_ph_value }}" autocomplete="{{ cv_ph_ac }}" inputmode="tel" dir="ltr" maxlength="24"
+      pattern="[+][1-9][\d \(\)\-\.]{5,22}" title="{{ 'products.gift_phone_plus' | t }}"{% if cv_ph_ex != blank %} placeholder="{{ cv_ph_ex }}"{% endif %} aria-describedby="{{ cv_ph_desc }}"{% if cv_ph_required %} required{% endif %}{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-num>
+    <input type="hidden" value="{{ cv_ph_value }}" data-name="{{ cv_ph_name }}"{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-out>
+  </div>
+  <p class="cv-sr cv-phone__hint" id="{{ cv_ph_id }}-hint" data-cv-phone-hint{% if cv_ph_ex == blank %} hidden{% endif %}>{%- if cv_ph_ex != blank -%}{{ 'phone.example' | t: example: cv_ph_ex }}{%- endif -%}</p>
+  <div class="cv-phone__pop" id="{{ cv_ph_id }}-pop" hidden data-cv-phone-pop>
+    <input class="cv-input cv-phone__search" type="search" role="combobox" aria-expanded="true" aria-controls="{{ cv_ph_id }}-list" aria-autocomplete="list"
+           autocomplete="off" spellcheck="false" placeholder="{{ 'phone.search' | t }}" aria-label="{{ 'phone.search' | t }}" data-cv-phone-q>
+    <ul class="cv-phone__list" id="{{ cv_ph_id }}-list" role="listbox" aria-label="{{ 'phone.country' | t }}" data-cv-phone-list></ul>
+    <p class="cv-muted cv-phone__none" role="status" data-cv-phone-none></p>
+    <span hidden data-cv-phone-none-text>{{ 'phone.no_results' | t }}</span>
+  </div>
+</div>
+{%- comment -%}/partial:phone-field{%- endcomment -%}
+<div class="cv-ac__two">
+  <label class="cv-field"><span class="cv-label">{{ 'account.address_type' | t }}</span>
+    <select class="cv-input" name="address_type">
+      <option value="shipping"{% if cv_a.address_type != 'billing' %} selected{% endif %}>{{ 'account.addr_shipping' | t }}</option>
+      <option value="billing"{% if cv_a.address_type == 'billing' %} selected{% endif %}>{{ 'account.addr_billing' | t }}</option>
+    </select></label>
+  <label class="cv-check cv-ac__def"><input type="checkbox" name="is_default" value="true"{% if cv_a.is_default %} checked{% endif %}> {{ 'account.make_default' | t }}</label>
+</div>
+{%- comment -%}/partial:address-fields{%- endcomment -%}
+            <button class="cv-btn" type="submit">{{ 'account.save_address' | t }}</button>
+          {% endform %}
+        </details>
+      </div>
+      {%- if customer.addresses.types.size > 0 -%}
+        <div class="cv-ac__chips">{%- for t in customer.addresses.types -%}{%- assign cv_tv = t.value | default: 'all' -%}<a class="cv-ac__chip{% if t.selected %} is-on{% endif %}" href="{{ t.url }}#addresses">{{ 'account.addr_' | append: cv_tv | t }}</a>{%- endfor -%}</div>
+      {%- endif -%}
+      {%- if customer.addresses.items.size > 0 -%}
+        <div class="cv-ac__agrid">
+          {%- for a in customer.addresses.items -%}
+            <div class="cv-ac__acard">
+              {%- if a.is_default -%}<span class="cv-badge">{{ 'account.default' | t }}</span>{%- endif -%}
+              <address>{{ a.name | default: a.first_name }}<br>{% if a.company != blank %}{{ a.company }}<br>{% endif %}{{ a.address1 }}{% if a.address2 != blank %}, {{ a.address2 }}{% endif %}<br>{{ a.city }} {{ a.province_name }} {{ a.postal_code }}<br>{{ a.country_name }}{% if a.phone != blank %}<br>{{ a.phone_display }}{% endif %}</address>
+              <p class="cv-muted cv-ac__atype">{{ 'account.addr_' | append: a.address_type | t }}</p>
+              <div class="cv-ac__aact">
+                <details class="cv-ac__edit"><summary class="cv-tbtn">{{ 'account.edit' | t }}</summary>
+                  {%- assign cv_a = a -%}{%- assign cv_action = 'address_update' -%}{%- assign cv_fid = a.id -%}
+                  {% form 'address_update', class: 'cv-ac__aform' %}
+                    <input type="hidden" name="address_id" value="{{ a.id }}">
+{%- comment -%}partial:address-fields{%- endcomment -%}
+{%- comment -%} Address fields. Inputs: cv_a (address values), cv_fid (unique id), af (customer.address_form).
+The platform decides the fields: af.fields_by_country lists each country's address fields, Country first, then the rest in
+the order that country writes an address, each with its key (the input name), label, requirement, placeholder and input
+rules. Fields with the same row sit side by side. The account script swaps the fields when the country changes. {%- endcomment -%}
+{%- assign cv_cc = cv_a.country_code -%}
+{%- if cv_cc == blank -%}{%- for c in af.countries -%}{%- if c.selected -%}{%- assign cv_cc = c.iso_code -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- if cv_cc == blank -%}{%- assign cv_cc = af.countries.first.iso_code -%}{%- endif -%}
+{%- assign cv_fields = af.fields_by_country[cv_cc] -%}
+<div class="cv-ac__afields" data-cv-afields>
+{%- assign cv_open = false -%}{%- assign cv_line = '' -%}
+{%- for f in cv_fields -%}
+  {%- if f.key == 'phone' -%}{%- continue -%}{%- endif -%}
+  {%- assign cv_fl = f.row | append: '' -%}
+  {%- if cv_fl != cv_line -%}{%- if cv_open -%}</div>{%- endif -%}<div class="cv-ac__two">{%- assign cv_open = true -%}{%- assign cv_line = cv_fl -%}{%- endif -%}
+  {%- case f.key -%}
+    {%- when 'country_code' -%}{%- assign cv_v = cv_cc -%}
+    {%- when 'first_name' -%}{%- assign cv_v = cv_a.first_name -%}
+    {%- when 'last_name' -%}{%- assign cv_v = cv_a.last_name -%}
+    {%- when 'company' -%}{%- assign cv_v = cv_a.company -%}
+    {%- when 'address1' -%}{%- assign cv_v = cv_a.address1 -%}
+    {%- when 'address2' -%}{%- assign cv_v = cv_a.address2 -%}
+    {%- when 'district' -%}{%- assign cv_v = cv_a.district -%}
+    {%- when 'city' -%}{%- assign cv_v = cv_a.city -%}
+    {%- when 'province_code' -%}{%- assign cv_v = cv_a.province_code -%}
+    {%- when 'postal_code' -%}{%- assign cv_v = cv_a.postal_code -%}
+    {%- else -%}{%- assign cv_v = '' -%}
+  {%- endcase -%}
+  <label class="cv-field"><span class="cv-label">{{ f.label }}</span>
+  {%- if f.key == 'country_code' -%}
+    {%- comment -%} The country choices are af.countries; the Country field itself lists none. {%- endcomment -%}
+    <select class="cv-input" name="{{ f.key }}" autocomplete="{{ f.autocomplete }}"{% if f.required %} required{% endif %} data-cv-country>{%- for c in af.countries -%}<option value="{{ c.iso_code }}"{% if c.iso_code == cv_v %} selected{% endif %}>{{ c.name }}</option>{%- endfor -%}</select>
+  {%- elsif f.options.size > 0 -%}
+    <select class="cv-input" name="{{ f.key }}" autocomplete="{{ f.autocomplete }}"{% if f.required %} required{% endif %}><option value="">—</option>{%- for o in f.options -%}<option value="{{ o.value }}"{% if o.value == cv_v %} selected{% endif %}>{{ o.label }}</option>{%- endfor -%}</select>
+  {%- else -%}
+    <input class="cv-input" name="{{ f.key }}" value="{{ cv_v }}" autocomplete="{{ f.autocomplete }}" inputmode="{{ f.input_mode }}" maxlength="{{ f.max_length }}"{% if f.pattern != blank %} pattern="{{ f.pattern | escape }}"{% endif %}{% if f.placeholder != blank %} placeholder="{{ f.placeholder }}"{% endif %}{% if f.required %} required{% endif %}>
+  {%- endif -%}</label>
+{%- endfor -%}
+{%- if cv_open -%}</div>{%- endif -%}
+</div>
+{%- assign cv_ph_label = '' -%}{%- assign cv_ph_required = false -%}{%- assign cv_ph_name = '' -%}
+{%- for f in cv_fields -%}{%- if f.key == 'phone' -%}{%- assign cv_ph_label = f.label -%}{%- assign cv_ph_required = f.required -%}{%- assign cv_ph_name = f.key -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_ph_id = 'cv-ph-' | append: cv_fid -%}{%- assign cv_ph_value = cv_a.phone -%}
+{%- assign cv_ph_country = cv_cc -%}
+{%- assign cv_ph_disabled = false -%}{%- assign cv_ph_describedby = '' -%}{%- assign cv_ph_auto = '' -%}
+{%- comment -%}partial:phone-field{%- endcomment -%}
+{%- comment -%} Phone field with a searchable country picker (country code, name and dial code from ctx.phone_countries; the section needs
+phone_countries and customer_settings in ctx_needs). Set every input before each use, since assigns carry over:
+cv_ph_id (unique id), cv_ph_name (the field the action takes), cv_ph_value (saved number, E.164), cv_ph_label,
+cv_ph_required and cv_ph_disabled (true/false), cv_ph_country (ISO code to start from when it is a phone country; then the store's
+default_phone_country, then the first country), cv_ph_describedby (extra hint id or blank), cv_ph_auto (autocomplete, blank: tel).
+The script sends one E.164 number (+ and digits) under cv_ph_name. Without it, the number field itself is sent and asks for a
++ number; the hint shows the starting country's example in international form. {%- endcomment -%}
+{%- assign cv_ph_start = phone_countries.first -%}
+{%- for pc in phone_countries -%}{%- if pc.iso_code == customer_settings.default_phone_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}
+{%- if cv_ph_country != blank -%}{%- for pc in phone_countries -%}{%- if pc.iso_code == cv_ph_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- assign cv_ph_ex = '' -%}{%- if cv_ph_start.example != blank -%}{%- assign cv_ph_ex = cv_ph_start.dial_code | append: ' ' | append: cv_ph_start.example -%}{%- endif -%}
+{%- assign cv_ph_desc = cv_ph_id | append: '-hint' -%}{%- if cv_ph_describedby != blank -%}{%- assign cv_ph_desc = cv_ph_desc | append: ' ' | append: cv_ph_describedby -%}{%- endif -%}
+{%- assign cv_ph_ac = cv_ph_auto | default: 'tel' -%}
+<div class="cv-field cv-phone" data-cv-phone data-default="{{ cv_ph_start.iso_code }}" data-countries="{{ phone_countries | json | escape }}"
+     data-label-selected="{{ 'phone.selected' | t: country: '__C__' }}" data-label-example="{{ 'phone.example' | t: example: '__EX__' }}">
+  <label class="cv-label" for="{{ cv_ph_id }}">{{ cv_ph_label }}</label>
+  <div class="cv-phone__row" data-cv-phone-row>
+    <button class="cv-phone__cc" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="{{ cv_ph_id }}-pop" hidden data-cv-phone-cc>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <svg class="cv-phone__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </button>
+    <span class="cv-phone__cc cv-phone__cc--fixed" id="{{ cv_ph_id }}-cc" hidden data-cv-phone-fixed>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </span>
+    <input class="cv-input cv-phone__num" id="{{ cv_ph_id }}" type="tel" name="{{ cv_ph_name }}" value="{{ cv_ph_value }}" autocomplete="{{ cv_ph_ac }}" inputmode="tel" dir="ltr" maxlength="24"
+      pattern="[+][1-9][\d \(\)\-\.]{5,22}" title="{{ 'products.gift_phone_plus' | t }}"{% if cv_ph_ex != blank %} placeholder="{{ cv_ph_ex }}"{% endif %} aria-describedby="{{ cv_ph_desc }}"{% if cv_ph_required %} required{% endif %}{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-num>
+    <input type="hidden" value="{{ cv_ph_value }}" data-name="{{ cv_ph_name }}"{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-out>
+  </div>
+  <p class="cv-sr cv-phone__hint" id="{{ cv_ph_id }}-hint" data-cv-phone-hint{% if cv_ph_ex == blank %} hidden{% endif %}>{%- if cv_ph_ex != blank -%}{{ 'phone.example' | t: example: cv_ph_ex }}{%- endif -%}</p>
+  <div class="cv-phone__pop" id="{{ cv_ph_id }}-pop" hidden data-cv-phone-pop>
+    <input class="cv-input cv-phone__search" type="search" role="combobox" aria-expanded="true" aria-controls="{{ cv_ph_id }}-list" aria-autocomplete="list"
+           autocomplete="off" spellcheck="false" placeholder="{{ 'phone.search' | t }}" aria-label="{{ 'phone.search' | t }}" data-cv-phone-q>
+    <ul class="cv-phone__list" id="{{ cv_ph_id }}-list" role="listbox" aria-label="{{ 'phone.country' | t }}" data-cv-phone-list></ul>
+    <p class="cv-muted cv-phone__none" role="status" data-cv-phone-none></p>
+    <span hidden data-cv-phone-none-text>{{ 'phone.no_results' | t }}</span>
+  </div>
+</div>
+{%- comment -%}/partial:phone-field{%- endcomment -%}
+<div class="cv-ac__two">
+  <label class="cv-field"><span class="cv-label">{{ 'account.address_type' | t }}</span>
+    <select class="cv-input" name="address_type">
+      <option value="shipping"{% if cv_a.address_type != 'billing' %} selected{% endif %}>{{ 'account.addr_shipping' | t }}</option>
+      <option value="billing"{% if cv_a.address_type == 'billing' %} selected{% endif %}>{{ 'account.addr_billing' | t }}</option>
+    </select></label>
+  <label class="cv-check cv-ac__def"><input type="checkbox" name="is_default" value="true"{% if cv_a.is_default %} checked{% endif %}> {{ 'account.make_default' | t }}</label>
+</div>
+{%- comment -%}/partial:address-fields{%- endcomment -%}
+                    <button class="cv-btn" type="submit">{{ 'account.save_address' | t }}</button>
+                  {% endform %}
+                </details>
+                {%- unless a.is_default -%}
+                  {% form 'address_set_default' %}<input type="hidden" name="address_id" value="{{ a.id }}"><button class="cv-tbtn" type="submit">{{ 'account.make_default' | t }}</button>{% endform %}
+                {%- endunless -%}
+                {% form 'address_delete' %}<input type="hidden" name="address_id" value="{{ a.id }}"><button class="cv-tbtn" type="submit" data-cv-confirm="{{ 'account.delete_confirm' | t }}">{{ 'account.delete' | t }}</button>{% endform %}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+        {%- assign cv_addr_pages = customer.addresses.pages | default: 0 -%}
+        {%- if cv_addr_pages > 1 -%}
+          <nav class="cv-pager" aria-label="{{ 'general.pagination' | t }}">
+            {%- if customer.addresses.prev_url != blank -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ customer.addresses.prev_url }}#addresses">{{ 'general.previous' | t }}</a>{%- endif -%}
+            <span class="cv-muted">{{ 'general.page_of' | t: page: customer.addresses.page, pages: customer.addresses.pages }}</span>
+            {%- if customer.addresses.next_url != blank -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ customer.addresses.next_url }}#addresses">{{ 'general.next' | t }}</a>{%- endif -%}
+          </nav>
+        {%- endif -%}
+      {%- else -%}
+        <p class="cv-muted">{{ 'account.no_addresses' | t }}</p>
+      {%- endif -%}
+    </section>
+
+    <section class="cv-ac__panel" data-cv-panel="profile">
+      <h2 class="cv-h3">{{ 'account.profile' | t }}</h2>
+      {% form 'profile_update', class: 'cv-ac__pform' %}
+        <div class="cv-ac__two">
+          <label class="cv-field"><span class="cv-label">{{ 'forms.first_name' | t }}</span><input class="cv-input" name="first_name" value="{{ customer.first_name }}" maxlength="100" autocomplete="given-name"></label>
+          <label class="cv-field"><span class="cv-label">{{ 'forms.last_name' | t }}</span><input class="cv-input" name="last_name" value="{{ customer.last_name }}" maxlength="100" autocomplete="family-name"></label>
+        </div>
+        {%- comment -%} The hidden field is what is sent: it keeps the saved birthday until all three lists are set (or all cleared),
+        so a partial choice or a page without the script never erases it. {%- endcomment -%}
+        <div class="cv-field" role="group" aria-labelledby="cv-ac-bday-label">
+          <span class="cv-label" id="cv-ac-bday-label">{{ 'account.birthday' | t }}</span>
+          <div class="cv-ac__bday" data-cv-bday data-value="{{ customer.date_of_birth }}">
+            <select class="cv-input" data-cv-bday-d aria-label="{{ 'account.bday_day' | t }}"><option value="">{{ 'account.bday_day' | t }}</option>{%- for i in (1..31) -%}<option value="{{ i }}">{{ i }}</option>{%- endfor -%}</select>
+            <select class="cv-input" data-cv-bday-m aria-label="{{ 'account.bday_month' | t }}"><option value="">{{ 'account.bday_month' | t }}</option>{%- for i in (1..12) -%}<option value="{{ i }}">{{ i }}</option>{%- endfor -%}</select>
+            <select class="cv-input" data-cv-bday-y aria-label="{{ 'account.bday_year' | t }}"><option value="">{{ 'account.bday_year' | t }}</option></select>
+            <input type="hidden" name="date_of_birth" value="{{ customer.date_of_birth }}" data-cv-bday-out>
+          </div>
+        </div>
+        {%- if customer_settings.collect_marketing_consent and customer.email != blank -%}
+          <input type="hidden" name="accepts_marketing" value="false">
+          <label class="cv-check"><input type="checkbox" name="accepts_marketing" value="true"{% if customer.accepts_marketing %} checked{% endif %}> {{ 'auth.marketing' | t }}</label>
+        {%- endif -%}
+        <button class="cv-btn" type="submit">{{ 'account.save' | t }}</button>
+      {% endform %}
+      {%- if customer.email != blank or customer.phone != blank -%}
+        <dl class="cv-ac__clist" aria-label="{{ 'account.contact' | t }}">
+          {%- if customer.email != blank -%}<div><dt>{{ 'forms.email' | t }}</dt><dd>{{ customer.email }}{% if customer.email_verified == false %} <span class="cv-ac__unconf">{{ 'account.unconfirmed' | t }}</span>{% endif %}</dd></div>{%- endif -%}
+          {%- if customer.phone != blank -%}<div><dt>{{ 'forms.phone' | t }}</dt><dd><bdi dir="ltr">{{ customer.phone_display }}</bdi>{% if customer.phone_verified == false %} <span class="cv-ac__unconf">{{ 'account.unconfirmed' | t }}</span>{% endif %}</dd></div>{%- endif -%}
+        </dl>
+      {%- endif -%}
+      {%- if customer.email == blank -%}
+        {% form 'email_add', class: 'cv-ac__inline' %}
+          <label class="cv-field"><span class="cv-label">{{ 'account.add_email' | t }}</span><input class="cv-input" type="email" name="email" required autocomplete="email"></label>
+          <button class="cv-btn cv-btn--outline" type="submit">{{ 'account.add' | t }}</button>
+        {% endform %}
+      {%- endif -%}
+      {%- if customer.phone == blank and customer_settings.phone_login_available -%}
+        {% form 'phone_add', class: 'cv-ac__inline cv-ac__inline--phone' %}
+          {%- assign cv_ph_id = 'cv-ac-phone' -%}{%- assign cv_ph_name = 'phone_number' -%}{%- assign cv_ph_value = '' -%}
+          {%- assign cv_ph_label = 'account.add_phone' | t -%}{%- assign cv_ph_required = true -%}{%- assign cv_ph_country = '' -%}
+          {%- assign cv_ph_disabled = false -%}{%- assign cv_ph_describedby = '' -%}{%- assign cv_ph_auto = '' -%}
+{%- comment -%}partial:phone-field{%- endcomment -%}
+{%- comment -%} Phone field with a searchable country picker (country code, name and dial code from ctx.phone_countries; the section needs
+phone_countries and customer_settings in ctx_needs). Set every input before each use, since assigns carry over:
+cv_ph_id (unique id), cv_ph_name (the field the action takes), cv_ph_value (saved number, E.164), cv_ph_label,
+cv_ph_required and cv_ph_disabled (true/false), cv_ph_country (ISO code to start from when it is a phone country; then the store's
+default_phone_country, then the first country), cv_ph_describedby (extra hint id or blank), cv_ph_auto (autocomplete, blank: tel).
+The script sends one E.164 number (+ and digits) under cv_ph_name. Without it, the number field itself is sent and asks for a
++ number; the hint shows the starting country's example in international form. {%- endcomment -%}
+{%- assign cv_ph_start = phone_countries.first -%}
+{%- for pc in phone_countries -%}{%- if pc.iso_code == customer_settings.default_phone_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}
+{%- if cv_ph_country != blank -%}{%- for pc in phone_countries -%}{%- if pc.iso_code == cv_ph_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- assign cv_ph_ex = '' -%}{%- if cv_ph_start.example != blank -%}{%- assign cv_ph_ex = cv_ph_start.dial_code | append: ' ' | append: cv_ph_start.example -%}{%- endif -%}
+{%- assign cv_ph_desc = cv_ph_id | append: '-hint' -%}{%- if cv_ph_describedby != blank -%}{%- assign cv_ph_desc = cv_ph_desc | append: ' ' | append: cv_ph_describedby -%}{%- endif -%}
+{%- assign cv_ph_ac = cv_ph_auto | default: 'tel' -%}
+<div class="cv-field cv-phone" data-cv-phone data-default="{{ cv_ph_start.iso_code }}" data-countries="{{ phone_countries | json | escape }}"
+     data-label-selected="{{ 'phone.selected' | t: country: '__C__' }}" data-label-example="{{ 'phone.example' | t: example: '__EX__' }}">
+  <label class="cv-label" for="{{ cv_ph_id }}">{{ cv_ph_label }}</label>
+  <div class="cv-phone__row" data-cv-phone-row>
+    <button class="cv-phone__cc" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="{{ cv_ph_id }}-pop" hidden data-cv-phone-cc>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <svg class="cv-phone__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </button>
+    <span class="cv-phone__cc cv-phone__cc--fixed" id="{{ cv_ph_id }}-cc" hidden data-cv-phone-fixed>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </span>
+    <input class="cv-input cv-phone__num" id="{{ cv_ph_id }}" type="tel" name="{{ cv_ph_name }}" value="{{ cv_ph_value }}" autocomplete="{{ cv_ph_ac }}" inputmode="tel" dir="ltr" maxlength="24"
+      pattern="[+][1-9][\d \(\)\-\.]{5,22}" title="{{ 'products.gift_phone_plus' | t }}"{% if cv_ph_ex != blank %} placeholder="{{ cv_ph_ex }}"{% endif %} aria-describedby="{{ cv_ph_desc }}"{% if cv_ph_required %} required{% endif %}{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-num>
+    <input type="hidden" value="{{ cv_ph_value }}" data-name="{{ cv_ph_name }}"{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-out>
+  </div>
+  <p class="cv-sr cv-phone__hint" id="{{ cv_ph_id }}-hint" data-cv-phone-hint{% if cv_ph_ex == blank %} hidden{% endif %}>{%- if cv_ph_ex != blank -%}{{ 'phone.example' | t: example: cv_ph_ex }}{%- endif -%}</p>
+  <div class="cv-phone__pop" id="{{ cv_ph_id }}-pop" hidden data-cv-phone-pop>
+    <input class="cv-input cv-phone__search" type="search" role="combobox" aria-expanded="true" aria-controls="{{ cv_ph_id }}-list" aria-autocomplete="list"
+           autocomplete="off" spellcheck="false" placeholder="{{ 'phone.search' | t }}" aria-label="{{ 'phone.search' | t }}" data-cv-phone-q>
+    <ul class="cv-phone__list" id="{{ cv_ph_id }}-list" role="listbox" aria-label="{{ 'phone.country' | t }}" data-cv-phone-list></ul>
+    <p class="cv-muted cv-phone__none" role="status" data-cv-phone-none></p>
+    <span hidden data-cv-phone-none-text>{{ 'phone.no_results' | t }}</span>
+  </div>
+</div>
+{%- comment -%}/partial:phone-field{%- endcomment -%}
+          <button class="cv-btn cv-btn--outline" type="submit">{{ 'account.add' | t }}</button>
+        {% endform %}
+      {%- endif -%}
+      {%- if customer_settings.privacy_request_url != blank -%}<p class="cv-ac__privacy"><a class="cv-tbtn" href="{{ customer_settings.privacy_request_url }}">{{ 'account.privacy_request' | t }}</a></p>{%- endif -%}
+    </section>
+    </div>
+    </div>
+    {%- endif -%}
+  </div>
+</section>
+{%- if customer.logged_in -%}
+<script type="application/json" data-cv-afields-data>{{ customer.address_form.fields_by_country | json }}</script>
+<script type="application/json" data-cv-acountries-data>{{ customer.address_form.countries | json }}</script>
+<script type="application/json" data-cv-alookup-data>{{ customer.address_form.postal_lookup | json }}</script>
+<script>
+(function () {
+  // Birthday lists: month names in the page language, the last 100 years, days that exist in the chosen month.
+  // Runs again on every re-render: the platform patches the section in place, so an element keeps its
+  // properties while its options and data-value come back fresh from the server.
+  function setup(b) {
+    var d = b.querySelector("[data-cv-bday-d]"), m = b.querySelector("[data-cv-bday-m]"), y = b.querySelector("[data-cv-bday-y]"), out = b.querySelector("[data-cv-bday-out]");
+    var lang = document.documentElement.lang || undefined, fmt = window.Intl ? new Intl.DateTimeFormat(lang, { month: "long", timeZone: "UTC" }) : null;
+    if (fmt) for (var i = 1; i <= 12; i++) m.options[i].textContent = fmt.format(new Date(Date.UTC(2000, i - 1, 1)));
+    if (y.options.length <= 1) {
+      var now = new Date().getFullYear();
+      for (var yr = now; yr >= now - 100; yr--) { var o = document.createElement("option"); o.value = String(yr); o.textContent = String(yr); y.appendChild(o); }
+    }
+    var saved = /^(\d{4})-(\d{2})-(\d{2})/.exec(b.getAttribute("data-value") || "");
+    if (saved) { y.value = String(+saved[1]); m.value = String(+saved[2]); d.value = String(+saved[3]); }
+    function days() {
+      var max = (y.value && m.value) ? new Date(Date.UTC(+y.value, +m.value, 0)).getUTCDate() : 31;
+      for (var k = 29; k <= 31; k++) d.options[k].hidden = k > max;
+      if (+d.value > max) d.value = String(max);
+    }
+    days();
+    if (b.__cvBday) return; b.__cvBday = true;
+    function sync() {
+      days();
+      if (d.value && m.value && y.value) out.value = y.value + "-" + ("0" + m.value).slice(-2) + "-" + ("0" + d.value).slice(-2);
+      else if (!d.value && !m.value && !y.value) out.value = "";
+      else out.value = "incomplete";
+    }
+    [d, m, y].forEach(function (s) { s.addEventListener("change", sync); });
+  }
+  function all() { document.querySelectorAll("[data-cv-bday]").forEach(setup); }
+  all();
+  document.addEventListener("tf:section-rendered", all);
+})();
+</script>
+<script>
+(function () {
+  if (window.__cvAcTabs) return; window.__cvAcTabs = true;
+  function show() {
+    var root = document.querySelector("[data-cv-tabs]"); if (!root) return;
+    var want = (location.hash || "").slice(1), tabs = root.querySelectorAll("[data-cv-tab]"), names = [];
+    tabs.forEach(function (t) { names.push(t.getAttribute("data-cv-tab")); });
+    if (names.indexOf(want) < 0) { var open = root.querySelector("[data-cv-open]"); want = open ? open.getAttribute("data-cv-panel") : names[0]; }
+    root.classList.add("is-tabbed");
+    tabs.forEach(function (t) { var on = t.getAttribute("data-cv-tab") === want; t.classList.toggle("is-on", on); if (on) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current"); });
+    root.querySelectorAll("[data-cv-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-cv-panel") !== want; });
+  }
+  show();
+  addEventListener("hashchange", show);
+  // The account section re-renders after each change and after a soft navigation; keep the open tab.
+  document.addEventListener("tf:section-rendered", show);
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-cv-tab]"); if (!t) return;
+    e.preventDefault(); history.replaceState(null, "", "#" + t.getAttribute("data-cv-tab")); show();
+  });
+})();
+</script>
+<script>
+(function () {
+  if (window.__cvAccount) return; window.__cvAccount = true;
+  // The platform lists each country's address fields (customer.address_form.fields_by_country). Changing the
+  // country swaps in that country's fields (Country first), in its order and wording, keeping what was typed in the fields both have.
+  // The country choices are customer.address_form.countries; the Country field in each list carries none.
+  var byCountry = {}, countries = [], lookup = {};
+  function load() {
+    var el = document.querySelector("[data-cv-afields-data]"), cl = document.querySelector("[data-cv-acountries-data]"), ll = document.querySelector("[data-cv-alookup-data]");
+    try { byCountry = JSON.parse(el.textContent) || {}; } catch (err) {}
+    try { countries = JSON.parse(cl.textContent) || []; } catch (err) {}
+    try { lookup = JSON.parse(ll.textContent) || {}; } catch (err) {}
+  }
+  function render(form, cc) {
+    var box = form.querySelector("[data-cv-afields]"); if (!box) return;
+    var keep = {}, frag = document.createDocumentFragment(), row = null, line = null;
+    box.querySelectorAll("[name]").forEach(function (i) { keep[i.name] = i.value; });
+    (byCountry[cc] || []).forEach(function (f) {
+      if (f.key === "phone") return;
+      if (f.row !== line) { row = document.createElement("div"); row.className = "cv-ac__two"; frag.appendChild(row); line = f.row; }
+      var lab = document.createElement("label"), span = document.createElement("span"), el;
+      lab.className = "cv-field"; span.className = "cv-label"; span.textContent = f.label; lab.appendChild(span);
+      if (f.key === "country_code") {
+        el = document.createElement("select"); el.setAttribute("data-cv-country", "");
+        countries.forEach(function (c) { var op = document.createElement("option"); op.value = c.iso_code; op.textContent = c.name; el.appendChild(op); });
+      } else if (f.options && f.options.length) {
+        el = document.createElement("select");
+        var none = document.createElement("option"); none.value = ""; none.textContent = "\u2014"; el.appendChild(none);
+        f.options.forEach(function (o) { var op = document.createElement("option"); op.value = o.value; op.textContent = o.label; el.appendChild(op); });
+      } else {
+        el = document.createElement("input"); el.inputMode = f.input_mode; el.maxLength = f.max_length;
+        if (f.pattern) el.pattern = f.pattern;
+        if (f.placeholder) el.placeholder = f.placeholder;
+      }
+      el.className = "cv-input"; el.name = f.key; el.autocomplete = f.autocomplete; el.required = !!f.required;
+      if (keep[f.key] != null) el.value = keep[f.key];
+      lab.appendChild(el); row.appendChild(lab);
+    });
+    box.replaceChildren(frag);
+  }
+  load();
+  document.addEventListener("tf:section-rendered", load);
+  document.addEventListener("change", function (e) { if (e.target.matches && e.target.matches("[data-cv-country]")) render(e.target.form, e.target.value); });
+  // A complete postal code fills the state, where the platform's postal lookup knows the country
+  // (customer.address_form.postal_lookup: India's PINs). The shopper can still change it; an unknown code changes nothing.
+  var asked = new WeakMap();
+  document.addEventListener("input", function (e) {
+    var t = e.target;
+    if (!t.matches || !t.matches('[data-cv-afields] [name="postal_code"]') || !lookup.url) return;
+    var form = t.form, ci = form && form.querySelector('[name="country_code"]'), cc = ci ? ci.value : "";
+    if ((lookup.countries || []).indexOf(cc) < 0) return;
+    var v = t.value.replace(/\s+/g, "");
+    if (!v || (t.pattern && !new RegExp("^(?:" + t.pattern + ")$").test(v)) || asked.get(form) === cc + v) return;
+    asked.set(form, cc + v);
+    fetch(lookup.url + "?country_code=" + encodeURIComponent(cc) + "&postal_code=" + encodeURIComponent(v), { headers: { Accept: "application/json" } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        var p = form.querySelector('[name="province_code"]');
+        if (!d || !d.province_code || !p || t.value.replace(/\s+/g, "") !== v) return;
+        p.value = d.province_code;
+        p.dispatchEvent(new Event("change", { bubbles: true }));
+      })
+      .catch(function () {});
+  });
+})();
+</script>
+<script>
+(function () {
+  if (window.__cvVerify) return; window.__cvVerify = true;
+  // Email confirmation: a sent code opens the code step with the platform's message; refusals show in place.
+  function box(form) { return form && form.closest && form.closest("[data-cv-verify]"); }
+  function say(v, ok, msg) {
+    var n = v.querySelector("[data-cv-verify-notice]"); if (!n) return false;
+    n.textContent = msg || ""; n.hidden = !msg;
+    n.className = "cv-notice " + (ok ? "cv-notice--ok" : "cv-notice--error"); n.setAttribute("role", ok ? "status" : "alert");
+    return !!msg;
+  }
+  var sent = null;
+  function open(v) {
+    say(v, true, sent.msg);
+    var step = v.querySelector("[data-cv-verify-step]"); if (step) step.hidden = false;
+    var send = v.querySelector("[data-cv-verify-send]"); if (send && send.getAttribute("data-label-again")) send.textContent = send.getAttribute("data-label-again");
+    var code = v.querySelector("[name=code]"); if (code) { code.value = ""; code.focus(); }
+  }
+  document.addEventListener("tf:action-success", function (e) {
+    var d = e.detail || {}, v = box(d.form);
+    if (!v || d.action !== "email_add" || (d.form && d.form.querySelector("[name=code]"))) return;
+    sent = { msg: d.result && d.result.response && d.result.response.message };
+    open(v);
+  });
+  // If the account section is refreshed after the send, its new copy opens at the code step too.
+  document.addEventListener("tf:action-done", function () {
+    var v = sent && document.querySelector("[data-cv-verify]"), step = v && v.querySelector("[data-cv-verify-step]");
+    if (step && step.hidden) open(v);
+  });
+  document.addEventListener("tf:action-error", function (e) {
+    var d = e.detail || {}, v = box(d.form), errs = d.result && d.result.user_errors;
+    if (!v || !errs || !errs.length) return;
+    if (say(v, false, errs.map(function (u) { return u.message; }).filter(Boolean).join(" "))) e.preventDefault();
+  });
+})();
+</script>
+{%- comment -%}partial:phone-script{%- endcomment -%}
+<script>
+(function () {
+  // Phone fields ([data-cv-phone]): a country button (country code and dial code) opens a searchable list of the
+  // store's phone countries. The visible field then takes the national number, and a hidden field sends
+  // one E.164 number (+ and digits) under the original name. A number typed or pasted with + or 00 moves
+  // to its country. Without the script, or without country data, the field takes an international number.
+  if (window.__cvPhone) return; window.__cvPhone = true;
+  // Countries sharing a dial code: a number is shown under the code's main country unless the current or default country shares it.
+  var MAIN = { "1": "US", "7": "RU", "39": "IT", "44": "GB", "47": "NO", "61": "AU", "212": "MA", "262": "RE", "290": "SH", "358": "FI", "590": "GP", "599": "CW" };
+  // National trunk prefixes that the international number drops: [prefix, national length after it (0: any)].
+  // Most countries use a single 0; these keep their leading 0 (it is part of the number) or use another prefix.
+  var TRUNK = { IT: null, SM: null, VA: null, CI: null, CG: null, GA: null, HU: ["06", 0], RU: ["8", 10], KZ: ["8", 10], BY: ["80", 9], LT: ["8", 8], TM: ["8", 8], TJ: ["8", 9] };
+  var TOP = typeof HTMLElement !== "undefined" && typeof HTMLElement.prototype.showPopover === "function";
+  var lists = {};
+  function digits(s) { return String(s || "").replace(/\D/g, ""); }
+  function fold(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+  // The country's ISO code in a small badge: emoji flags render as two letters on Windows anyway.
+  function flagOf(c) {
+    var iso = String(c.iso_code || "").toUpperCase();
+    return /^[A-Z]{2}$/.test(iso) ? iso : "";
+  }
+  // Fields on one page share the same list; it is parsed and sorted once.
+  function countries(root) {
+    var raw = root.getAttribute("data-countries") || "[]";
+    if (lists[raw]) return lists[raw];
+    var list = []; try { list = JSON.parse(raw); } catch (_) {}
+    list = (list || []).filter(function (c) { return c && c.iso_code && c.name && /^\+[0-9]+$/.test(c.dial_code || ""); });
+    var coll = window.Intl && Intl.Collator ? new Intl.Collator(document.documentElement.lang || undefined, { sensitivity: "base" }) : null;
+    list.sort(function (a, b) { return coll ? coll.compare(a.name, b.name) : (a.name < b.name ? -1 : 1); });
+    return (lists[raw] = list);
+  }
+  // "+44 (0)7700 900123" or "0044 7700 900123" -> { c: GB, rest: "7700900123" }. While the code is still being
+  // typed (a longer dial code could match, or nothing follows it) it waits unless final.
+  function detect(st, s, final) {
+    var compact = String(s || "").replace(/\(0\)/g, "").replace(/[^0-9+]/g, "");
+    var intl = compact.charAt(0) === "+" ? compact.slice(1) : /^00/.test(compact) ? compact.slice(2) : null;
+    if (intl === null) return null;
+    var d = digits(intl), best = null, bl = 0;
+    if (!final && st.list.some(function (c) { var dc = digits(c.dial_code); return dc.length > d.length && dc.indexOf(d) === 0; })) return null;
+    st.list.forEach(function (c) {
+      var dc = digits(c.dial_code);
+      if (!dc || d.indexOf(dc) !== 0 || dc.length < bl) return;
+      if (dc.length > bl) { best = c; bl = dc.length; return; }
+      var rank = function (x) { return x === st.cur ? 3 : x === st.def ? 2 : MAIN[dc] === x.iso_code ? 1 : 0; };
+      if (rank(c) > rank(best)) best = c;
+    });
+    if (!best) return null;
+    var rest = d.slice(bl);
+    if (!final && !rest) return null;
+    return { c: best, rest: rest };
+  }
+  function national(c, d) {
+    var t = TRUNK.hasOwnProperty(c.iso_code) ? TRUNK[c.iso_code] : digits(c.dial_code) === "1" ? ["1", 10] : ["0", 0];
+    if (t && d.indexOf(t[0]) === 0 && (!t[1] || d.length === t[0].length + t[1])) return d.slice(t[0].length);
+    return d;
+  }
+  // The typed national number, cut to the country's longest number (a leading trunk prefix such as 0 is extra).
+  function cap(c, d) {
+    var max = +c.max_digits || 0;
+    if (!max) return d.slice(0, 15);
+    var extra = d.length - national(c, d).length;
+    return d.slice(0, extra + max);
+  }
+  // Groups digits like the country's sample number ("081 234 5678"); the sample's trunk prefix is
+  // left out when the shopper did not type one. Digits beyond the sample follow after a space.
+  function group(c, d) {
+    var ex = String(c.example || ""), exd = digits(ex);
+    if (!d || !exd) return d;
+    var lead = exd.length - national(c, exd).length;
+    if (lead && d.slice(0, lead) !== exd.slice(0, lead)) {
+      var seen = 0, i = 0;
+      while (i < ex.length && seen < lead) { if (/\d/.test(ex.charAt(i))) seen++; i++; }
+      ex = ex.slice(i).replace(/^[^\d(]+/, "");
+    }
+    var out = "", k = 0;
+    for (var j = 0; j < ex.length && k < d.length; j++) out += /\d/.test(ex.charAt(j)) ? d.charAt(k++) : ex.charAt(j);
+    return k < d.length ? out + " " + d.slice(k) : out;
+  }
+  // A national number as typed: digits only, within the country's length, grouped. The caret keeps
+  // its place among the digits, so editing in the middle of the number works.
+  function shape(st) {
+    var el = st.num, v = String(el.value || "");
+    if (/^\s*(\+|00)/.test(v)) { if (v.length > 20) el.value = v.slice(0, 20); return; }
+    var at = el.selectionStart == null ? v.length : el.selectionStart;
+    var before = digits(v.slice(0, at)).length, d = cap(st.cur, digits(v)), next = group(st.cur, d);
+    if (next === v) return;
+    el.value = next;
+    var pos = 0, n = 0;
+    while (pos < next.length && n < Math.min(before, d.length)) { if (/\d/.test(next.charAt(pos))) n++; pos++; }
+    if (document.activeElement === el) el.setSelectionRange(pos, pos);
+  }
+  function value(st) {
+    var s = String(st.num.value || "").trim(), compact = s.replace(/\(0\)/g, "").replace(/[^0-9+]/g, ""), d = digits(compact);
+    if (!d) return "";
+    if (compact.charAt(0) === "+") return "+" + d;
+    if (/^00/.test(compact)) return "+" + d.slice(2);
+    return st.cur.dial_code + national(st.cur, d);
+  }
+  function sync(st) { st.out.value = value(st); }
+  function load(st, s) {
+    var hit = detect(st, s, true);
+    if (hit) { st.cur = hit.c; st.num.value = group(hit.c, cap(hit.c, hit.rest)); } else st.num.value = String(s || "").trim();
+  }
+  function setup(root) {
+    if (root.__cvPh !== undefined) return root.__cvPh;
+    root.__cvPh = null;
+    var list = countries(root);
+    if (!list.length) return null;
+    var st = {
+      root: root, list: list, num: root.querySelector("[data-cv-phone-num]"), out: root.querySelector("[data-cv-phone-out]"),
+      btn: root.querySelector("[data-cv-phone-cc]"), pop: root.querySelector("[data-cv-phone-pop]"), q: root.querySelector("[data-cv-phone-q]"),
+      ul: root.querySelector("[data-cv-phone-list]"), row: root.querySelector("[data-cv-phone-row]"), cur: null, shown: [], one: list.length === 1
+    };
+    var want = String(root.getAttribute("data-default") || "").toUpperCase();
+    st.def = list.filter(function (c) { return c.iso_code === want; })[0] || list[0];
+    // Setting a hidden input's value rewrites its default, so the saved number is kept for a form reset.
+    st.cur = st.def; st.saved = st.out.getAttribute("value") || st.num.getAttribute("value") || "";
+    load(st, st.saved);
+    // From here the visible field holds the national number and the hidden one is sent.
+    st.out.name = st.out.getAttribute("data-name"); st.num.removeAttribute("name");
+    st.num.removeAttribute("pattern"); st.num.removeAttribute("title");
+    if (st.num.getAttribute("autocomplete") === "tel") st.num.setAttribute("autocomplete", "tel-national");
+    if (st.one) {
+      // A single country is a fixed prefix, read with the number.
+      var fx = root.querySelector("[data-cv-phone-fixed]");
+      fx.hidden = false; st.btn.remove(); st.btn = null;
+      st.num.setAttribute("aria-describedby", (fx.id + " " + (st.num.getAttribute("aria-describedby") || "")).trim());
+    } else {
+      st.btn.hidden = false;
+      if (TOP) { st.pop.setAttribute("popover", "manual"); st.pop.hidden = false; }
+    }
+    root.classList.add("is-enhanced");
+    root.__cvPh = st;
+    choose(st, st.cur, false);
+    return st;
+  }
+  function choose(st, c, focus) {
+    st.cur = c;
+    var root = st.root, label = (root.getAttribute("data-label-selected") || "").replace("__C__", c.name + " (" + c.dial_code + ")");
+    root.querySelectorAll("[data-cv-phone-flag]").forEach(function (el) { el.textContent = flagOf(c); });
+    root.querySelectorAll("[data-cv-phone-dial]").forEach(function (el) { el.textContent = c.dial_code; });
+    root.querySelectorAll("[data-cv-phone-cc-label]").forEach(function (el) { el.textContent = label; });
+    var hint = root.querySelector("[data-cv-phone-hint]");
+    if (hint) { hint.textContent = c.example ? (root.getAttribute("data-label-example") || "").replace("__EX__", c.example) : ""; hint.hidden = !c.example; }
+    if (c.example) st.num.setAttribute("placeholder", c.example); else st.num.removeAttribute("placeholder");
+    shape(st);
+    sync(st);
+    if (focus) st.num.focus();
+  }
+  function render(st) {
+    var raw = st.q.value.trim(), q = fold(raw), qd = digits(raw);
+    // Names that start with the search come first, then names with a word starting with it, then the rest.
+    function rank(c) {
+      var n = fold(c.name);
+      if (c.iso_code.toLowerCase() === q || n.indexOf(q) === 0) return 0;
+      if (new RegExp("[\\s(\\-]" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).test(n)) return 1;
+      return 2;
+    }
+    st.shown = st.list.filter(function (c) {
+      return !raw || fold(c.name).indexOf(q) !== -1 || c.iso_code.toLowerCase() === q || (qd && digits(c.dial_code).indexOf(qd) === 0);
+    });
+    if (q && !qd) st.shown = st.shown.map(function (c, i) { return [rank(c), i, c]; }).sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }).map(function (x) { return x[2]; });
+    var frag = document.createDocumentFragment();
+    st.shown.forEach(function (c) {
+      var li = document.createElement("li");
+      li.id = st.ul.id + "-" + c.iso_code; li.className = "cv-phone__opt" + (c === st.cur ? " is-current" : "");
+      li.setAttribute("role", "option"); li.setAttribute("aria-selected", "false"); li.setAttribute("data-iso", c.iso_code);
+      var f = document.createElement("span"); f.className = "cv-phone__oflag"; f.setAttribute("aria-hidden", "true"); f.textContent = flagOf(c);
+      var n = document.createElement("span"); n.className = "cv-phone__oname"; n.textContent = c.name;
+      var dl = document.createElement("bdi"); dl.className = "cv-phone__odial"; dl.setAttribute("dir", "ltr"); dl.textContent = c.dial_code;
+      li.appendChild(f); li.appendChild(n); li.appendChild(dl); frag.appendChild(li);
+    });
+    st.ul.replaceChildren(frag);
+    st.root.querySelector("[data-cv-phone-none]").textContent = st.shown.length ? "" : st.root.querySelector("[data-cv-phone-none-text]").textContent;
+    var at = raw ? 0 : st.shown.indexOf(st.cur);
+    active(st, st.shown.length ? Math.max(0, at) : -1);
+  }
+  function active(st, i) {
+    var opts = st.ul.children;
+    st.at = i;
+    for (var k = 0; k < opts.length; k++) { opts[k].setAttribute("aria-selected", k === i ? "true" : "false"); opts[k].classList.toggle("is-active", k === i); }
+    if (i >= 0 && opts[i]) { st.q.setAttribute("aria-activedescendant", opts[i].id); opts[i].scrollIntoView({ block: "nearest" }); }
+    else st.q.removeAttribute("aria-activedescendant");
+  }
+  // In the top layer the list is never clipped by a drawer or panel; it sits under the field, or above it when there is more room there.
+  function place(st) {
+    if (!TOP) return;
+    var r = st.row.getBoundingClientRect(), vh = window.innerHeight, below = vh - r.bottom - 12, above = r.top - 12, up = below < 240 && above > below;
+    // At least 300px wide in a narrow row (a cart line), kept inside the window and aligned to the field's start edge.
+    var vw = document.documentElement.clientWidth, w = Math.min(Math.max(r.width, 300), vw - 16);
+    var x = getComputedStyle(st.root).direction === "rtl" ? r.right - w : r.left, s = st.pop.style;
+    s.left = Math.min(Math.max(8, x), vw - 8 - w) + "px"; s.width = w + "px";
+    if (up) { s.top = "auto"; s.bottom = (vh - r.top + 6) + "px"; } else { s.bottom = "auto"; s.top = (r.bottom + 6) + "px"; }
+    s.setProperty("--cv-phone-room", Math.max(140, (up ? above : below) - 80) + "px");
+  }
+  function isOpen(st) { return !!st && (TOP ? st.pop.matches(":popover-open") : !st.pop.hidden); }
+  var openSt = null;
+  function open(st) {
+    if (openSt && openSt !== st) close(openSt, false);
+    openSt = st; st.btn.setAttribute("aria-expanded", "true");
+    if (TOP) { st.pop.showPopover(); place(st); } else st.pop.hidden = false;
+    st.q.value = ""; render(st); st.q.focus();
+  }
+  function close(st, back) {
+    if (!isOpen(st)) return;
+    if (TOP) st.pop.hidePopover(); else st.pop.hidden = true;
+    st.btn.setAttribute("aria-expanded", "false");
+    if (openSt === st) openSt = null;
+    if (back) st.btn.focus();
+  }
+  function stOf(el) { var root = el && el.closest && el.closest("[data-cv-phone]"); return root ? setup(root) : null; }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-cv-phone-cc]");
+    if (b) { var st = stOf(b); if (st) { if (isOpen(st)) close(st, true); else open(st); } return; }
+    var o = e.target.closest && e.target.closest(".cv-phone__opt");
+    if (o) {
+      var s2 = stOf(o), c = s2 && s2.list.filter(function (x) { return x.iso_code === o.getAttribute("data-iso"); })[0];
+      if (c) { close(s2, false); choose(s2, c, true); }
+      return;
+    }
+    if (openSt && !openSt.root.contains(e.target)) close(openSt, false);
+  });
+  document.addEventListener("input", function (e) {
+    if (e.target.matches && e.target.matches("[data-cv-phone-q]")) { var st = stOf(e.target); if (st) render(st); return; }
+    if (e.target.matches && e.target.matches("[data-cv-phone-num]")) {
+      var s2 = stOf(e.target); if (!s2) return;
+      var hit = detect(s2, s2.num.value, false);
+      if (hit && !s2.one) { s2.num.value = hit.rest; choose(s2, hit.c, false); } else { shape(s2); sync(s2); }
+    }
+  });
+  document.addEventListener("focusout", function (e) {
+    if (!(e.target.matches && e.target.matches("[data-cv-phone-num]"))) return;
+    var st = stOf(e.target), hit = st && !st.one && detect(st, st.num.value, true);
+    if (hit) { st.num.value = hit.rest; choose(st, hit.c, false); }
+  });
+  // Only digits and the usual separators can be typed; a letter never reaches the field.
+  document.addEventListener("beforeinput", function (e) {
+    if (!(e.target.matches && e.target.matches("[data-cv-phone-num]")) || !e.data || !/^insert/.test(e.inputType)) return;
+    if (/[^\d\s+()\-.]/.test(e.data) && !/\d/.test(e.data)) e.preventDefault();
+  });
+  // Escape closes only the list: caught on the window before a drawer or dialog sees it.
+  addEventListener("keydown", function (e) {
+    if (e.key !== "Escape" || !openSt || !openSt.root.contains(e.target)) return;
+    e.preventDefault(); e.stopPropagation(); close(openSt, true);
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    if (!(e.target.matches && e.target.matches("[data-cv-phone-q]"))) return;
+    var st = stOf(e.target); if (!st) return;
+    var n = st.shown.length;
+    if (e.key === "ArrowDown") { e.preventDefault(); if (n) active(st, (st.at + 1) % n); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); if (n) active(st, (st.at - 1 + n) % n); }
+    else if (e.key === "Home" && n) { e.preventDefault(); active(st, 0); }
+    else if (e.key === "End" && n) { e.preventDefault(); active(st, n - 1); }
+    else if (e.key === "Enter") { e.preventDefault(); if (st.at >= 0 && st.shown[st.at]) { var c = st.shown[st.at]; close(st, false); choose(st, c, true); } }
+    else if (e.key === "Tab") close(st, false);
+  });
+  addEventListener("resize", function () { if (openSt) place(openSt); });
+  addEventListener("scroll", function () { if (openSt) place(openSt); }, { capture: true, passive: true });
+  // The sent value is current at submit, whatever changed the number (autofill included).
+  document.addEventListener("submit", function (e) {
+    var f = e.target; if (!f || !f.querySelectorAll) return;
+    f.querySelectorAll("[data-cv-phone]").forEach(function (root) { var st = setup(root); if (st) sync(st); });
+  }, true);
+  // A reset form goes back to its saved number (or none), under that number's country.
+  document.addEventListener("reset", function (e) {
+    var f = e.target; if (!f || !f.querySelectorAll) return;
+    setTimeout(function () {
+      f.querySelectorAll("[data-cv-phone]").forEach(function (root) {
+        var st = setup(root); if (!st) return;
+        st.cur = st.def; load(st, st.saved); choose(st, st.cur, false);
+      });
+    });
+  }, true);
+  // In an address form, the address country picks the phone country while the number is still empty.
+  document.addEventListener("change", function (e) {
+    var sel = e.target.matches && e.target.matches("select[data-cv-country]") ? e.target : null;
+    var root = sel && sel.form && sel.form.querySelector("[data-cv-phone]"), st = root && setup(root);
+    if (!st || String(st.num.value || "").trim()) return;
+    var c = st.list.filter(function (x) { return x.iso_code === sel.value; })[0];
+    if (c) choose(st, c, false);
+  });
+  function all() { document.querySelectorAll("[data-cv-phone]").forEach(setup); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", all); else all();
+  var t = 0;
+  new MutationObserver(function () { cancelAnimationFrame(t); t = requestAnimationFrame(all); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+{%- comment -%}/partial:phone-script{%- endcomment -%}
+{%- endif -%}

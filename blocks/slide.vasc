@@ -1,0 +1,219 @@
+{%- comment -%} Slide (Slideshow): the merchant's image, or the theme photo the slideshow picks for its place (its --cv-fb), under the slide's content blocks.
+  "No photo" leaves the content on the colour scheme. A phone image, with its own focal point, can replace the image on small screens. {%- endcomment -%}
+{%- assign cv_fx = settings.image_focus.x -%}{%- if cv_fx == nil -%}{%- assign cv_fx = 50 -%}{%- endif -%}
+{%- assign cv_fy = settings.image_focus.y -%}{%- if cv_fy == nil -%}{%- assign cv_fy = 50 -%}{%- endif -%}
+{%- assign cv_mfx = settings.image_mobile_focus.x -%}{%- if cv_mfx == nil -%}{%- assign cv_mfx = 50 -%}{%- endif -%}
+{%- assign cv_mfy = settings.image_mobile_focus.y -%}{%- if cv_mfy == nil -%}{%- assign cv_mfy = 50 -%}{%- endif -%}
+<div class="cv-slide cv-ss--x-{{ settings.align_x | default: 'center' }}">
+  <div class="cv-ss__media"{% if settings.image %} style="--cv-focus-x: {{ cv_fx }}%; --cv-focus-y: {{ cv_fy }}%{% if settings.image_mobile %}; --cv-mfocus-x: {{ cv_mfx }}%; --cv-mfocus-y: {{ cv_mfy }}%{% endif %}"{% endif %}>
+    {%- if settings.image -%}<picture>
+      {%- if settings.image_mobile -%}<source data-tf-field="image_mobile" media="(max-width: 749px)" srcset="{{ settings.image_mobile | image_srcset: max: 1080 }}">{%- endif -%}
+      <img data-tf-field="image" src="{{ settings.image | image_url: width: 1440 }}" srcset="{{ settings.image | image_srcset: max: 2048 }}" sizes="100vw" alt="{{ settings.image_alt }}" {{ settings.image | image_loading }}></picture>
+    {%- elsif settings.fallback_photo != 'off' -%}<span class="cv-ss__fb" aria-hidden="true"></span>{%- endif -%}
+    {%- if settings.image or settings.fallback_photo != 'off' -%}<span class="cv-ss__overlay" style="opacity: {{ settings.overlay | divided_by: 100.0 }}"></span>{%- endif -%}
+  </div>
+  <div class="cv-wrap cv-ss__content">
+    <div class="cv-ss__box">{% blocks %}</div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "slide",
+  "kind": "block",
+  "icon": "gallery-horizontal",
+  "settings": [
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_focus",
+      "type": "point",
+      "image": "image",
+      "default": {
+        "x": 50,
+        "y": 50
+      },
+      "editor": {
+        "label": "focal_point",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_mobile",
+      "type": "image",
+      "editor": {
+        "label": "image_mobile",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_mobile_focus",
+      "type": "point",
+      "image": "image_mobile",
+      "default": {
+        "x": 50,
+        "y": 50
+      },
+      "editor": {
+        "label": "focal_point_mobile",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_alt",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "image_alt",
+        "group": "image"
+      }
+    },
+    {
+      "id": "fallback_photo",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "opt_photo_auto"
+        },
+        {
+          "value": "room",
+          "label": "opt_photo_room"
+        },
+        {
+          "value": "table",
+          "label": "opt_photo_table"
+        },
+        {
+          "value": "shelf",
+          "label": "opt_photo_shelf"
+        },
+        {
+          "value": "corner",
+          "label": "opt_photo_corner"
+        },
+        {
+          "value": "parcel",
+          "label": "opt_photo_parcel"
+        },
+        {
+          "value": "linen",
+          "label": "opt_photo_linen"
+        },
+        {
+          "value": "bedroom",
+          "label": "opt_photo_bedroom"
+        },
+        {
+          "value": "bench",
+          "label": "opt_photo_bench"
+        },
+        {
+          "value": "evening",
+          "label": "opt_photo_evening"
+        },
+        {
+          "value": "off",
+          "label": "opt_photo_none"
+        }
+      ],
+      "editor": {
+        "label": "fallback_photo",
+        "group": "image"
+      }
+    },
+    {
+      "id": "overlay",
+      "type": "range",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 30,
+      "editor": {
+        "label": "overlay",
+        "group": "image"
+      }
+    },
+    {
+      "id": "align_x",
+      "type": "select",
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "opt_left"
+        },
+        {
+          "value": "center",
+          "label": "opt_center"
+        },
+        {
+          "value": "right",
+          "label": "opt_right"
+        }
+      ],
+      "editor": {
+        "label": "content_horizontal",
+        "group": "layout"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "custom-vascula"
+    ],
+    "max": 8
+  },
+  "migrations": [
+    {
+      "id": "slide-copy-to-blocks",
+      "op": "settings_to_blocks",
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "text"
+          }
+        },
+        {
+          "type": "theme:buttons",
+          "settings": {
+            "button_label": "button_label",
+            "button_link": "button_link",
+            "button_style": "button_style",
+            "button_scheme": "button_scheme"
+          },
+          "when": [
+            "button_label"
+          ]
+        }
+      ],
+      "source_defaults": {
+        "heading": "@t:sections.slideshow.slide.heading",
+        "text": "@t:sections.slideshow.slide.text",
+        "button_label": "@t:sections.slideshow.slide.button_label"
+      }
+    }
+  ]
+}
+{% endschema %}

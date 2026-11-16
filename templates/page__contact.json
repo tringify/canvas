@@ -1,0 +1,35 @@
+{
+  "page_type": "page__contact",
+  "name": "Contact",
+  "sections": [
+    {
+      "type": "main-page",
+      "settings": {
+        "blocks": []
+      },
+      "position": 1
+    },
+    {
+      "type": "contact-form",
+      "settings": {
+        "blocks": [
+          {
+            "id": "contact-form-copy-to-blocks-1",
+            "type": "theme:heading",
+            "settings": {
+              "heading": "@t:sections.contact_form.heading"
+            }
+          },
+          {
+            "id": "contact-form-copy-to-blocks-2",
+            "type": "theme:text",
+            "settings": {
+              "text": "@t:sections.contact_form.text"
+            }
+          }
+        ]
+      },
+      "position": 2
+    }
+  ]
+}

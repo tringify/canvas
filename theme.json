@@ -1,0 +1,1344 @@
+{
+  "schema_version": 3,
+  "name": "Canvas",
+  "version": "1.0.0",
+  "source": "uploaded",
+  "status": "published",
+  "default_locale": "en",
+  "sections": [
+    {
+      "name": "age-gate",
+      "kind": "embed",
+      "file": "sections/age-gate.vasc",
+      "origin": "override",
+      "target": "global_overlay"
+    },
+    {
+      "name": "announcement-bar",
+      "kind": "section",
+      "file": "sections/announcement-bar.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "back-in-stock",
+      "kind": "section",
+      "file": "sections/back-in-stock.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "blog-posts",
+      "kind": "section",
+      "file": "sections/blog-posts.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "cart-drawer",
+      "kind": "embed",
+      "file": "sections/cart-drawer.vasc",
+      "origin": "override",
+      "target": "global_overlay"
+    },
+    {
+      "name": "collage",
+      "kind": "section",
+      "file": "sections/collage.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "collection-list",
+      "kind": "section",
+      "file": "sections/collection-list.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "collection-tabs",
+      "kind": "section",
+      "file": "sections/collection-tabs.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "comparison-table",
+      "kind": "section",
+      "file": "sections/comparison-table.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "consent-banner",
+      "kind": "embed",
+      "file": "sections/consent-banner.vasc",
+      "origin": "override",
+      "target": "global_overlay"
+    },
+    {
+      "name": "contact-form",
+      "kind": "section",
+      "file": "sections/contact-form.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "countdown",
+      "kind": "section",
+      "file": "sections/countdown.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "faq",
+      "kind": "section",
+      "file": "sections/faq.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "featured-products",
+      "kind": "section",
+      "file": "sections/featured-products.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "footer",
+      "kind": "layout",
+      "file": "sections/footer.vasc",
+      "origin": "override",
+      "target": "global_body_end"
+    },
+    {
+      "name": "footer-compact",
+      "kind": "layout",
+      "file": "sections/footer-compact.vasc",
+      "origin": "override",
+      "target": "global_body_end"
+    },
+    {
+      "name": "footer-wordmark",
+      "kind": "layout",
+      "file": "sections/footer-wordmark.vasc",
+      "origin": "override",
+      "target": "global_body_end"
+    },
+    {
+      "name": "header",
+      "kind": "layout",
+      "file": "sections/header.vasc",
+      "origin": "override",
+      "target": "global_body_start"
+    },
+    {
+      "name": "header-mega",
+      "kind": "layout",
+      "file": "sections/header-mega.vasc",
+      "origin": "override",
+      "target": "global_body_start"
+    },
+    {
+      "name": "header-split",
+      "kind": "layout",
+      "file": "sections/header-split.vasc",
+      "origin": "override",
+      "target": "global_body_start"
+    },
+    {
+      "name": "icon-row",
+      "kind": "section",
+      "file": "sections/icon-row.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "image-banner",
+      "kind": "section",
+      "file": "sections/image-banner.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "image-compare",
+      "kind": "section",
+      "file": "sections/image-compare.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "image-gallery",
+      "kind": "section",
+      "file": "sections/image-gallery.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "image-hotspots",
+      "kind": "section",
+      "file": "sections/image-hotspots.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "image-with-text",
+      "kind": "section",
+      "file": "sections/image-with-text.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "localization-prompt",
+      "kind": "embed",
+      "file": "sections/localization-prompt.vasc",
+      "origin": "override",
+      "target": "global_overlay"
+    },
+    {
+      "name": "logo-list",
+      "kind": "section",
+      "file": "sections/logo-list.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-404",
+      "kind": "section",
+      "file": "sections/main-404.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-account",
+      "kind": "section",
+      "file": "sections/main-account.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-article",
+      "kind": "section",
+      "file": "sections/main-article.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-blog",
+      "kind": "section",
+      "file": "sections/main-blog.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-cart",
+      "kind": "section",
+      "file": "sections/main-cart.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-collection",
+      "kind": "section",
+      "file": "sections/main-collection.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-coming-soon",
+      "kind": "section",
+      "file": "sections/main-coming-soon.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-gift-card",
+      "kind": "section",
+      "file": "sections/main-gift-card.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-list",
+      "kind": "section",
+      "file": "sections/main-list.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-login",
+      "kind": "section",
+      "file": "sections/main-login.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-maintenance",
+      "kind": "section",
+      "file": "sections/main-maintenance.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-page",
+      "kind": "section",
+      "file": "sections/main-page.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-password",
+      "kind": "section",
+      "file": "sections/main-password.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-product",
+      "kind": "section",
+      "file": "sections/main-product.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-register",
+      "kind": "section",
+      "file": "sections/main-register.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-search",
+      "kind": "section",
+      "file": "sections/main-search.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-track-order",
+      "kind": "section",
+      "file": "sections/main-track-order.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-unavailable",
+      "kind": "section",
+      "file": "sections/main-unavailable.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "main-wishlist",
+      "kind": "section",
+      "file": "sections/main-wishlist.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "marquee",
+      "kind": "section",
+      "file": "sections/marquee.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "multicolumn",
+      "kind": "section",
+      "file": "sections/multicolumn.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "new-in-your-brands",
+      "kind": "section",
+      "file": "sections/new-in-your-brands.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "newsletter",
+      "kind": "section",
+      "file": "sections/newsletter.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "picked-for-you",
+      "kind": "section",
+      "file": "sections/picked-for-you.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "popup",
+      "kind": "embed",
+      "file": "sections/popup.vasc",
+      "origin": "override",
+      "target": "global_overlay"
+    },
+    {
+      "name": "product-reviews",
+      "kind": "section",
+      "file": "sections/product-reviews.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "product-spotlight",
+      "kind": "section",
+      "file": "sections/product-spotlight.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "product-tabs",
+      "kind": "section",
+      "file": "sections/product-tabs.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "promo-grid",
+      "kind": "section",
+      "file": "sections/promo-grid.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "recently-viewed",
+      "kind": "section",
+      "file": "sections/recently-viewed.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "related-products",
+      "kind": "section",
+      "file": "sections/related-products.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "rich-text",
+      "kind": "section",
+      "file": "sections/rich-text.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "shoppable-reels",
+      "kind": "section",
+      "file": "sections/shoppable-reels.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "slideshow",
+      "kind": "section",
+      "file": "sections/slideshow.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "split-promo",
+      "kind": "section",
+      "file": "sections/split-promo.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "steps",
+      "kind": "section",
+      "file": "sections/steps.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "still-thinking",
+      "kind": "section",
+      "file": "sections/still-thinking.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "store-locations",
+      "kind": "section",
+      "file": "sections/store-locations.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "store-reviews",
+      "kind": "section",
+      "file": "sections/store-reviews.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "testimonials",
+      "kind": "section",
+      "file": "sections/testimonials.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "timeline",
+      "kind": "section",
+      "file": "sections/timeline.vasc",
+      "origin": "override"
+    },
+    {
+      "name": "video",
+      "kind": "section",
+      "file": "sections/video.vasc",
+      "origin": "override"
+    }
+  ],
+  "surfaces": [
+    {
+      "surface_key": "global_body_start",
+      "required_sections": [],
+      "allowed_sections": [
+        "announcement-bar"
+      ],
+      "required_one_of": [
+        [
+          "header",
+          "header-split",
+          "header-mega"
+        ]
+      ]
+    },
+    {
+      "surface_key": "global_body_end",
+      "required_sections": [],
+      "allowed_sections": [],
+      "required_one_of": [
+        [
+          "footer",
+          "footer-wordmark",
+          "footer-compact"
+        ]
+      ]
+    },
+    {
+      "surface_key": "global_overlay",
+      "required_sections": [
+        "cart-drawer",
+        "consent-banner",
+        "localization-prompt",
+        "age-gate"
+      ],
+      "allowed_sections": [
+        "popup"
+      ]
+    },
+    {
+      "surface_key": "home",
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "product",
+      "required_sections": [
+        "main-product"
+      ],
+      "allowed_sections": [
+        "product-reviews",
+        "related-products",
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "shop",
+      "required_sections": [
+        "main-collection"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "collection",
+      "required_sections": [
+        "main-collection"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "category",
+      "required_sections": [
+        "main-collection"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "vendor",
+      "required_sections": [
+        "main-collection"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "brand",
+      "required_sections": [
+        "main-collection"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "collection_list",
+      "required_sections": [
+        "main-list"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "category_list",
+      "required_sections": [
+        "main-list"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "vendor_list",
+      "required_sections": [
+        "main-list"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "brand_list",
+      "required_sections": [
+        "main-list"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "search",
+      "required_sections": [
+        "main-search"
+      ],
+      "allowed_sections": [
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "featured-products"
+      ]
+    },
+    {
+      "surface_key": "cart",
+      "required_sections": [
+        "main-cart"
+      ],
+      "allowed_sections": [
+        "featured-products",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "rich-text",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "wishlist",
+      "required_sections": [
+        "main-wishlist"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "account",
+      "required_sections": [
+        "main-account"
+      ],
+      "allowed_sections": []
+    },
+    {
+      "surface_key": "login",
+      "required_sections": [
+        "main-login"
+      ],
+      "allowed_sections": []
+    },
+    {
+      "surface_key": "register",
+      "required_sections": [
+        "main-register"
+      ],
+      "allowed_sections": []
+    },
+    {
+      "surface_key": "blog_list",
+      "required_sections": [
+        "main-blog"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "blog_category",
+      "required_sections": [
+        "main-blog"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "blog",
+      "required_sections": [
+        "main-article"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "page",
+      "required_sections": [
+        "main-page"
+      ],
+      "allowed_sections": [
+        "image-banner",
+        "slideshow",
+        "rich-text",
+        "featured-products",
+        "collection-list",
+        "image-with-text",
+        "multicolumn",
+        "faq",
+        "newsletter",
+        "video",
+        "shoppable-reels",
+        "testimonials",
+        "store-reviews",
+        "blog-posts",
+        "recently-viewed",
+        "picked-for-you",
+        "back-in-stock",
+        "still-thinking",
+        "new-in-your-brands",
+        "contact-form",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "policy",
+      "required_sections": [
+        "main-page"
+      ],
+      "allowed_sections": []
+    },
+    {
+      "surface_key": "track_order",
+      "required_sections": [
+        "main-track-order"
+      ],
+      "allowed_sections": []
+    },
+    {
+      "surface_key": "gift_card",
+      "required_sections": [
+        "main-gift-card"
+      ],
+      "allowed_sections": []
+    },
+    {
+      "surface_key": "not_found",
+      "required_sections": [
+        "main-404"
+      ],
+      "allowed_sections": [
+        "featured-products",
+        "collection-list",
+        "rich-text",
+        "marquee",
+        "logo-list",
+        "icon-row",
+        "product-spotlight",
+        "promo-grid",
+        "countdown",
+        "image-hotspots",
+        "product-tabs",
+        "image-compare",
+        "collage",
+        "collection-tabs",
+        "image-gallery",
+        "comparison-table",
+        "steps",
+        "timeline",
+        "store-locations",
+        "split-promo"
+      ]
+    },
+    {
+      "surface_key": "coming_soon",
+      "required_sections": [
+        "main-coming-soon"
+      ],
+      "allowed_sections": []
+    },
+    {
+      "surface_key": "maintenance",
+      "required_sections": [
+        "main-maintenance"
+      ],
+      "allowed_sections": []
+    },
+    {
+      "surface_key": "password",
+      "required_sections": [
+        "main-password"
+      ],
+      "allowed_sections": []
+    },
+    {
+      "surface_key": "unavailable",
+      "required_sections": [
+        "main-unavailable"
+      ],
+      "allowed_sections": []
+    }
+  ]
+}

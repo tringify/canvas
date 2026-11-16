@@ -1,0 +1,208 @@
+{
+  "name": "promo-grid",
+  "icon": "layout-grid",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": ""
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "editor": {
+        "label": "layout",
+        "group": "layout"
+      },
+      "default": "feature",
+      "options": [
+        {
+          "value": "feature",
+          "label": "opt_one_large_two_small"
+        },
+        {
+          "value": "equal",
+          "label": "opt_equal_tiles"
+        },
+        {
+          "value": "row",
+          "label": "opt_tall_row"
+        },
+        {
+          "value": "banner",
+          "label": "opt_banners"
+        }
+      ]
+    },
+    {
+      "id": "tile_height",
+      "type": "range",
+      "editor": {
+        "label": "height",
+        "group": "layout"
+      },
+      "min": 280,
+      "max": 720,
+      "step": 20,
+      "default": 440,
+      "unit": "px"
+    },
+    {
+      "id": "overlay",
+      "type": "range",
+      "editor": {
+        "label": "overlay",
+        "group": "design"
+      },
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 45,
+      "unit": "%"
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "promo-tile"
+    ],
+    "max": 4
+  },
+  "presets": [
+    {
+      "name": "promo-grid",
+      "category": "image",
+      "blocks": [
+        {
+          "type": "theme:promo-tile",
+          "settings": {
+            "fallback_photo": "shelf",
+            "blocks": [
+              {
+                "type": "theme:eyebrow",
+                "settings": {
+                  "text": "@t:sections.promo_grid.tile.eyebrow"
+                }
+              },
+              {
+                "type": "theme:heading",
+                "settings": {
+                  "heading": "@t:sections.promo_grid.tile.heading"
+                }
+              },
+              {
+                "type": "theme:buttons",
+                "settings": {
+                  "button_label": "@t:sections.promo_grid.tile.button_label"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "theme:promo-tile",
+          "settings": {
+            "fallback_photo": "corner",
+            "blocks": [
+              {
+                "type": "theme:eyebrow",
+                "settings": {
+                  "text": "@t:sections.promo_grid.tile.eyebrow"
+                }
+              },
+              {
+                "type": "theme:heading",
+                "settings": {
+                  "heading": "@t:content.home_essentials"
+                }
+              },
+              {
+                "type": "theme:buttons",
+                "settings": {
+                  "button_label": "@t:sections.promo_grid.tile.button_label"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "theme:promo-tile",
+          "settings": {
+            "fallback_photo": "parcel",
+            "blocks": [
+              {
+                "type": "theme:eyebrow",
+                "settings": {
+                  "text": "@t:sections.promo_grid.tile.eyebrow"
+                }
+              },
+              {
+                "type": "theme:heading",
+                "settings": {
+                  "heading": "@t:content.gift_ideas"
+                }
+              },
+              {
+                "type": "theme:buttons",
+                "settings": {
+                  "button_label": "@t:sections.promo_grid.tile.button_label"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "migrations": [
+    {
+      "id": "tile-to-theme-block",
+      "op": "rename_block",
+      "from_type": "tile",
+      "to_type": "theme:promo-tile"
+    }
+  ]
+}

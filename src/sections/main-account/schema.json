@@ -1,0 +1,31 @@
+{
+  "name": "main-account",
+  "icon": "user",
+  "ctx_needs": [
+    "customer",
+    "customer.addresses",
+    "customer.orders",
+    "customer.gift_cards",
+    "customer.store_credit",
+    "customer_settings",
+    "phone_countries",
+    "routes",
+    "form_notice",
+    "form_error",
+    "csrf_token"
+  ],
+  "settings": [
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_app_blocks": true
+  }
+}

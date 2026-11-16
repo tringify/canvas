@@ -1,0 +1,37 @@
+{%- comment -%} Age gate. The platform decides when it shows (ctx.age_gate.show, by visitor country) and supplies its copy in the shopper's language;
+it also hides the gate before first paint for visitors who confirmed, keeps focus inside it, remembers the answer and handles declining
+(decline_url, or a come-back-later screen it adds in place of the panel). Rendered only while show is true: the gate runtime is added only then.
+The platform asks a yes/no question (there is no date-of-birth mode). Designs: a card over the page (dimmed, blurred or solid), the merchant's
+photo filling the screen, a split screen (photo beside the panel), or a minimal card. The merchant's content blocks add copy under the platform's. {%- endcomment -%}
+{%- if age_gate.show -%}
+{%- assign cv_min = age_gate.min_age | default: 0 -%}
+{%- assign cv_ag = settings.layout | default: 'card' -%}
+{%- assign cv_ag_img = false -%}{%- if cv_ag == 'fullscreen' or cv_ag == 'split' -%}{%- assign cv_ag_img = true -%}{%- endif -%}
+<div class="cv cv-agegate cv-agegate--{{ cv_ag }} cv-agegate--{{ settings.backdrop | default: 'dim' }} tf-scheme-{{ settings.color_scheme }}" data-tf-age-gate role="dialog" aria-modal="true" aria-labelledby="cv-agegate-title"{% if age_gate.body != blank %} aria-describedby="cv-agegate-body"{% endif %}>
+  {%- if cv_ag_img -%}
+  <div class="cv-agegate__media" aria-hidden="true" data-tf-field="image">
+    {%- if settings.image -%}
+      <img src="{{ settings.image | image_url: width: 1600 }}" srcset="{{ settings.image | image_srcset: max: 2400 }}" sizes="{% if cv_ag == 'split' %}50vw{% else %}100vw{% endif %}" alt="" style="object-position: {{ settings.image_focus.x | default: 50 }}% {{ settings.image_focus.y | default: 50 }}%">
+    {%- else -%}
+      <img src="{{ 'canvas-editorial-hero.webp' | asset_url }}" width="1122" height="1402" alt="">
+    {%- endif -%}
+  </div>
+  {%- endif -%}
+  <div class="cv-agegate__panel" data-tf-age-gate-ask>
+    {%- if settings.logo -%}
+      <img class="cv-agegate__logo" src="{{ settings.logo | image_url: width: 480 }}" srcset="{{ settings.logo | image_srcset: max: 960 }}" sizes="{{ settings.logo_width | default: 120 }}px" alt="{{ shop.name }}" style="width: {{ settings.logo_width | default: 120 }}px" data-tf-field="logo">
+    {%- elsif settings.show_store_name != false and shop.name != blank -%}
+      <p class="cv-agegate__shop" dir="auto" data-tf-field="show_store_name">{{ shop.name }}</p>
+    {%- endif -%}
+    {%- if settings.show_min_age != false and cv_min > 0 -%}<p class="cv-agegate__age" aria-hidden="true" data-tf-field="show_min_age"><bdi>{{ cv_min }}+</bdi></p>{%- endif -%}
+    <h2 class="cv-agegate__title cv-h3" id="cv-agegate-title" dir="auto">{{ age_gate.heading }}</h2>
+    {%- if age_gate.body != blank -%}<p class="cv-agegate__body" id="cv-agegate-body" dir="auto">{{ age_gate.body }}</p>{%- endif -%}
+    {%- if settings.blocks.size > 0 -%}<div class="cv-agegate__blocks">{% blocks %}</div>{%- endif -%}
+    <div class="cv-agegate__actions">
+      <button class="cv-btn cv-agegate__btn" type="button" data-tf-age-gate-confirm>{{ age_gate.confirm_label }}</button>
+      <button class="cv-btn cv-btn--outline cv-agegate__btn" type="button" data-tf-age-gate-decline>{{ age_gate.decline_label }}</button>
+    </div>
+    {%- if design_mode and age_gate.enabled == false -%}<p class="cv-editor-hint cv-agegate__hint">{{ 'sections.editor_age_gate_off' | t }}</p>{%- endif -%}
+  </div>
+</div>
+{%- endif -%}

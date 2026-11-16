@@ -1,0 +1,147 @@
+{%- comment -%} Popup: the merchant's content blocks (a heading, text, buttons, a newsletter form, a discount code) with an optional photo, as a
+  centred dialog, a card in a corner, a sheet from the bottom or a side panel. It opens after a delay, after the shopper scrolls, or when the
+  pointer leaves the page (phones: after the delay), on the pages chosen, as often as chosen. Its "seen" note is kept in the browser's local
+  storage (once-per-visit popups use session storage), never in a cookie; it waits for the age gate, the cookie banner and the country
+  prompt to be answered, and for any other popup to close. In the editor it opens only while selected and stores nothing. {%- endcomment -%}
+{%- assign cv_pp = settings.layout | default: 'modal' -%}
+{%- assign cv_pp_pages = 'all' -%}
+{%- if settings.pages == 'home' -%}{%- assign cv_pp_pages = 'home' -%}
+{%- elsif settings.pages == 'chosen' -%}
+  {%- assign cv_pp_pages = '' -%}
+  {%- if settings.on_home -%}{%- assign cv_pp_pages = cv_pp_pages | append: 'home,' -%}{%- endif -%}
+  {%- if settings.on_product -%}{%- assign cv_pp_pages = cv_pp_pages | append: 'product,' -%}{%- endif -%}
+  {%- if settings.on_listing -%}{%- assign cv_pp_pages = cv_pp_pages | append: 'listing,' -%}{%- endif -%}
+  {%- if settings.on_content -%}{%- assign cv_pp_pages = cv_pp_pages | append: 'content,' -%}{%- endif -%}
+  {%- if settings.on_other -%}{%- assign cv_pp_pages = cv_pp_pages | append: 'other,' -%}{%- endif -%}
+{%- endif -%}
+<dialog class="cv cv-popup cv-popup--{{ cv_pp }} cv-popup--{{ settings.position | default: 'end' }} cv-popup--{{ settings.size | default: 'medium' }}{% if settings.image %} cv-popup--img-{{ settings.image_position | default: 'side' }}{% endif %} tf-scheme-{{ settings.color_scheme }}"
+  data-cv-popup data-cv-notice-host data-trigger="{{ settings.trigger | default: 'delay' }}" data-delay="{{ settings.delay | default: 5 }}" data-scroll="{{ settings.scroll_percent | default: 40 }}"
+  data-freq="{{ settings.frequency | default: 'days' }}" data-days="{{ settings.frequency_days | default: 7 }}" data-pages="{{ cv_pp_pages }}"{% if design_mode %} data-editor{% endif %} aria-label="{{ shop.name }}">
+  <div class="cv-popup__panel">
+    <span class="cv-popup__handle" aria-hidden="true"></span>
+    <button class="cv-popup__close" type="button" data-cv-popup-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+    {%- if settings.image -%}
+    <div class="cv-popup__media" data-tf-field="image">
+      <img src="{{ settings.image | image_url: width: 900 }}" srcset="{{ settings.image | image_srcset: max: 1400 }}" sizes="(min-width: 750px) 400px, 100vw" alt="{{ settings.image_alt }}" loading="lazy"
+        style="object-position: {{ settings.image_focus.x | default: 50 }}% {{ settings.image_focus.y | default: 50 }}%">
+    </div>
+    {%- endif -%}
+    <div class="cv-popup__body cv-popup__body--{{ settings.align | default: 'start' }}">
+      {%- if settings.blocks.size > 0 -%}{% blocks %}{%- elsif design_mode -%}<p class="cv-editor-hint cv-blk-hint">{{ 'popup.editor_empty' | t }}</p>{%- endif -%}
+      <p class="cv-notice cv-popup__notice" role="status" data-cv-notice hidden></p>
+    </div>
+  </div>
+</dialog>
+<script>
+(function () {
+  var root = document.currentScript && document.currentScript.previousElementSibling;
+  if (!root || !root.matches("[data-cv-popup]") || root.__cvPopup) return;
+  root.__cvPopup = true;
+  var editor = root.hasAttribute("data-editor");
+  var modal = !root.classList.contains("cv-popup--corner");
+  var Q = window.__cvPopups = window.__cvPopups || { open: null, waiting: [] };
+  // Name the dialog after its first heading.
+  var h = root.querySelector(".cv-popup__body h1, .cv-popup__body h2, .cv-popup__body h3, .cv-blk-news__title");
+  if (h) { h.id = h.id || "cv-popup-h-" + Math.random().toString(36).slice(2, 8); root.removeAttribute("aria-label"); root.setAttribute("aria-labelledby", h.id); }
+  function show() {
+    if (root.open) return;
+    if (modal && root.showModal) root.showModal(); else if (root.show) root.show(); else root.setAttribute("open", "");
+    document.documentElement.classList.toggle("cv-popup-lock", modal);
+    if (!modal) { var f = root.querySelector("[data-cv-popup-close]"); if (f && editor) f.focus({ preventScroll: true }); }
+  }
+  function hide() {
+    if (root.open) { if (root.close) root.close(); else root.removeAttribute("open"); }
+    document.documentElement.classList.remove("cv-popup-lock");
+  }
+  // Close controls work everywhere, editor included: the close button, a click on the dimmed page, Escape.
+  root.addEventListener("click", function (e) {
+    if (e.target.closest("[data-cv-popup-close]")) { hide(); return; }
+    if (e.target === root && modal) {
+      var r = root.querySelector(".cv-popup__panel").getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) hide();
+    }
+  });
+  root.addEventListener("cancel", function (e) { e.preventDefault(); hide(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && root.open && !modal) hide(); });
+  root.addEventListener("close", function () { document.documentElement.classList.remove("cv-popup-lock"); if (Q.open === root) { Q.open = null; next(); } });
+
+  if (editor) {
+    // Editor: open only while this section (or one of its blocks) is selected. No timer, no scroll trigger, nothing stored.
+    var marker = root.closest("[data-tf-section-id]");
+    var id = marker ? marker.getAttribute("data-tf-section-id") : "";
+    document.addEventListener("tf:section-selected", function (e) { if (e.detail && e.detail.id === id) show(); });
+    document.addEventListener("tf:section-deselected", function (e) { if (e.detail && e.detail.id === id) hide(); });
+    return;
+  }
+
+  // Storefront. The "seen" note is keyed by the popup's content and layout, so a new campaign shows again.
+  var text = (root.querySelector(".cv-popup__panel").textContent || "").replace(/\s+/g, " ") + "|" + root.className;
+  var hash = 0; for (var i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) | 0;
+  var key = "cv-popup:" + (hash >>> 0).toString(36);
+  var freq = root.getAttribute("data-freq"), days = +root.getAttribute("data-days") || 7;
+  function store(kind) { try { return kind === "session" ? window.sessionStorage : window.localStorage; } catch (e) { return null; } }
+  function read(kind) { var s = store(kind); try { return s && JSON.parse(s.getItem(key) || "null"); } catch (e) { return null; } }
+  function write(kind, v) { var s = store(kind); try { if (s) s.setItem(key, JSON.stringify(v)); } catch (e) {} }
+  function due() {
+    var done = read("local"); if (done && done.done) return false;
+    if (freq === "session") return !read("session");
+    if (!done) return true;
+    if (freq === "first_visit") return false;
+    return Date.now() - (done.t || 0) > days * 864e5;
+  }
+  function seen(extra) {
+    if (freq === "session") write("session", { t: Date.now() });
+    var v = read("local") || {}; v.t = Date.now(); if (extra) v.done = true; write("local", v);
+  }
+  // A signup or other form sent from the popup means it has done its job: it does not show again for this content.
+  document.addEventListener("tf:action-success", function (e) { if (e.detail && e.detail.form && root.contains(e.detail.form)) seen(true); });
+
+  function pageMatches() {
+    var pages = root.getAttribute("data-pages");
+    if (pages === "all") return true;
+    var t = (window.__tfCtx && window.__tfCtx.page_type) || "";
+    var group = t === "home" ? "home" : t === "product" ? "product"
+      : /^(collection|category|shop|search|vendor|brand)(_list)?$/.test(t) ? "listing"
+      : /^(page|policy|blog|blog_list|blog_category|blog_post)$/.test(t) ? "content" : "other";
+    return pages.split(",").indexOf(group) !== -1;
+  }
+  // Wait for the age gate, the cookie banner and the country prompt, and for another popup that is open.
+  function blocked() {
+    var gate = document.querySelector("[data-tf-age-gate]");
+    if (gate && !document.documentElement.hasAttribute("data-tf-age-ok") && getComputedStyle(gate).display !== "none") return true;
+    var c = document.querySelector("[data-cv-consent]"); if (c && !c.hidden) return true;
+    var p = document.querySelector("[data-cv-lp]"); if (p && !p.hidden) return true;
+    return !!(Q.open && Q.open !== root);
+  }
+  function next() { var w = Q.waiting.shift(); if (w) w(); }
+  function fire() {
+    if (!due()) return;
+    if (blocked()) { if (Q.waiting.indexOf(fire) === -1) Q.waiting.push(fire); return; }
+    Q.open = root; seen(false); show();
+  }
+  // Something that blocked a popup went away: try the waiting ones again.
+  function retry() { if (!Q.open || !Q.open.open) { Q.open = null; next(); } }
+  document.addEventListener("tf:age-gate-confirmed", function () { setTimeout(retry, 400); });
+  new MutationObserver(retry).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ["hidden"] });
+
+  function start() {
+    if (!pageMatches() || !due()) return;
+    var trig = root.getAttribute("data-trigger"), delay = (+root.getAttribute("data-delay") || 0) * 1000;
+    var touch = window.matchMedia("(hover: none)").matches;
+    if (trig === "scroll") {
+      var pct = +root.getAttribute("data-scroll") || 40;
+      var onScroll = function () {
+        var h = document.documentElement.scrollHeight - window.innerHeight;
+        if (h <= 0 || window.scrollY / h * 100 >= pct) { window.removeEventListener("scroll", onScroll); fire(); }
+      };
+      window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+    } else if (trig === "exit" && !touch) {
+      var onLeave = function (e) { if (!e.relatedTarget && e.clientY <= 0) { document.removeEventListener("mouseout", onLeave); fire(); } };
+      document.addEventListener("mouseout", onLeave);
+    } else {
+      setTimeout(fire, delay);
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+</script>

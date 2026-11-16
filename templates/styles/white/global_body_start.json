@@ -1,0 +1,60 @@
+{
+  "page_type": "global_body_start",
+  "sections": [
+    {
+      "type": "announcement-bar",
+      "position": 1,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-white-announcement__0",
+            "type": "message",
+            "settings": {}
+          }
+        ]
+      }
+    },
+    {
+      "type": "header",
+      "position": 2,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-white-header__logo",
+            "type": "logo",
+            "settings": {}
+          },
+          {
+            "id": "canvas-white-header__menu",
+            "type": "menu",
+            "settings": {
+              "menu": "main-menu"
+            }
+          },
+          {
+            "id": "canvas-white-header__search",
+            "type": "search",
+            "settings": {}
+          },
+          {
+            "id": "canvas-white-header__account",
+            "type": "account",
+            "settings": {}
+          },
+          {
+            "id": "canvas-white-header__wishlist",
+            "type": "wishlist",
+            "settings": {}
+          },
+          {
+            "id": "canvas-white-header__cart",
+            "type": "cart",
+            "settings": {}
+          }
+        ],
+        "logo_position": "left",
+        "show_border": false
+      }
+    }
+  ]
+}

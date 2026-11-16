@@ -1,0 +1,10 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: subtotal, discounts and total. Reads cart. The tax, shipping and duty notes are the Price notes block. {%- endcomment -%}
+<dl class="cv-sum__totals">
+  <div><dt>{{ 'cart.subtotal' | t }}</dt><dd>{{ cart.subtotal | money: isolate: true, trim_zeros: cv_tz }}</dd></div>
+  {%- for d in cart.discounts -%}
+    {%- assign cv_discount_amount = d.amount | plus: 0 -%}
+    {%- if d.eligible != false and d.formatted_adjustment != blank -%}<div{% if cv_discount_amount > 0 %} class="cv-sum__disc"{% endif %}><dt>{{ d.name }}{% if d.code != blank %} ({{ d.code }}){% endif %}</dt><dd>{{ d.formatted_adjustment }}</dd></div>{%- endif -%}
+  {%- endfor -%}
+  <div class="cv-sum__total"><dt>{{ 'cart.total' | t }}</dt><dd>{{ cart.total | money: isolate: true, trim_zeros: cv_tz }}</dd></div>
+</dl>

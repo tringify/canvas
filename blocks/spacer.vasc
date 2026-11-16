@@ -1,0 +1,33 @@
+{%- comment -%} Spacer: room between blocks, with an optional line across. {%- endcomment -%}
+<div class="cv-blk-spacer{% if settings.divider %} cv-blk-spacer--line{% endif %}" style="--cv-blk-h: {{ settings.height }}px" aria-hidden="true"></div>
+{% schema %}
+{
+  "name": "spacer",
+  "kind": "block",
+  "icon": "separator-horizontal",
+  "settings": [
+    {
+      "id": "height",
+      "type": "range",
+      "min": 0,
+      "max": 160,
+      "step": 4,
+      "unit": "px",
+      "default": 32,
+      "editor": {
+        "label": "height",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "divider",
+      "type": "checkbox",
+      "default": false,
+      "editor": {
+        "label": "divider",
+        "group": "layout"
+      }
+    }
+  ]
+}
+{% endschema %}

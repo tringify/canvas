@@ -1,0 +1,266 @@
+{%- assign cv_rvc = reviews.stats.count | default: 0 -%}{%- assign cv_rva = reviews.stats.average | default: 0 -%}{%- assign cv_rvf = reviews.rating_filter | default: 0 -%}{%- assign cv_rvp = reviews.page | default: 1 -%}
+{%- if reviews.enabled or design_mode -%}
+{%- assign cv_rf = forms.review -%}
+{%- comment -%} Signed-out visitors get a sign-in link instead of a form the store would refuse: when it takes no guest reviews, or only takes them from buyers of this product (the server checks the purchase). {%- endcomment -%}
+{%- assign cv_rv_signin = false -%}
+{%- if customer.logged_in != true -%}{%- if cv_rf.guests_allowed == false or cv_rf.purchase_required -%}{%- assign cv_rv_signin = true -%}{%- endif -%}{%- endif -%}
+<section data-cv-notice-host class="cv cv-section cv-rv tf-scheme-{{ settings.color_scheme }}" id="cv-reviews" data-tf-soft-nav="product-reviews">
+  {%- if design_mode and reviews.enabled != true -%}<p class="cv-editor-hint">{{ 'sections.editor_reviews_off' | t }}</p>{%- endif -%}
+  <div class="cv-wrap cv-rv__grid">
+    <div class="cv-rv__side">
+      {%- if settings.heading != blank -%}<h2 dir="auto" data-tf-field="heading" class="cv-h2">{{ settings.heading }}</h2>{%- endif -%}
+      {%- if cv_rvc > 0 -%}
+        <p class="cv-rv__avg"><span class="cv-rv__num">{{ reviews.stats.average }}</span>
+          <span class="cv-stars" style="--cv-rating: {{ cv_rva | times: 20 }}%" aria-hidden="true"></span>
+          <span class="cv-muted">{{ 'reviews.count' | t: count: reviews.stats.count }}</span></p>
+        <ul class="cv-rv__bars" role="list">
+          {%- for star in (1..5) reversed -%}
+            {%- assign cv_key = star | append: '' -%}
+            {%- assign cv_c = reviews.stats.stars[cv_key] | default: 0 -%}
+            {%- assign cv_pct = cv_c | times: 100 | divided_by: cv_rvc | round -%}
+            <li><a class="cv-rv__bar{% if reviews.rating_filter == star %} is-active{% endif %}" href="?reviews_rating={% if reviews.rating_filter == star %}0{% else %}{{ star }}{% endif %}#cv-reviews" rel="nofollow">
+              <span class="cv-rv__bar-n">{{ star }} <svg viewBox="0 0 16 14" aria-hidden="true"><path d="M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z"/></svg></span><span class="cv-rv__track"><span style="width: {{ cv_pct }}%"></span></span><span class="cv-muted">{{ cv_c }}</span></a></li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p class="cv-muted">{{ 'reviews.none' | t }}</p>
+      {%- endif -%}
+      <a class="cv-btn cv-btn--block" href="#cv-review-form" data-cv-review-open>{{ 'reviews.write' | t }}</a>
+      {%- if cv_rf.purchase_required -%}<p class="cv-rv__rule">{{ 'reviews.buyers_only' | t }}</p>{%- endif -%}
+    </div>
+
+    <div class="cv-rv__main">
+      <p class="cv-notice {% if form_notice.success %}cv-notice--ok{% else %}cv-notice--error{% endif %}" role="status" data-cv-notice{% if form_notice.message == blank %} hidden{% endif %}>{{ form_notice.message }}</p>
+      {%- if cv_rvc > 0 -%}
+        <div class="cv-rv__sort">
+          {%- assign cv_sorts = 'newest,highest,lowest,helpful' | split: ',' -%}
+          {%- for s in cv_sorts -%}
+            <a class="cv-rv__chip{% if reviews.sort == s %} is-active{% endif %}" href="?reviews_sort={{ s }}{% if cv_rvf > 0 %}&reviews_rating={{ reviews.rating_filter }}{% endif %}#cv-reviews" rel="nofollow">{{ 'reviews.sort_' | append: s | t }}</a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+      <div class="cv-rv__list">
+        {%- for r in reviews.items -%}
+          <article class="cv-rv__item">
+            <div class="cv-rv__head">
+              <span class="cv-rv__avatar" aria-hidden="true">{{ r.reviewer_name | default: '?' | slice: 0 | upcase }}</span>
+              <div class="cv-rv__who"><p class="cv-rv__by">{{ r.reviewer_name }}{% if r.verification_source == 'order' %} <span class="cv-rv__verified"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>{{ 'reviews.verified' | t }}</span>{% elsif r.verification_source == 'import' %} <span class="cv-rv__verified"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>{{ 'reviews.verified_imported' | t }}</span>{% endif %}</p>
+                <p class="cv-rv__meta"><span class="cv-stars" style="--cv-rating: {{ r.rating | times: 20 }}%" role="img" aria-label="{{ 'reviews.stars' | t: rating: r.rating }}"></span><time class="cv-muted cv-rv__date" datetime="{{ r.created_at_iso }}">{{ r.created_at }}</time></p></div>
+            </div>
+            {%- if r.title != blank -%}<h3 class="cv-h4">{{ r.title }}</h3>{%- endif -%}
+            <p class="cv-rv__body">{{ r.content }}</p>
+            {%- if r.images.size > 0 -%}
+              <div class="cv-rv__photos">{%- for img in r.images -%}<a class="cv-media" href="{{ img.url }}" target="_blank" rel="noopener"><img src="{{ img.url | image_url: width: 176 }}" alt="{{ 'reviews.photo_alt' | t: n: forloop.index, name: r.reviewer_name }}" loading="lazy" width="88" height="88"></a>{%- endfor -%}</div>
+            {%- endif -%}
+            {%- if r.store_response.content != blank -%}
+              <div class="cv-rv__reply"><p class="cv-rv__reply-by">{{ 'reviews.store_reply' | t: store: shop.name }}{%- if r.store_response.created_at != blank -%}<span class="cv-muted cv-rv__date">{%- if r.store_response.created_at_iso -%}<time datetime="{{ r.store_response.created_at_iso }}">{{ r.store_response.created_at }}</time>{%- else -%}{{ r.store_response.created_at }}{%- endif -%}</span>{%- endif -%}</p><p class="cv-rv__body">{{ r.store_response.content }}</p></div>
+            {%- endif -%}
+            <div class="cv-rv__votes" data-cv-vote="{{ r.id }}" hidden>
+              <span class="cv-muted">{{ 'reviews.helpful' | t }}</span>
+              <button class="cv-rv__vote" type="button" data-vote="helpful">{{ 'general.yes' | t }} (<span data-count>{{ r.helpful_count }}</span>)</button>
+              <button class="cv-rv__vote" type="button" data-vote="unhelpful">{{ 'general.no' | t }} (<span data-count>{{ r.unhelpful_count }}</span>)</button>
+            </div>
+          </article>
+        {%- endfor -%}
+      </div>
+      {%- if reviews.has_more or cv_rvp > 1 -%}
+        <nav class="cv-rv__pager" aria-label="{{ 'general.pagination' | t }}">
+          {%- if cv_rvp > 1 -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="?reviews_page={{ cv_rvp | minus: 1 }}&reviews_sort={{ reviews.sort }}{% if cv_rvf > 0 %}&reviews_rating={{ cv_rvf }}{% endif %}#cv-reviews" rel="nofollow">{{ 'general.previous' | t }}</a>{%- endif -%}
+          {%- if reviews.has_more -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="?reviews_page={{ cv_rvp | plus: 1 }}&reviews_sort={{ reviews.sort }}{% if cv_rvf > 0 %}&reviews_rating={{ cv_rvf }}{% endif %}#cv-reviews" rel="nofollow">{{ 'general.next' | t }}</a>{%- endif -%}
+        </nav>
+      {%- endif -%}
+
+      <div class="cv-rv__form-wrap" id="cv-review-form"{% unless form_notice and form_notice.success == false %} hidden{% endunless %} data-cv-review-form data-remove-label="{{ 'cart.remove' | t }}">
+        <div class="cv-rv__form-head"><h3 class="cv-h3">{{ 'reviews.write' | t }}</h3>
+          <button class="cv-rv__close" type="button" data-cv-review-close aria-label="{{ 'general.close' | t }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+        {%- if cv_rf.purchase_required -%}<p class="cv-rv__rule">{{ 'reviews.buyers_only' | t }}</p>{%- endif -%}
+        {%- if cv_rv_signin -%}
+          <div class="cv-rv-signin"><p>{{ 'reviews.sign_in_to_review' | t }}</p><a class="cv-btn" href="{{ routes.login_url }}">{{ 'auth.sign_in' | t }}</a></div>
+        {%- else -%}
+        {%- comment -%} Lengths and required fields follow the store's review settings (forms.review); a signed-in customer's name and email come from the account. {%- endcomment -%}
+        {%- assign cv_ft = cv_rf.title -%}{%- assign cv_fc = cv_rf.content -%}{%- assign cv_fn = cv_rf.reviewer_name -%}{%- assign cv_fe = cv_rf.reviewer_email -%}
+        {%- assign cv_cmin = cv_fc.min_length | default: 0 -%}{%- assign cv_tmin = cv_ft.min_length | default: 0 -%}{%- assign cv_nmin = cv_fn.min_length | default: 0 -%}{%- assign cv_emin = cv_fe.min_length | default: 0 -%}{%- assign cv_cmax = cv_fc.max_length | default: 0 -%}
+        {% form 'review_submit', class: 'cv-rv__form' %}
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          {%- if product.selected_variant -%}<input type="hidden" name="variant_id" value="{{ product.selected_variant.id }}">{%- endif -%}
+          <fieldset class="cv-rv__rate">
+            <legend class="cv-label">{{ 'reviews.your_rating' | t }}</legend>
+            {%- for star in (1..5) reversed -%}
+              <input class="cv-sr" type="radio" id="cv-rate-{{ star }}" name="rating" value="{{ star }}" required>
+              <label for="cv-rate-{{ star }}" title="{{ 'reviews.stars' | t: rating: star }}"><svg viewBox="0 0 16 14" aria-hidden="true"><path d="M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z"/></svg><span class="cv-sr">{{ 'reviews.stars' | t: rating: star }}</span></label>
+            {%- endfor -%}
+          </fieldset>
+          <label class="cv-field"><span class="cv-label">{{ 'reviews.title' | t }}{% unless cv_ft.required %} <span class="cv-rv__opt">{{ 'reviews.optional' | t }}</span>{% endunless %}</span>
+            <input class="cv-input" name="title" maxlength="{{ cv_ft.max_length | default: 200 }}"{% if cv_tmin > 0 %} minlength="{{ cv_tmin }}"{% endif %}{% if cv_ft.required %} required{% endif %}></label>
+          <div class="cv-field">
+            <label class="cv-label" for="cv-rv-content-{{ product.id }}">{{ 'reviews.body' | t }}</label>
+            <textarea class="cv-input" id="cv-rv-content-{{ product.id }}" name="content" rows="5"{% if cv_fc.required != false %} required{% endif %}{% if cv_cmin > 0 %} minlength="{{ cv_cmin }}"{% endif %}{% if cv_cmax > 0 %} maxlength="{{ cv_cmax }}"{% endif %} aria-describedby="cv-rv-count-{{ product.id }}" data-cv-rv-content></textarea>
+            <p class="cv-rv__count" id="cv-rv-count-{{ product.id }}">
+              {%- if cv_cmin > 0 -%}<span class="cv-rv__min">{{ 'reviews.min_chars' | t: min: cv_cmin }}</span>{%- endif -%}
+              <span class="cv-rv__num-chars"><span data-cv-rv-count>0</span>{% if cv_cmax > 0 %} / {{ cv_cmax }}{% endif %}</span>
+            </p>
+          </div>
+          {%- unless customer.logged_in -%}
+          <div class="cv-rv__two">
+            <label class="cv-field"><span class="cv-label">{{ 'forms.name' | t }}{% unless cv_fn.required %} <span class="cv-rv__opt">{{ 'reviews.optional' | t }}</span>{% endunless %}</span>
+              <input class="cv-input" name="reviewer_name" autocomplete="name" maxlength="{{ cv_fn.max_length | default: 100 }}"{% if cv_nmin > 0 %} minlength="{{ cv_nmin }}"{% endif %}{% if cv_fn.required %} required{% endif %}></label>
+            <label class="cv-field"><span class="cv-label">{{ 'forms.email' | t }}{% unless cv_fe.required %} <span class="cv-rv__opt">{{ 'reviews.optional' | t }}</span>{% endunless %}</span>
+              <input class="cv-input" type="email" name="reviewer_email" autocomplete="email" maxlength="{{ cv_fe.max_length | default: 255 }}"{% if cv_emin > 0 %} minlength="{{ cv_emin }}"{% endif %}{% if cv_fe.required %} required{% endif %}></label>
+          </div>
+          {%- endunless -%}
+          {%- assign cv_rmax = cv_rf.max_images | default: 0 -%}
+          {%- if cv_rf.allow_images and cv_rmax > 0 -%}
+            <div class="cv-field">
+              <span class="cv-label">{{ 'reviews.photos' | t: max: cv_rmax }}</span>
+              <div class="cv-rv__photos-pick" data-cv-review-thumbs>
+                <label class="cv-rv__drop">
+                  <input class="cv-sr" type="file" accept="image/jpeg,image/png" multiple data-cv-review-files data-max="{{ cv_rmax }}" data-error="{{ 'reviews.photo_upload_failed' | t }}">
+                  <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg>
+                  <span>{{ 'reviews.add_photos' | t }}</span>
+                </label>
+              </div>
+              <input type="hidden" name="review_media_ids" value="" data-cv-review-ids>
+            </div>
+          {%- endif -%}
+          <button class="cv-btn cv-rv__submit" type="submit">{{ 'reviews.submit' | t }}</button>
+        {% endform %}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+(function () {
+  if (window.__cvReviews) return; window.__cvReviews = true;
+  // A submitted review closes the form; the platform's message shows above it.
+  document.addEventListener("tf:action-done", function (e) {
+    var d = e.detail || {};
+    if (d.action !== "review_submit" || !d.form || !d.form.closest) return;
+    var box = d.form.closest("[data-cv-review-form]");
+    if (box) box.hidden = true;
+    d.form.querySelectorAll("[data-cv-thumb-remove]").forEach(function (b) { b.closest(".cv-rv__thumb").remove(); });
+    var ids = d.form.querySelector("[data-cv-review-ids]");
+    if (ids) { ids.value = ""; reviewUploads(d.form); }
+    refreshReviews(d.form.closest("#cv-reviews"));
+  });
+  // A published review shows at once: the section is rendered again (only
+  // this one, not on every storefront action), keeping the platform's message.
+  function refreshReviews(section) {
+    if (!section) return;
+    var url = new URL(location.href);
+    url.searchParams.set("_sections", "product-reviews");
+    fetch(url.toString(), { headers: { Accept: "application/json" }, credentials: "same-origin" })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var html = data && data.success && data.sections && data.sections["product-reviews"];
+        if (!html || !section.isConnected) return;
+        var tpl = document.createElement("template");
+        tpl.innerHTML = html;
+        var fresh = tpl.content.querySelector("#cv-reviews");
+        if (!fresh) return;
+        var notice = section.querySelector("[data-cv-notice]"), next = fresh.querySelector("[data-cv-notice]");
+        if (notice && next && !notice.hidden) { next.textContent = notice.textContent; next.className = notice.className; next.setAttribute("role", notice.getAttribute("role") || "status"); next.hidden = false; }
+        section.replaceWith(fresh);
+        document.dispatchEvent(new CustomEvent("section:soft-nav"));
+      })
+      .catch(function () {});
+  }
+  // Helpful votes need the platform bridge; without it they stay hidden.
+  function votes() { if (window.tringify && window.tringify.reviews && window.tringify.reviews.vote) document.querySelectorAll("[data-cv-vote][hidden]").forEach(function (v) { v.hidden = false; }); }
+  // The review body counts its characters as the shopper types.
+  function count(t) { var n = t.form && t.form.querySelector("[data-cv-rv-count]"); if (n) n.textContent = t.value.length; }
+  function ready() { votes(); document.querySelectorAll("[data-cv-rv-content]").forEach(count); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready); else ready();
+  addEventListener("load", votes);
+  document.addEventListener("section:soft-nav", ready);
+  document.addEventListener("input", function (e) { if (e.target.matches && e.target.matches("[data-cv-rv-content]")) count(e.target); });
+  document.addEventListener("reset", function (e) { var t = e.target.querySelector && e.target.querySelector("[data-cv-rv-content]"); if (t) setTimeout(function () { count(t); }); }, true);
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-cv-vote] [data-vote]");
+    if (!b || !window.tringify || !window.tringify.reviews) return;
+    var box = b.closest("[data-cv-vote]");
+    window.tringify.reviews.vote({ review_id: box.getAttribute("data-cv-vote"), vote: b.getAttribute("data-vote") }).then(function (r) {
+      if (!r || !r.success) return;
+      var c = box.querySelectorAll("[data-count]");
+      c[0].textContent = r.helpful_count; c[1].textContent = r.unhelpful_count;
+      box.querySelectorAll("[data-vote]").forEach(function (x) { x.disabled = true; });
+    });
+  });
+  // Editor: selecting this section shows the review form; deselecting hides it again.
+  document.addEventListener("tf:section-selected", function (e) {
+    var box = document.querySelector("[data-cv-review-form]");
+    if (box && e.detail && e.detail.type === "product-reviews" && box.hidden) { box.hidden = false; box.setAttribute("data-cv-editor-open", ""); }
+  });
+  document.addEventListener("tf:section-deselected", function (e) {
+    var box = document.querySelector("[data-cv-review-form][data-cv-editor-open]");
+    if (box && e.detail && e.detail.type === "product-reviews") { box.hidden = true; box.removeAttribute("data-cv-editor-open"); }
+  });
+  document.addEventListener("click", function (e) {
+    var open = e.target.closest && e.target.closest("[data-cv-review-open]");
+    var close = e.target.closest && e.target.closest("[data-cv-review-close]");
+    if (!open && !close) return;
+    var box = document.querySelector("[data-cv-review-form]");
+    if (!box) return;
+    e.preventDefault();
+    box.hidden = !!close;
+    if (open) { box.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); var first = box.querySelector("input[name=rating]"); if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 400); }
+  });
+  // Photo uploads. Every pick uploads its files at once; each finished upload
+  // adds its id to the form as it lands, so a second pick made while the first
+  // is still uploading keeps both. Photos still uploading count against the
+  // limit, and the review cannot be sent until they have all finished.
+  // Failures show the store's message in the platform toast.
+  function reviewIDs(form) { return form.querySelector("[data-cv-review-ids]").value.split(",").filter(Boolean); }
+  function reviewUploads(form) {
+    var input = form.querySelector("[data-cv-review-files]"), drop = form.querySelector(".cv-rv__drop");
+    var busy = form.querySelectorAll(".cv-rv__thumb.is-loading").length;
+    form.querySelector("[type=submit]").disabled = busy > 0;
+    if (drop) drop.hidden = reviewIDs(form).length + busy >= (Number(input.getAttribute("data-max")) || 3);
+  }
+  document.addEventListener("click", function (e) {
+    var rm = e.target.closest && e.target.closest("[data-cv-thumb-remove]");
+    if (!rm) return;
+    var form = rm.closest("form"), ids = form.querySelector("[data-cv-review-ids]"), id = rm.getAttribute("data-cv-thumb-remove");
+    ids.value = reviewIDs(form).filter(function (x) { return x !== id; }).join(",");
+    rm.closest(".cv-rv__thumb").remove();
+    reviewUploads(form);
+  });
+  document.addEventListener("change", function (e) {
+    var input = e.target.matches && e.target.matches("[data-cv-review-files]") ? e.target : null;
+    if (!input || !window.tringify || !window.tringify.reviews) return;
+    var form = input.form, ids = form.querySelector("[data-cv-review-ids]");
+    var thumbs = form.querySelector("[data-cv-review-thumbs]"), drop = form.querySelector(".cv-rv__drop");
+    var max = Number(input.getAttribute("data-max")) || 3;
+    var taken = reviewIDs(form).length + form.querySelectorAll(".cv-rv__thumb.is-loading").length;
+    var files = Array.prototype.slice.call(input.files, 0, Math.max(0, max - taken));
+    input.value = "";
+    if (!files.length) return;
+    var told = {};
+    function fail(message) {
+      var text = message || input.getAttribute("data-error") || "";
+      if (!text || told[text]) return;
+      told[text] = true;
+      if (window.tringify.ui && window.tringify.ui.toast) window.tringify.ui.toast(text, { ok: false });
+    }
+    files.forEach(function (f) {
+      var t = document.createElement("div"); t.className = "cv-rv__thumb is-loading";
+      var img = document.createElement("img"); img.alt = ""; img.src = URL.createObjectURL(f); t.appendChild(img);
+      thumbs.insertBefore(t, drop);
+      window.tringify.reviews.uploadMedia(f).then(function (r) {
+        t.classList.remove("is-loading");
+        if (!t.isConnected) return;
+        if (r && r.success) {
+          ids.value = reviewIDs(form).concat(r.media_id).join(",");
+          var b = document.createElement("button"); b.type = "button"; b.className = "cv-rv__thumb-x"; b.setAttribute("data-cv-thumb-remove", r.media_id); b.setAttribute("aria-label", t.closest("[data-cv-review-form]") ? t.closest("[data-cv-review-form]").getAttribute("data-remove-label") || "" : ""); b.innerHTML = '<svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'; t.appendChild(b);
+        } else {
+          URL.revokeObjectURL(img.src); t.remove(); fail(r && r.message);
+        }
+      }, function () {
+        URL.revokeObjectURL(img.src); t.remove(); fail("");
+      }).then(function () { reviewUploads(form); });
+    });
+    reviewUploads(form);
+  });
+})();
+</script>
+{%- endif -%}

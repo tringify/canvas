@@ -1,0 +1,228 @@
+{
+  "name": "store-locations",
+  "icon": "map-pin",
+  "ctx_needs": [
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": "@t:sections.store_locations.heading"
+    },
+    {
+      "id": "text",
+      "type": "textarea",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      },
+      "default": ""
+    },
+    {
+      "id": "map_label",
+      "type": "text",
+      "editor": {
+        "label": "map_link_label",
+        "group": "content"
+      },
+      "default": "@t:sections.store_locations.map_label"
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      },
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 8,
+    "default": [
+      "location"
+    ],
+    "types": [
+      {
+        "type": "location",
+        "editor": {
+          "label": "location"
+        },
+        "settings": [
+          {
+            "id": "name",
+            "type": "text",
+            "editor": {
+              "label": "name",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "address",
+            "type": "textarea",
+            "editor": {
+              "label": "address",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "hours",
+            "type": "textarea",
+            "editor": {
+              "label": "opening_hours",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "phone",
+            "type": "text",
+            "editor": {
+              "label": "phone",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "email",
+            "type": "text",
+            "editor": {
+              "label": "email",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "map_link",
+            "type": "url",
+            "editor": {
+              "label": "map_link",
+              "group": "content"
+            }
+          },
+          {
+            "id": "image",
+            "type": "image",
+            "editor": {
+              "label": "image",
+              "group": "content"
+            }
+          },
+          {
+            "id": "fallback_photo",
+            "type": "select",
+            "default": "auto",
+            "options": [
+              {
+                "value": "auto",
+                "label": "opt_photo_auto"
+              },
+              {
+                "value": "room",
+                "label": "opt_photo_room"
+              },
+              {
+                "value": "table",
+                "label": "opt_photo_table"
+              },
+              {
+                "value": "shelf",
+                "label": "opt_photo_shelf"
+              },
+              {
+                "value": "corner",
+                "label": "opt_photo_corner"
+              },
+              {
+                "value": "parcel",
+                "label": "opt_photo_parcel"
+              },
+              {
+                "value": "linen",
+                "label": "opt_photo_linen"
+              },
+              {
+                "value": "bedroom",
+                "label": "opt_photo_bedroom"
+              },
+              {
+                "value": "bench",
+                "label": "opt_photo_bench"
+              },
+              {
+                "value": "evening",
+                "label": "opt_photo_evening"
+              },
+              {
+                "value": "off",
+                "label": "opt_photo_none"
+              }
+            ],
+            "editor": {
+              "label": "fallback_photo",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "store-locations",
+      "category": "text",
+      "blocks": [
+        {
+          "type": "location"
+        }
+      ]
+    }
+  ]
+}

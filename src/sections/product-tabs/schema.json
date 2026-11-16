@@ -1,0 +1,150 @@
+{
+  "name": "product-tabs",
+  "icon": "layout-list",
+  "ctx_needs": [
+    "routes",
+    "csrf_token",
+    "design_mode",
+    "customer_settings", "shopping"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": "@t:sections.product_tabs.heading"
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      },
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "id": "columns_mobile",
+      "type": "select",
+      "editor": {
+        "label": "columns_mobile",
+        "group": "layout"
+      },
+      "default": "2",
+      "options": [
+        {
+          "value": "1",
+          "label": "opt_one_column"
+        },
+        {
+          "value": "2",
+          "label": "opt_two_columns"
+        }
+      ]
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 5,
+    "default": [
+      "tab",
+      "tab",
+      "tab"
+    ],
+    "types": [
+      {
+        "type": "tab",
+        "editor": {
+          "label": "tab"
+        },
+        "settings": [
+          {
+            "id": "title",
+            "type": "text",
+            "editor": {
+              "label": "title",
+              "group": "content"
+            },
+            "default": "@t:sections.product_tabs.tab.title"
+          },
+          {
+            "id": "products",
+            "type": "product_list",
+            "editor": {
+              "label": "products",
+              "group": "content"
+            },
+            "max": 8
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "product-tabs",
+      "category": "products",
+      "blocks": [
+        {
+          "type": "tab",
+          "settings": {
+            "title": "@t:sections.product_tabs.tab.title"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "title": "@t:content.best_sellers"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "title": "@t:content.gifts"
+          }
+        }
+      ]
+    }
+  ]
+}

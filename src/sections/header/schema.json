@@ -1,0 +1,330 @@
+{
+  "name": "header",
+  "kind": "layout",
+  "target": "global_body_start",
+  "icon": "panel-top",
+  "preview_image": "assets/canvas-layout-header.png",
+  "ctx_needs": [
+    "shop",
+    "routes",
+    "cart.item_count",
+    "wishlist.item_count",
+    "customer.logged_in",
+    "customer_settings",
+    "localization",
+    "design_mode",
+    "form_notice",
+    "shopping"
+  ],
+  "settings": [
+    {
+      "id": "logo_position",
+      "type": "select",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "opt_header_left"
+        },
+        {
+          "value": "center",
+          "label": "opt_header_center"
+        },
+        {
+          "value": "stacked",
+          "label": "opt_header_stacked"
+        },
+        {
+          "value": "minimal",
+          "label": "opt_header_minimal"
+        }
+      ],
+      "editor": {
+        "label": "header_layout",
+        "group": "logo"
+      }
+    },
+    {
+      "id": "sticky",
+      "type": "select",
+      "default": "scroll-up",
+      "options": [
+        {
+          "value": "none",
+          "label": "opt_sticky_never"
+        },
+        {
+          "value": "scroll-up",
+          "label": "opt_sticky_scroll_up"
+        },
+        {
+          "value": "always",
+          "label": "opt_sticky_always"
+        }
+      ],
+      "editor": {
+        "label": "sticky_header",
+        "group": "design"
+      }
+    },
+    {
+      "id": "show_border",
+      "type": "checkbox",
+      "default": false,
+      "editor": {
+        "label": "show_border",
+        "group": "design"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 12,
+    "default": [
+      "logo",
+      "menu",
+      "search",
+      "account",
+      "wishlist",
+      "cart"
+    ],
+    "types": [
+      {
+        "type": "logo",
+        "editor": {
+          "label": "logo"
+        },
+        "settings": [
+          {
+            "id": "logo",
+            "type": "image",
+            "editor": {
+              "label": "logo",
+              "group": "content"
+            }
+          },
+          {
+            "id": "logo_width",
+            "type": "range",
+            "min": 60,
+            "max": 300,
+            "step": 5,
+            "unit": "px",
+            "default": 120,
+            "editor": {
+              "label": "logo_width",
+              "group": "content"
+            }
+          },
+          {
+            "id": "logo_max_height",
+            "type": "range",
+            "min": 20,
+            "max": 200,
+            "step": 5,
+            "unit": "px",
+            "default": 200,
+            "editor": {
+              "label": "logo_max_height",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "menu",
+        "editor": {
+          "label": "menu"
+        },
+        "settings": [
+          {
+            "id": "menu",
+            "type": "menu",
+            "default": "main-menu",
+            "editor": {
+              "label": "menu",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "search",
+        "editor": {
+          "label": "header_search"
+        },
+        "settings": [
+          {
+            "id": "show_search",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_search",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "account",
+        "editor": {
+          "label": "header_account"
+        },
+        "settings": [
+          {
+            "id": "show_account",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_account",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "wishlist",
+        "editor": {
+          "label": "header_wishlist"
+        },
+        "settings": [
+          {
+            "id": "show_wishlist",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_wishlist",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_on_phones",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_on_phones",
+              "group": "content"
+            },
+            "visible_if": {
+              "setting": "show_wishlist",
+              "values": [
+                "true"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "cart",
+        "editor": {
+          "label": "header_cart"
+        },
+        "settings": [
+          {
+            "id": "show",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "localization",
+        "editor": {
+          "label": "header_localization"
+        },
+        "settings": [
+          {
+            "id": "show_country",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_country_picker",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_language",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_language_picker",
+              "group": "content"
+            }
+          },
+          {
+            "id": "picker_style",
+            "type": "select",
+            "default": "pill",
+            "options": [
+              {
+                "value": "theme",
+                "label": "opt_loc_theme"
+              },
+              {
+                "value": "dropdown",
+                "label": "opt_loc_dropdown"
+              },
+              {
+                "value": "pill",
+                "label": "opt_loc_pill"
+              },
+              {
+                "value": "modal",
+                "label": "opt_loc_modal"
+              },
+              {
+                "value": "sheet",
+                "label": "opt_loc_sheet"
+              },
+              {
+                "value": "links",
+                "label": "opt_loc_links"
+              }
+            ],
+            "editor": {
+              "label": "picker_style",
+              "group": "design"
+            }
+          }
+        ]
+      },
+      {
+        "type": "link",
+        "editor": {
+          "label": "header_link"
+        },
+        "settings": [
+          {
+            "id": "label",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "link_label",
+              "group": "content"
+            }
+          },
+          {
+            "id": "link",
+            "type": "url",
+            "editor": {
+              "label": "link",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

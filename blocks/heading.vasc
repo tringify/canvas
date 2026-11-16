@@ -1,0 +1,66 @@
+{%- comment -%} Heading. Section's style takes the size the section it sits in gives its headings (a slide's, a tile's, a rich text's); the other sizes are the theme's heading scale.
+  With a link the heading's text is the link; in a tile it is the tile's link for keyboards and screen readers (the tile's own link is the pointer target). {%- endcomment -%}
+{%- assign cv_hs = settings.size | default: 'auto' -%}
+{%- if settings.heading != blank -%}<h2 dir="auto" class="cv-blk-heading cv-blk-heading--{{ cv_hs }} {% case cv_hs %}{% when 'h1' %}cv-h1{% when 'h3' %}cv-h3{% when 'h4' %}cv-h4{% else %}cv-h2{% endcase %}" data-tf-field="heading">
+  {%- if settings.link != blank -%}<a class="cv-blk-heading__link" href="{{ settings.link }}">{{ settings.heading }}</a>{%- else -%}{{ settings.heading }}{%- endif -%}
+</h2>{%- elsif design_mode -%}<p class="cv-editor-hint cv-blk-hint">{{ 'sections.editor_empty_block' | t }}</p>{%- endif -%}
+{% schema %}
+{
+  "name": "heading",
+  "kind": "block",
+  "icon": "heading",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.rich_text.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "link",
+      "type": "url",
+      "editor": {
+        "label": "link",
+        "group": "content"
+      }
+    },
+    {
+      "id": "size",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "opt_size_section"
+        },
+        {
+          "value": "h1",
+          "label": "opt_huge"
+        },
+        {
+          "value": "h2",
+          "label": "opt_large"
+        },
+        {
+          "value": "h3",
+          "label": "opt_medium"
+        },
+        {
+          "value": "h4",
+          "label": "opt_small"
+        }
+      ],
+      "editor": {
+        "label": "heading_size",
+        "group": "design"
+      }
+    }
+  ]
+}
+{% endschema %}

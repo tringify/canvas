@@ -1,0 +1,24 @@
+{
+  "name": "main-login",
+  "icon": "user",
+  "ctx_needs": [
+    "customer_settings",
+    "auth_form",
+    "auth_notice",
+    "form_error",
+    "phone_countries",
+    "routes",
+    "csrf_token"
+  ],
+  "settings": [
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ]
+}

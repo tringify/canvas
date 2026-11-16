@@ -1,0 +1,52 @@
+{%- comment -%} Back-in-stock request (cart_notify_me) for a sold-out product or variant. Inputs: cv_nf_pid (product id), cv_nf_vid (variant id, blank for the
+  whole product), cv_nf_id (unique id prefix), cv_nf_head (false hides the heading, when a summary already says it).
+  Shows only while the store's restock alerts are on. In account_email mode a signed-in customer confirms with one button and the platform writes to their
+  account email; visitors type an email, or pick Text message and enter a phone number (partials/phone-field) when the store sends texts. {%- endcomment -%}
+{%- assign cv_nf_mode = restock_notifications.mode | default: 'disabled' -%}
+{%- if restock_notifications.enabled and cv_nf_mode != 'disabled' -%}
+{%- assign cv_nf_sms = false -%}{%- if restock_notifications.sms_available and cv_nf_mode == 'email_input' -%}{%- assign cv_nf_sms = true -%}{%- endif -%}
+{%- assign cv_nf_account = false -%}{%- if cv_nf_mode == 'account_email' and customer.logged_in -%}{%- assign cv_nf_account = true -%}{%- endif -%}
+<div class="cv-notify" data-cv-notice-host="{{ cv_nf_id }}">
+  {%- if cv_nf_head != false -%}<p class="cv-notify__title">{%- if cv_nf_sms -%}{{ 'products.notify_title_any' | t }}{%- else -%}{{ 'products.notify_title' | t }}{%- endif -%}</p>{%- endif -%}
+  <p class="cv-notice cv-notice--ok" role="status" data-cv-notice hidden></p>
+  {%- if restock_notifications.login_required and customer.logged_in != true -%}
+    <p class="cv-notify__note">{{ 'products.notify_login' | t }} <a class="cv-tbtn" href="{{ routes.login_url }}">{{ 'header.sign_in' | t }}</a></p>
+  {%- else -%}
+    {% form 'cart_notify_me', class: 'cv-notify__form' %}
+      <input type="hidden" name="product_id" value="{{ cv_nf_pid }}">
+      {%- if cv_nf_vid != blank -%}<input type="hidden" name="variant_id" value="{{ cv_nf_vid }}">{%- endif -%}
+      {%- if cv_nf_account -%}
+        <input type="hidden" name="contact_type" value="email">
+        <button class="cv-btn cv-btn--block" type="submit">{{ 'products.notify_account_button' | t }}</button>
+        <p class="cv-notify__note">{%- if customer.email != blank -%}{{ 'products.notify_account_to' | t: email: customer.email }}{%- else -%}{{ 'products.notify_account_note' | t }}{%- endif -%}</p>
+      {%- else -%}
+        {%- if cv_nf_sms -%}
+          <fieldset class="cv-notify__by">
+            <legend class="cv-sr">{{ 'products.notify_by' | t }}</legend>
+            <div class="cv-seg">
+              <label><input type="radio" name="contact_type" value="email" checked data-cv-notify-kind> {{ 'forms.email' | t }}</label>
+              <label><input type="radio" name="contact_type" value="sms" data-cv-notify-kind> {{ 'products.notify_sms' | t }}</label>
+            </div>
+          </fieldset>
+        {%- else -%}
+          <input type="hidden" name="contact_type" value="email">
+        {%- endif -%}
+        <div class="cv-notify__row">
+          <label class="cv-sr" for="{{ cv_nf_id }}-email">{{ 'forms.email' | t }}</label>
+          <input class="cv-input" id="{{ cv_nf_id }}-email" type="email" name="email" required autocomplete="email" maxlength="256" placeholder="{{ 'forms.email' | t }}" data-cv-notify-field="email">
+          {%- if cv_nf_sms -%}
+            <div class="cv-notify__phone" data-cv-notify-field="sms" hidden>
+            {%- assign cv_ph_id = cv_nf_id | append: '-phone' -%}{%- assign cv_ph_name = 'phone' -%}{%- assign cv_ph_value = '' -%}
+            {%- assign cv_ph_label = 'forms.phone' | t -%}{%- assign cv_ph_required = false -%}{%- assign cv_ph_country = localization.country.iso_code -%}
+            {%- assign cv_ph_disabled = true -%}{%- assign cv_ph_describedby = '' -%}{%- assign cv_ph_auto = '' -%}
+{%- comment -%}partial:phone-field{%- endcomment -%}
+{%- comment -%}/partial:phone-field{%- endcomment -%}
+            </div>
+          {%- endif -%}
+          <button class="cv-btn" type="submit">{{ 'products.notify_button' | t }}</button>
+        </div>
+      {%- endif -%}
+    {% endform %}
+  {%- endif -%}
+</div>
+{%- endif -%}

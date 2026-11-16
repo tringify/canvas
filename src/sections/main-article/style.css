@@ -1,0 +1,22 @@
+  .cv-ar__wrap { max-width: 860px; display: grid; gap: 28px; }
+  .cv-ar__head { display: grid; gap: 12px; text-align: center; justify-items: center; }
+  .cv-ar__head p { margin: 0; }
+  .cv-ar__head .cv-eyebrow a { color: inherit; text-decoration: none; }
+  .cv-ar__image { aspect-ratio: 16 / 9; }
+  .cv-ar__body { font-size: 18px; }
+  .cv-ar__blocks { display: grid; gap: 12px; }
+  .cv-ar__blocks:empty { display: none; }
+  .cv-ar__body img { height: auto; margin-inline: auto; }
+  .cv-ar__tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+  .cv-ar__tag { padding: 4px 12px; font-size: 13px; color: var(--text); text-decoration: none; border: 1px solid var(--border); border-radius: 999px; }
+  .cv-ar__author { display: flex; gap: 16px; padding: 20px; border: 1px solid var(--border); border-radius: var(--cv-radius, 0px); }
+  .cv-ar__author img { border-radius: 50%; object-fit: cover; flex: none; }
+  .cv-ar__author p { margin: 0; }
+  .cv-ar__aname { font-weight: 600; margin-bottom: 4px !important; }
+  .cv-ar__comments { display: grid; gap: 18px; padding-top: 28px; border-top: 1px solid var(--border); }
+  .cv-ar__comment { padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .cv-ar__comment p { margin: 0; }
+  .cv-ar__cby { font-weight: 500; margin-bottom: 6px !important; font-size: 14px; }
+  .cv-ar__cform { display: grid; gap: 14px; }
+  .cv-ar__two { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .cv-hp { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; opacity: 0; }

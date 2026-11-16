@@ -1,0 +1,81 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: optional services, the market's optional checkout fees (cart.optional_fees, in the store's order). Reads cart,
+  design_mode and the block (b); cv_where keeps the page's and the drawer's ids apart. Each fee is a checkbox in its own cart_fee_select form,
+  ticked when the cart has chosen it; partials/optional-services-script sends a change at once and puts the box back when the platform refuses
+  it (the platform shows its message). Checkout prices and taxes what is chosen. A fixed fee prints the platform's amount (per item when it is
+  charged per item), a percent fee its share of the subtotal (and its cap, percent_cap). Without script each fee has an Add or Remove button
+  instead of the box. A fee the cart does not meet (applies false) shows the platform's unavailable_reason; its box is disabled unless the cart
+  chose it, which then reads Not applied and can still be removed. A chosen fee that asks for text (fee.text) shows its prompt and a field under
+  it, prefilled with customer_text and saved with another cart_fee_select (selected=true, text) when it changes; a refusal shows at the field.
+  {%- endcomment -%}
+{%- assign cv_osv = cart.optional_fees -%}
+{%- if cv_osv != blank -%}
+  {%- assign cv_osv_id = 'cv-osv-' | append: cv_where | append: '-' | append: b.id -%}
+  {%- assign cv_osv_desc = false -%}{%- if b.settings.show_descriptions -%}{%- assign cv_osv_desc = true -%}{%- endif -%}
+  <div class="cv-osv cv-osv--{{ b.settings.style | default: 'plain' }}" role="group" aria-labelledby="{{ cv_osv_id }}">
+    {%- if b.settings.heading != blank -%}
+    <p class="cv-osv__title" id="{{ cv_osv_id }}" dir="auto" data-tf-field="heading">{{ b.settings.heading }}</p>
+    {%- else -%}
+    <p class="cv-sr" id="{{ cv_osv_id }}">{{ 'cart.optional_services' | t }}</p>
+    {%- endif -%}
+    <ul class="cv-osv__list">
+      {%- for fee in cv_osv -%}
+        {%- assign cv_osv_fid = cv_osv_id | append: '-' | append: forloop.index -%}
+        {%- assign cv_osv_has_desc = false -%}{%- if cv_osv_desc and fee.description != blank -%}{%- assign cv_osv_has_desc = true -%}{%- endif -%}
+        {%- assign cv_osv_off = false -%}{%- if fee.applies == false -%}{%- assign cv_osv_off = true -%}{%- endif -%}
+        {%- assign cv_osv_lock = false -%}{%- if cv_osv_off and fee.selected != true -%}{%- assign cv_osv_lock = true -%}{%- endif -%}
+        {%- assign cv_osv_by = '' -%}
+        {%- if cv_osv_off -%}{%- assign cv_osv_by = cv_osv_fid | append: '-u' -%}{%- endif -%}
+        {%- if cv_osv_has_desc -%}{%- assign cv_osv_by = cv_osv_by | append: ' ' | append: cv_osv_fid | append: '-d' | strip -%}{%- endif -%}
+        <li{% if cv_osv_off %} class="is-off"{% endif %}>
+          {% form 'cart_fee_select', class: 'cv-osv__row' %}
+            <input type="hidden" name="fee_id" value="{{ fee.id }}">
+            <input type="hidden" name="selected" value="{% if fee.selected %}false{% else %}true{% endif %}" data-cv-osv-sel>
+            <input class="cv-osv__check" type="checkbox" id="{{ cv_osv_fid }}" data-cv-osv{% if fee.selected %} checked{% endif %}{% if cv_osv_lock %} disabled{% endif %}{% if cv_osv_by != blank %} aria-describedby="{{ cv_osv_by }}"{% endif %}>
+            <label class="cv-osv__label" for="{{ cv_osv_fid }}" id="{{ cv_osv_fid }}-n">
+              <span class="cv-osv__name" dir="auto">{{ fee.name }}</span>
+              <span class="cv-osv__amt">
+                {%- if fee.fee_type == 'percent' -%}
+                  {%- assign cv_osv_pc = fee.percent | format_number -%}
+                  {%- if fee.percent_cap -%}
+                    {%- assign cv_osv_cap = fee.percent_cap | money: isolate: true, trim_zeros: cv_tz -%}{{ 'cart.fee_percent_capped' | t: percent: cv_osv_pc, cap: cv_osv_cap }}
+                  {%- else -%}{{ 'cart.fee_percent' | t: percent: cv_osv_pc }}{%- endif -%}
+                {%- else -%}
+                  {%- assign cv_osv_amt = fee.amount | money: isolate: true, trim_zeros: cv_tz -%}
+                  {%- if fee.apply_per == 'item' -%}{{ 'cart.fee_per_item' | t: amount: cv_osv_amt }}{%- else -%}{{ cv_osv_amt }}{%- endif -%}
+                {%- endif -%}
+              </span>
+            </label>
+            {%- if cv_osv_off -%}
+            <p class="cv-osv__off" id="{{ cv_osv_fid }}-u" dir="auto">
+              {%- if fee.selected -%}<span class="cv-osv__na">{{ 'cart.fee_not_applied' | t }}</span>{%- endif -%}
+              {%- if fee.selected and fee.unavailable_reason != blank %} · {% endif -%}{{ fee.unavailable_reason }}
+            </p>
+            {%- endif -%}
+            {%- if cv_osv_has_desc -%}<p class="cv-osv__desc" id="{{ cv_osv_fid }}-d" dir="auto">{{ fee.description }}</p>{%- endif -%}
+            {%- unless cv_osv_lock -%}
+            <button class="cv-tbtn cv-osv__go" type="submit" aria-describedby="{{ cv_osv_fid }}-n">{% if fee.selected %}{{ 'cart.remove' | t }}{% else %}{{ 'cart.add' | t }}{% endif %}</button>
+            {%- endunless -%}
+          {% endform %}
+          {%- if fee.text and fee.selected and cv_osv_off == false -%}
+          {% form 'cart_fee_select', class: 'cv-osv__text' %}
+            <input type="hidden" name="fee_id" value="{{ fee.id }}">
+            <input type="hidden" name="selected" value="true">
+            <label class="cv-osv__prompt" for="{{ cv_osv_fid }}-t" dir="auto">{{ fee.text.prompt }}{% if fee.text.required %} <span class="cv-osv__req">{{ 'cart.fee_text_required' | t }}</span>{% endif %}</label>
+            {%- assign cv_osv_max = fee.text.max_length | default: 0 -%}
+            {%- if cv_osv_max > 80 -%}
+            <textarea class="cv-input cv-osv__input" id="{{ cv_osv_fid }}-t" name="text" rows="2" dir="auto" maxlength="{{ fee.text.max_length }}"{% if fee.text.required %} aria-required="true"{% endif %} aria-describedby="{{ cv_osv_fid }}-e" data-cv-osv-text>{{ fee.customer_text }}</textarea>
+            {%- else -%}
+            <input class="cv-input cv-osv__input" type="text" id="{{ cv_osv_fid }}-t" name="text" dir="auto" maxlength="{{ fee.text.max_length }}" value="{{ fee.customer_text }}"{% if fee.text.required %} aria-required="true"{% endif %} aria-describedby="{{ cv_osv_fid }}-e" data-cv-osv-text>
+            {%- endif -%}
+            <p class="cv-osv__err" id="{{ cv_osv_fid }}-e" role="alert" data-cv-osv-err hidden></p>
+            <button class="cv-tbtn cv-osv__save" type="submit">{{ 'cart.fee_text_save' | t }}</button>
+          {% endform %}
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- elsif design_mode -%}
+  <p class="cv-editor-hint cv-osv-hint">{{ 'editor.optional_services' | t }}</p>
+{%- endif -%}

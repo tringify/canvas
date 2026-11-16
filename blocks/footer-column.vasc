@@ -1,0 +1,102 @@
+{%- comment -%} Footer column: the blocks the merchant stacks in one column of the footer (a heading over a menu, text, a newsletter form,
+  social links, contact details, payment methods, a logo). The footer sets the column's width and look. A column with nothing in it shows
+  only in the editor. {%- endcomment -%}
+{%- if settings.blocks.size > 0 -%}
+<div class="cv-ftc">{% blocks %}</div>
+{%- elsif design_mode -%}
+<div class="cv-ftc"><p class="cv-editor-hint cv-blk-hint">{{ 'sections.editor_add_content' | t }}</p></div>
+{%- endif -%}
+{% schema %}
+{
+  "name": "footer-column",
+  "kind": "block",
+  "icon": "columns-3",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "width",
+      "type": "select",
+      "default": "1",
+      "options": [
+        {
+          "value": "1",
+          "label": "opt_one_column"
+        },
+        {
+          "value": "2",
+          "label": "opt_two_columns"
+        },
+        {
+          "value": "full",
+          "label": "opt_full_row"
+        }
+      ],
+      "editor": {
+        "label": "column_width",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "menu-links",
+      "newsletter-form",
+      "social-links",
+      "contact-details",
+      "payment-methods",
+      "logo",
+      "custom-vascula"
+    ],
+    "max": 8
+  },
+  "migrations": [
+    {
+      "id": "footer-column-copy-to-blocks",
+      "op": "settings_to_blocks",
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "heading"
+          },
+          "when": [
+            "heading",
+            "text"
+          ]
+        },
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "heading"
+          },
+          "when": [
+            "heading",
+            "menu"
+          ]
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "text"
+          }
+        },
+        {
+          "type": "theme:menu-links",
+          "settings": {
+            "menu": "menu"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

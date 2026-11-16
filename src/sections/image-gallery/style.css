@@ -1,0 +1,18 @@
+  .cv-gal__grid { display: grid; gap: clamp(20px, 2.4vw, 32px) var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); grid-template-columns: repeat(var(--cv-gal-cols-m, 2), minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 750px) { .cv-gal__grid { grid-template-columns: repeat(var(--cv-gal-cols, 3), minmax(0, 1fr)); } }
+  .cv-gal__item { min-width: 0; }
+  .cv-gal__fig { display: grid; gap: 12px; margin: 0; }
+  .cv-gal__media { display: block; aspect-ratio: 4 / 5; }
+  .cv-gal--square .cv-gal__media { aspect-ratio: 1 / 1; }
+  .cv-gal--landscape .cv-gal__media { aspect-ratio: 4 / 3; }
+  .cv-gal__media > img { transition: transform 0.9s var(--cv-ease); }
+  a.cv-gal__media:hover > img { transform: scale(1.03); }
+  .cv-gal__cap { font-size: 14px; line-height: 1.45; color: var(--text-muted); text-wrap: pretty; }
+  .cv-gal__cap a { color: var(--text); text-decoration: underline; text-decoration-color: var(--cv-line); text-underline-offset: 3px; }
+  .cv-gal__cap a:hover { text-decoration-color: currentColor; }
+  /* Each image's own shape: the images flow down columns, like a contact sheet. */
+  .cv-gal--natural .cv-gal__grid { display: block; columns: var(--cv-gal-cols-m, 2); column-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); }
+  @media (min-width: 750px) { .cv-gal--natural .cv-gal__grid { columns: var(--cv-gal-cols, 3); } }
+  .cv-gal--natural .cv-gal__item { break-inside: avoid; margin-bottom: clamp(20px, 2.4vw, 32px); }
+  .cv-gal--natural .cv-gal__media { aspect-ratio: auto; }
+  .cv-gal--natural .cv-gal__media > img { height: auto; }

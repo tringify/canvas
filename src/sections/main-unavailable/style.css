@@ -1,0 +1,9 @@
+  .cv-gate { display: grid; place-items: center; min-height: 100svh; padding: 32px var(--cv-pad-x); text-align: center; }
+  .cv-gate__box { display: grid; gap: 16px; justify-items: center; width: 100%; max-width: 480px; }
+  .cv-gate__box p { margin: 0; }
+  .cv-gate__shop { font-family: var(--tf-font-heading_font, inherit); font-size: 20px; font-weight: 600; }
+  .cv-gate__form { display: flex; gap: 8px; width: 100%; }
+  .cv-gate__form .cv-input { flex: 1; min-width: 0; }
+  .cv-gate__form--wrap { flex-wrap: wrap; }
+  .cv-gate__consent { flex-basis: 100%; justify-content: center; text-align: start; color: var(--text-muted); }
+  .cv-hp { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; opacity: 0; }

@@ -1,0 +1,48 @@
+{%- comment -%} The end time is a moment the merchant picked in the store's time zone; the platform hands it over
+with the store's offset, so every shopper counts to the same instant. Without one the live section stays hidden;
+the editor shows it with a note, so a section just added is never invisible. {%- endcomment -%}
+{%- if settings.end_at != blank or design_mode -%}
+<section class="cv cv-section cv-cd tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}" data-cv-countdown="{{ settings.end_at }}" data-after="{{ settings.after_end }}">
+  <div class="cv-wrap cv-cd__inner">
+    {%- if settings.eyebrow != blank -%}<p dir="auto" class="cv-eyebrow" data-tf-field="eyebrow">{{ settings.eyebrow }}</p>{%- endif -%}
+    {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+    {%- if settings.text != blank -%}<p dir="auto" class="cv-muted" data-tf-field="text">{{ settings.text }}</p>{%- endif -%}
+    <div dir="auto" class="cv-cd__clock" role="timer" aria-live="off" data-tf-field="end_at">
+      <div><span data-u="d">00</span><small>{{ 'sections.days' | t }}</small></div>
+      <div><span data-u="h">00</span><small>{{ 'sections.hours' | t }}</small></div>
+      <div><span data-u="m">00</span><small>{{ 'sections.minutes' | t }}</small></div>
+      <div><span data-u="s">00</span><small>{{ 'sections.seconds' | t }}</small></div>
+    </div>
+    <p dir="auto" data-tf-field="ended_text" class="cv-cd__ended" hidden>{{ settings.ended_text }}</p>
+    {%- if settings.end_at == blank -%}<p class="cv-muted cv-cd__unset">{{ 'sections.countdown_set_end' | t }}</p>{%- endif -%}
+    {%- if settings.button_label != blank -%}<a dir="auto" data-tf-field="button_label" class="cv-btn cv-btn--lg{% case settings.button_style %}{% when 'outline' %} cv-btn--outline{% when 'ghost' %} cv-btn--ghost{% when 'link' %} cv-btn--link{% endcase %}{% if settings.button_scheme != blank %} tf-scheme-{{ settings.button_scheme }}{% endif %}" href="{{ settings.button_link | default: routes.shop_url }}">{{ settings.button_label }}</a>{%- endif -%}
+  </div>
+</section>
+{%- endif -%}
+<script>
+(function () {
+  document.querySelectorAll("[data-cv-countdown]:not([data-cv-ready])").forEach(function (el) {
+    el.setAttribute("data-cv-ready", "");
+    var end = Date.parse(el.getAttribute("data-cv-countdown"));
+    var clock = el.querySelector(".cv-cd__clock"), done = el.querySelector(".cv-cd__ended");
+    if (isNaN(end)) return; // no end time yet (editor only): the clock rests at zero beside the note
+    function pad(n) { return n < 10 ? "0" + n : String(n); }
+    function tick() {
+      if (!el.isConnected) return;
+      var left = Math.max(0, end - Date.now());
+      if (left === 0) {
+        if (el.getAttribute("data-after") === "hide" && !document.documentElement.hasAttribute("data-tf-editor")) { el.hidden = true; }
+        else { clock.hidden = true; done.hidden = false; }
+        return;
+      }
+      var s = Math.floor(left / 1000);
+      el.querySelector("[data-u=d]").textContent = pad(Math.floor(s / 86400));
+      el.querySelector("[data-u=h]").textContent = pad(Math.floor(s / 3600) % 24);
+      el.querySelector("[data-u=m]").textContent = pad(Math.floor(s / 60) % 60);
+      el.querySelector("[data-u=s]").textContent = pad(s % 60);
+      setTimeout(tick, 1000 - (Date.now() % 1000));
+    }
+    tick();
+  });
+})();
+</script>

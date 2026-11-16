@@ -1,0 +1,22 @@
+{%- comment -%} Cart page and drawer: the blocks beside the summary, in the merchant's order: Line items (with the pickup location above them and
+  Clear cart below) and the theme and app blocks (Recently viewed, apps). The summary blocks render in partials/cart-summary. Reads cart,
+  shopping, routes, design_mode, restock_notifications, customer; cv_where is 'page' or 'drawer'. {%- endcomment -%}
+{%- for b in settings.blocks -%}
+  {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+  {%- case b.type -%}
+    {%- when 'lines' -%}
+      {{ b._editor_block_open }}
+      <div class="cv-cart__items" style="--cv-custom-fit: {{ b.settings.custom_image_fit | default: 'contain' }};">
+{%- comment -%}partial:pickup-cart{%- endcomment -%}
+{%- comment -%}/partial:pickup-cart{%- endcomment -%}
+{%- assign cv_ls = b.settings -%}
+{%- comment -%}partial:cart-lines{%- endcomment -%}
+{%- comment -%}/partial:cart-lines{%- endcomment -%}
+        {%- if cv_ls.show_clear_cart != false -%}{% form 'cart_clear', class: 'cv-cart__clear' %}<button class="cv-tbtn" type="submit" data-cv-confirm="{{ 'cart.clear_confirm' | t }}">{{ 'cart.clear' | t }}</button>{% endform %}{%- endif -%}
+      </div>
+      {{ b._editor_block_close }}
+    {%- when 'free_shipping', 'offers', 'discounts', 'totals', 'price_notes', 'order_limit', 'cart_note', 'checkout', 'express_checkout', 'note' -%}
+    {%- else -%}
+      {% blocks b %}
+  {%- endcase -%}
+{%- endfor -%}

@@ -1,0 +1,59 @@
+{
+  "name": "Night",
+  "settings": {
+    "schemes": [
+      {
+        "id": "default",
+        "label": "Night",
+        "colors": {
+          "bg": "#0e0e0f",
+          "text": "#f4f4f5",
+          "text-muted": "#a1a1aa",
+          "border": "#27272a",
+          "surface": "#18181b",
+          "btn": "#f4f4f5",
+          "btn-text": "#0e0e0f",
+          "accent": "#ff6b61"
+        }
+      },
+      {
+        "id": "light",
+        "label": "Charcoal",
+        "colors": {
+          "bg": "#18181b",
+          "text": "#f4f4f5",
+          "text-muted": "#a1a1aa",
+          "border": "#2f2f33",
+          "surface": "#0e0e0f",
+          "btn": "#f4f4f5",
+          "btn-text": "#0e0e0f",
+          "accent": "#ff6b61"
+        }
+      },
+      {
+        "id": "inverse",
+        "label": "White",
+        "colors": {
+          "bg": "#ffffff",
+          "text": "#121212",
+          "text-muted": "#5e5e5e",
+          "border": "#e5e5e5",
+          "surface": "#f4f4f4",
+          "btn": "#121212",
+          "btn-text": "#ffffff",
+          "accent": "#c4302b"
+        }
+      }
+    ],
+    "heading_font": "space-grotesk",
+    "body_font": "inter",
+    "corner_radius": "8px",
+    "button_radius": "10px",
+    "card_image_ratio": "1 / 1",
+    "heading_scale": "100",
+    "heading_case": "uppercase",
+    "card_style": "tile",
+    "section_spacing": "compact",
+    "page_width": "1680px"
+  }
+}

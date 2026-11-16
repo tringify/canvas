@@ -1,0 +1,22 @@
+{%- comment -%} Quotes are the merchant's own: a testimonial shows on the store once it has words in it, and the section only when one does. {%- endcomment -%}
+{%- assign cv_quotes = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled != true and b.settings.quote != blank -%}{%- assign cv_quotes = cv_quotes | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_quotes > 0 or design_mode -%}
+<section class="cv cv-section cv-tm tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}">
+  <div class="cv-wrap">
+    {%- if settings.heading != blank -%}<div class="cv-head cv-head--center"><h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2></div>{%- endif -%}
+    <div class="cv-grid" style="--cv-cols: {{ settings.columns }}; --cv-cols-m: 1">
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled or b.settings.quote == blank -%}{%- continue -%}{%- endif -%}
+        {{ b._editor_block_open }}
+        <figure class="cv-tm__item">
+          {%- if b.settings.rating > 0 -%}<span class="cv-stars" style="--cv-rating: {{ b.settings.rating | times: 20 }}%" role="img" aria-label="{{ 'reviews.stars' | t: rating: b.settings.rating }}"></span>{%- endif -%}
+          <blockquote dir="auto" data-tf-field="quote" class="cv-tm__quote">{{ b.settings.quote }}</blockquote>
+          <figcaption dir="auto" data-tf-field="author" class="cv-tm__author">{{ b.settings.author }}{% if b.settings.detail != blank %}<span dir="auto" data-tf-field="detail" class="cv-muted"> · {{ b.settings.detail }}</span>{% endif %}</figcaption>
+        </figure>
+        {{ b._editor_block_close }}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+{%- endif -%}

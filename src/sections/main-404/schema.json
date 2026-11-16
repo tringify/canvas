@@ -1,0 +1,36 @@
+{
+  "name": "main-404",
+  "icon": "circle-alert",
+  "ctx_needs": [
+    "routes"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.main_404.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "text",
+      "type": "text",
+      "default": "@t:sections.main_404.text",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ]
+}

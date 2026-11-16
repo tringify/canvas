@@ -1,0 +1,95 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Up to four columns (a product, or a plan the merchant names) compared row by row; each row's first value belongs to the first column block, and so on. A value of yes, ✓ or + shows a tick; no, – or ✗ shows a dash. The table shows once two columns and one row have content; until then the section stays hidden. Built from a grid with table roles, because the editor's block markers cannot sit inside a real table. {%- endcomment -%}
+{%- assign cv_yes = 'general.yes' | t | downcase -%}
+{%- assign cv_no = 'general.no' | t | downcase -%}
+{%- assign cv_slots = '' -%}{%- assign cv_cols = 0 -%}{%- assign cv_k = 0 -%}{%- assign cv_rows = 0 -%}
+{%- for b in settings.blocks -%}
+  {%- if b.type == 'column' -%}
+    {%- assign cv_k = cv_k | plus: 1 -%}
+    {%- if b.disabled or cv_k > 4 -%}{%- continue -%}{%- endif -%}
+    {%- if b.settings.product or b.settings.title != blank -%}{%- assign cv_slots = cv_slots | append: cv_k -%}{%- assign cv_cols = cv_cols | plus: 1 -%}{%- endif -%}
+  {%- elsif b.type == 'row' and b.disabled != true -%}
+    {%- if b.settings.label != blank -%}{%- assign cv_rows = cv_rows | plus: 1 -%}{%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- assign cv_ready = false -%}{%- if cv_cols >= 2 and cv_rows >= 1 -%}{%- assign cv_ready = true -%}{%- endif -%}
+{%- if cv_ready or design_mode -%}
+<section class="cv cv-section cv-ctbl tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}" style="--cv-ctbl-cols: {% if cv_cols > 0 %}{{ cv_cols }}{% else %}1{% endif %}">
+  {%- if design_mode and cv_ready != true -%}<p class="cv-editor-hint">{{ 'sections.editor_comparison_needs' | t }}</p>{%- endif -%}
+  <div class="cv-wrap">
+    {%- if settings.heading != blank or settings.text != blank -%}
+    <div class="cv-head cv-head--center">
+      {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+      {%- if settings.text != blank -%}<p dir="auto" class="cv-muted" data-tf-field="text">{{ settings.text }}</p>{%- endif -%}
+    </div>
+    {%- endif -%}
+    <div class="cv-ctbl__scroll" role="region" tabindex="0"{% if settings.heading != blank %} aria-label="{{ settings.heading | escape }}"{% else %} aria-label="{{ 'sections.comparison_table.heading' | t }}"{% endif %}>
+      <div class="cv-ctbl__table" role="table"{% if settings.heading != blank %} aria-label="{{ settings.heading | escape }}"{% endif %}>
+        <div class="cv-ctbl__row cv-ctbl__row--head" role="row">
+          <div class="cv-ctbl__corner" role="columnheader"><span class="cv-sr">{{ 'sections.comparison_table.feature' | t }}</span></div>
+          {%- assign cv_k = 0 -%}
+          {%- for b in settings.blocks -%}
+            {%- if b.type != 'column' -%}{%- continue -%}{%- endif -%}
+            {%- assign cv_k = cv_k | plus: 1 -%}
+            {%- assign cv_ks = cv_k | append: '' -%}
+            {%- unless cv_slots contains cv_ks -%}{%- continue -%}{%- endunless -%}
+            {%- assign cv_p = b.settings.product -%}
+            {%- assign cv_name = b.settings.title | default: cv_p.title -%}
+            {%- assign cv_href = b.settings.link | default: cv_p.url -%}
+            {{ b._editor_block_open }}
+            <div class="cv-ctbl__col{% if settings.highlight == cv_ks %} is-highlight{% endif %}" role="columnheader">
+              {%- if cv_p -%}
+                {%- assign cv_img = cv_p.featured_image -%}
+                {%- if cv_img.media_type and cv_img.media_type != 'image' -%}{%- assign cv_img = cv_img.preview_image -%}{%- endif -%}
+                <a class="cv-ctbl__img cv-media" href="{{ cv_p.url }}" tabindex="-1" aria-hidden="true">
+                  {%- if cv_img.url -%}<img src="{{ cv_img.url | image_url: width: 360 }}" srcset="{{ cv_img.url | image_srcset: max: 720 }}" sizes="180px" alt="" loading="lazy">{%- else -%}<span class="cv-noimg">{{ cv_p.title }}</span>{%- endif -%}
+                </a>
+              {%- endif -%}
+              {%- if cv_name != blank -%}
+                <p dir="auto" class="cv-ctbl__name"{% if b.settings.title != blank %} data-tf-field="title"{% endif %}>{%- if cv_p -%}<a href="{{ cv_p.url }}">{{ cv_name }}</a>{%- else -%}{{ cv_name }}{%- endif -%}</p>
+              {%- endif -%}
+              {%- if b.settings.subtitle != blank -%}
+                <p dir="auto" class="cv-ctbl__sub" data-tf-field="subtitle">{{ b.settings.subtitle }}</p>
+              {%- elsif cv_p -%}
+                {%- assign cv_cur = cv_p.price.current -%}
+                {%- assign cv_td = cv_p.price.tax_display.current -%}
+                {%- if cv_td and cv_td.status != 'unavailable' and cv_td.status != 'not_applicable' -%}{%- assign cv_cur = cv_td.primary -%}{%- endif -%}
+                <p class="cv-ctbl__sub cv-price">{%- if cv_p.price_range.has_range -%}<span class="cv-muted">{{ 'products.from' | t }}</span>&nbsp;{%- endif -%}{{ cv_cur | money: isolate: true, trim_zeros: cv_tz }}</p>
+              {%- endif -%}
+              {%- if b.settings.button_label != blank and cv_href != blank -%}
+                <a dir="auto" class="cv-btn cv-btn--sm{% unless settings.highlight == cv_ks %} cv-btn--soft{% endunless %} cv-ctbl__btn" href="{{ cv_href }}" data-tf-field="button_label">{{ b.settings.button_label }}{% if cv_name != blank %}<span class="cv-sr">: {{ cv_name }}</span>{% endif %}</a>
+              {%- endif -%}
+            </div>
+            {{ b._editor_block_close }}
+          {%- endfor -%}
+        </div>
+        {%- for b in settings.blocks -%}
+          {%- if b.type != 'row' or b.disabled -%}{%- continue -%}{%- endif -%}
+          {%- if b.settings.label == blank -%}{%- continue -%}{%- endif -%}
+          {{ b._editor_block_open }}
+          <div class="cv-ctbl__row" role="row">
+            <div dir="auto" class="cv-ctbl__label" role="rowheader"{% if b.settings.label != blank %} data-tf-field="label"{% endif %}>{{ b.settings.label }}</div>
+            {%- for cv_s in (1..4) -%}
+              {%- assign cv_ks = cv_s | append: '' -%}
+              {%- unless cv_slots contains cv_ks -%}{%- continue -%}{%- endunless -%}
+              {%- assign cv_vkey = 'value_' | append: cv_s -%}
+              {%- assign cv_v = b.settings[cv_vkey] | strip -%}
+              {%- assign cv_vd = cv_v | downcase -%}
+              <div dir="auto" class="cv-ctbl__cell{% if settings.highlight == cv_ks %} is-highlight{% endif %}" role="cell">
+                {%- if cv_vd == 'yes' or cv_vd == '✓' or cv_vd == '✔' or cv_vd == '+' or cv_vd == cv_yes -%}
+                  <svg class="cv-icon cv-ctbl__yes" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg><span class="cv-sr">{{ 'general.yes' | t }}</span>
+                {%- elsif cv_vd == 'no' or cv_vd == '-' or cv_vd == '–' or cv_vd == '—' or cv_vd == '✗' or cv_vd == '✕' or cv_vd == cv_no -%}
+                  <span class="cv-ctbl__no" aria-hidden="true"></span><span class="cv-sr">{{ 'general.no' | t }}</span>
+                {%- elsif cv_v != blank -%}
+                  {{ cv_v }}
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          </div>
+          {{ b._editor_block_close }}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+{%- endif -%}

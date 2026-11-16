@@ -1,0 +1,66 @@
+{%- comment -%} A lookbook: each image with an optional caption and link. An image shows the merchant's image, else the theme photo picked for it; an image set to No photo is left out. "Each image's own shape" flows the images in columns. {%- endcomment -%}
+{%- assign cv_n = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled -%}{%- continue -%}{%- endif -%}{%- if b.settings.image or b.settings.fallback_photo != 'off' -%}{%- assign cv_n = cv_n | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_n > 0 or design_mode -%}
+<section class="cv cv-section cv-gal tf-scheme-{{ settings.color_scheme }} cv-gal--{{ settings.image_ratio }} cv-pad--{{ settings.padding | default: 'default' }}" style="--cv-gal-cols: {{ settings.columns }}; --cv-gal-cols-m: {{ settings.columns_mobile }}">
+  {%- if design_mode and cv_n == 0 -%}<p class="cv-editor-hint">{{ 'sections.editor_add_content' | t }}</p>{%- endif -%}
+  <div class="cv-wrap">
+    {%- if settings.heading != blank -%}<div class="cv-head"><h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2></div>{%- endif -%}
+    <ul class="cv-gal__grid" role="list">
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+        {%- assign cv_photo = b.settings.fallback_photo -%}{%- assign cv_photo_i = forloop.index -%}{%- assign cv_photo_wide = false -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+        {%- unless b.settings.image or cv_fb != blank -%}{%- continue -%}{%- endunless -%}
+        <li class="cv-gal__item cv-reveal">
+          {{ b._editor_block_open }}
+          <figure class="cv-gal__fig">
+            {%- if b.settings.link != blank -%}
+              <a class="cv-gal__media cv-media" href="{{ b.settings.link }}" data-tf-field="link">
+          {%- if b.settings.image -%}<img src="{{ b.settings.image | image_url: width: 900 }}" srcset="{{ b.settings.image | image_srcset: max: 1600 }}" sizes="(min-width: 750px) {{ 100 | divided_by: settings.columns }}vw, {{ 100 | divided_by: settings.columns_mobile }}vw" alt="{{ b.settings.image.alt_text | default: b.settings.caption }}"{% if b.settings.image.width and b.settings.image.height %} width="{{ b.settings.image.width }}" height="{{ b.settings.image.height }}"{% endif %} loading="lazy" data-tf-field="image">
+          {%- else -%}<img src="{{ cv_fb | asset_url }}" alt="{{ b.settings.caption }}" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}">{%- endif -%}
+              {%- if b.settings.caption == blank and b.settings.image.alt_text == blank -%}<span class="cv-sr">{{ 'sections.image_gallery.image_n' | t: n: forloop.index }}</span>{%- endif -%}</a>
+            {%- else -%}
+              <div class="cv-gal__media cv-media">
+          {%- if b.settings.image -%}<img src="{{ b.settings.image | image_url: width: 900 }}" srcset="{{ b.settings.image | image_srcset: max: 1600 }}" sizes="(min-width: 750px) {{ 100 | divided_by: settings.columns }}vw, {{ 100 | divided_by: settings.columns_mobile }}vw" alt="{{ b.settings.image.alt_text | default: b.settings.caption }}"{% if b.settings.image.width and b.settings.image.height %} width="{{ b.settings.image.width }}" height="{{ b.settings.image.height }}"{% endif %} loading="lazy" data-tf-field="image">
+          {%- else -%}<img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}">{%- endif -%}
+              </div>
+            {%- endif -%}
+            {%- if b.settings.caption != blank -%}
+              <figcaption dir="auto" class="cv-gal__cap" data-tf-field="caption">{%- if b.settings.link != blank -%}<a href="{{ b.settings.link }}" tabindex="-1">{{ b.settings.caption }}</a>{%- else -%}{{ b.settings.caption }}{%- endif -%}</figcaption>
+            {%- endif -%}
+          </figure>
+          {{ b._editor_block_close }}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+{%- endif -%}

@@ -1,0 +1,145 @@
+{%- comment -%} Promo grid tile: the merchant's image, or the theme photo the grid picks for its place (its --cv-fb), under the tile's content blocks.
+  "No photo" makes it a text tile on the scheme's soft panel. With a link the whole tile is a pointer target; its heading and button blocks carry the link for keyboards and screen readers. {%- endcomment -%}
+{%- assign cv_plain = false -%}{%- if settings.image == blank and settings.fallback_photo == 'off' -%}{%- assign cv_plain = true -%}{%- endif -%}
+<div class="cv-promo__tile cv-media cv-reveal{% if cv_plain %} cv-promo__tile--plain{% endif %}">
+  {%- if settings.image -%}<img src="{{ settings.image | image_url: width: 1200 }}" srcset="{{ settings.image | image_srcset: max: 1800 }}" sizes="(min-width: 750px) 50vw, 100vw" alt="{{ settings.image.alt_text }}" loading="lazy" data-tf-field="image">
+  {%- elsif cv_plain == false -%}<span class="cv-promo__fb" aria-hidden="true"></span>{%- endif -%}
+  {%- if settings.link != blank -%}<a class="cv-tile-link" href="{{ settings.link }}" tabindex="-1" aria-hidden="true" data-tf-field="link"></a>{%- endif -%}
+  <div class="cv-promo__text cv-tile-over">{% blocks %}</div>
+</div>
+{% schema %}
+{
+  "name": "promo-tile",
+  "kind": "block",
+  "icon": "layout-grid",
+  "settings": [
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "content"
+      }
+    },
+    {
+      "id": "fallback_photo",
+      "type": "select",
+      "default": "none",
+      "options": [
+        {
+          "value": "none",
+          "label": "opt_photo_auto"
+        },
+        {
+          "value": "room",
+          "label": "opt_photo_room"
+        },
+        {
+          "value": "table",
+          "label": "opt_photo_table"
+        },
+        {
+          "value": "shelf",
+          "label": "opt_photo_shelf"
+        },
+        {
+          "value": "corner",
+          "label": "opt_photo_corner"
+        },
+        {
+          "value": "parcel",
+          "label": "opt_photo_parcel"
+        },
+        {
+          "value": "linen",
+          "label": "opt_photo_linen"
+        },
+        {
+          "value": "bedroom",
+          "label": "opt_photo_bedroom"
+        },
+        {
+          "value": "bench",
+          "label": "opt_photo_bench"
+        },
+        {
+          "value": "evening",
+          "label": "opt_photo_evening"
+        },
+        {
+          "value": "off",
+          "label": "opt_photo_none"
+        }
+      ],
+      "editor": {
+        "label": "fallback_photo",
+        "group": "content"
+      }
+    },
+    {
+      "id": "link",
+      "type": "url",
+      "editor": {
+        "label": "link",
+        "group": "content"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "custom-vascula"
+    ],
+    "max": 6
+  },
+  "migrations": [
+    {
+      "id": "promo-tile-copy-to-blocks",
+      "op": "settings_to_blocks",
+      "blocks": [
+        {
+          "type": "theme:eyebrow",
+          "settings": {
+            "text": "eyebrow"
+          }
+        },
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "heading"
+          },
+          "copy": {
+            "link": "link"
+          }
+        },
+        {
+          "type": "theme:buttons",
+          "settings": {
+            "button_label": "button_label",
+            "button_style": "button_style",
+            "button_scheme": "button_scheme"
+          },
+          "copy": {
+            "button_link": "link"
+          },
+          "when": [
+            "button_label",
+            "link"
+          ]
+        }
+      ],
+      "source_defaults": {
+        "eyebrow": "@t:sections.promo_grid.tile.eyebrow",
+        "heading": "@t:sections.promo_grid.tile.heading",
+        "button_label": "@t:sections.promo_grid.tile.button_label"
+      }
+    }
+  ]
+}
+{% endschema %}

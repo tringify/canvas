@@ -1,0 +1,20 @@
+  .cv-steps__list { display: grid; gap: clamp(12px, 1.6vw, 24px); grid-template-columns: minmax(0, 1fr); margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 750px) { .cv-steps__list { grid-template-columns: repeat(var(--cv-steps-cols-t, 2), minmax(0, 1fr)); } }
+  @media (min-width: 990px) { .cv-steps__list { grid-template-columns: repeat(var(--cv-steps-cols, 3), minmax(0, 1fr)); } }
+  .cv-steps__item { display: grid; gap: 10px; align-content: start; min-width: 0; }
+  .cv-steps--cards .cv-steps__item { padding: clamp(22px, 2.4vw, 32px); background: var(--cv-soft); border-radius: calc(var(--cv-radius, 16px) * 1.25); }
+  .cv-steps--plain .cv-steps__item { padding-top: 20px; border-top: 1px solid var(--cv-line); }
+  .cv-steps__top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; margin-bottom: clamp(8px, 1.2vw, 16px); }
+  .cv-steps__top:empty { display: none; }
+  .cv-steps__icon { display: grid; place-items: center; flex: none; width: 48px; height: 48px; background: var(--cv-soft); border-radius: 50%; }
+  .cv-steps--cards .cv-steps__icon { background: var(--bg); }
+  .cv-steps__icon .cv-icon { width: 22px; height: 22px; }
+  .cv-steps__img { flex: none; width: 72px; height: 72px; border-radius: calc(var(--cv-radius, 16px) * 0.75); }
+  .cv-steps__num { margin-inline-start: auto; font-size: 13px; font-weight: 500; letter-spacing: 0.04em; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .cv-steps__item p { margin: 0; }
+  .cv-steps__text { font-size: 15px; text-wrap: pretty; }
+  /* Centred: the icon above the text, the number in the corner. */
+  .cv-steps--center .cv-steps__item { text-align: center; justify-items: center; position: relative; }
+  .cv-steps--center .cv-steps__top { justify-content: center; }
+  .cv-steps--center .cv-steps__num { position: absolute; top: clamp(22px, 2.4vw, 32px); inset-inline-end: clamp(22px, 2.4vw, 32px); }
+  .cv-steps--center.cv-steps--plain .cv-steps__num { top: 20px; inset-inline-end: 0; }

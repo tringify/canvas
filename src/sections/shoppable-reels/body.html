@@ -1,0 +1,383 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%}
+  Shoppable reels: vertical videos the merchant uploads (an Instagram reel, a TikTok), each tagged with up to three products.
+  The row plays muted only while on screen (never with reduced motion or Save-Data: the poster shows). A tap opens the story viewer:
+  progress bars, swipe or arrows between videos, sound, and the tagged products with their options and Add to bag, without leaving the page.
+  Videos load only when their card or story is shown. On the live store a reel without a video is skipped, and the section hides with none; the editor shows the platform's sample videos over its placeholder picture.
+{%- endcomment -%}
+{%- assign cv_live = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled != true and b.settings.video != blank -%}{%- assign cv_live = cv_live | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- comment -%} Sample videos are for the editor only: on the live store (and the Theme Store preview of a bare store) a card or section without the merchant's video is left out. {%- endcomment -%}
+{%- assign cv_demo = false -%}{%- if design_mode -%}{%- assign cv_demo = true -%}{%- endif -%}
+{%- assign cv_blocks = 0 -%}{%- for b in settings.blocks -%}{%- unless b.disabled -%}{%- assign cv_blocks = cv_blocks | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+{%- if cv_live > 0 or cv_demo and cv_blocks > 0 or design_mode -%}
+<section class="cv cv-section cv-reels cv-reels--{{ settings.layout | default: 'row' }} cv-reels--{{ settings.card_size | default: 'medium' }} tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}" data-cv-reels>
+  <div class="cv-wrap">
+    {%- if settings.eyebrow != blank or settings.heading != blank or settings.text != blank or settings.profile_label != blank -%}
+    <div class="cv-head cv-reels__head">
+      <div>
+        {%- if settings.eyebrow != blank -%}<p dir="auto" class="cv-eyebrow" data-tf-field="eyebrow">{{ settings.eyebrow }}</p>{%- endif -%}
+        {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+        {%- if settings.text != blank -%}<p dir="auto" class="cv-muted" data-tf-field="text">{{ settings.text }}</p>{%- endif -%}
+      </div>
+      {%- if settings.profile_label != blank and settings.profile_link != blank -%}<a dir="auto" class="cv-btn cv-btn--link" href="{{ settings.profile_link }}" target="_blank" rel="noopener" data-tf-field="profile_label">{{ settings.profile_label }}</a>{%- endif -%}
+    </div>
+    {%- endif -%}
+  </div>
+  <div class="cv-reels__track" role="list">
+    {%- assign cv_i = 0 -%}
+    {%- for b in settings.blocks -%}
+      {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+      {%- if b.settings.video == blank and cv_demo != true -%}{%- continue -%}{%- endif -%}
+      {%- assign cv_first = b.settings.products | first -%}
+      {{ b._editor_block_open }}
+      <div class="cv-reel" role="listitem">
+        <button class="cv-reel__open" type="button" data-cv-reel-open="{{ cv_i }}" aria-haspopup="dialog">
+          <span class="cv-reel__media">
+            {%- if b.settings.poster -%}<img class="cv-reel__poster" src="{{ b.settings.poster | image_url: width: 540 }}" alt="" loading="lazy">{%- endif -%}
+            {%- if b.settings.video != blank -%}
+              <video class="cv-reel__video" data-cv-reel-video data-src="{{ b.settings.video }}" muted loop playsinline preload="none" aria-hidden="true"{% if b.settings.poster %} poster="{{ b.settings.poster | image_url: width: 540 }}"{% endif %}></video>
+            {%- else -%}
+              {%- assign cv_ph = cv_i | modulo: 4 | plus: 1 -%}{%- capture cv_phn -%}reel-{{ cv_ph }}{%- endcapture -%}
+              {%- unless b.settings.poster -%}{%- assign cv_photo = 'auto' -%}{%- assign cv_photo_i = cv_i | plus: 1 -%}{%- assign cv_photo_wide = false -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+              <span class="cv-reel__ph"><img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}"></span>{%- endunless -%}
+              <video class="cv-reel__video" data-cv-reel-video data-src="{{ cv_phn | placeholder_video }}" muted loop playsinline preload="none" aria-hidden="true"></video>
+            {%- endif -%}
+          </span>
+          <span class="cv-reel__shade" aria-hidden="true"></span>
+          <svg class="cv-reel__play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <span class="cv-reel__meta">
+            {%- if b.settings.handle != blank -%}<span dir="auto" class="cv-reel__handle">{{ b.settings.handle }}</span>{%- endif -%}
+            {%- if b.settings.caption != blank -%}<span dir="auto" class="cv-reel__caption">{{ b.settings.caption }}</span>{%- endif -%}
+            <span class="cv-sr">{{ 'reels.open' | t }}</span>
+          </span>
+        </button>
+        {%- if cv_first -%}
+          {%- assign cv_pimg = cv_first.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+          <a class="cv-reel__chip" href="{{ cv_first.url }}">
+            <span class="cv-reel__chipimg">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 120 }}" alt="" loading="lazy">{%- endif -%}</span>
+            <span class="cv-reel__chiptext"><span class="cv-reel__chipname">{{ cv_first.title }}</span><span class="cv-reel__chipprice">{{ cv_first.price.current | money: isolate: true, trim_zeros: cv_tz }}</span></span>
+            {%- assign cv_more = b.settings.products.size | minus: 1 -%}{%- if cv_more > 0 -%}<span class="cv-reel__chipmore">+{{ cv_more }}</span>{%- endif -%}
+          </a>
+        {%- endif -%}
+      </div>
+      {{ b._editor_block_close }}
+      {%- assign cv_i = cv_i | plus: 1 -%}
+    {%- endfor -%}
+  </div>
+
+  <div class="cv-story" role="dialog" aria-modal="true" aria-label="{% if settings.heading != blank %}{{ settings.heading }}{% else %}{{ 'reels.viewer' | t }}{% endif %}" data-cv-story hidden>
+    <div class="cv-story__backdrop" data-cv-story-close></div>
+    <div class="cv-story__stage">
+      <div class="cv-story__bars" aria-hidden="true">
+        {%- for i in (1..cv_i) -%}<span class="cv-story__bar"><span></span></span>{%- endfor -%}
+      </div>
+      <div class="cv-story__tools">
+        <button class="cv-story__tool" type="button" data-cv-story-pause data-label-play="{{ 'reels.play' | t }}" data-label-pause="{{ 'reels.pause' | t }}">
+          <svg class="cv-icon cv-story__pauseico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+          <svg class="cv-icon cv-story__playico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <span class="cv-sr" data-cv-story-pause-label>{{ 'reels.play' | t }}</span>
+        </button>
+        <button class="cv-story__tool" type="button" data-cv-story-sound aria-pressed="false">
+          <svg class="cv-icon cv-story__muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4zM22 9l-6 6M16 9l6 6"/></svg>
+          <svg class="cv-icon cv-story__sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+          <span class="cv-sr">{{ 'reels.sound' | t }}</span>
+        </button>
+        <button class="cv-story__tool" type="button" data-cv-story-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+      </div>
+      <button class="cv-story__nav cv-story__nav--prev" type="button" data-cv-story-step="-1"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg><span class="cv-sr">{{ 'general.previous' | t }}</span></button>
+      <button class="cv-story__nav cv-story__nav--next" type="button" data-cv-story-step="1"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span class="cv-sr">{{ 'general.next' | t }}</span></button>
+      <div class="cv-story__added" data-cv-story-added role="status" aria-live="polite" data-label="{{ 'cart.added' | t }}" data-view="{{ 'cart.view_cart' | t }}" data-cart="{{ routes.cart_url }}"></div>
+      {%- assign cv_j = 0 -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+        {%- if b.settings.video == blank and cv_demo != true -%}{%- continue -%}{%- endif -%}
+        {%- assign cv_j1 = cv_j | plus: 1 -%}
+        <article class="cv-story__slide" data-cv-story-slide="{{ cv_j }}" aria-roledescription="{{ 'slideshow.slide' | t }}" aria-label="{{ cv_j1 }} / {{ cv_i }}" hidden>
+          <div class="cv-story__film">
+            {%- if b.settings.video != blank -%}
+              <video data-cv-story-video data-src="{{ b.settings.video }}" playsinline preload="none"{% if b.settings.poster %} poster="{{ b.settings.poster | image_url: width: 1080 }}"{% endif %}></video>
+            {%- else -%}
+              {%- assign cv_ph = cv_j | modulo: 4 | plus: 1 -%}{%- capture cv_phn -%}reel-{{ cv_ph }}{%- endcapture -%}
+              <video data-cv-story-video data-src="{{ cv_phn | placeholder_video }}" playsinline preload="none"></video>
+            {%- endif -%}
+            <button class="cv-story__playbtn" type="button" data-cv-story-play hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span class="cv-sr">{{ 'reels.play' | t }}</span></button>
+            <div class="cv-story__cap">
+              {%- if b.settings.handle != blank -%}<p dir="auto" class="cv-story__handle">{{ b.settings.handle }}</p>{%- endif -%}
+              {%- if b.settings.caption != blank -%}<p dir="auto" class="cv-story__caption">{{ b.settings.caption }}</p>{%- endif -%}
+            </div>
+          </div>
+          {%- if b.settings.products.size > 0 -%}
+          <ul class="cv-story__products" role="list" aria-label="{{ 'reels.in_this_video' | t }}">
+            {%- for cv_p in b.settings.products limit: 3 -%}
+              {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+              <li class="cv-story__product">
+                <a class="cv-story__pimg" href="{{ cv_p.url }}">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 240 }}" alt="" loading="lazy">{%- endif -%}</a>
+                <div class="cv-story__pinfo">
+                  <a class="cv-story__pname" href="{{ cv_p.url }}">{{ cv_p.title }}</a>
+                  <p class="cv-story__pprice cv-price">
+                    {%- if cv_p.price.on_sale -%}<span class="cv-price__sale">{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span> <s class="cv-price__was">{{ cv_p.price.regular | money: isolate: true, trim_zeros: cv_tz }}</s>
+                    {%- else -%}{%- if cv_p.price_range.has_range -%}<span class="cv-muted">{{ 'products.from' | t }}</span> {% endif -%}{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}{%- endif -%}
+                  </p>
+                  {%- if cv_p.available_for_sale -%}
+                    {%- if cv_p.options.size == 0 or cv_p.variant_matrix.size == 1 -%}
+                      {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+                      {% form 'cart_add', class: 'cv-story__form' %}
+                        <input type="hidden" name="product_id" value="{{ cv_p.id }}">{%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}<input type="hidden" name="quantity" value="1">
+                        <button class="cv-btn cv-btn--sm cv-story__add" type="submit">{{ 'products.add_to_cart' | t }}</button>
+                      {% endform %}
+                    {%- else -%}
+                      <div class="cv-story__pick" data-cv-vpick data-matrix="{{ cv_p.variant_matrix | json | escape }}" data-unavailable="{%- if shopping.mode == 'pickup' -%}{{ 'pickup.not_at_store' | t }}{%- else -%}{{ 'products.sold_out' | t }}{%- endif -%}">
+                        {%- for cv_r in cv_p.variant_matrix -%}{%- if cv_r.price -%}<span hidden data-cv-vpick-px="{{ cv_r.id }}">{{ cv_r.price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}{%- endfor -%}
+                        {%- for cv_opt in cv_p.options -%}
+                          <div class="cv-story__opt" data-cv-vpick-attr="{{ cv_opt.attribute_slug }}" role="group" aria-label="{{ cv_opt.attribute_name }}">
+                            {%- for cv_v in cv_opt.values -%}<button type="button" class="cv-story__val{% if cv_v.color != blank %} cv-story__val--sw{% endif %}" data-cv-vpick-val="{{ cv_v.value }}" aria-pressed="{% if cv_opt.values.size == 1 %}true{% else %}false{% endif %}"{% if cv_v.color != blank %} style="--cv-sw: {{ cv_v.color }}" title="{{ cv_v.label }}"{% endif %}>{% if cv_v.color != blank %}<span class="cv-sr">{{ cv_v.label }}</span>{% else %}{{ cv_v.label }}{% endif %}</button>{%- endfor -%}
+                          </div>
+                        {%- endfor -%}
+                        {% form 'cart_add', class: 'cv-story__form' %}
+                          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+                          <input type="hidden" name="variant_id" value="" data-cv-vpick-variant>
+                          <input type="hidden" name="quantity" value="1">
+                          <button class="cv-btn cv-btn--sm cv-story__add" type="submit" disabled data-cv-vpick-submit>{{ 'products.add_to_cart' | t }}<span class="cv-story__vprice" data-cv-vpick-price></span></button>
+                        {% endform %}
+                      </div>
+                    {%- endif -%}
+                  {%- else -%}
+                    <p class="cv-story__sold">{%- if cv_p.availability_reason != blank -%}{{ cv_p.availability_reason_label }}{%- else -%}{{ 'products.sold_out' | t }}{%- endif -%}</p>
+                  {%- endif -%}
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+          {%- endif -%}
+        </article>
+        {%- assign cv_j = cv_j | plus: 1 -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+{%- endif -%}
+<script>
+(function () {
+  // Later runs (another instance, or the editor re-running scripts after a re-render) only wire what is new.
+  if (window.__cvReels) { window.__cvReels(); return; }
+  var conn = navigator.connection || {};
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  function calm() { return reduced.matches || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ""); }
+  function load(v) { if (!v.getAttribute("src") && v.getAttribute("data-src")) v.src = v.getAttribute("data-src"); }
+  // Feed: each card plays muted only while it is on screen.
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      var v = e.target;
+      if (e.isIntersecting && !calm()) { load(v); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+      else v.pause();
+    });
+  }, { threshold: 0.5 }) : null;
+  var watched = [];
+  function sweep() { watched = watched.filter(function (v) { if (v.isConnected) return true; if (io) io.unobserve(v); return false; }); }
+  function wire(root) {
+    (root || document).querySelectorAll("[data-cv-reel-video]").forEach(function (v) { if (!v.__cv && io) { v.__cv = true; io.observe(v); watched.push(v); } });
+  }
+  window.__cvReels = function () { sweep(); wire(document); document.querySelectorAll("[data-cv-vpick]").forEach(pickState); };
+  wire();
+  document.addEventListener("tf:section:load", function (e) { wire(e.target); });
+
+  // Story viewer
+  var cur = null; // { dlg, i, lastFocus, muted }
+  function slides(d) { return d.querySelectorAll("[data-cv-story-slide]"); }
+  function bars(d) { return d.querySelectorAll(".cv-story__bar"); }
+  function curVideo() { var s = cur && slides(cur.dlg)[cur.i]; return s && s.querySelector("[data-cv-story-video]"); }
+  // The pause button in the toolbar and the big play button follow the video's real state.
+  function sync() {
+    if (!cur) return;
+    var v = curVideo(), playing = !!(v && v.getAttribute("src") && !v.paused);
+    var pb = cur.dlg.querySelector("[data-cv-story-pause]");
+    pb.classList.toggle("is-playing", playing);
+    pb.querySelector("[data-cv-story-pause-label]").textContent = pb.getAttribute(playing ? "data-label-pause" : "data-label-play");
+    var big = v && v.parentNode.querySelector("[data-cv-story-play]"); if (big) big.hidden = playing;
+  }
+  function play(v) { load(v); var p = v.play(); if (p && p.catch) p.catch(sync); }
+  function show(i) {
+    var d = cur.dlg, ss = slides(d), bs = bars(d), old = ss[cur.i];
+    var hadFocus = old && old.contains(document.activeElement);
+    i = Math.max(0, Math.min(ss.length - 1, i)); cur.i = i;
+    ss.forEach(function (s, k) {
+      var v = s.querySelector("[data-cv-story-video]");
+      s.hidden = k !== i;
+      if (k !== i && v) { v.pause(); try { v.currentTime = 0; } catch (_) {} }
+    });
+    bs.forEach(function (b, k) { b.classList.toggle("is-done", k < i); b.classList.remove("is-on"); b.firstChild.style.transform = k < i ? "scaleX(1)" : "scaleX(0)"; });
+    if (bs[i]) bs[i].classList.add("is-on");
+    d.querySelector('[data-cv-story-step="-1"]').disabled = i === 0;
+    d.querySelector('[data-cv-story-step="1"]').disabled = i === ss.length - 1;
+    var film = ss[i].querySelector(".cv-story__film"), barsEl = d.querySelector(".cv-story__bars");
+    if (film && barsEl && barsEl.parentNode !== film) film.appendChild(barsEl);
+    // Focus was on a product or button of the slide that just left: keep it in the new one.
+    if (hadFocus) { var t = ss[i].querySelector("[data-cv-story-play]:not([hidden]), .cv-story__products a, .cv-story__products button:not([disabled])") || d.querySelector("[data-cv-story-pause]"); t.focus({ preventScroll: true }); }
+    var v = ss[i].querySelector("[data-cv-story-video]");
+    if (!v) return;
+    v.muted = cur.muted;
+    // Reduced motion or Save-Data: nothing loads until the shopper presses play.
+    if (calm()) { sync(); return; }
+    play(v); sync();
+  }
+  function open(dlg, i, from) {
+    clearTimeout(dlg.__cvClosing);
+    cur = { dlg: dlg, i: 0, lastFocus: from, muted: true };
+    dlg.hidden = false; document.documentElement.classList.add("cv-story-lock");
+    dlg.querySelector("[data-cv-story-sound]").setAttribute("aria-pressed", "false");
+    var added = dlg.querySelector("[data-cv-story-added]"); if (added) { added.textContent = ""; added.classList.remove("is-on"); }
+    requestAnimationFrame(function () { if (cur && cur.dlg === dlg) dlg.classList.add("is-open"); });
+    document.querySelectorAll("[data-cv-reel-video]").forEach(function (v) { v.pause(); });
+    show(i);
+    dlg.querySelector("[data-cv-story-close].cv-story__tool").focus({ preventScroll: true });
+  }
+  function close() {
+    if (!cur) return;
+    var d = cur.dlg, f = cur.lastFocus;
+    slides(d).forEach(function (s) { var v = s.querySelector("video"); if (v) v.pause(); });
+    d.classList.remove("is-open"); document.documentElement.classList.remove("cv-story-lock");
+    clearTimeout(d.__cvClosing);
+    d.__cvClosing = setTimeout(function () { if (!cur || cur.dlg !== d) d.hidden = true; }, 250);
+    cur = null; if (f && f.focus && f.isConnected) f.focus({ preventScroll: true });
+  }
+  function toggle() { var v = curVideo(); if (!v) return; if (v.paused || !v.getAttribute("src")) play(v); else v.pause(); }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target : null; if (!t) return;
+    var o = t.closest("[data-cv-reel-open]");
+    if (o) { var sec = o.closest("[data-cv-reels]"); open(sec.querySelector("[data-cv-story]"), Number(o.getAttribute("data-cv-reel-open")), o); return; }
+    if (!cur) return;
+    // "View cart" from the confirmation: the viewer closes first, then the cart opens as it does elsewhere.
+    if (t.closest("[data-cv-story-bag]")) {
+      e.preventDefault(); close();
+      var link = document.querySelector("[data-cv-cart-link]");
+      if (link) link.click(); else window.location.assign(t.closest("[data-cv-story-bag]").getAttribute("href"));
+      return;
+    }
+    if (t.closest("[data-cv-story-close]")) { close(); return; }
+    var st = t.closest("[data-cv-story-step]"); if (st) { show(cur.i + Number(st.getAttribute("data-cv-story-step"))); return; }
+    if (t.closest("[data-cv-story-sound]")) {
+      cur.muted = !cur.muted; t.closest("[data-cv-story-sound]").setAttribute("aria-pressed", cur.muted ? "false" : "true");
+      slides(cur.dlg).forEach(function (s) { var v = s.querySelector("video"); if (v) v.muted = cur.muted; }); return;
+    }
+    if (t.closest("[data-cv-story-pause], [data-cv-story-play]")) { toggle(); return; }
+    if (t.closest(".cv-story__film") && !t.closest("button, a")) toggle();
+  });
+  document.addEventListener("play", function (e) { if (cur && e.target.matches && e.target.matches("[data-cv-story-video]")) sync(); }, true);
+  document.addEventListener("pause", function (e) { if (cur && e.target.matches && e.target.matches("[data-cv-story-video]")) sync(); }, true);
+  // Adding from the viewer keeps the shopper here: the cart does not open behind the dialog (the cart
+  // drawer skips adds made in [data-cv-story]); a confirmation with a "View cart" link shows instead.
+  document.addEventListener("tf:action-done", function (e) {
+    var f = e.detail && e.detail.form;
+    if (!cur || e.detail.action !== "cart_add" || !f || !cur.dlg.contains(f)) return;
+    var n = cur.dlg.querySelector("[data-cv-story-added]"); if (!n) return;
+    n.textContent = "";
+    var msg = document.createElement("span"); msg.textContent = n.getAttribute("data-label");
+    var a = document.createElement("a"); a.className = "cv-tbtn"; a.href = n.getAttribute("data-cart"); a.setAttribute("data-cv-story-bag", ""); a.textContent = n.getAttribute("data-view");
+    n.appendChild(msg); n.appendChild(document.createTextNode(" ")); n.appendChild(a); n.classList.add("is-on");
+    clearTimeout(n.__cvT); n.__cvT = setTimeout(function hide() { if (n.contains(document.activeElement)) { n.__cvT = setTimeout(hide, 2000); return; } n.classList.remove("is-on"); n.textContent = ""; }, 6000);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (!cur) return;
+    if (e.key === "Escape") { e.preventDefault(); close(); }
+    else if (e.key === "ArrowRight" && !e.target.closest(".cv-story__pick")) show(cur.i + 1);
+    else if (e.key === "ArrowLeft" && !e.target.closest(".cv-story__pick")) show(cur.i - 1);
+    else if (e.key === "Tab") {
+      var f = [].filter.call(cur.dlg.querySelectorAll("button, a[href], input:not([type=hidden]), [tabindex]"), function (x) { return !x.disabled && x.offsetParent !== null; });
+      if (!f.length) return;
+      // Focus outside the visible controls (behind the dialog, or on a slide that just hid) comes back to the first one.
+      if (f.indexOf(document.activeElement) < 0) { e.preventDefault(); (e.shiftKey ? f[f.length - 1] : f[0]).focus(); }
+      else if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    }
+  });
+  // Progress and auto-advance.
+  document.addEventListener("timeupdate", function (e) {
+    if (!cur || !e.target.matches || !e.target.matches("[data-cv-story-video]")) return;
+    var v = e.target, b = bars(cur.dlg)[cur.i]; if (!b || !v.duration) return;
+    b.firstChild.style.transform = "scaleX(" + (v.currentTime / v.duration) + ")";
+  }, true);
+  document.addEventListener("ended", function (e) {
+    if (!cur || !e.target.matches || !e.target.matches("[data-cv-story-video]")) return;
+    if (cur.i < slides(cur.dlg).length - 1) show(cur.i + 1); else e.target.currentTime = 0;
+  }, true);
+  // Swipe between stories; swipe down to close.
+  var sx = null, sy = null;
+  document.addEventListener("touchstart", function (e) { if (cur && e.target.closest(".cv-story__film")) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (!cur || sx === null) return;
+    var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = sy = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(cur.i + (dx < 0 ? 1 : -1) * (document.dir === "rtl" ? -1 : 1));
+    else if (dy > 90) close();
+  });
+  // Option picker on the tagged products.
+  function pickState(pick) {
+    var rows = []; try { rows = JSON.parse(pick.getAttribute("data-matrix") || "[]"); } catch (_) {}
+    var sel = {}, groups = pick.querySelectorAll("[data-cv-vpick-attr]");
+    groups.forEach(function (g) { var on = g.querySelector('[aria-pressed="true"]'); if (on) sel[g.getAttribute("data-cv-vpick-attr")] = on.getAttribute("data-cv-vpick-val"); });
+    groups.forEach(function (g) {
+      var attr = g.getAttribute("data-cv-vpick-attr");
+      g.querySelectorAll("[data-cv-vpick-val]").forEach(function (b) {
+        var val = b.getAttribute("data-cv-vpick-val");
+        b.classList.toggle("is-off", !rows.some(function (r) {
+          if (!r.available_for_sale || !r.options || r.options[attr] !== val) return false;
+          for (var k in sel) { if (k !== attr && r.options[k] !== sel[k]) return false; } return true;
+        }));
+      });
+    });
+    var match = null;
+    if (Object.keys(sel).length === groups.length) match = rows.filter(function (r) { for (var k in sel) { if (!r.options || r.options[k] !== sel[k]) return false; } return true; })[0] || null;
+    pick.querySelector("[data-cv-vpick-variant]").value = match ? match.id : "";
+    pick.querySelector("[data-cv-vpick-submit]").disabled = !(match && match.available_for_sale);
+    var px = match && pick.querySelector('[data-cv-vpick-px="' + match.id + '"]');
+    pick.querySelector("[data-cv-vpick-price]").textContent = match ? (match.available_for_sale ? (px ? px.textContent : match.price_str || "") : pick.getAttribute("data-unavailable")) : "";
+  }
+  document.querySelectorAll("[data-cv-vpick]").forEach(pickState);
+  document.addEventListener("click", function (e) {
+    var val = e.target.closest && e.target.closest("[data-cv-vpick-val]"); if (!val) return;
+    var g = val.closest("[data-cv-vpick-attr]"), was = val.getAttribute("aria-pressed") === "true";
+    g.querySelectorAll("[data-cv-vpick-val]").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+    if (!was) val.setAttribute("aria-pressed", "true");
+    pickState(val.closest("[data-cv-vpick]"));
+  });
+  // Editor: selecting a reel opens its story; deselecting the section closes the viewer.
+  document.addEventListener("tf:block-selected", function (e) {
+    var el = e.detail && e.detail.element, o = el && el.querySelector && el.querySelector("[data-cv-reel-open]");
+    if (!o) return;
+    var dlg = o.closest("[data-cv-reels]").querySelector("[data-cv-story]"), i = Number(o.getAttribute("data-cv-reel-open"));
+    if (cur && cur.dlg === dlg) { show(i); return; }
+    if (cur) close();
+    open(dlg, i, null);
+  });
+  document.addEventListener("tf:block-deselected", function (e) { if (cur && e.detail && e.detail.section_type === "shoppable-reels") close(); });
+  document.addEventListener("tf:section-deselected", function (e) { if (cur && e.detail && e.detail.type === "shoppable-reels") close(); });
+})();
+</script>

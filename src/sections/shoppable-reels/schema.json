@@ -1,0 +1,215 @@
+{
+  "name": "shoppable-reels",
+  "icon": "video",
+  "ctx_needs": [
+    "routes",
+    "csrf_token",
+    "design_mode", "shopping"
+  ],
+  "settings": [
+    {
+      "id": "eyebrow",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "eyebrow",
+        "group": "content"
+      }
+    },
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.reels.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "text",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      }
+    },
+    {
+      "id": "profile_label",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "profile_label",
+        "group": "content"
+      }
+    },
+    {
+      "id": "profile_link",
+      "type": "url",
+      "editor": {
+        "label": "profile_link",
+        "group": "content"
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "row",
+      "options": [
+        {
+          "value": "row",
+          "label": "opt_reels_row"
+        },
+        {
+          "value": "grid",
+          "label": "opt_grid"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "card_size",
+      "type": "select",
+      "default": "medium",
+      "options": [
+        {
+          "value": "small",
+          "label": "opt_small"
+        },
+        {
+          "value": "medium",
+          "label": "opt_medium"
+        },
+        {
+          "value": "large",
+          "label": "opt_large"
+        }
+      ],
+      "editor": {
+        "label": "card_size",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 12,
+    "default": [
+      "reel",
+      "reel",
+      "reel",
+      "reel"
+    ],
+    "types": [
+      {
+        "type": "reel",
+        "editor": {
+          "label": "reel"
+        },
+        "settings": [
+          {
+            "id": "video",
+            "type": "video",
+            "editor": {
+              "label": "reel_video",
+              "group": "content"
+            }
+          },
+          {
+            "id": "poster",
+            "type": "image",
+            "editor": {
+              "label": "reel_poster",
+              "group": "content"
+            }
+          },
+          {
+            "id": "caption",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "caption",
+              "group": "content"
+            }
+          },
+          {
+            "id": "handle",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "reel_handle",
+              "group": "content"
+            }
+          },
+          {
+            "id": "products",
+            "type": "product_list",
+            "max": 3,
+            "editor": {
+              "label": "reel_products",
+              "group": "products"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "shoppable-reels",
+      "category": "video",
+      "blocks": [
+        {
+          "type": "reel"
+        },
+        {
+          "type": "reel"
+        },
+        {
+          "type": "reel"
+        },
+        {
+          "type": "reel"
+        }
+      ]
+    }
+  ]
+}

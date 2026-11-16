@@ -1,0 +1,28 @@
+{
+  "page_type": "category",
+  "sections": [
+    {
+      "type": "main-collection",
+      "position": 1,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-category__breadcrumbs",
+            "type": "breadcrumbs",
+            "settings": {}
+          },
+          {
+            "id": "canvas-category__banner",
+            "type": "banner",
+            "settings": {}
+          },
+          {
+            "id": "canvas-category__toolbar",
+            "type": "toolbar",
+            "settings": {}
+          }
+        ]
+      }
+    }
+  ]
+}

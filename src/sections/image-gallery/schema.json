@@ -1,0 +1,237 @@
+{
+  "name": "image-gallery",
+  "icon": "images",
+  "ctx_needs": [
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": "@t:sections.image_gallery.heading"
+    },
+    {
+      "id": "image_ratio",
+      "type": "select",
+      "editor": {
+        "label": "image_ratio",
+        "group": "layout"
+      },
+      "default": "portrait",
+      "options": [
+        {
+          "value": "natural",
+          "label": "opt_image_own_shape"
+        },
+        {
+          "value": "square",
+          "label": "opt_square"
+        },
+        {
+          "value": "portrait",
+          "label": "opt_portrait"
+        },
+        {
+          "value": "landscape",
+          "label": "opt_landscape"
+        }
+      ]
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      },
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "id": "columns_mobile",
+      "type": "select",
+      "editor": {
+        "label": "columns_mobile",
+        "group": "layout"
+      },
+      "default": "2",
+      "options": [
+        {
+          "value": "1",
+          "label": "opt_one_column"
+        },
+        {
+          "value": "2",
+          "label": "opt_two_columns"
+        }
+      ]
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 12,
+    "default": [
+      "image",
+      "image",
+      "image"
+    ],
+    "types": [
+      {
+        "type": "image",
+        "editor": {
+          "label": "image"
+        },
+        "settings": [
+          {
+            "id": "image",
+            "type": "image",
+            "editor": {
+              "label": "image",
+              "group": "content"
+            }
+          },
+          {
+            "id": "fallback_photo",
+            "type": "select",
+            "default": "none",
+            "options": [
+              {
+                "value": "none",
+                "label": "opt_photo_auto"
+              },
+              {
+                "value": "room",
+                "label": "opt_photo_room"
+              },
+              {
+                "value": "table",
+                "label": "opt_photo_table"
+              },
+              {
+                "value": "shelf",
+                "label": "opt_photo_shelf"
+              },
+              {
+                "value": "corner",
+                "label": "opt_photo_corner"
+              },
+              {
+                "value": "parcel",
+                "label": "opt_photo_parcel"
+              },
+              {
+                "value": "linen",
+                "label": "opt_photo_linen"
+              },
+              {
+                "value": "bedroom",
+                "label": "opt_photo_bedroom"
+              },
+              {
+                "value": "bench",
+                "label": "opt_photo_bench"
+              },
+              {
+                "value": "evening",
+                "label": "opt_photo_evening"
+              },
+              {
+                "value": "off",
+                "label": "opt_photo_none"
+              }
+            ],
+            "editor": {
+              "label": "fallback_photo",
+              "group": "content"
+            }
+          },
+          {
+            "id": "caption",
+            "type": "text",
+            "editor": {
+              "label": "caption",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "link",
+            "type": "url",
+            "editor": {
+              "label": "link",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "image-gallery",
+      "category": "image",
+      "blocks": [
+        {
+          "type": "image",
+          "settings": {
+            "fallback_photo": "linen"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "fallback_photo": "corner"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "fallback_photo": "table"
+          }
+        }
+      ]
+    }
+  ]
+}

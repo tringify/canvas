@@ -1,0 +1,54 @@
+{%- comment -%} Address fields. Inputs: cv_a (address values), cv_fid (unique id), af (customer.address_form).
+The platform decides the fields: af.fields_by_country lists each country's address fields, Country first, then the rest in
+the order that country writes an address, each with its key (the input name), label, requirement, placeholder and input
+rules. Fields with the same row sit side by side. The account script swaps the fields when the country changes. {%- endcomment -%}
+{%- assign cv_cc = cv_a.country_code -%}
+{%- if cv_cc == blank -%}{%- for c in af.countries -%}{%- if c.selected -%}{%- assign cv_cc = c.iso_code -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- if cv_cc == blank -%}{%- assign cv_cc = af.countries.first.iso_code -%}{%- endif -%}
+{%- assign cv_fields = af.fields_by_country[cv_cc] -%}
+<div class="cv-ac__afields" data-cv-afields>
+{%- assign cv_open = false -%}{%- assign cv_line = '' -%}
+{%- for f in cv_fields -%}
+  {%- if f.key == 'phone' -%}{%- continue -%}{%- endif -%}
+  {%- assign cv_fl = f.row | append: '' -%}
+  {%- if cv_fl != cv_line -%}{%- if cv_open -%}</div>{%- endif -%}<div class="cv-ac__two">{%- assign cv_open = true -%}{%- assign cv_line = cv_fl -%}{%- endif -%}
+  {%- case f.key -%}
+    {%- when 'country_code' -%}{%- assign cv_v = cv_cc -%}
+    {%- when 'first_name' -%}{%- assign cv_v = cv_a.first_name -%}
+    {%- when 'last_name' -%}{%- assign cv_v = cv_a.last_name -%}
+    {%- when 'company' -%}{%- assign cv_v = cv_a.company -%}
+    {%- when 'address1' -%}{%- assign cv_v = cv_a.address1 -%}
+    {%- when 'address2' -%}{%- assign cv_v = cv_a.address2 -%}
+    {%- when 'district' -%}{%- assign cv_v = cv_a.district -%}
+    {%- when 'city' -%}{%- assign cv_v = cv_a.city -%}
+    {%- when 'province_code' -%}{%- assign cv_v = cv_a.province_code -%}
+    {%- when 'postal_code' -%}{%- assign cv_v = cv_a.postal_code -%}
+    {%- else -%}{%- assign cv_v = '' -%}
+  {%- endcase -%}
+  <label class="cv-field"><span class="cv-label">{{ f.label }}</span>
+  {%- if f.key == 'country_code' -%}
+    {%- comment -%} The country choices are af.countries; the Country field itself lists none. {%- endcomment -%}
+    <select class="cv-input" name="{{ f.key }}" autocomplete="{{ f.autocomplete }}"{% if f.required %} required{% endif %} data-cv-country>{%- for c in af.countries -%}<option value="{{ c.iso_code }}"{% if c.iso_code == cv_v %} selected{% endif %}>{{ c.name }}</option>{%- endfor -%}</select>
+  {%- elsif f.options.size > 0 -%}
+    <select class="cv-input" name="{{ f.key }}" autocomplete="{{ f.autocomplete }}"{% if f.required %} required{% endif %}><option value="">—</option>{%- for o in f.options -%}<option value="{{ o.value }}"{% if o.value == cv_v %} selected{% endif %}>{{ o.label }}</option>{%- endfor -%}</select>
+  {%- else -%}
+    <input class="cv-input" name="{{ f.key }}" value="{{ cv_v }}" autocomplete="{{ f.autocomplete }}" inputmode="{{ f.input_mode }}" maxlength="{{ f.max_length }}"{% if f.pattern != blank %} pattern="{{ f.pattern | escape }}"{% endif %}{% if f.placeholder != blank %} placeholder="{{ f.placeholder }}"{% endif %}{% if f.required %} required{% endif %}>
+  {%- endif -%}</label>
+{%- endfor -%}
+{%- if cv_open -%}</div>{%- endif -%}
+</div>
+{%- assign cv_ph_label = '' -%}{%- assign cv_ph_required = false -%}{%- assign cv_ph_name = '' -%}
+{%- for f in cv_fields -%}{%- if f.key == 'phone' -%}{%- assign cv_ph_label = f.label -%}{%- assign cv_ph_required = f.required -%}{%- assign cv_ph_name = f.key -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_ph_id = 'cv-ph-' | append: cv_fid -%}{%- assign cv_ph_value = cv_a.phone -%}
+{%- assign cv_ph_country = cv_cc -%}
+{%- assign cv_ph_disabled = false -%}{%- assign cv_ph_describedby = '' -%}{%- assign cv_ph_auto = '' -%}
+{%- comment -%}partial:phone-field{%- endcomment -%}
+{%- comment -%}/partial:phone-field{%- endcomment -%}
+<div class="cv-ac__two">
+  <label class="cv-field"><span class="cv-label">{{ 'account.address_type' | t }}</span>
+    <select class="cv-input" name="address_type">
+      <option value="shipping"{% if cv_a.address_type != 'billing' %} selected{% endif %}>{{ 'account.addr_shipping' | t }}</option>
+      <option value="billing"{% if cv_a.address_type == 'billing' %} selected{% endif %}>{{ 'account.addr_billing' | t }}</option>
+    </select></label>
+  <label class="cv-check cv-ac__def"><input type="checkbox" name="is_default" value="true"{% if cv_a.is_default %} checked{% endif %}> {{ 'account.make_default' | t }}</label>
+</div>

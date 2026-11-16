@@ -1,0 +1,368 @@
+{
+  "name": "collage",
+  "icon": "layout-dashboard",
+  "ctx_needs": [
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": ""
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "editor": {
+        "label": "layout",
+        "group": "layout"
+      },
+      "default": "lead_start",
+      "options": [
+        {
+          "value": "lead_start",
+          "label": "opt_lead_tile_start"
+        },
+        {
+          "value": "lead_end",
+          "label": "opt_lead_tile_end"
+        }
+      ]
+    },
+    {
+      "id": "height",
+      "type": "range",
+      "editor": {
+        "label": "height",
+        "group": "layout"
+      },
+      "min": 400,
+      "max": 900,
+      "step": 20,
+      "default": 620,
+      "unit": "px"
+    },
+    {
+      "id": "overlay",
+      "type": "range",
+      "editor": {
+        "label": "overlay",
+        "group": "design"
+      },
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "default": 40,
+      "unit": "%"
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 5,
+    "default": [
+      "image",
+      "image",
+      "image"
+    ],
+    "types": [
+      {
+        "type": "image",
+        "editor": {
+          "label": "collage_image"
+        },
+        "settings": [
+          {
+            "id": "image",
+            "type": "image",
+            "editor": {
+              "label": "image",
+              "group": "content"
+            }
+          },
+          {
+            "id": "fallback_photo",
+            "type": "select",
+            "default": "none",
+            "options": [
+              {
+                "value": "none",
+                "label": "opt_photo_auto"
+              },
+              {
+                "value": "room",
+                "label": "opt_photo_room"
+              },
+              {
+                "value": "table",
+                "label": "opt_photo_table"
+              },
+              {
+                "value": "shelf",
+                "label": "opt_photo_shelf"
+              },
+              {
+                "value": "corner",
+                "label": "opt_photo_corner"
+              },
+              {
+                "value": "parcel",
+                "label": "opt_photo_parcel"
+              },
+              {
+                "value": "linen",
+                "label": "opt_photo_linen"
+              },
+              {
+                "value": "bedroom",
+                "label": "opt_photo_bedroom"
+              },
+              {
+                "value": "bench",
+                "label": "opt_photo_bench"
+              },
+              {
+                "value": "evening",
+                "label": "opt_photo_evening"
+              },
+              {
+                "value": "off",
+                "label": "opt_photo_none"
+              }
+            ],
+            "editor": {
+              "label": "fallback_photo",
+              "group": "content"
+            }
+          },
+          {
+            "id": "heading",
+            "type": "text",
+            "editor": {
+              "label": "heading",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "button_label",
+            "type": "text",
+            "editor": {
+              "label": "button_label",
+              "group": "content"
+            },
+            "default": "@t:sections.promo_grid.tile.button_label"
+          },
+          {
+            "id": "button_style",
+            "type": "select",
+            "default": "solid",
+            "options": [
+              {
+                "value": "solid",
+                "label": "opt_solid"
+              },
+              {
+                "value": "outline",
+                "label": "opt_soft"
+              },
+              {
+                "value": "ghost",
+                "label": "opt_bordered"
+              },
+              {
+                "value": "link",
+                "label": "opt_text_link"
+              }
+            ],
+            "editor": {
+              "label": "button_style",
+              "group": "design"
+            }
+          },
+          {
+            "id": "button_scheme",
+            "type": "color_scheme",
+            "default": "",
+            "editor": {
+              "label": "button_scheme",
+              "group": "design"
+            }
+          },
+          {
+            "id": "link",
+            "type": "url",
+            "editor": {
+              "label": "link",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "product",
+        "editor": {
+          "label": "product"
+        },
+        "settings": [
+          {
+            "id": "product",
+            "type": "product",
+            "editor": {
+              "label": "product",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "collection",
+        "editor": {
+          "label": "collection"
+        },
+        "settings": [
+          {
+            "id": "collection",
+            "type": "collection",
+            "editor": {
+              "label": "collection",
+              "group": "content"
+            }
+          },
+          {
+            "id": "fallback_photo",
+            "type": "select",
+            "default": "auto",
+            "options": [
+              {
+                "value": "auto",
+                "label": "opt_photo_auto"
+              },
+              {
+                "value": "room",
+                "label": "opt_photo_room"
+              },
+              {
+                "value": "table",
+                "label": "opt_photo_table"
+              },
+              {
+                "value": "shelf",
+                "label": "opt_photo_shelf"
+              },
+              {
+                "value": "corner",
+                "label": "opt_photo_corner"
+              },
+              {
+                "value": "parcel",
+                "label": "opt_photo_parcel"
+              },
+              {
+                "value": "linen",
+                "label": "opt_photo_linen"
+              },
+              {
+                "value": "bedroom",
+                "label": "opt_photo_bedroom"
+              },
+              {
+                "value": "bench",
+                "label": "opt_photo_bench"
+              },
+              {
+                "value": "evening",
+                "label": "opt_photo_evening"
+              },
+              {
+                "value": "off",
+                "label": "opt_photo_none"
+              }
+            ],
+            "editor": {
+              "label": "fallback_photo_collection",
+              "group": "content"
+            }
+          },
+          {
+            "id": "heading",
+            "type": "text",
+            "editor": {
+              "label": "title_fallback_collection",
+              "group": "content"
+            },
+            "default": ""
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "collage",
+      "category": "image",
+      "blocks": [
+        {
+          "type": "image",
+          "settings": {
+            "fallback_photo": "table",
+            "heading": "@t:content.for_the_home"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "fallback_photo": "shelf",
+            "heading": "@t:content.slow_living"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "fallback_photo": "parcel",
+            "heading": "@t:content.gifting"
+          }
+        }
+      ]
+    }
+  ]
+}

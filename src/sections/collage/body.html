@@ -1,0 +1,151 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Three to five tiles in an asymmetric grid: the first is the large one. An image tile shows the merchant's image, else the theme photo picked for it (with No photo, a text tile); a product or collection tile shows once one is picked, and a collection without an image takes a theme photo too. {%- endcomment -%}
+{%- assign cv_n = 0 -%}
+{%- for b in settings.blocks -%}
+  {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+  {%- assign cv_on = false -%}
+  {%- case b.type -%}
+    {%- when 'image' -%}{%- assign cv_on = true -%}
+    {%- when 'product' -%}{%- if b.settings.product -%}{%- assign cv_on = true -%}{%- endif -%}
+    {%- when 'collection' -%}{%- if b.settings.collection -%}{%- assign cv_on = true -%}{%- endif -%}
+  {%- endcase -%}
+  {%- if cv_on -%}{%- assign cv_n = cv_n | plus: 1 -%}{%- endif -%}
+{%- endfor -%}
+{%- if cv_n > 0 or design_mode -%}
+{%- if cv_n > 5 -%}{%- assign cv_n = 5 -%}{%- endif -%}
+<section class="cv cv-section cv-clg tf-scheme-{{ settings.color_scheme }} cv-clg--{{ settings.layout }} cv-clg--n{{ cv_n }} cv-pad--{{ settings.padding | default: 'default' }}" style="--cv-clg-h: {{ settings.height }}px; --cv-clg-overlay: {{ settings.overlay }}">
+  {%- if design_mode and cv_n == 0 -%}<p class="cv-editor-hint">{{ 'sections.editor_add_content' | t }}</p>{%- endif -%}
+  <div class="cv-wrap">
+    {%- if settings.heading != blank -%}<div class="cv-head"><h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2></div>{%- endif -%}
+    <div class="cv-clg__grid">
+      {%- assign cv_i = 0 -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled or cv_i >= 5 -%}{%- continue -%}{%- endif -%}
+        {%- case b.type -%}
+          {%- when 'image' -%}
+            {%- assign cv_photo = b.settings.fallback_photo -%}{%- assign cv_photo_i = cv_i | plus: 1 -%}{%- assign cv_photo_wide = false -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+            {%- assign cv_i = cv_i | plus: 1 -%}
+            {{ b._editor_block_open }}
+            {%- if b.settings.link != blank -%}
+              <a class="cv-clg__tile cv-clg__t{{ cv_i }} cv-media cv-reveal{% unless b.settings.image or cv_fb != blank %} cv-clg__tile--plain{% endunless %}" href="{{ b.settings.link }}" data-tf-field="link">
+                {%- if b.settings.image -%}<img src="{{ b.settings.image | image_url: width: 1200 }}" srcset="{{ b.settings.image | image_srcset: max: 2000 }}" sizes="(min-width: 750px) 50vw, 100vw" alt="{{ b.settings.image.alt_text | default: b.settings.heading }}" loading="lazy" data-tf-field="image">
+                {%- elsif cv_fb != blank -%}<img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}">{%- endif -%}
+                <span class="cv-clg__text">
+                  {%- if b.settings.heading != blank -%}<span dir="auto" class="cv-h3 cv-clg__heading" data-tf-field="heading">{{ b.settings.heading }}</span>{%- endif -%}
+                  {%- if b.settings.button_label != blank and b.settings.link != blank -%}<span dir="auto" data-tf-field="button_label" class="cv-btn cv-btn--sm cv-clg__btn{% case b.settings.button_style %}{% when 'outline' %} cv-btn--outline{% when 'ghost' %} cv-btn--ghost{% when 'link' %} cv-btn--link{% endcase %}{% if b.settings.button_scheme != blank %} tf-scheme-{{ b.settings.button_scheme }}{% endif %}">{{ b.settings.button_label }}</span>{%- endif -%}
+                </span>
+              </a>
+            {%- else -%}
+              <div class="cv-clg__tile cv-clg__t{{ cv_i }} cv-media cv-reveal{% unless b.settings.image or cv_fb != blank %} cv-clg__tile--plain{% endunless %}">
+                {%- if b.settings.image -%}<img src="{{ b.settings.image | image_url: width: 1200 }}" srcset="{{ b.settings.image | image_srcset: max: 2000 }}" sizes="(min-width: 750px) 50vw, 100vw" alt="{{ b.settings.image.alt_text | default: b.settings.heading }}" loading="lazy" data-tf-field="image">
+                {%- elsif cv_fb != blank -%}<img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}">{%- endif -%}
+                <span class="cv-clg__text">
+                  {%- if b.settings.heading != blank -%}<span dir="auto" class="cv-h3 cv-clg__heading" data-tf-field="heading">{{ b.settings.heading }}</span>{%- endif -%}
+                  {%- if b.settings.button_label != blank and b.settings.link != blank -%}<span dir="auto" data-tf-field="button_label" class="cv-btn cv-btn--sm cv-clg__btn{% case b.settings.button_style %}{% when 'outline' %} cv-btn--outline{% when 'ghost' %} cv-btn--ghost{% when 'link' %} cv-btn--link{% endcase %}{% if b.settings.button_scheme != blank %} tf-scheme-{{ b.settings.button_scheme }}{% endif %}">{{ b.settings.button_label }}</span>{%- endif -%}
+                </span>
+              </div>
+            {%- endif -%}
+            {{ b._editor_block_close }}
+          {%- when 'product' -%}
+            {%- assign cv_p = b.settings.product -%}
+            {%- unless cv_p -%}{%- continue -%}{%- endunless -%}
+            {%- assign cv_i = cv_i | plus: 1 -%}
+            {{ b._editor_block_open }}
+            {%- if cv_p -%}
+              {%- assign cv_img = cv_p.featured_image -%}
+              {%- if cv_img.media_type and cv_img.media_type != 'image' -%}{%- assign cv_img = cv_img.preview_image -%}{%- endif -%}
+              {%- assign cv_cur = cv_p.price.current -%}
+              {%- assign cv_td = cv_p.price.tax_display.current -%}
+              {%- if cv_td and cv_td.status != 'unavailable' and cv_td.status != 'not_applicable' -%}{%- assign cv_cur = cv_td.primary -%}{%- endif -%}
+              <a class="cv-clg__tile cv-clg__t{{ cv_i }} cv-clg__tile--product cv-media cv-reveal" href="{{ cv_p.url }}">
+                {%- if cv_img.url -%}<img src="{{ cv_img.url | image_url: width: 1200 }}" srcset="{{ cv_img.url | image_srcset: max: 2000 }}" sizes="(min-width: 750px) 50vw, 100vw" alt="" loading="lazy">
+                {%- else -%}<span class="cv-noimg cv-noimg--lg" aria-hidden="true">{{ cv_p.title }}</span>{%- endif -%}
+                <span class="cv-clg__tag">
+                  <span dir="auto" class="cv-clg__name">{{ cv_p.title }}</span>
+                  <span class="cv-clg__price cv-price">{%- if cv_p.price_range.has_range -%}<span class="cv-muted">{{ 'products.from' | t }}</span>&nbsp;{%- endif -%}{{ cv_cur | money: isolate: true, trim_zeros: cv_tz }}</span>
+                </span>
+              </a>
+            {%- endif -%}
+            {{ b._editor_block_close }}
+          {%- when 'collection' -%}
+            {%- assign cv_c = b.settings.collection -%}
+            {%- unless cv_c -%}{%- continue -%}{%- endunless -%}
+            {%- assign cv_i = cv_i | plus: 1 -%}
+            {{ b._editor_block_open }}
+            {%- if cv_c -%}
+              {%- assign cv_ci = cv_c.image_url | default: cv_c.image.url -%}
+              {%- assign cv_photo = b.settings.fallback_photo -%}{%- assign cv_photo_i = cv_i -%}{%- assign cv_photo_wide = false -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+              <a class="cv-clg__tile cv-clg__t{{ cv_i }} cv-media cv-reveal{% if cv_ci == blank and cv_fb == blank %} cv-clg__tile--plain{% endif %}" href="{{ cv_c.url }}">
+                {%- if cv_ci != blank -%}<img src="{{ cv_ci | image_url: width: 1200 }}" srcset="{{ cv_ci | image_srcset: max: 2000 }}" sizes="(min-width: 750px) 50vw, 100vw" alt="" loading="lazy">
+                {%- elsif cv_fb != blank -%}<img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}">{%- endif -%}
+                <span class="cv-clg__text">
+                  <span dir="auto" class="cv-h3 cv-clg__heading"{% if b.settings.heading != blank %} data-tf-field="heading"{% endif %}>{{ b.settings.heading | default: cv_c.name }}</span>
+                  {%- assign cv_pc = cv_c.product_count | default: 0 -%}
+                  {%- if cv_pc > 0 -%}<span class="cv-clg__count">{{ 'filters.product_count' | t: count: cv_c.product_count }}</span>{%- endif -%}
+                </span>
+                <span class="cv-clg__go" aria-hidden="true"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+              </a>
+            {%- endif -%}
+            {{ b._editor_block_close }}
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+{%- endif -%}

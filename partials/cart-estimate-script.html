@@ -1,0 +1,102 @@
+<script>
+// Shipping estimate ([data-cv-est], partials/cart-estimate): the country picks which state and postal fields send; a PIN code
+// fills the state from the platform's lookup. Estimate posts them to the cart_estimate action and shows the answer: shipping
+// (each option), tax, duties, cash on delivery and the total, or the platform's message. The last address is kept on this device
+// and, on the cart page, estimated again when the cart redraws (a quantity change), so the figures follow the cart. Nothing is
+// saved on the server.
+(function () {
+  if (window.__cvEst) return; window.__cvEst = true;
+  var KEY = "cv-est-addr";
+  function saved() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (_) { return null; } }
+  function keep(a) { try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (_) {} }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function show(root, cc) {
+    root.querySelectorAll("[data-cv-est-for]").forEach(function (g) {
+      var on = g.getAttribute("data-cv-est-for") === cc; g.hidden = !on;
+      g.querySelectorAll("input, select").forEach(function (i) { i.disabled = !on; });
+    });
+  }
+  function row(dl, label, value, cls) {
+    var d = el("div", cls); d.appendChild(el("dt", null, label)); d.appendChild(el("dd", null, value)); dl.appendChild(d); return d;
+  }
+  function render(root, est) {
+    var out = root.querySelector("[data-cv-est-out]"), t = function (k) { return root.getAttribute("data-t-" + k) || ""; };
+    out.textContent = ""; out.hidden = false;
+    var dl = el("dl", "cv-sum__totals cv-est__rows");
+    if (est.requires_shipping) {
+      (est.shipping_options || []).forEach(function (o, i) {
+        row(dl, i === 0 ? t("shipping") + " · " + o.name : o.name, o.free ? t("free") : o.formatted_price, i === 0 ? "" : "cv-est__alt");
+      });
+    }
+    (est.fees || []).forEach(function (f) { row(dl, f.name, f.formatted); });
+    if (est.tax) {
+      if (est.tax.included) { if (Number(est.tax.amount) > 0) row(dl, t("tax-included"), est.tax.formatted, "cv-est__alt"); }
+      else row(dl, t("tax"), est.tax.formatted);
+    }
+    if (est.duties && est.duties.collected_at_checkout) row(dl, t("duties"), est.duties.formatted);
+    if (est.cash_on_delivery) {
+      var c = est.cash_on_delivery;
+      row(dl, t("cod"), c.available ? (c.formatted_fee ? t("cod-yes") + " · " + c.formatted_fee + " " + t("cod-fee") : t("cod-yes")) : t("cod-no"), "cv-est__alt");
+    }
+    row(dl, t("total"), est.total.formatted, "cv-sum__total");
+    out.appendChild(dl);
+    var notes = [];
+    if (est.tax && est.tax.needs_state) notes.push(t("state"));
+    if (est.duties && est.duties.note) notes.push(est.duties.note);
+    if (est.cash_on_delivery && est.cash_on_delivery.note) notes.push(est.cash_on_delivery.note);
+    notes.push(t("note"));
+    notes.forEach(function (n) { out.appendChild(el("p", "cv-est__note", n)); });
+  }
+  function fail(root, message, field) {
+    var out = root.querySelector("[data-cv-est-out]"); out.textContent = ""; out.hidden = false;
+    out.appendChild(el("p", "cv-est__err", message || root.getAttribute("data-t-error")));
+    root.querySelectorAll("[aria-invalid]").forEach(function (i) { i.removeAttribute("aria-invalid"); });
+    if (field) { var i = root.querySelector("[data-cv-est-for]:not([hidden]) [name='" + field + "']"); if (i) i.setAttribute("aria-invalid", "true"); }
+  }
+  function send(root) {
+    var form = root.querySelector("[data-cv-est-form]"), btn = form.querySelector(".cv-est__go");
+    if (root.__cvBusy) return; root.__cvBusy = true; btn.classList.add("is-loading");
+    var body = new URLSearchParams(new FormData(form)), addr = {};
+    body.forEach(function (v, k) { addr[k] = v; });
+    keep(addr);
+    fetch(root.getAttribute("data-url"), { method: "POST", body: body, credentials: "same-origin",
+      headers: { "Accept": "application/json", "X-CSRF-Token": root.getAttribute("data-csrf") || "" } })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (j && j.success && j.estimate) { root.querySelectorAll("[aria-invalid]").forEach(function (i) { i.removeAttribute("aria-invalid"); }); render(root, j.estimate); }
+        else { var e = j && j.user_errors && j.user_errors[0]; fail(root, e && e.message, e && e.field && e.field[0]); }
+      })
+      .catch(function () { fail(root); })
+      .then(function () { root.__cvBusy = false; btn.classList.remove("is-loading"); });
+  }
+  function setup(root) {
+    if (root.__cvEst) return; root.__cvEst = true;
+    var form = root.querySelector("[data-cv-est-form]"), sel = form.querySelector("[data-cv-est-country]"), a = saved();
+    if (a && a.country_code && sel.querySelector("option[value='" + a.country_code + "']")) {
+      sel.value = a.country_code; show(root, a.country_code);
+      ["province_code", "postal_code"].forEach(function (k) {
+        var i = form.querySelector("[data-cv-est-for='" + a.country_code + "'] [name='" + k + "']"); if (i && a[k]) i.value = a[k];
+      });
+      // The cart page estimates the remembered address at once; the drawer only fills it in, since it is drawn on every page.
+      if (root.hasAttribute("data-cv-est-auto")) { root.open = true; send(root); }
+    }
+    sel.addEventListener("change", function () { show(root, sel.value); });
+    form.addEventListener("submit", function (e) { e.preventDefault(); send(root); });
+    // A PIN code fills the state, where the platform knows the country's postal codes.
+    form.addEventListener("change", function (e) {
+      var i = e.target; if (!i || i.name !== "postal_code") return;
+      var cc = sel.value, known = (root.getAttribute("data-lookup") || "").split(",");
+      if (known.indexOf(cc) < 0 || !i.value.trim()) return;
+      var st = form.querySelector("[data-cv-est-for='" + cc + "'] [name='province_code']"); if (!st) return;
+      fetch(root.getAttribute("data-lookup-url") + "?country_code=" + encodeURIComponent(cc) + "&postal_code=" + encodeURIComponent(i.value.trim()), { headers: { Accept: "application/json" } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { if (j && j.province_code) st.value = j.province_code; })
+        .catch(function () {});
+    });
+  }
+  function all() { document.querySelectorAll("[data-cv-est]").forEach(setup); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", all); else all();
+  var t = 0;
+  new MutationObserver(function () { cancelAnimationFrame(t); t = requestAnimationFrame(all); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>

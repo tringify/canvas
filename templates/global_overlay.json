@@ -1,0 +1,75 @@
+{
+  "page_type": "global_overlay",
+  "sections": [
+    {
+      "type": "cart-drawer",
+      "position": 1,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-cart-drawer__lines",
+            "type": "lines",
+            "settings": {}
+          },
+          {
+            "id": "canvas-cart-drawer__free_shipping",
+            "type": "free_shipping",
+            "settings": {}
+          },
+          {
+            "id": "canvas-cart-drawer__offers",
+            "type": "offers",
+            "settings": {}
+          },
+          {
+            "id": "canvas-cart-drawer__discounts",
+            "type": "discounts",
+            "settings": {}
+          },
+          {
+            "id": "canvas-cart-drawer__cart_note",
+            "type": "cart_note",
+            "settings": {}
+          },
+          {
+            "id": "canvas-cart-drawer__totals",
+            "type": "totals",
+            "settings": {}
+          },
+          {
+            "id": "canvas-cart-drawer__price_notes",
+            "type": "price_notes",
+            "settings": {}
+          },
+          {
+            "id": "canvas-cart-drawer__order_limit",
+            "type": "order_limit",
+            "settings": {}
+          },
+          {
+            "id": "canvas-cart-drawer__checkout",
+            "type": "checkout",
+            "settings": {}
+          }
+        ]
+      }
+    },
+    {
+      "type": "consent-banner",
+      "position": 2,
+      "settings": {}
+    },
+    {
+      "type": "localization-prompt",
+      "position": 3,
+      "settings": {}
+    },
+    {
+      "type": "age-gate",
+      "position": 4,
+      "settings": {
+        "blocks": []
+      }
+    }
+  ]
+}

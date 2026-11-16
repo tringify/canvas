@@ -1,0 +1,36 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: the order limit notice. Reads cart, design_mode and the block (b); cv_where keeps the page's and the drawer's ids apart.
+  The market's checkout limits (cart.checkout_limits) decide when it shows and the amount; the block's copy ({amount} is filled in) and tone
+  how. A blank message prints nothing; in the editor, a cart within the limits shows when the notice appears. Outside the quantity limits the
+  platform's quantity_message prints in the same tone (cv-olq-…), whatever the block's copy. The Check out button names them as its reason
+  (partials/cart-summary, cart-checkout). {%- endcomment -%}
+{%- assign cv_limits = cart.checkout_limits -%}
+{%- if cv_limits and cv_limits.within_range == false -%}
+  {%- assign cv_ol_tone = b.settings.tone | default: 'alert' -%}
+  {%- assign cv_ol_msg = '' -%}
+  {%- if cv_limits.below_minimum -%}
+    {%- assign cv_ol_field = 'min_message' -%}{%- assign cv_ol_msg = b.settings.min_message -%}
+    {%- assign cv_ol_amt = cv_limits.shortfall | money: isolate: true, trim_zeros: cv_tz -%}
+  {%- elsif cv_limits.above_maximum -%}
+    {%- assign cv_ol_field = 'max_message' -%}{%- assign cv_ol_msg = b.settings.max_message -%}
+    {%- assign cv_ol_amt = cv_limits.excess | money: isolate: true, trim_zeros: cv_tz -%}
+  {%- endif -%}
+  {%- if cv_ol_msg != blank -%}
+    <div class="cv-notice cv-ol cv-ol--{{ cv_ol_tone }}{% if cv_ol_tone == 'alert' %} cv-notice--error{% endif %}" id="cv-ol-{{ cv_where }}-{{ b.id }}">
+      <p class="cv-ol__text" dir="auto" data-tf-field="{{ cv_ol_field }}">
+        {%- if cv_ol_msg contains '{amount}' -%}
+          {%- assign cv_ol_pre = '' -%}{%- assign cv_ol_lead = cv_ol_msg | slice: 0, 8 -%}
+          {%- if cv_ol_lead != '{amount}' -%}{%- assign cv_ol_pre = cv_ol_msg | split: '{amount}' | first -%}{%- endif -%}
+          {{ cv_ol_pre }}<strong>{{ cv_ol_amt }}</strong>{{ cv_ol_msg | remove_first: cv_ol_pre | remove_first: '{amount}' | replace: '{amount}', cv_ol_amt }}
+        {%- else -%}{{ cv_ol_msg }}{%- endif -%}
+      </p>
+    </div>
+  {%- endif -%}
+  {%- if cv_limits.below_minimum_quantity or cv_limits.above_maximum_quantity -%}
+    <div class="cv-notice cv-ol cv-ol--{{ cv_ol_tone }}{% if cv_ol_tone == 'alert' %} cv-notice--error{% endif %}" id="cv-olq-{{ cv_where }}-{{ b.id }}">
+      <p class="cv-ol__text" dir="auto">{{ cv_limits.quantity_message }}</p>
+    </div>
+  {%- endif -%}
+{%- elsif design_mode -%}
+  <p class="cv-editor-hint cv-ol-hint">{{ 'editor.order_limit' | t }}</p>
+{%- endif -%}

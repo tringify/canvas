@@ -1,0 +1,1324 @@
+<style>
+  /* Canvas design system. Repeated in every section, because sections are standalone. */
+  :where(.cv) { --cv-pad-x: clamp(16px, 4vw, 56px); --cv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --cv-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+    --cv-soft: color-mix(in srgb, var(--text) 5%, var(--bg)); --cv-line: color-mix(in srgb, var(--text) 10%, transparent);
+    font-family: var(--tf-font-body_font, "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: 15px; line-height: 1.55; letter-spacing: -0.006em; color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01", "cv11"; }
+  :where(.cv *) { box-sizing: border-box; }
+  .cv[hidden], .cv [hidden] { display: none !important; }
+  :where(.cv img) { max-width: 100%; display: block; }
+  :where(.cv a) { color: inherit; }
+  :where(.cv-section) { padding-block: calc(var(--cv-gap-y, clamp(56px, 8vw, 112px)) * 0.58); }
+  :where(.cv-section--page) { padding-top: clamp(28px, 4vw, 56px); }
+  :where(.cv-page-title) { font-size: calc(clamp(32px, 4vw, 56px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-wrap) { width: 100%; max-width: var(--cv-width, 1440px); margin-inline: auto; padding-inline: var(--cv-pad-x); }
+  :where(.cv-app-blocks) { display: grid; gap: 16px; margin-top: 24px; }
+  .cv-app-blocks:empty { display: none; }
+  :where(.cv-h1, .cv-h2, .cv-h3, .cv-h4) { font-family: var(--tf-font-heading_font, inherit); font-weight: 500; line-height: 1.04;
+    letter-spacing: -0.035em; text-transform: var(--cv-heading-case, none); margin: 0; text-wrap: balance; }
+  :where(.cv-h1) { font-size: calc(clamp(40px, 6.4vw, 88px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h2) { font-size: calc(clamp(28px, 3.6vw, 48px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h3) { font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); letter-spacing: -0.02em; line-height: 1.2; }
+  :where(.cv-h4) { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+  :where(.cv-eyebrow) { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0; }
+  :where(.cv-muted) { color: var(--text-muted); }
+  :where(.cv-meta > * + *)::before { content: " · "; }
+  :where(.cv-rte) { line-height: 1.65; }
+  :where(.cv-rte > * + *) { margin-top: 0.9em; }
+  :where(.cv-rte a) { text-underline-offset: 3px; }
+  :where(.cv-rte ul, .cv-rte ol) { margin: 0; padding-inline-start: 1.25em; }
+  :where(.cv-rte li + li) { margin-top: 0.3em; }
+
+  :where(.cv-btn) { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 26px;
+    font: inherit; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+    background: var(--btn); color: var(--btn-text); border: 0; border-radius: var(--cv-btn-radius, 999px); -webkit-tap-highlight-color: transparent;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(0 0 0 / 0.08);
+    transition: transform 0.25s var(--cv-ease), background-color 0.25s var(--cv-ease), color 0.25s var(--cv-ease), box-shadow 0.25s var(--cv-ease); }
+  :where(.cv-btn:hover) { background: color-mix(in srgb, var(--btn) 86%, var(--bg)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 6px 18px -6px rgb(0 0 0 / 0.35); }
+  :where(.cv-btn:active) { transform: scale(0.97); }
+  :where(.cv-btn--outline, .cv-btn--soft) { background: var(--cv-soft); color: var(--text); box-shadow: none; }
+  :where(.cv-btn--outline:hover, .cv-btn--soft:hover) { background: color-mix(in srgb, var(--text) 10%, var(--bg)); box-shadow: none; }
+  :where(.cv-btn--ghost) { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--ghost:hover) { background: var(--cv-soft); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--link) { min-height: 0; padding: 0; gap: 6px; background: none; box-shadow: none; color: var(--text); font-weight: 500; text-decoration: none; }
+  :where(.cv-btn--link)::after { content: ""; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--cv-arrow) center / contain no-repeat; mask: var(--cv-arrow) center / contain no-repeat; transition: transform 0.25s var(--cv-ease); }
+  :where(.cv-btn--link:hover) { background: none; box-shadow: none; }
+  :where([dir="rtl"] .cv-btn--link)::after { transform: scaleX(-1); }
+  :where(.cv-btn--link:active) { transform: none; }
+  :where(.cv-btn--plain)::after { content: none; }
+  :where(.cv-btn--block) { width: 100%; }
+  :where(.cv-btn--sm) { min-height: 38px; padding: 0 16px; font-size: 14px; }
+  :where(.cv-btn--lg) { min-height: 56px; padding: 0 32px; font-size: 16px; }
+  :where(.cv-btn:disabled, .cv-btn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  :where(.cv-btn.is-loading, .cv-btn.is-done) { opacity: 1; cursor: progress; }
+  :where(.cv-btn.is-loading) > *, :where(.cv-btn.is-loading) { color: transparent; }
+  :where(.cv-btn.is-loading)::before { content: ""; position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+    border: 2px solid var(--btn-text); border-right-color: transparent; animation: cv-spin 0.7s linear infinite; }
+  :where(.cv-btn--outline.is-loading, .cv-btn--soft.is-loading, .cv-btn--ghost.is-loading)::before { border-color: var(--text); border-right-color: transparent; }
+  /* A link button (wishlist, share) keeps its icon and label while busy and only dims: a spinner on a borderless button reads as the control vanishing. */
+  .cv-btn--link.is-loading, .cv-btn--link.is-loading > * { color: inherit; }
+  .cv-btn--link.is-loading { opacity: 0.55; }
+  .cv-btn--link.is-loading::before { content: none; }
+  :where(.cv-btn.is-done) { animation: cv-pop 0.4s var(--cv-ease); }
+  /* Text buttons: actions set as words (Clear cart, Create account, Edit, Show more), on <button>, <a> or <summary>. No underline and
+     no arrow, at rest or on hover: muted at rest, ink on hover. A surface with other colours sets --cv-tbtn and --cv-tbtn-hover.
+     Links inside running prose keep the browser underline; .cv-btn--link (with its arrow) is for navigation such as "Continue shopping". */
+  :where(.cv-tbtn) { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 0; font: inherit; font-weight: 500; letter-spacing: inherit;
+    color: var(--cv-tbtn, var(--text-muted)); text-align: start; text-decoration: none; background: none; border: 0; border-radius: 4px; cursor: pointer;
+    list-style: none; -webkit-tap-highlight-color: transparent; transition: color 0.2s var(--cv-ease); }
+  :where(.cv-tbtn:hover) { color: var(--cv-tbtn-hover, var(--text)); text-decoration: none; }
+  :where(.cv-tbtn)::-webkit-details-marker { display: none; }
+  :where(.cv-tbtn:disabled, .cv-tbtn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; }
+  @keyframes cv-spin { to { transform: rotate(360deg); } }
+  @keyframes cv-pop { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+  :where(.cv-field) { display: grid; gap: 6px; }
+  :where(.cv-label) { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+  :where(.cv-input) { width: 100%; min-height: 50px; padding: 0 18px; font: inherit; font-size: 15px; color: var(--text); background: var(--cv-soft);
+    border: 1px solid transparent; border-radius: var(--cv-field-radius, 14px); outline: none; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
+  :where(.cv-input::placeholder) { color: color-mix(in srgb, var(--text) 45%, transparent); }
+  :where(.cv-input:hover) { background: color-mix(in srgb, var(--text) 7%, var(--bg)); }
+  :where(.cv-input:focus) { background: var(--bg); border-color: var(--text); box-shadow: none; }
+  :where(textarea.cv-input) { min-height: 132px; padding: 14px 18px; resize: vertical; }
+  :where(select.cv-input) { appearance: none; padding-inline-end: 44px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 18px center; }
+  /* Focus. Fields (text, email, phone, code, search, quantity, select, textarea) show it with their own border only, for mouse, touch and
+     keyboard alike. Everything else (buttons, links, swatches, cards, checks, tabs, dots, chips) gets one thin ring, for keyboard focus only.
+     A field drawn by its wrapper (newsletter pill, search bar, quantity stepper) puts .cv-shell on the wrapper, which takes the border.
+     Sections only move the ring (offset, colour) or draw it on a proxy with var(--cv-ring); they never add their own. */
+  :where(.cv) { --cv-ring: 2px solid var(--text); --cv-ring-offset: 2px; }
+  :where(.cv :focus-visible) { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }
+  :where(.cv [tabindex="-1"]:focus-visible) { outline: none; }
+  /* After a click or tap no ring shows, even where a script moved focus (a drawer focusing its close button). */
+  html.cv-pointer :where(.cv :focus-visible) { outline: none; }
+  :where(.cv) :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="submit"], [type="button"], [type="reset"], [type="image"], [type="color"]), select, textarea):focus { outline: none; }
+  .cv-shell:is(:focus, :has(input:focus, select:focus, textarea:focus)) { box-shadow: 0 0 0 1px var(--text); }
+  :where(.cv-check) { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+  :where(.cv-check input) { width: 18px; height: 18px; accent-color: var(--text); border-radius: 6px; }
+
+  :where(.cv-media) { position: relative; overflow: hidden; background: var(--surface); border-radius: var(--cv-radius, 16px); isolation: isolate; }
+  :where(.cv-media > img, .cv-media > svg, .cv-media > video, .cv-media > picture) { width: 100%; height: 100%; object-fit: cover; }
+  /* A real product (or post) without an image: a quiet tinted tile with its name, never a placeholder drawing. */
+  .cv-noimg { position: absolute; inset: 0; display: grid; place-items: center; padding: 12%; overflow: hidden; font-size: 13px; line-height: 1.35; text-align: center; color: var(--text-muted, currentColor);
+    background: color-mix(in srgb, var(--text) 6%, var(--bg)); overflow-wrap: anywhere; }
+  .cv-noimg--lg { font-family: var(--tf-font-heading_font, inherit); font-size: clamp(18px, 2vw, 26px); }
+  :where(.cv-price) { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
+  :where(.cv-price__sale) { color: var(--accent); }
+  :where(.cv-price__was) { color: var(--text-muted); text-decoration: line-through; font-size: 0.9em; }
+  :where(.cv-badge) { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+    border-radius: 999px; background: color-mix(in srgb, var(--bg) 92%, transparent); color: var(--text); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  :where(.cv-badge--sale) { background: var(--accent); color: var(--bg); }
+  :where(.cv-badge--sold) { background: color-mix(in srgb, var(--text) 82%, transparent); color: var(--bg); }
+  :where(.cv-notice) { padding: 14px 18px; font-size: 14px; background: var(--cv-soft); border-radius: 14px; }
+  :where(.cv-notice--ok) { background: color-mix(in srgb, var(--status-ok) 10%, var(--bg)); color: color-mix(in srgb, var(--status-ok) 80%, var(--text)); }
+  /* A notice marked cv-toast floats at the bottom of the window instead of pushing the page down. */
+  .cv-toast { position: fixed; z-index: 400; inset-inline: 16px; bottom: max(24px, env(safe-area-inset-bottom)); width: auto; max-width: 440px; margin: 0 auto;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 18px 44px -16px rgb(0 0 0 / 0.35); }
+  .cv-toast[hidden] { display: none; }
+  /* A confirmation toast wears the button colours of its scheme (Theme settings > Notifications); errors keep their warning colours. */
+  .cv-toast.cv-notice--ok { background: var(--btn); color: var(--btn-text); }
+  .cv-toast--top_center { top: max(20px, env(safe-area-inset-top)); bottom: auto; }
+  .cv-toast--bottom_end { inset-inline: auto 20px; margin: 0; }
+  /* The in-theme confirm dialog for destructive actions (data-cv-confirm). */
+  .cv-confirm { position: fixed; inset: 0; margin: auto; height: fit-content; max-height: calc(100dvh - 32px); border: 0; padding: 24px; width: min(420px, calc(100vw - 32px)); border-radius: var(--cv-field-radius, 14px); background: var(--bg); color: var(--text);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 24px 64px -20px rgb(0 0 0 / 0.4); }
+  .cv-confirm::backdrop { background: rgb(0 0 0 / 0.4); }
+  .cv-confirm__msg { margin: 0 0 20px; font-size: 1rem; line-height: 1.5; }
+  .cv-confirm__acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+  @media (prefers-reduced-motion: no-preference) { .cv-toast:not([hidden]) { animation: cv-toast-in 0.2s ease-out; } @keyframes cv-toast-in { from { opacity: 0; transform: translateY(8px); } } }
+  :where(.cv-notice--error) { background: color-mix(in srgb, var(--accent) 9%, var(--bg)); color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  :where(.cv-sr) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  :where(.cv-icon) { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  :where([dir="rtl"] .cv-icon--dir) { transform: scaleX(-1); }
+  :where(.cv-pk-ico) { width: 1.15em; height: 1.15em; vertical-align: -0.2em; stroke-width: 1.6; }
+  :where(.cv-grid) { display: grid; gap: var(--cv-grid-gap, clamp(28px, 3vw, 40px)) var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); grid-template-columns: repeat(var(--cv-cols-m, 2), minmax(0, 1fr)); }
+  @media (min-width: 750px) { :where(.cv-grid) { grid-template-columns: repeat(var(--cv-cols, 4), minmax(0, 1fr)); } }
+  :where(.cv-head) { display: flex; flex-wrap: wrap; align-items: last baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: clamp(24px, 3.4vw, 48px); }
+  :where(.cv-head--center) { flex-direction: column; align-items: center; text-align: center; }
+  /* Tile cards are panels: rows sit as close as columns, so the gutters read as one even grid. */
+  :where(.cv-grid:has(> .cv-card--tile)) { row-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); }
+  :where(.cv-head p) { margin: 10px 0 0; max-width: 56ch; }
+  :where(.cv-stars) { --cv-star: var(--text); display: inline-block; width: 72px; height: 13px;
+    background: linear-gradient(90deg, var(--cv-star) var(--cv-rating, 0%), color-mix(in srgb, var(--text) 16%, transparent) var(--cv-rating, 0%));
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x; }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      :where(.cv-reveal) { animation: cv-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+      @keyframes cv-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { :where(.cv, .cv *), :where(.cv, .cv *)::before, :where(.cv, .cv *)::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+  /* Section spacing (each section's "Space above and below"). */
+  .cv-section.cv-pad--compact { padding-block: calc(var(--cv-gap-y, 96px) * 0.4); }
+  .cv-section.cv-pad--relaxed { padding-block: calc(var(--cv-gap-y, 96px) * 0.9); }
+  .cv-section.cv-pad--none { padding-block: 0; }
+  .cv-section.cv-pad--top-none { padding-top: 0; }
+
+  /* Phones: link, small and text buttons get a 44px tap target; type and icon sizes stay the same. */
+  @media (max-width: 749px) {
+    :where(.cv-btn--link) { min-height: 44px; padding-block: 12px; }
+    :where(.cv-btn--sm) { min-height: 44px; padding-block: 12px; }
+    /* The padding gives a 44px target; the equal negative margin keeps the line where it was, also inside a sentence. */
+    :where(.cv-tbtn) { padding-block: 12px; margin-block: -12px; }
+  }
+  /* Wishlist limit: when the wishlist is full, hearts that would add are dimmed and explain at the button (on a card, across the foot of its image). */
+  :where([data-cv-wish].is-full) { opacity: 0.5; cursor: not-allowed; }
+  :where(.cv-wishmsg) { position: absolute; z-index: 6; inset-block-start: calc(100% + 8px); inset-inline-start: 0; width: max-content; max-width: min(280px, 80vw); margin: 0; padding: 9px 12px;
+    font-size: 13px; line-height: 1.4; text-align: start; color: var(--bg); background: var(--text); border-radius: 10px; box-shadow: 0 10px 28px -10px rgb(0 0 0 / 0.35); }
+  :where(.cv-wishmsg[hidden]) { display: none; }
+  :where(.cv-card__media > .cv-wishmsg) { inset: auto 8px 8px; width: auto; max-width: none; }
+  @media (prefers-reduced-motion: no-preference) { :where(.cv-wishmsg) { animation: cv-wishmsg-in 0.2s var(--cv-ease, ease-out); } @keyframes cv-wishmsg-in { from { opacity: 0; transform: translateY(4px); } } }
+
+/* Editor-only note on a section that shoppers can't see yet. */
+.cv-editor-hint { margin: 0 auto 16px; max-width: 640px; padding: 10px 14px; font-size: 13px; line-height: 1.45; text-align: center; color: var(--text-muted); border: 1px dashed var(--cv-line); border-radius: 12px; }
+
+/* Theme blocks (blocks/*.vasc): the content blocks sections, slides and tiles hold. Section's style ("auto") is the look the
+   section gives that part (a slide's headline, a tile's heading); sections style .cv-blk-*--auto where they hold blocks. */
+  :where(.cv-blk-eyebrow, .cv-blk-heading, .cv-blk-text) { margin: 0; }
+  :where(.cv-blk-heading) { max-width: 100%; overflow-wrap: break-word; }
+  :where(.cv-blk-text--small) { font-size: 14px; }
+  :where(.cv-blk-text--medium) { font-size: 17px; }
+  :where(.cv-blk-text--large) { font-size: calc(clamp(18px, 1.6vw, 22px)); }
+  :where(.cv-blk-buttons) { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  :where(.cv-blk-image) { width: var(--cv-blk-w, 100%); max-width: 100%; }
+  :where(.cv-blk-image img) { display: block; width: 100%; height: auto; }
+  :where(.cv-blk-image--square img) { aspect-ratio: 1 / 1; object-fit: cover; }
+  :where(.cv-blk-image--portrait img) { aspect-ratio: 4 / 5; object-fit: cover; }
+  :where(.cv-blk-image--landscape img) { aspect-ratio: 4 / 3; object-fit: cover; }
+  :where(.cv-blk-image__ph) { display: block; aspect-ratio: 4 / 3; background: var(--cv-soft); border-radius: var(--cv-radius, 16px); overflow: hidden; }
+  :where(.cv-blk-image__ph svg) { width: 100%; height: 100%; }
+  :where(.cv-blk-spacer) { height: var(--cv-blk-h, 32px); width: 100%; }
+  :where(.cv-blk-spacer--line) { display: flex; align-items: center; }
+  :where(.cv-blk-spacer--line)::before { content: ""; flex: 1; border-top: 1px solid var(--cv-line); }
+  .cv-blk-hint { margin: 0; }
+  :where(.cv-blk-heading__link) { color: inherit; text-decoration: none; }
+  :where(.cv-blk-heading__link:hover) { text-decoration: underline; text-underline-offset: 0.12em; text-decoration-thickness: 1px; }
+  /* An eyebrow that links (the product page's vendor): underlined on hover only. */
+  :where(.cv-eyebrow__link) { color: inherit; text-decoration: none; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  :where(.cv-eyebrow__link:hover) { text-decoration: underline; }
+/* A tile's own link (promo and split tiles, mega menu promotions): the pointer target over the whole tile. Its heading and button blocks carry the
+   same link for keyboards and screen readers; they sit above it, and the rest of the content lets clicks through to it. */
+  :where(.cv-tile-link) { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  :where(.cv-tile-over) { position: relative; z-index: 2; }
+  :where(.cv-tile-link ~ .cv-tile-over) { pointer-events: none; }
+  :where(.cv-tile-link ~ .cv-tile-over :is(a, button, input, select, textarea, video, [tabindex])) { pointer-events: auto; }
+  /* The platform metafield block (theme:metafield): the storefront writes its markup (tf-metafield); Canvas styles it. */
+  :where(.tf-metafield) { display: grid; gap: 4px; }
+  :where(.tf-metafield__label) { font-size: 13px; color: var(--text-muted); }
+  :where(.tf-metafield__value) { font-size: 15px; overflow-wrap: anywhere; }
+  :where(.tf-metafield__list) { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+  :where(.tf-metafield--list-product-reference, .tf-metafield--list-variant-reference) :where(.tf-metafield__reference) { display: inline-flex; padding: 6px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__image, .tf-metafield__video) { max-width: 100%; height: auto; border-radius: 12px; }
+  :where(.tf-metafield__file) { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 8px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__json) { margin: 0; font: inherit; white-space: pre-wrap; }
+  :where(.tf-metafield-notice) { font-size: 14px; }
+  :where(.cv-pl__block) { margin-block: 12px; }
+
+.cv-banner { position: relative; background: var(--bg); }
+  .cv-banner--inset { padding: 0 clamp(8px, 1.2vw, 16px); background: transparent; }
+  .cv-banner__frame { position: relative; display: grid; overflow: hidden; isolation: isolate; }
+  .cv-banner--inset .cv-banner__frame { border-radius: calc(var(--cv-radius, 16px) * 1.5); }
+  .cv-banner--small .cv-banner__frame { min-height: clamp(320px, 42vw, 480px); }
+  .cv-banner--medium .cv-banner__frame { min-height: clamp(420px, 56vw, 680px); }
+  .cv-banner--large .cv-banner__frame { min-height: clamp(520px, 82vh, 900px); }
+  .cv-banner--full .cv-banner__frame { min-height: calc(100svh - 72px); }
+  .cv-banner__media, .cv-banner__content { grid-area: 1 / 1; }
+  .cv-banner__media { position: relative; background: var(--surface); }
+  .cv-banner__media > img, .cv-banner__media picture, .cv-banner__media picture img, .cv-banner__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cv-banner__media picture img, .cv-banner__video { object-position: var(--cv-focus-x, 50%) var(--cv-focus-y, 50%); }
+  @media (max-width: 749px) { .cv-banner__media picture img, .cv-banner__video { object-position: var(--cv-mfocus-x, var(--cv-focus-x, 50%)) var(--cv-mfocus-y, var(--cv-focus-y, 50%)); } }
+  .cv-banner__media > img, .cv-banner__media picture img { animation: cv-hero-in 1.8s var(--cv-ease) both; }
+  .cv-banner__video { z-index: 0; }
+  @keyframes cv-hero-in { from { transform: scale(1.08); } }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .cv-banner__media > img, .cv-banner__media picture img { animation: cv-hero-in 1.8s var(--cv-ease) both, cv-hero-drift linear both; animation-timeline: auto, view(); animation-range: normal, exit 0% exit 100%; }
+      @keyframes cv-hero-drift { to { transform: translateY(10%) scale(1.06); } }
+    }
+  }
+  .cv-banner__scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: var(--cv-scrim, 0.45);
+    background: linear-gradient(to top, rgb(0 0 0 / 0.85) 0%, rgb(0 0 0 / 0.35) 38%, rgb(0 0 0 / 0) 70%); }
+  .cv-banner--y-top .cv-banner__scrim { background: linear-gradient(to bottom, rgb(0 0 0 / 0.85) 0%, rgb(0 0 0 / 0.35) 38%, rgb(0 0 0 / 0) 70%); }
+  .cv-banner--y-center .cv-banner__scrim { background: rgb(0 0 0 / 0.6); }
+  .cv-banner__content { position: relative; z-index: 2; display: flex; padding: clamp(24px, 4.5vw, 64px); pointer-events: none; }
+  .cv-banner__content a, .cv-banner__content button, .cv-banner__content [data-tf-field], .cv-banner__list { pointer-events: auto; }
+  .cv-banner--x-left .cv-banner__content { justify-content: flex-start; text-align: start; }
+  .cv-banner--x-center .cv-banner__content { justify-content: center; text-align: center; }
+  .cv-banner--x-right .cv-banner__content { justify-content: flex-end; text-align: end; }
+  .cv-banner--y-top .cv-banner__content { align-items: flex-start; }
+  .cv-banner--y-center .cv-banner__content { align-items: center; }
+  .cv-banner--y-bottom .cv-banner__content { align-items: flex-end; }
+  .cv-banner__box { display: grid; gap: 18px; max-width: var(--cv-banner-w, 760px); color: var(--text); animation: cv-hero-text 1s 0.15s var(--cv-ease) both; }
+  .cv-banner--w-narrow { --cv-banner-w: 520px; }
+  .cv-banner--w-wide { --cv-banner-w: 1080px; }
+  @keyframes cv-hero-text { from { opacity: 0; transform: translateY(18px); } }
+  .cv-banner__eyebrow { color: inherit; opacity: 0.8; }
+  .cv-banner__heading { font-size: calc(clamp(44px, 7.4vw, 112px) * var(--cv-heading-scale, 1)); letter-spacing: -0.045em; line-height: 0.98; }
+  .cv-banner--t-huge .cv-banner__heading { font-size: calc(clamp(56px, 10vw, 168px) * var(--cv-heading-scale, 1)); line-height: 0.9; }
+  .cv-banner--t-medium .cv-banner__heading { font-size: calc(clamp(36px, 5vw, 72px) * var(--cv-heading-scale, 1)); line-height: 1.02; }
+  .cv-banner__text { font-size: clamp(16px, 1.3vw, 19px); opacity: 0.88; max-width: 52ch; }
+  .cv-banner--x-center .cv-banner__text { margin-inline: auto; }
+  .cv-banner__buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .cv-banner--x-center .cv-banner__buttons { justify-content: center; }
+  .cv-banner--x-right .cv-banner__buttons { justify-content: flex-end; }
+  .cv-banner__btn2 { background: rgb(255 255 255 / 0.16); color: var(--text); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .cv-banner__btn2:hover { background: rgb(255 255 255 / 0.26); }
+  .cv-banner__vtoggle { position: absolute; z-index: 4; inset-block-end: 18px; inset-inline-end: 18px; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; color: var(--media-ink-light);
+    background: rgb(0 0 0 / 0.32); border: 0; border-radius: 50%; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .cv-banner__vtoggle .cv-banner__vplay, .cv-banner__vtoggle[aria-pressed="true"] .cv-banner__vpause { display: none; }
+  .cv-banner__vtoggle[aria-pressed="true"] .cv-banner__vplay { display: block; }
+
+  /* Room: the headline breaks across the photo, the products in it pinned as cards. */
+  .cv-banner--room .cv-banner__frame { min-height: max(560px, min(88svh, 960px)); }
+  .cv-banner--room.cv-banner--medium .cv-banner__frame { min-height: clamp(480px, 62vw, 720px); }
+  .cv-banner--room.cv-banner--full .cv-banner__frame { min-height: calc(100svh - 72px); }
+  .cv-banner--room .cv-banner__scrim { background:
+    linear-gradient(170deg, rgb(0 0 0 / 0.55) 0%, rgb(0 0 0 / 0) 38%),
+    linear-gradient(to top, rgb(0 0 0 / 0.7) 0%, rgb(0 0 0 / 0.18) 34%, rgb(0 0 0 / 0) 55%); }
+  .cv-banner--room .cv-banner__content { padding: 0; }
+  .cv-banner--room .cv-banner__box { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: 16px; max-width: none;
+    padding: clamp(24px, 4vw, 60px); text-align: start; animation: none; }
+  .cv-banner--room .cv-banner__box > :not(.cv-room-title):not(:has(.cv-room-title)) { max-width: min(400px, 40%); animation: cv-hero-text 1s 0.6s var(--cv-ease) both; }
+  .cv-banner--room .cv-banner__heading.cv-room-title, .cv-banner--room .cv-banner__box > :has(> .cv-room-title) { display: contents; }
+  .cv-room-title__a, .cv-room-title__b { position: absolute; font-family: var(--tf-font-heading_font, inherit); font-weight: 400; color: var(--text);
+    font-size: calc(clamp(64px, 12.5vw, 216px) * var(--cv-heading-scale, 1)); line-height: 0.84; letter-spacing: -0.055em; text-wrap: balance;
+    text-shadow: 0 2px 40px rgb(0 0 0 / 0.18); pointer-events: none; }
+  .cv-room-title__a { top: clamp(22px, 3.4vw, 52px); inset-inline-start: clamp(20px, 3.4vw, 52px); max-width: 78%; animation: cv-room-in 1.3s 0.15s var(--cv-ease) both; }
+  .cv-room-title__b { bottom: clamp(18px, 3vw, 46px); inset-inline-end: clamp(20px, 3.4vw, 52px); max-width: 64%; text-align: end; animation: cv-room-in 1.3s 0.4s var(--cv-ease) both; }
+  .cv-banner--t-medium .cv-room-title__a, .cv-banner--t-medium .cv-room-title__b { font-size: calc(clamp(52px, 9vw, 150px) * var(--cv-heading-scale, 1)); }
+  @keyframes cv-room-in { from { opacity: 0; transform: translateY(0.35em); clip-path: inset(0 0 100% 0); } to { clip-path: inset(-20% -10% -20% -10%); } }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .cv-room-title__b { animation: cv-room-in 1.3s 0.4s var(--cv-ease) both, cv-room-slide linear both; animation-timeline: auto, view(); animation-range: normal, exit 0% exit 100%; }
+      @keyframes cv-room-slide { to { transform: translateX(-12%); } }
+    }
+  }
+
+  .cv-banner--spots .cv-banner__media { container-type: size; }
+  .cv-banner__pins { position: absolute; z-index: 3; pointer-events: none;
+    width: max(100cqw, 100cqh * var(--cv-ar, 0)); height: max(100cqh, 100cqw / var(--cv-ar, 100000));
+    left: calc((100cqw - max(100cqw, 100cqh * var(--cv-ar, 0))) * var(--cv-fx, 0.5)); top: calc((100cqh - max(100cqh, 100cqw / var(--cv-ar, 100000))) * var(--cv-fy, 0.5)); }
+  .cv-banner--spots .cv-banner__media > img, .cv-banner--spots .cv-banner__media picture img { object-position: calc(var(--cv-fx, 0.5) * 100%) calc(var(--cv-fy, 0.5) * 100%); }
+  .cv-banner__pins > *, .cv-banner__pins .cv-pin { pointer-events: auto; }
+  .cv-banner__pins .cv-pin.is-out { display: none; }
+/* partial:pins */
+  /* Pins and their product cards */
+  .cv-pin { position: absolute; z-index: 3; left: var(--x); top: var(--y); width: 0; height: 0; }
+  .cv-pin__dot { position: absolute; left: -17px; top: -17px; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; font: inherit; font-size: 12px; font-weight: 600; color: var(--media-ink-dark);
+    background: var(--media-ink-light); border: 0; border-radius: 50%; cursor: pointer; box-shadow: 0 6px 20px rgb(0 0 0 / 0.28); transition: transform 0.3s var(--cv-ease); }
+  .cv-pin__dot::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 1.5px solid rgb(255 255 255 / 0.75); animation: cv-pin-pulse 2.4s var(--cv-ease) infinite; animation-delay: calc(var(--i) * 0.4s); }
+  .cv-pin__dot:hover, .cv-pin.is-open .cv-pin__dot { transform: scale(1.12); }
+  @keyframes cv-pin-pulse { 0% { transform: scale(0.7); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+  .cv-pin__card { position: absolute; left: 30px; top: -38px; display: grid; grid-template-columns: 60px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 280px; padding: 8px 10px 8px 8px;
+    color: var(--media-ink-dark); background: rgb(255 255 255 / 0.94); border-radius: calc(var(--cv-radius, 16px) * 1.05); box-shadow: 0 24px 50px -16px rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    opacity: 0; visibility: hidden; transform: translateY(8px) scale(0.98); transform-origin: left center; transition: opacity 0.3s var(--cv-ease), transform 0.4s var(--cv-ease), visibility 0s 0.3s; }
+  .cv-pin--flip .cv-pin__card { left: auto; right: 30px; transform-origin: right center; }
+  .cv-pin--up .cv-pin__card { top: auto; bottom: -38px; }
+  .cv-pin.is-open .cv-pin__card, .cv-pin:hover .cv-pin__card, .cv-pin:focus-within .cv-pin__card { opacity: 1; visibility: visible; transform: none; transition: opacity 0.3s var(--cv-ease), transform 0.4s var(--cv-ease); }
+  .cv-pin.is-open, .cv-pin:hover, .cv-pin:focus-within { z-index: 5; }
+  .cv-pin__thumb { display: block; width: 60px; height: 60px; overflow: hidden; border-radius: calc(var(--cv-radius, 16px) * 0.6); background: var(--media-placeholder); }
+  .cv-pin__thumb img, .cv-pin__thumb svg { width: 100%; height: 100%; object-fit: cover; }
+  .cv-pin__info { display: grid; gap: 2px; min-width: 0; }
+  .cv-pin__title { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 14px; font-weight: 500; line-height: 1.25; color: inherit; text-decoration: none; }
+  .cv-pin__title { transition: opacity 0.2s var(--cv-ease); }
+  .cv-pin__title:hover { opacity: 0.65; }
+  .cv-pin__price { font-size: 13px; color: var(--media-ink-muted); font-variant-numeric: tabular-nums; }
+  .cv-pin__form { margin: 0; }
+  .cv-pin__add.cv-btn { width: 42px; min-height: 42px; height: 42px; padding: 0; color: var(--media-ink-light); background: var(--media-ink-dark); border-radius: 50%; }
+  .cv-pin__add .cv-icon { width: 18px; height: 18px; stroke-width: 2; }
+  /* The card is always light, whatever the section's colours: ring in the card's own ink. */
+  .cv-pin__card :focus-visible { outline-color: var(--media-ink-dark); }
+
+  @media (max-width: 749px) { .cv-pin__dot::before { content: ""; position: absolute; inset: -8px; } }
+/* /partial:pins */
+  /* Room on a wide screen: the first product's card rests open so the photo reads as a shop; pointing at (or tabbing to) another pin swaps it.
+     One card at a time keeps neighbouring pins from stacking their cards on top of each other. */
+  @media (min-width: 990px) {
+    .cv-banner--room .cv-banner__frame:not(:has(.cv-pin:hover, .cv-pin:focus-within, .cv-pin.is-open)) .cv-pin[data-cv-pin="1"] .cv-pin__card { opacity: 1; visibility: visible; transform: none;
+      animation: cv-pin-in 0.7s 0.9s var(--cv-ease) both; }
+    .cv-banner--room .cv-banner__frame:not(:has(.cv-pin:hover, .cv-pin:focus-within, .cv-pin.is-open)) .cv-pin[data-cv-pin="1"] { z-index: 5; }
+    .cv-banner--room .cv-banner__frame:not(:has(.cv-pin:hover, .cv-pin:focus-within, .cv-pin.is-open)) .cv-pin[data-cv-pin="1"] .cv-pin__dot { transform: scale(1.12); }
+    @keyframes cv-pin-in { from { opacity: 0; transform: translateY(14px) scale(0.96); } }
+  }
+
+  /* Phones: dots on the photo, a numbered row of the products underneath. */
+  .cv-banner__rail { display: none; }
+  @media (max-width: 749px) {
+    .cv-pin__card { display: none; }
+    .cv-pin__dot { left: -14px; top: -14px; width: 28px; height: 28px; font-size: 11px; }
+    .cv-banner__rail { display: flex; gap: 10px; margin: 0; padding: 12px var(--cv-pad-x) 4px; list-style: none; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+    .cv-banner--inset .cv-banner__rail { padding-inline: 0; }
+    .cv-banner__rail::-webkit-scrollbar { display: none; }
+    .cv-banner__ritem { flex: 0 0 min(76%, 280px); scroll-snap-align: start; }
+    .cv-banner__ritem a { display: grid; grid-template-columns: auto 52px minmax(0, 1fr); align-items: center; gap: 10px; padding: 8px 12px 8px 8px; color: var(--text); text-decoration: none;
+      background: color-mix(in srgb, var(--text) 5%, var(--bg)); border-radius: calc(var(--cv-radius, 16px) * 0.9); transition: box-shadow 0.3s; }
+    .cv-banner__ritem.is-on a { box-shadow: inset 0 0 0 1.5px var(--text); }
+    .cv-banner__rnum { display: grid; place-items: center; width: 22px; height: 22px; font-size: 11px; font-weight: 600; color: var(--bg); background: var(--text); border-radius: 50%; }
+    .cv-banner__rtext { display: grid; gap: 2px; min-width: 0; }
+    .cv-banner__rail .cv-banner__iname { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; }
+    .cv-banner--room .cv-banner__frame { min-height: 78svh; }
+    .cv-banner--room .cv-banner__box > :not(.cv-room-title):not(:has(.cv-room-title)) { max-width: 100%; }
+    .cv-room-title__a, .cv-room-title__b { font-size: calc(clamp(56px, 17vw, 120px) * var(--cv-heading-scale, 1)); }
+    .cv-room-title__a { max-width: 92%; }
+    .cv-room-title__b { position: static; align-self: flex-end; max-width: 92%; margin-bottom: 6px; }
+  }
+  .cv-banner__ithumb { width: 52px; height: 52px; border-radius: calc(var(--cv-radius, 16px) * 0.55); }
+  .cv-banner__iprice { font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+  /* Split: photo beside the text, the products listed under it. */
+  .cv-banner--split .cv-banner__frame { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); min-height: 0; background: var(--bg); }
+  .cv-banner--split .cv-banner__media { grid-area: auto; min-height: clamp(380px, 46vw, 760px); }
+  .cv-banner--split[style*="--cv-banner-ratio"] .cv-banner__media { min-height: 0; aspect-ratio: var(--cv-banner-ratio); }
+  .cv-banner--split .cv-banner__content { grid-area: auto; align-items: center; padding: clamp(32px, 5.5vw, 96px); }
+  .cv-banner--split.cv-banner--media-right .cv-banner__media { order: 2; }
+  .cv-banner--split .cv-banner__scrim { display: none; }
+  .cv-banner--split .cv-banner__heading { font-size: calc(clamp(44px, 5.6vw, 96px) * var(--cv-heading-scale, 1)); line-height: 0.96; }
+  .cv-banner--split.cv-banner--t-huge .cv-banner__heading { font-size: calc(clamp(52px, 6.6vw, 116px) * var(--cv-heading-scale, 1)); line-height: 0.92; }
+  .cv-banner--split.cv-banner--t-medium .cv-banner__heading { font-size: calc(clamp(36px, 4.2vw, 68px) * var(--cv-heading-scale, 1)); }
+  .cv-banner--split.cv-banner--inset .cv-banner__media { border-radius: calc(var(--cv-radius, 16px) * 1.5); overflow: hidden; }
+  .cv-banner--split.cv-banner--inset .cv-banner__frame { border-radius: 0; gap: clamp(8px, 1.2vw, 16px); }
+  .cv-banner--split .cv-banner__btn2, .cv-banner--text .cv-banner__btn2, .cv-banner--stacked .cv-banner__btn2 { background: transparent; box-shadow: inset 0 0 0 1px currentColor; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .cv-banner__list { display: grid; gap: 6px; margin: 14px 0 0; padding: 18px 0 0; list-style: none; border-top: 1px solid var(--cv-line); }
+  .cv-banner__item { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 6px; margin-inline: -6px; color: var(--text); text-decoration: none; text-align: start;
+    border-radius: calc(var(--cv-radius, 16px) * 0.8); transition: background-color 0.2s; }
+  .cv-banner__item:hover { background: var(--cv-soft); }
+  .cv-banner__iname { font-size: 15px; font-weight: 500; }
+  @media (max-width: 749px) {
+    .cv-banner--split .cv-banner__frame { grid-template-columns: 1fr; }
+    .cv-banner--split .cv-banner__media { min-height: 0; aspect-ratio: var(--cv-banner-ratio, 4 / 5); order: 0 !important; }
+    .cv-banner--split .cv-banner__content { padding: 28px var(--cv-pad-x) 8px; }
+    .cv-banner--split.cv-banner--inset .cv-banner__content { padding-inline: 8px; }
+  }
+
+  /* Stacked: a huge headline on the colour scheme, then a wide photo. */
+  .cv-banner--stacked .cv-banner__frame { display: flex; flex-direction: column-reverse; min-height: 0; background: var(--bg); overflow: visible; }
+  .cv-banner--stacked .cv-banner__media { aspect-ratio: var(--cv-banner-ratio, 21 / 9); min-height: 280px; overflow: hidden; }
+  .cv-banner--stacked.cv-banner--inset .cv-banner__media { border-radius: calc(var(--cv-radius, 16px) * 1.5); }
+  .cv-banner--stacked .cv-banner__scrim { display: none; }
+  .cv-banner--stacked .cv-banner__content { padding: clamp(28px, 4vw, 64px) 0 clamp(24px, 3vw, 40px); }
+  .cv-banner--stacked.cv-banner--inset { padding-inline: var(--cv-pad-x); }
+  .cv-banner--stacked:not(.cv-banner--inset) .cv-banner__content { padding-inline: var(--cv-pad-x); }
+  .cv-banner--stacked .cv-banner__box { max-width: none; width: 100%; grid-template-columns: minmax(0, 1fr) auto; align-items: end; column-gap: 40px; }
+  .cv-banner--stacked .cv-banner__box > * { grid-column: 1; }
+  .cv-banner--stacked .cv-banner__box > :has(.cv-banner__buttons), .cv-banner--stacked .cv-banner__box > .cv-banner__buttons { grid-column: 2; grid-row: span 2; align-self: end; }
+  /* The headline takes the full width; the button sits on the line of the text below it. */
+  @media (min-width: 750px) {
+    .cv-banner--stacked .cv-banner__box > :is(.cv-banner__heading, :has(> .cv-banner__heading)) { grid-column: 1 / -1; }
+    .cv-banner--stacked .cv-banner__box > :has(.cv-banner__buttons), .cv-banner--stacked .cv-banner__box > .cv-banner__buttons { grid-row: auto; }
+  }
+  .cv-banner--stacked .cv-banner__heading { font-size: calc(clamp(52px, 10.5vw, 184px) * var(--cv-heading-scale, 1)); line-height: 0.88; letter-spacing: -0.025em; }
+  @media (max-width: 749px) {
+    .cv-banner--stacked .cv-banner__box { grid-template-columns: 1fr; }
+    .cv-banner--stacked .cv-banner__box > * { grid-column: 1 !important; grid-row: auto !important; }
+    .cv-banner--stacked .cv-banner__media { aspect-ratio: var(--cv-banner-ratio, 4 / 3); }
+  }
+
+  /* Video: a full-height film behind centred text. */
+  .cv-banner--video .cv-banner__frame { min-height: calc(100svh - 72px); }
+  .cv-banner--video.cv-banner--small .cv-banner__frame { min-height: clamp(360px, 50vw, 560px); }
+  .cv-banner--video.cv-banner--medium .cv-banner__frame { min-height: clamp(460px, 62vw, 760px); }
+  .cv-banner--video .cv-banner__scrim { background: linear-gradient(to top, rgb(0 0 0 / 0.75), rgb(0 0 0 / 0.2) 60%, rgb(0 0 0 / 0.35)); }
+
+  /* Text only: the headline on the scheme, sized to its content. */
+  .cv-banner--text .cv-banner__frame { min-height: 0; background: var(--bg); }
+  .cv-banner--text .cv-banner__content { padding-block: clamp(56px, 9vw, 140px); }
+  .cv-banner--text .cv-banner__list { max-width: 560px; }
+  .cv-banner--x-center .cv-banner__list { margin-inline: auto; }
+  /* Editor only: the "add an image" note sits on the photo, so it gets its own light panel to stay readable. */
+</style>
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%}
+  Hero. Five compositions (Style): room — a full-bleed photo with the headline split across it and the products in the picture pinned as cards;
+  overlay — text over the photo; text — the headline on the colour scheme, no photo; split — photo beside the text; stacked — a huge headline above a wide photo; video — a full-screen muted film behind the text.
+  Products pinned with Product hotspot blocks show as cards on the photo (room, overlay, stacked) or as a list beside the text (split); a phone shows them in a row under the photo.
+  Without the merchant's photo the section uses the default photo chosen in Photo until you add your own (or none: the headline on the colour scheme); a video plays muted only while visible, never with reduced motion or Save-Data, and shows its poster instead.
+{%- endcomment -%}
+{%- assign cv_style = settings.hero_style | default: 'overlay' -%}
+{%- assign cv_img = settings.image -%}
+{%- assign cv_video = settings.video -%}
+{%- if cv_style == 'video' and cv_video == blank and design_mode != true -%}{%- assign cv_style = 'overlay' -%}{%- endif -%}
+{%- assign cv_spots = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled != true and b.type == 'hotspot' -%}{%- if b.settings.product or design_mode -%}{%- assign cv_spots = cv_spots | plus: 1 -%}{%- endif -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_ratio = settings.media_ratio | default: 'auto' -%}
+{%- case settings.fallback_photo -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'none' -%}{%- assign cv_fb = '' -%}
+  {%- else -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+{%- endcase -%}
+{%- if cv_style == 'split' and settings.fallback_photo == 'table' -%}
+  {%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+{%- elsif cv_style == 'stacked' and settings.fallback_photo == 'shelf' -%}
+  {%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endif -%}
+{%- comment -%} "No photo" and no photo of the merchant's: the headline sits on the colour scheme (a video still plays behind it). {%- endcomment -%}
+{%- if cv_img == blank and cv_fb == blank and cv_video == blank -%}{%- unless design_mode and cv_style == 'video' -%}{%- assign cv_style = 'text' -%}{%- endunless -%}{%- endif -%}
+<section class="cv cv-banner cv-banner--{{ cv_style }} cv-banner--{{ settings.height }} cv-banner--{{ settings.layout }} cv-banner--x-{{ settings.align_x }} cv-banner--y-{{ settings.align_y }} cv-banner--w-{{ settings.content_width | default: 'medium' }} cv-banner--t-{{ settings.heading_size | default: 'large' }}{% if settings.media_position == 'right' %} cv-banner--media-right{% endif %}{% if cv_spots > 0 %} cv-banner--spots{% endif %} tf-scheme-{{ settings.color_scheme }}"
+  data-cv-banner{% if cv_ratio != 'auto' %} style="--cv-banner-ratio: {{ cv_ratio }}"{% endif %}>
+  <div class="cv-banner__frame">
+    {%- unless cv_style == 'text' -%}
+    {%- comment -%} Focal points (the platform's point picker on each image) keep the subject in frame wherever the image is cropped; the phone image has its own. {%- endcomment -%}
+    {%- assign cv_fx = settings.image_focus.x -%}{%- if cv_fx == nil -%}{%- assign cv_fx = 50 -%}{%- endif -%}
+    {%- assign cv_fy = settings.image_focus.y -%}{%- if cv_fy == nil -%}{%- assign cv_fy = 50 -%}{%- endif -%}
+    {%- assign cv_mfx = settings.image_mobile_focus.x -%}{%- if cv_mfx == nil -%}{%- assign cv_mfx = 50 -%}{%- endif -%}
+    {%- assign cv_mfy = settings.image_mobile_focus.y -%}{%- if cv_mfy == nil -%}{%- assign cv_mfy = 50 -%}{%- endif -%}
+    <div dir="auto" class="cv-banner__media" data-tf-field="image"{% if cv_img %} style="--cv-focus-x: {{ cv_fx }}%; --cv-focus-y: {{ cv_fy }}%{% if settings.image_mobile %}; --cv-mfocus-x: {{ cv_mfx }}%; --cv-mfocus-y: {{ cv_mfy }}%{% endif %}"{% endif %}>
+      {%- if cv_img -%}
+        <picture>
+          {%- if settings.image_mobile -%}<source data-tf-field="image_mobile" media="(max-width: 749px)" srcset="{{ settings.image_mobile | image_srcset: max: 1080 }}">{%- endif -%}
+          <img data-tf-field="image_alt" src="{{ cv_img | image_url: width: 1600 }}" srcset="{{ cv_img | image_srcset: max: 2400 }}" sizes="{% if cv_style == 'split' %}(min-width: 990px) 55vw, {% endif %}100vw" alt="{{ settings.image_alt }}" fetchpriority="high">
+        </picture>
+      {%- elsif cv_fb != blank -%}
+        <img src="{{ cv_fb | asset_url }}" alt="" fetchpriority="high" width="{{ cv_fbw }}" height="{{ cv_fbh }}">
+      {%- endif -%}
+      {%- if cv_video != blank -%}
+        <video class="cv-banner__video" data-cv-bgvideo data-src="{{ cv_video }}" muted loop playsinline preload="none" aria-hidden="true"
+          {% if cv_img %}poster="{{ cv_img | image_url: width: 1600 }}"{% elsif cv_fb != blank %}poster="{{ cv_fb | asset_url }}"{% endif %}></video>
+        <button class="cv-banner__vtoggle" type="button" data-cv-bgvideo-toggle aria-pressed="false" hidden>
+          <svg class="cv-icon cv-banner__vpause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg>
+          <svg class="cv-icon cv-banner__vplay" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <span class="cv-sr">{{ 'sections.video_pause' | t }}</span>
+        </button>
+      {%- elsif design_mode and cv_style == 'video' -%}
+        {%- comment -%} Editor sample: the same deferred player as an uploaded video. {%- endcomment -%}
+        <video class="cv-banner__video" data-cv-bgvideo data-src="{{ 'reel-1' | placeholder_video }}" muted loop playsinline preload="none" aria-hidden="true"></video>
+        <button class="cv-banner__vtoggle" type="button" data-cv-bgvideo-toggle aria-pressed="false" hidden>
+          <svg class="cv-icon cv-banner__vpause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg>
+          <svg class="cv-icon cv-banner__vplay" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <span class="cv-sr">{{ 'sections.video_pause' | t }}</span>
+        </button>
+      {%- endif -%}
+      <span class="cv-banner__scrim" style="--cv-scrim: {{ settings.overlay | divided_by: 100.0 }}"></span>
+      {%- if cv_spots > 0 and cv_style != 'split' -%}
+        {%- comment -%} The pins sit on a layer cropped exactly like the photo (object-fit: cover), so a pin stays on its object at every screen shape. {%- endcomment -%}
+        <div class="cv-banner__pins" data-cv-pins data-tf-point-area{% if cv_img == blank and cv_fb != blank %} style="--cv-ar: {{ cv_fbw | times: 1.0 | divided_by: cv_fbh }}"{% endif %}>
+        {%- assign cv_n = 0 -%}
+        {%- for b in settings.blocks -%}
+          {%- if b.disabled or b.type != 'hotspot' -%}{%- continue -%}{%- endif -%}
+          {%- assign cv_p = b.settings.product -%}
+          {%- if cv_p == blank and design_mode != true -%}{%- continue -%}{%- endif -%}
+          {%- assign cv_n = cv_n | plus: 1 -%}
+          {{ b._editor_block_open }}
+          <div class="cv-pin{% if b.settings.position.x > 58 %} cv-pin--flip{% endif %}{% if b.settings.position.y > 62 %} cv-pin--up{% endif %}" style="--x: {{ b.settings.position.x }}%; --y: {{ b.settings.position.y }}%; --i: {{ cv_n }}" data-cv-pin="{{ cv_n }}" data-tf-point="position">
+            <button class="cv-pin__dot" type="button" aria-expanded="false" data-cv-pin-dot aria-label="{% if cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}"><span>{{ cv_n }}</span></button>
+            <div class="cv-pin__card">
+              {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+              <a class="cv-pin__thumb" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}" tabindex="-1" aria-hidden="true">
+                {%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 200 }}" alt="" loading="lazy" width="100" height="100">{%- elsif design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}
+              </a>
+              <div class="cv-pin__info">
+                <a class="cv-pin__title" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}">{% if b.settings.label != blank %}{{ b.settings.label }}{% elsif cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}</a>
+                {%- if cv_p.price -%}<span class="cv-pin__price">{%- if cv_p.price_range.has_range -%}{{ 'products.from' | t }} {% endif -%}{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}
+              </div>
+              {%- if cv_p and cv_p.available_for_sale -%}
+                {%- if cv_p.options.size == 0 or cv_p.variant_matrix.size == 1 -%}
+                  {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+                  {% form 'cart_add', class: 'cv-pin__form' %}
+                    <input type="hidden" name="product_id" value="{{ cv_p.id }}">{%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}<input type="hidden" name="quantity" value="1">
+                    <button class="cv-btn cv-pin__add" type="submit" aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+                  {% endform %}
+                {%- else -%}
+                  <a class="cv-btn cv-pin__add" href="{{ cv_p.url }}"{% if theme.settings.card_choose_opens != 'product_page' %} data-cv-qv aria-haspopup="dialog"{% endif %} aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+          </div>
+          {{ b._editor_block_close }}
+        {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+    {%- endunless -%}
+    <div class="cv-banner__content">
+      <div class="cv-banner__box">
+        {%- for b in settings.blocks -%}
+          {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+          {%- case b.type -%}
+            {%- when 'eyebrow' -%}
+              {%- if b.settings.eyebrow != blank -%}{{ b._editor_block_open }}<p dir="auto" class="cv-eyebrow cv-banner__eyebrow" data-tf-field="eyebrow">{{ b.settings.eyebrow }}</p>{{ b._editor_block_close }}{%- endif -%}
+            {%- when 'heading' -%}
+              {%- if b.settings.heading != blank -%}
+                {{ b._editor_block_open }}
+                {%- if cv_style == 'room' -%}
+                  {%- comment -%} Room: the headline breaks in two, the first half high on the left, the rest low on the right, across the photo. {%- endcomment -%}
+                  {%- assign cv_w = b.settings.heading | split: ' ' -%}
+                  {%- assign cv_half = cv_w.size | plus: 1 | divided_by: 2 -%}
+                  <h2 dir="auto" class="cv-h1 cv-banner__heading cv-room-title" data-tf-field="heading">
+                    <span class="cv-room-title__a">{%- for w in cv_w limit: cv_half -%}{{ w }}{% unless forloop.last %}{{ ' ' }}{% endunless %}{%- endfor -%}</span>
+                    {%- if cv_w.size > 1 -%}{{ ' ' }}<span class="cv-room-title__b">{%- for w in cv_w offset: cv_half -%}{{ w }}{% unless forloop.last %}{{ ' ' }}{% endunless %}{%- endfor -%}</span>{%- endif -%}
+                  </h2>
+                {%- else -%}
+                  <h2 dir="auto" class="cv-h1 cv-banner__heading" data-tf-field="heading">{{ b.settings.heading }}</h2>
+                {%- endif -%}
+                {{ b._editor_block_close }}
+              {%- endif -%}
+            {%- when 'text' -%}
+              {%- if b.settings.text != blank -%}{{ b._editor_block_open }}<div dir="auto" class="cv-banner__text cv-rte" data-tf-field="text">{{ b.settings.text }}</div>{{ b._editor_block_close }}{%- endif -%}
+            {%- when 'buttons' -%}
+              {%- comment -%} The first button goes to the shop when it has no link; the second shows once it has somewhere to go. {%- endcomment -%}
+              {%- assign cv_b2 = false -%}
+              {%- if b.settings.button2_label != blank -%}{%- if b.settings.button2_link != blank or design_mode -%}{%- assign cv_b2 = true -%}{%- endif -%}{%- endif -%}
+              {%- if b.settings.button_label != blank or cv_b2 -%}
+                {{ b._editor_block_open }}
+                <div class="cv-banner__buttons">
+                  {%- if b.settings.button_label != blank -%}<a dir="auto" class="cv-btn cv-btn--lg{% case b.settings.button_style %}{% when 'outline' %} cv-btn--outline{% when 'ghost' %} cv-btn--ghost{% when 'link' %} cv-btn--link{% endcase %}{% if b.settings.button_scheme != blank %} tf-scheme-{{ b.settings.button_scheme }}{% endif %}" href="{{ b.settings.button_link | default: routes.shop_url }}" data-tf-field="button_label">{{ b.settings.button_label }}</a>{%- endif -%}
+                  {%- if cv_b2 -%}<a dir="auto" class="cv-btn cv-btn--lg cv-banner__btn2{% case b.settings.button2_style %}{% when 'outline' %} cv-btn--outline{% when 'ghost' %} cv-btn--ghost{% when 'link' %} cv-btn--link{% endcase %}{% if b.settings.button2_scheme != blank %} tf-scheme-{{ b.settings.button2_scheme }}{% endif %}"{% if b.settings.button2_link != blank %} href="{{ b.settings.button2_link }}"{% endif %} data-tf-field="button2_label">{{ b.settings.button2_label }}</a>{%- endif -%}
+                </div>
+                {{ b._editor_block_close }}
+              {%- endif -%}
+          {%- endcase -%}
+        {%- endfor -%}
+        {%- if cv_spots > 0 -%}{%- if cv_style == 'split' or cv_style == 'text' -%}
+          {%- comment -%} Split: the pinned products sit under the text as a short shopping list. {%- endcomment -%}
+          <ul class="cv-banner__list" role="list">
+            {%- for b in settings.blocks -%}
+              {%- if b.disabled or b.type != 'hotspot' -%}{%- continue -%}{%- endif -%}
+              {%- assign cv_p = b.settings.product -%}
+              {%- if cv_p == blank and design_mode != true -%}{%- continue -%}{%- endif -%}
+              {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+              <li>{{ b._editor_block_open }}<a class="cv-banner__item" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}">
+                <span class="cv-banner__ithumb cv-media">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 160 }}" alt="" loading="lazy">{%- elsif design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}</span>
+                <span class="cv-banner__iname">{% if b.settings.label != blank %}{{ b.settings.label }}{% elsif cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}</span>
+                {%- if cv_p.price -%}<span class="cv-banner__iprice">{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}
+              </a>{{ b._editor_block_close }}</li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}{%- endif -%}
+      </div>
+    </div>
+  </div>
+  {%- if cv_spots > 0 and cv_style != 'split' and cv_style != 'text' -%}
+    {%- comment -%} Phones: the pinned products as a numbered row under the photo. {%- endcomment -%}
+    {%- comment -%} An inset hero leaves the page showing around it, so the row under the photo takes the page's colours. {%- endcomment -%}
+    <ol class="cv-banner__rail{% if settings.layout == 'inset' %} tf-scheme-default{% endif %}" role="list">
+      {%- assign cv_n = 0 -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled or b.type != 'hotspot' -%}{%- continue -%}{%- endif -%}
+        {%- assign cv_p = b.settings.product -%}
+        {%- if cv_p == blank and design_mode != true -%}{%- continue -%}{%- endif -%}
+        {%- assign cv_n = cv_n | plus: 1 -%}
+        {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+        <li class="cv-banner__ritem" data-cv-rail="{{ cv_n }}"><a href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}">
+          <span class="cv-banner__rnum">{{ cv_n }}</span>
+          <span class="cv-banner__ithumb cv-media">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 160 }}" alt="" loading="lazy">{%- elsif design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}</span>
+          <span class="cv-banner__rtext"><span class="cv-banner__iname">{% if b.settings.label != blank %}{{ b.settings.label }}{% elsif cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}</span>
+          {%- if cv_p.price -%}<span class="cv-banner__iprice">{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}</span>
+        </a></li>
+      {%- endfor -%}
+    </ol>
+  {%- endif -%}
+</section>
+<script>
+(function () {
+  // Later runs (another instance, or the editor re-running scripts after a re-render) only wire what is new.
+  if (window.__cvBanner) { window.__cvBanner(); return; }
+  // Background video: loads and plays only while on screen, never with reduced motion or Save-Data; the poster stays otherwise.
+  var calm = matchMedia("(prefers-reduced-motion: reduce)").matches || (navigator.connection && (navigator.connection.saveData || /2g/.test(navigator.connection.effectiveType || "")));
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      var v = e.target;
+      if (e.isIntersecting && !v.hasAttribute("data-paused")) {
+        if (!v.src && v.getAttribute("data-src")) v.src = v.getAttribute("data-src");
+        var p = v.play(); if (p && p.catch) p.catch(function () {});
+      } else if (!e.isIntersecting) v.pause();
+    });
+  }, { threshold: 0.15 }) : null;
+  var watched = [];
+  // A pin whose object is cropped out of the frame (a narrow phone) steps aside rather than sitting half off the edge; the row under the photo still lists it.
+  function fit(l) {
+    var f = l.parentNode.getBoundingClientRect(), m = 22, w = l.getBoundingClientRect().width, xs = [];
+    // A frame narrower than the photo (a phone) slides the crop to centre on the pins, so the pinned objects stay in the picture.
+    l.querySelectorAll(".cv-pin").forEach(function (pin) { xs.push(parseFloat(pin.style.getPropertyValue("--x")) / 100); });
+    var v = w ? f.width / w : 1;
+    // A focal point the merchant moved wins over the pins (pins left outside the crop step aside, as below); the phone image has its own.
+    var cs = getComputedStyle(l.parentNode), ph = matchMedia("(max-width: 749px)").matches && cs.getPropertyValue("--cv-mfocus-x").trim() !== "";
+    var fx = parseFloat(cs.getPropertyValue(ph ? "--cv-mfocus-x" : "--cv-focus-x")), fy = parseFloat(cs.getPropertyValue(ph ? "--cv-mfocus-y" : "--cv-focus-y"));
+    var focal = !isNaN(fx) && !isNaN(fy) && (fx !== 50 || fy !== 50);
+    if (focal) l.parentNode.style.setProperty("--cv-fy", (fy / 100).toFixed(3)); else l.parentNode.style.removeProperty("--cv-fy");
+    if (focal) l.parentNode.style.setProperty("--cv-fx", (fx / 100).toFixed(3));
+    else if (xs.length && v < 0.98) {
+      var c = (Math.min.apply(null, xs) + Math.max.apply(null, xs)) / 2;
+      l.parentNode.style.setProperty("--cv-fx", Math.min(1, Math.max(0, (c - v / 2) / (1 - v))).toFixed(3));
+    } else l.parentNode.style.removeProperty("--cv-fx");
+    l.querySelectorAll(".cv-pin").forEach(function (pin) {
+      pin.classList.remove("is-out");
+      var r = pin.getBoundingClientRect();
+      pin.classList.toggle("is-out", r.left < f.left + m || r.left > f.right - m || r.top < f.top + m || r.top > f.bottom - m);
+    });
+  }
+  var fitT; addEventListener("resize", function () { clearTimeout(fitT); fitT = setTimeout(function () { document.querySelectorAll("[data-cv-pins]").forEach(fit); }, 150); });
+  function sweep() { watched = watched.filter(function (v) { if (v.isConnected) return true; if (io) io.unobserve(v); return false; }); }
+  function wire(root) {
+    // The pin layer takes the photo's own shape (the merchant's photo is measured once it loads).
+    (root || document).querySelectorAll("[data-cv-pins]").forEach(function (l) {
+      var img = l.parentNode.querySelector("picture img, :scope > img");
+      if (!img || l.__cv) return; l.__cv = true;
+      var set = function () { if (img.naturalWidth && img.naturalHeight) l.style.setProperty("--cv-ar", (img.naturalWidth / img.naturalHeight).toFixed(4)); fit(l); };
+      if (img.complete) set(); else img.addEventListener("load", set, { once: true });
+      fit(l);
+    });
+    (root || document).querySelectorAll("[data-cv-bgvideo]").forEach(function (v) {
+      if (v.__cv) return; v.__cv = true;
+      // Reduced motion, Save-Data or no observer: the poster stays and the button starts the film on request.
+      if (calm || !io) v.setAttribute("data-paused", "");
+      if (io) io.observe(v); watched.push(v);
+      var t = v.parentNode.querySelector("[data-cv-bgvideo-toggle]");
+      if (t) { t.hidden = false; t.setAttribute("aria-pressed", v.hasAttribute("data-paused") ? "true" : "false"); t.addEventListener("click", function () {
+        var paused = v.toggleAttribute("data-paused");
+        t.setAttribute("aria-pressed", paused ? "true" : "false");
+        if (paused) v.pause(); else { if (!v.src) v.src = v.getAttribute("data-src"); v.play(); }
+      }); }
+    });
+  }
+  window.__cvBanner = function () { sweep(); wire(document); };
+  wire();
+  document.addEventListener("tf:section:load", function (e) { wire(e.target); });
+  // Pins (this hero's only; Shop the look handles its own): on touch a tap opens the card; on a phone it also brings the matching row item into view.
+  function closeAll(except) { document.querySelectorAll("[data-cv-banner] .cv-pin.is-open").forEach(function (p) { if (p !== except) { p.classList.remove("is-open"); p.querySelector("[data-cv-pin-dot]").setAttribute("aria-expanded", "false"); } }); }
+  document.addEventListener("click", function (e) {
+    var dot = e.target.closest && e.target.closest("[data-cv-banner] [data-cv-pin-dot]");
+    if (!dot) { if (!(e.target.closest && e.target.closest("[data-cv-banner] .cv-pin__card"))) closeAll(null); return; }
+    var pin = dot.closest(".cv-pin"); closeAll(pin);
+    var open = pin.classList.toggle("is-open"); dot.setAttribute("aria-expanded", open ? "true" : "false");
+    var sec = pin.closest("[data-cv-banner]"), item = sec && sec.querySelector('[data-cv-rail="' + pin.getAttribute("data-cv-pin") + '"]');
+    if (item && getComputedStyle(item.parentNode).display !== "none") {
+      sec.querySelectorAll(".cv-banner__ritem.is-on").forEach(function (i) { i.classList.remove("is-on"); });
+      item.classList.add("is-on"); item.parentNode.scrollTo({ left: item.offsetLeft - 16, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    }
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeAll(null); });
+  // Editor: selecting a hotspot block opens its card.
+  document.addEventListener("tf:block-selected", function (e) {
+    var el = e.detail && e.detail.element, pin = el && el.querySelector && el.querySelector("[data-cv-banner] .cv-pin");
+    if (pin) { closeAll(pin); pin.classList.add("is-open"); }
+  });
+  document.addEventListener("tf:block-deselected", function (e) {
+    var el = e.detail && e.detail.element, pin = el && el.querySelector && el.querySelector("[data-cv-banner] .cv-pin");
+    if (pin) pin.classList.remove("is-open");
+  });
+})();
+</script>
+{% schema %}
+{
+  "name": "image-banner",
+  "icon": "image",
+  "ctx_needs": [
+    "routes",
+    "design_mode",
+    "theme_preview"
+  ],
+  "settings": [
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_focus",
+      "type": "point",
+      "image": "image",
+      "default": {
+        "x": 50,
+        "y": 50
+      },
+      "editor": {
+        "label": "focal_point",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_mobile",
+      "type": "image",
+      "editor": {
+        "label": "image_mobile",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_mobile_focus",
+      "type": "point",
+      "image": "image_mobile",
+      "default": {
+        "x": 50,
+        "y": 50
+      },
+      "editor": {
+        "label": "focal_point_mobile",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_alt",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "image_alt",
+        "group": "image"
+      }
+    },
+    {
+      "id": "fallback_photo",
+      "type": "select",
+      "default": "room",
+      "options": [
+        {
+          "value": "room",
+          "label": "opt_photo_room"
+        },
+        {
+          "value": "table",
+          "label": "opt_photo_table"
+        },
+        {
+          "value": "shelf",
+          "label": "opt_photo_shelf"
+        },
+        {
+          "value": "corner",
+          "label": "opt_photo_corner"
+        },
+        {
+          "value": "none",
+          "label": "opt_photo_none"
+        }
+      ],
+      "editor": {
+        "label": "fallback_photo",
+        "group": "image"
+      }
+    },
+    {
+      "id": "overlay",
+      "type": "range",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 45,
+      "editor": {
+        "label": "overlay",
+        "group": "image"
+      }
+    },
+    {
+      "id": "video",
+      "type": "video",
+      "editor": {
+        "label": "background_video",
+        "group": "video"
+      }
+    },
+    {
+      "id": "hero_style",
+      "type": "select",
+      "default": "overlay",
+      "options": [
+        {
+          "value": "room",
+          "label": "opt_hero_room"
+        },
+        {
+          "value": "overlay",
+          "label": "opt_hero_overlay"
+        },
+        {
+          "value": "split",
+          "label": "opt_hero_split"
+        },
+        {
+          "value": "stacked",
+          "label": "opt_hero_stacked"
+        },
+        {
+          "value": "video",
+          "label": "opt_hero_video"
+        },
+        {
+          "value": "text",
+          "label": "opt_hero_text"
+        }
+      ],
+      "editor": {
+        "label": "hero_style",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "height",
+      "type": "select",
+      "default": "large",
+      "options": [
+        {
+          "value": "small",
+          "label": "opt_small"
+        },
+        {
+          "value": "medium",
+          "label": "opt_medium"
+        },
+        {
+          "value": "large",
+          "label": "opt_large"
+        },
+        {
+          "value": "full",
+          "label": "opt_full_screen"
+        }
+      ],
+      "editor": {
+        "label": "height",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "inset",
+      "options": [
+        {
+          "value": "inset",
+          "label": "opt_rounded_margins"
+        },
+        {
+          "value": "full",
+          "label": "opt_edge_to_edge"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "media_position",
+      "type": "select",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "opt_image_left"
+        },
+        {
+          "value": "right",
+          "label": "opt_image_right"
+        }
+      ],
+      "editor": {
+        "label": "media_position_split",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "media_ratio",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "opt_ratio_auto"
+        },
+        {
+          "value": "4 / 5",
+          "label": "opt_portrait"
+        },
+        {
+          "value": "1 / 1",
+          "label": "opt_square"
+        },
+        {
+          "value": "16 / 9",
+          "label": "opt_landscape"
+        },
+        {
+          "value": "21 / 9",
+          "label": "opt_panorama"
+        }
+      ],
+      "editor": {
+        "label": "media_ratio",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "align_x",
+      "type": "select",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "opt_left"
+        },
+        {
+          "value": "center",
+          "label": "opt_center"
+        },
+        {
+          "value": "right",
+          "label": "opt_right"
+        }
+      ],
+      "editor": {
+        "label": "content_horizontal",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "align_y",
+      "type": "select",
+      "default": "bottom",
+      "options": [
+        {
+          "value": "top",
+          "label": "opt_top"
+        },
+        {
+          "value": "center",
+          "label": "opt_middle"
+        },
+        {
+          "value": "bottom",
+          "label": "opt_bottom"
+        }
+      ],
+      "editor": {
+        "label": "content_vertical",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "content_width",
+      "type": "select",
+      "default": "medium",
+      "options": [
+        {
+          "value": "narrow",
+          "label": "opt_narrow"
+        },
+        {
+          "value": "medium",
+          "label": "opt_medium"
+        },
+        {
+          "value": "wide",
+          "label": "opt_wide"
+        }
+      ],
+      "editor": {
+        "label": "content_width",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "heading_size",
+      "type": "select",
+      "default": "large",
+      "options": [
+        {
+          "value": "medium",
+          "label": "opt_medium"
+        },
+        {
+          "value": "large",
+          "label": "opt_large"
+        },
+        {
+          "value": "huge",
+          "label": "opt_huge"
+        }
+      ],
+      "editor": {
+        "label": "heading_size_hero",
+        "group": "design"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "inverse",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 12,
+    "default": [
+      "heading",
+      "text",
+      "buttons"
+    ],
+    "types": [
+      {
+        "type": "eyebrow",
+        "editor": {
+          "label": "eyebrow"
+        },
+        "settings": [
+          {
+            "id": "eyebrow",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "eyebrow",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "editor": {
+          "label": "heading"
+        },
+        "settings": [
+          {
+            "id": "heading",
+            "type": "text",
+            "default": "@t:sections.image_banner.heading",
+            "editor": {
+              "label": "heading",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "editor": {
+          "label": "text"
+        },
+        "settings": [
+          {
+            "id": "text",
+            "type": "richtext",
+            "default": "@t:sections.image_banner.text",
+            "editor": {
+              "label": "text",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "buttons",
+        "editor": {
+          "label": "buttons"
+        },
+        "settings": [
+          {
+            "id": "button_label",
+            "type": "text",
+            "default": "@t:sections.image_banner.button_label",
+            "editor": {
+              "label": "button_label",
+              "group": "content"
+            }
+          },
+          {
+            "id": "button_style",
+            "type": "select",
+            "default": "solid",
+            "options": [
+              {
+                "value": "solid",
+                "label": "opt_solid"
+              },
+              {
+                "value": "outline",
+                "label": "opt_soft"
+              },
+              {
+                "value": "ghost",
+                "label": "opt_bordered"
+              },
+              {
+                "value": "link",
+                "label": "opt_text_link"
+              }
+            ],
+            "editor": {
+              "label": "button_style",
+              "group": "design"
+            }
+          },
+          {
+            "id": "button_scheme",
+            "type": "color_scheme",
+            "default": "",
+            "editor": {
+              "label": "button_scheme",
+              "group": "design"
+            }
+          },
+          {
+            "id": "button_link",
+            "type": "url",
+            "editor": {
+              "label": "button_link",
+              "group": "content"
+            }
+          },
+          {
+            "id": "button2_label",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "button2_label",
+              "group": "content"
+            }
+          },
+          {
+            "id": "button2_style",
+            "type": "select",
+            "default": "solid",
+            "options": [
+              {
+                "value": "solid",
+                "label": "opt_solid"
+              },
+              {
+                "value": "outline",
+                "label": "opt_soft"
+              },
+              {
+                "value": "ghost",
+                "label": "opt_bordered"
+              },
+              {
+                "value": "link",
+                "label": "opt_text_link"
+              }
+            ],
+            "editor": {
+              "label": "button2_style",
+              "group": "design"
+            }
+          },
+          {
+            "id": "button2_scheme",
+            "type": "color_scheme",
+            "default": "",
+            "editor": {
+              "label": "button2_scheme",
+              "group": "design"
+            }
+          },
+          {
+            "id": "button2_link",
+            "type": "url",
+            "editor": {
+              "label": "button2_link",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "hotspot",
+        "editor": {
+          "label": "product_hotspot"
+        },
+        "settings": [
+          {
+            "id": "product",
+            "type": "product",
+            "editor": {
+              "label": "product",
+              "group": "content"
+            }
+          },
+          {
+            "id": "label",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "hotspot_label",
+              "group": "content"
+            }
+          },
+          {
+            "id": "position",
+            "type": "point",
+            "image": "image",
+            "default": {
+              "x": 50,
+              "y": 50
+            },
+            "editor": {
+              "label": "hotspot_position",
+              "group": "layout"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "image-banner",
+      "category": "image",
+      "settings": {
+        "hero_style": "room"
+      },
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "buttons"
+        },
+        {
+          "type": "hotspot",
+          "settings": {
+            "position": {
+              "x": 30,
+              "y": 62
+            }
+          }
+        },
+        {
+          "type": "hotspot",
+          "settings": {
+            "position": {
+              "x": 68,
+              "y": 48
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "migrations": [
+    {
+      "id": "hotspot-position-point",
+      "op": "combine_point",
+      "from": {
+        "block_type": "hotspot",
+        "setting": "x"
+      },
+      "from_y": {
+        "block_type": "hotspot",
+        "setting": "y"
+      },
+      "to": {
+        "block_type": "hotspot",
+        "setting": "position"
+      }
+    }
+  ]
+}
+{% endschema %}

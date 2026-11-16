@@ -1,0 +1,37 @@
+  .cv-iwt__grid { display: grid; gap: clamp(24px, 4vw, 64px); align-items: center; }
+  @media (min-width: 750px) {
+    .cv-iwt__grid { grid-template-columns: 1fr 1fr; gap: clamp(40px, 6vw, 96px); }
+    .cv-iwt--wsmall { grid-template-columns: 2fr 3fr; }
+    .cv-iwt--wlarge { grid-template-columns: 3fr 2fr; }
+    .cv-iwt--right .cv-iwt__media { order: 2; }
+    .cv-iwt--right.cv-iwt--wsmall { grid-template-columns: 3fr 2fr; }
+    .cv-iwt--right.cv-iwt--wlarge { grid-template-columns: 2fr 3fr; }
+  }
+  .cv-iwt__media--adapt { aspect-ratio: 4 / 3; }
+  .cv-iwt__media--square { aspect-ratio: 1 / 1; }
+  .cv-iwt__media--portrait { aspect-ratio: 4 / 5; }
+  .cv-iwt__media { border-radius: calc(var(--cv-radius, 16px) * 1.25); }
+  .cv-iwt__content { display: grid; gap: 20px; align-content: center; max-width: 540px; padding-block: 12px; }
+  .cv-iwt__content .cv-blk-text--auto { color: var(--text-muted); font-size: 17px; line-height: 1.6; }
+  .cv-iwt--l-text .cv-blk-buttons { justify-content: center; }
+  /* Overlap: the text sits on a panel that crosses the photo's edge. */
+  @media (min-width: 750px) {
+    .cv-iwt--l-overlap .cv-iwt__grid { grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 0; }
+    .cv-iwt--l-overlap .cv-iwt__media { grid-column: 1 / span 7; grid-row: 1; }
+    .cv-iwt--l-overlap .cv-iwt__content { grid-column: 7 / span 6; grid-row: 1; z-index: 1; max-width: none; padding: clamp(28px, 4vw, 64px); background: var(--bg);
+      border-radius: calc(var(--cv-radius, 16px) * 1.25); box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.35); }
+    .cv-iwt--l-overlap .cv-iwt--right .cv-iwt__media { grid-column: 6 / span 7; order: 0; }
+    .cv-iwt--l-overlap .cv-iwt--right .cv-iwt__content { grid-column: 1 / span 6; }
+  }
+  /* Cover: the photo fills the section; the text on a panel at one side. */
+  .cv-iwt--l-cover { position: relative; padding-block: 0; }
+  .cv-iwt--l-cover .cv-iwt__grid { position: relative; display: flex; align-items: center; max-width: none; min-height: clamp(520px, 70vw, 820px); padding-block: clamp(24px, 4vw, 64px); }
+  .cv-iwt--l-cover .cv-iwt__media { position: absolute; inset: 0; aspect-ratio: auto; border-radius: 0; }
+  .cv-iwt--l-cover .cv-iwt__content { position: relative; max-width: 480px; padding: clamp(28px, 3.5vw, 52px); background: var(--bg); border-radius: calc(var(--cv-radius, 16px) * 1.25); }
+  .cv-iwt--l-cover .cv-iwt--right { justify-content: flex-start; }
+  .cv-iwt--l-cover .cv-iwt--left { justify-content: flex-end; }
+  @media (min-width: 750px) { .cv-iwt--l-cover .cv-iwt__grid { padding-inline: clamp(24px, 5vw, 80px); } }
+  @media (max-width: 749px) { .cv-iwt--l-cover .cv-iwt__grid { align-items: flex-end; padding-inline: 12px; } }
+  /* No photo: the text alone, centred on the colour scheme. */
+  .cv-iwt--l-text .cv-iwt__grid { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+  .cv-iwt--l-text .cv-iwt__content { justify-items: center; max-width: 640px; }

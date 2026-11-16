@@ -1,0 +1,10 @@
+<section class="cv cv-section cv-nf tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-wrap cv-nf__wrap">
+    <p class="cv-eyebrow">404</p>
+    {%- if settings.heading != blank -%}<h1 dir="auto" data-tf-field="heading" class="cv-h1">{{ settings.heading }}</h1>{%- endif -%}
+    <p dir="auto" data-tf-field="text" class="cv-muted">{{ settings.text }}</p>
+    <form class="cv-nf__search" action="{{ routes.search_url }}" method="get" role="search"><label class="cv-sr" for="cv-nf-q">{{ 'header.search' | t }}</label>
+      <input class="cv-input" id="cv-nf-q" type="search" name="q" placeholder="{{ 'header.search_placeholder' | t }}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"><button class="cv-btn" type="submit">{{ 'header.search' | t }}</button></form>
+    <a class="cv-btn cv-btn--outline" href="{{ routes.shop_url }}">{{ 'general.continue_shopping' | t }}</a>
+  </div>
+</section>

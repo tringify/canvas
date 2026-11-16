@@ -1,0 +1,644 @@
+{
+  "schema_version": 1,
+  "shop": {
+    "name": "Canvas Goods",
+    "tagline": "Considered things for everyday",
+    "currency_code": "USD",
+    "locale": "en",
+    "country_code": "US"
+  },
+  "products": [
+    {
+      "handle": "linen-shirt",
+      "title": "Relaxed Linen Shirt",
+      "vendor": "Canvas Studio",
+      "description": "<p>A breathable shirt cut from washed European linen. Relaxed through the body with a soft collar that gets better with every wash.</p>",
+      "images": [
+        "linen-shirt-sand.webp",
+        "linen-shirt-sage.webp",
+        "linen-shirt-white.webp"
+      ],
+      "price": "68.00",
+      "options": [
+        {
+          "name": "Color",
+          "sub_type": "swatch",
+          "values": [
+            "Sand",
+            "Sage",
+            "White"
+          ],
+          "colors": [
+            "#d9c7a7",
+            "#9caf88",
+            "#f4f2ee"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "S",
+            "M",
+            "L",
+            "XL"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Sand / S",
+          "options": [
+            "Sand",
+            "S"
+          ],
+          "image": "linen-shirt-sand.webp"
+        },
+        {
+          "title": "Sand / M",
+          "options": [
+            "Sand",
+            "M"
+          ],
+          "image": "linen-shirt-sand.webp"
+        },
+        {
+          "title": "Sand / L",
+          "options": [
+            "Sand",
+            "L"
+          ],
+          "image": "linen-shirt-sand.webp"
+        },
+        {
+          "title": "Sage / S",
+          "options": [
+            "Sage",
+            "S"
+          ],
+          "available": false,
+          "image": "linen-shirt-sage.webp"
+        },
+        {
+          "title": "Sage / M",
+          "options": [
+            "Sage",
+            "M"
+          ],
+          "image": "linen-shirt-sage.webp"
+        },
+        {
+          "title": "Sage / L",
+          "options": [
+            "Sage",
+            "L"
+          ],
+          "image": "linen-shirt-sage.webp"
+        },
+        {
+          "title": "White / S",
+          "options": [
+            "White",
+            "S"
+          ],
+          "image": "linen-shirt-white.webp"
+        },
+        {
+          "title": "White / M",
+          "options": [
+            "White",
+            "M"
+          ],
+          "image": "linen-shirt-white.webp"
+        },
+        {
+          "title": "White / L",
+          "options": [
+            "White",
+            "L"
+          ],
+          "image": "linen-shirt-white.webp"
+        }
+      ]
+    },
+    {
+      "handle": "wool-beanie",
+      "title": "Ribbed Wool Beanie",
+      "vendor": "Canvas Studio",
+      "description": "<p>Soft merino rib knit with a fold-over cuff.</p>",
+      "images": [
+        "beanie-charcoal.webp",
+        "beanie-oat.webp",
+        "beanie-rust.webp"
+      ],
+      "price": "29.00",
+      "compare_at": "38.00",
+      "options": [
+        {
+          "name": "Color",
+          "sub_type": "swatch",
+          "values": [
+            "Charcoal",
+            "Oat",
+            "Rust"
+          ],
+          "colors": [
+            "#3b3b3d",
+            "#e3d6c2",
+            "#a8532f"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Charcoal",
+          "options": [
+            "Charcoal"
+          ],
+          "image": "beanie-charcoal.webp"
+        },
+        {
+          "title": "Oat",
+          "options": [
+            "Oat"
+          ],
+          "image": "beanie-oat.webp"
+        },
+        {
+          "title": "Rust",
+          "options": [
+            "Rust"
+          ],
+          "image": "beanie-rust.webp"
+        }
+      ]
+    },
+    {
+      "handle": "canvas-tote",
+      "title": "Everyday Canvas Tote",
+      "vendor": "Canvas Studio",
+      "description": "<p>Heavy cotton canvas with an inside pocket and long handles.</p>",
+      "images": [
+        "tote.webp"
+      ],
+      "price": "32.00"
+    },
+    {
+      "handle": "ceramic-mug",
+      "title": "Stoneware Mug",
+      "vendor": "Kiln & Co.",
+      "description": "<p>Hand-glazed stoneware, 350 ml. Dishwasher safe.</p>",
+      "images": [
+        "mug-white.webp",
+        "mug-speckled.webp"
+      ],
+      "price": "22.00",
+      "options": [
+        {
+          "name": "Glaze",
+          "sub_type": "swatch",
+          "values": [
+            "White",
+            "Speckled"
+          ],
+          "colors": [
+            "#f1efe9",
+            "#cbbfae"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "White",
+          "options": [
+            "White"
+          ],
+          "image": "mug-white.webp"
+        },
+        {
+          "title": "Speckled",
+          "options": [
+            "Speckled"
+          ],
+          "image": "mug-speckled.webp"
+        }
+      ]
+    },
+    {
+      "handle": "stoneware-vase",
+      "title": "Stoneware Bud Vase",
+      "vendor": "Kiln & Co.",
+      "description": "<p>A small vase for a single stem or dried grasses.</p>",
+      "images": [
+        "vase.webp"
+      ],
+      "price": "36.00"
+    },
+    {
+      "handle": "leather-wallet",
+      "title": "Leather Card Wallet",
+      "vendor": "Field & Hide",
+      "description": "<p>Vegetable-tanned leather that darkens beautifully with use.</p>",
+      "images": [
+        "wallet-tan.webp",
+        "wallet-black.webp"
+      ],
+      "price": "45.00",
+      "options": [
+        {
+          "name": "Color",
+          "sub_type": "swatch",
+          "values": [
+            "Tan",
+            "Black"
+          ],
+          "colors": [
+            "#a8703e",
+            "#1d1d1d"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Tan",
+          "options": [
+            "Tan"
+          ],
+          "image": "wallet-tan.webp"
+        },
+        {
+          "title": "Black",
+          "options": [
+            "Black"
+          ],
+          "available": false,
+          "image": "wallet-black.webp"
+        }
+      ]
+    },
+    {
+      "handle": "cotton-throw",
+      "title": "Waffle Cotton Throw",
+      "vendor": "Quillfern Home",
+      "description": "<p>A light waffle-weave throw for the sofa or the end of the bed.</p>",
+      "images": [
+        "throw.webp"
+      ],
+      "price": "79.00",
+      "compare_at": "99.00"
+    },
+    {
+      "handle": "glass-carafe",
+      "title": "Glass Water Carafe",
+      "vendor": "Quillfern Home",
+      "description": "<p>Mouth-blown glass carafe with a tumbler that doubles as a lid.</p>",
+      "images": [
+        "carafe.webp"
+      ],
+      "price": "42.00",
+      "variants": [
+        {
+          "title": "Default",
+          "available": false
+        }
+      ]
+    },
+    {
+      "handle": "scented-candle",
+      "title": "Scented Soy Candle",
+      "vendor": "Quillfern Home",
+      "description": "<p>Hand-poured soy wax in an amber glass jar. About 45 hours of burn time.</p>",
+      "images": [
+        "candle.webp"
+      ],
+      "price": "34.00",
+      "options": [
+        {
+          "name": "Scent",
+          "values": [
+            "Fig",
+            "Cedar",
+            "Citrus"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "Fig",
+          "options": [
+            "Fig"
+          ]
+        },
+        {
+          "title": "Cedar",
+          "options": [
+            "Cedar"
+          ]
+        },
+        {
+          "title": "Citrus",
+          "options": [
+            "Citrus"
+          ]
+        }
+      ]
+    },
+    {
+      "handle": "notebook-set",
+      "title": "Linen Notebook Set",
+      "vendor": "Paper Day",
+      "description": "<p>Three A5 notebooks with linen covers and dotted pages.</p>",
+      "images": [
+        "notebooks.webp"
+      ],
+      "price": "24.00"
+    },
+    {
+      "handle": "canvas-sneaker",
+      "title": "Low Canvas Sneaker",
+      "vendor": "Canvas Studio",
+      "description": "<p>Clean low-top sneakers with a natural rubber sole.</p>",
+      "images": [
+        "sneakers.webp"
+      ],
+      "price": "85.00",
+      "options": [
+        {
+          "name": "Size",
+          "values": [
+            "38",
+            "39",
+            "40",
+            "41",
+            "42",
+            "43",
+            "44"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "title": "38",
+          "options": [
+            "38"
+          ]
+        },
+        {
+          "title": "39",
+          "options": [
+            "39"
+          ]
+        },
+        {
+          "title": "40",
+          "options": [
+            "40"
+          ]
+        },
+        {
+          "title": "41",
+          "options": [
+            "41"
+          ]
+        },
+        {
+          "title": "42",
+          "options": [
+            "42"
+          ]
+        },
+        {
+          "title": "43",
+          "options": [
+            "43"
+          ]
+        },
+        {
+          "title": "44",
+          "options": [
+            "44"
+          ],
+          "available": false
+        }
+      ]
+    },
+    {
+      "handle": "round-sunglasses",
+      "title": "Round Acetate Sunglasses in Warm Tortoiseshell",
+      "vendor": "Field & Hide",
+      "description": "<p>Hand-polished acetate frames with UV400 lenses.</p>",
+      "images": [
+        "sunglasses.webp"
+      ],
+      "price": "58.00"
+    }
+  ],
+  "collections": [
+    {
+      "handle": "apparel",
+      "title": "Apparel",
+      "description": "Easy layers in natural fibres.",
+      "image": "collection-apparel.webp",
+      "products": [
+        "linen-shirt",
+        "wool-beanie",
+        "canvas-sneaker",
+        "round-sunglasses"
+      ]
+    },
+    {
+      "handle": "home",
+      "title": "Home",
+      "description": "Pieces for slow mornings and calm evenings.",
+      "image": "collection-home.webp",
+      "products": [
+        "ceramic-mug",
+        "stoneware-vase",
+        "cotton-throw",
+        "glass-carafe",
+        "scented-candle"
+      ]
+    },
+    {
+      "handle": "accessories",
+      "title": "Accessories",
+      "description": "Small things you'll use every day.",
+      "image": "collection-accessories.webp",
+      "products": [
+        "canvas-tote",
+        "leather-wallet",
+        "notebook-set",
+        "round-sunglasses"
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "handle": "clothing",
+      "name": "Clothing",
+      "image": "collection-apparel.webp",
+      "products": [
+        "linen-shirt",
+        "wool-beanie",
+        "canvas-sneaker"
+      ]
+    },
+    {
+      "handle": "living",
+      "name": "Living",
+      "image": "collection-home.webp",
+      "products": [
+        "ceramic-mug",
+        "stoneware-vase",
+        "cotton-throw",
+        "glass-carafe",
+        "scented-candle"
+      ]
+    }
+  ],
+  "vendors": [
+    {
+      "handle": "canvas-studio",
+      "name": "Canvas Studio",
+      "products": [
+        "linen-shirt",
+        "wool-beanie",
+        "canvas-tote",
+        "canvas-sneaker"
+      ]
+    },
+    {
+      "handle": "kiln-and-co",
+      "name": "Kiln & Co.",
+      "products": [
+        "ceramic-mug",
+        "stoneware-vase"
+      ]
+    }
+  ],
+  "brands": [
+    {
+      "handle": "field-and-hide",
+      "name": "Field & Hide",
+      "products": [
+        "leather-wallet",
+        "round-sunglasses"
+      ]
+    }
+  ],
+  "blog_posts": [
+    {
+      "handle": "caring-for-linen",
+      "title": "How to care for linen",
+      "excerpt": "Wash cool, dry flat, and let it soften with time.",
+      "author_name": "Maya",
+      "image": "blog-linen.webp",
+      "content": "<p>Linen gets better with every wash. Wash it cool, skip the tumble dryer and let it dry flat in the shade.</p><p>A little creasing is part of its charm.</p>"
+    },
+    {
+      "handle": "slow-mornings",
+      "title": "Five things for slower mornings",
+      "excerpt": "A good mug, a warm throw and a little light.",
+      "author_name": "Jon",
+      "image": "blog-mornings.webp",
+      "content": "<p>Start the day without rushing. Our five favourite things for a slower, calmer morning.</p>"
+    },
+    {
+      "handle": "meet-the-makers",
+      "title": "Meet the makers at Kiln & Co.",
+      "excerpt": "A visit to the studio where our stoneware is thrown by hand.",
+      "author_name": "Maya",
+      "image": "blog-makers.webp",
+      "content": "<p>We spent a day at the studio where every mug and vase is thrown and glazed by hand.</p>"
+    }
+  ],
+  "pages": [
+    {
+      "handle": "about",
+      "title": "About us",
+      "content": "<p>We make a small range of considered, long-lasting things for everyday life.</p>"
+    },
+    {
+      "handle": "contact",
+      "title": "Contact",
+      "content": "<p>Questions about an order or a product? We're here to help.</p>"
+    }
+  ],
+  "menus": [
+    {
+      "handle": "main-menu",
+      "items": [
+        {
+          "title": "Home",
+          "target": "home"
+        },
+        {
+          "title": "Shop",
+          "target": "shop",
+          "children": [
+            {
+              "title": "Apparel",
+              "target": "collection:apparel"
+            },
+            {
+              "title": "Home",
+              "target": "collection:home"
+            },
+            {
+              "title": "Accessories",
+              "target": "collection:accessories"
+            }
+          ]
+        },
+        {
+          "title": "Journal",
+          "target": "blog"
+        },
+        {
+          "title": "About",
+          "target": "page:about"
+        },
+        {
+          "title": "Contact",
+          "target": "page:contact"
+        }
+      ]
+    },
+    {
+      "handle": "footer",
+      "items": [
+        {
+          "title": "Search",
+          "target": "search"
+        },
+        {
+          "title": "About us",
+          "target": "page:about"
+        },
+        {
+          "title": "Contact",
+          "target": "page:contact"
+        }
+      ]
+    }
+  ],
+  "cart": [
+    {
+      "product": "linen-shirt",
+      "variant": "Sand / M",
+      "quantity": 1
+    },
+    {
+      "product": "ceramic-mug",
+      "variant": "Speckled",
+      "quantity": 2
+    },
+    {
+      "product": "canvas-tote",
+      "quantity": 1
+    }
+  ],
+  "search_seeds": [
+    "linen",
+    "mug"
+  ]
+}

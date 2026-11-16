@@ -1,0 +1,85 @@
+{
+  "name": "store-reviews",
+  "icon": "star",
+  "ctx_needs": [
+    "store_reviews",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.store_reviews.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "limit",
+      "type": "range",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 6,
+      "editor": {
+        "label": "reviews_to_show",
+        "group": "content"
+      }
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3,
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "store-reviews",
+      "category": "social_proof"
+    }
+  ]
+}

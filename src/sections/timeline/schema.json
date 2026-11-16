@@ -1,0 +1,208 @@
+{
+  "name": "timeline",
+  "icon": "milestone",
+  "ctx_needs": [
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": "@t:sections.timeline.heading"
+    },
+    {
+      "id": "text",
+      "type": "textarea",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      },
+      "default": ""
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "editor": {
+        "label": "layout",
+        "group": "layout"
+      },
+      "default": "alternate",
+      "options": [
+        {
+          "value": "alternate",
+          "label": "opt_timeline_alternate"
+        },
+        {
+          "value": "list",
+          "label": "opt_timeline_list"
+        }
+      ]
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 12,
+    "default": [
+      "milestone",
+      "milestone",
+      "milestone"
+    ],
+    "types": [
+      {
+        "type": "milestone",
+        "editor": {
+          "label": "milestone"
+        },
+        "settings": [
+          {
+            "id": "date",
+            "type": "text",
+            "editor": {
+              "label": "milestone_date",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "title",
+            "type": "text",
+            "editor": {
+              "label": "title",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "text",
+            "type": "textarea",
+            "editor": {
+              "label": "text",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "image",
+            "type": "image",
+            "editor": {
+              "label": "image",
+              "group": "content"
+            }
+          },
+          {
+            "id": "fallback_photo",
+            "type": "select",
+            "default": "auto",
+            "options": [
+              {
+                "value": "auto",
+                "label": "opt_photo_auto"
+              },
+              {
+                "value": "room",
+                "label": "opt_photo_room"
+              },
+              {
+                "value": "table",
+                "label": "opt_photo_table"
+              },
+              {
+                "value": "shelf",
+                "label": "opt_photo_shelf"
+              },
+              {
+                "value": "corner",
+                "label": "opt_photo_corner"
+              },
+              {
+                "value": "parcel",
+                "label": "opt_photo_parcel"
+              },
+              {
+                "value": "linen",
+                "label": "opt_photo_linen"
+              },
+              {
+                "value": "bedroom",
+                "label": "opt_photo_bedroom"
+              },
+              {
+                "value": "bench",
+                "label": "opt_photo_bench"
+              },
+              {
+                "value": "evening",
+                "label": "opt_photo_evening"
+              },
+              {
+                "value": "off",
+                "label": "opt_photo_none"
+              }
+            ],
+            "editor": {
+              "label": "fallback_photo",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "timeline",
+      "category": "text",
+      "blocks": [
+        {
+          "type": "milestone"
+        },
+        {
+          "type": "milestone"
+        },
+        {
+          "type": "milestone"
+        }
+      ]
+    }
+  ]
+}

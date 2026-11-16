@@ -1,0 +1,19 @@
+<section class="cv cv-section cv-icons tf-scheme-{{ settings.color_scheme }} cv-icons--{{ settings.style }} cv-icons--{{ settings.align }} cv-pad--{{ settings.padding | default: 'default' }}">
+  <div class="cv-wrap">
+    {%- if settings.heading != blank -%}<div class="cv-head{% if settings.align != 'left' %} cv-head--center{% endif %}"><h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2></div>{%- endif -%}
+    <ul class="cv-icons__list" role="list">
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+        {{ b._editor_block_open }}
+        <li class="cv-icons__item">
+          <span class="cv-icons__icon" aria-hidden="true"><svg class="cv-icon" viewBox="0 0 24 24">{%- case b.settings.icon -%}{%- when 'truck' -%}<path d="M3 6h11v10H3z"/><path d="M14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>{%- when 'return' -%}<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>{%- when 'lock' -%}<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>{%- when 'chat' -%}<path d="M4 5h16v11H9l-5 4z"/>{%- when 'gift' -%}<rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8c-2-4-6-3-5 0M12 8c2-4 6-3 5 0"/>{%- when 'leaf' -%}<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19 13 11"/>{%- when 'star' -%}<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>{%- when 'heart' -%}<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>{%- when 'check' -%}<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>{%- endcase -%}</svg></span>
+          <div class="cv-icons__text">
+            {%- if b.settings.title != blank -%}<p dir="auto" class="cv-icons__title" data-tf-field="title">{{ b.settings.title }}</p>{%- endif -%}
+            {%- if b.settings.text != blank -%}<p dir="auto" class="cv-muted cv-icons__desc" data-tf-field="text">{{ b.settings.text }}</p>{%- endif -%}
+          </div>
+        </li>
+        {{ b._editor_block_close }}
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>

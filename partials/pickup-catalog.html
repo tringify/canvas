@@ -1,0 +1,5 @@
+{%- comment -%} Pickup mode: the platform's line naming the store the listing shows ("Showing stock at …", or "Showing products
+  stocked at …" when the store lists only what it stocks), with Change to open the store sheet. Null for delivery. {%- endcomment -%}
+{%- if shopping.catalog_notice != blank -%}
+  <p class="cv-pk-cat" role="status"><svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20"/></svg><span dir="auto">{{ shopping.catalog_notice }}</span><button class="cv-pk-link" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-pickup" data-cv-pk-open>{{ 'pickup.change' | t }}</button></p>
+{%- endif -%}

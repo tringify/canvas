@@ -1,0 +1,88 @@
+{
+  "page_type": "global_body_end",
+  "sections": [
+    {
+      "type": "footer",
+      "position": 1,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-white-footer__newsletter",
+            "type": "theme:newsletter-form",
+            "settings": {}
+          },
+          {
+            "id": "canvas-white-footer__shop",
+            "type": "theme:footer-column",
+            "settings": {
+              "blocks": [
+                {
+                  "id": "canvas-white-footer__shop-heading",
+                  "type": "theme:heading",
+                  "settings": {
+                    "heading": "@t:sections.footer.menu.heading"
+                  }
+                },
+                {
+                  "id": "canvas-white-footer__shop-menu",
+                  "type": "theme:menu-links",
+                  "settings": {
+                    "menu": "main-menu"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "canvas-white-footer__help",
+            "type": "theme:footer-column",
+            "settings": {
+              "blocks": [
+                {
+                  "id": "canvas-white-footer__help-heading",
+                  "type": "theme:heading",
+                  "settings": {
+                    "heading": "@t:sections.footer.help_heading"
+                  }
+                },
+                {
+                  "id": "canvas-white-footer__help-menu",
+                  "type": "theme:menu-links",
+                  "settings": {
+                    "menu": "footer"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "canvas-white-footer__social",
+            "type": "social",
+            "settings": {}
+          },
+          {
+            "id": "canvas-white-footer__localization",
+            "type": "localization",
+            "settings": {}
+          },
+          {
+            "id": "canvas-white-footer__copyright",
+            "type": "copyright",
+            "settings": {}
+          },
+          {
+            "id": "canvas-white-footer__policies",
+            "type": "policies",
+            "settings": {}
+          },
+          {
+            "id": "canvas-white-footer__powered_by",
+            "type": "powered_by",
+            "settings": {}
+          }
+        ],
+        "color_scheme": "light"
+      }
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{%- comment -%} Cart page and drawer: the summary blocks in the merchant's order (Line items and the theme and app blocks render in
+  partials/cart-main). Reads cart, routes, express, design_mode; cv_where is 'page' or 'drawer'. The checkout button always shows, at the end
+  when its block was removed. cv_ol_ids: the ids of the order limit notices that print, which the checkout button names as its reason.
+  {%- endcomment -%}
+{%- assign cv_ol_ids = '' -%}
+{%- assign cv_limits = cart.checkout_limits -%}
+{%- if cv_limits and cv_limits.within_range == false -%}
+  {%- assign cv_ol_key = '' -%}
+  {%- if cv_limits.below_minimum -%}{%- assign cv_ol_key = 'min_message' -%}{%- elsif cv_limits.above_maximum -%}{%- assign cv_ol_key = 'max_message' -%}{%- endif -%}
+  {%- for b in settings.blocks -%}
+    {%- if b.type == 'order_limit' and b.disabled != true and b.settings.show != false -%}
+      {%- if cv_ol_key != blank and b.settings[cv_ol_key] != blank -%}
+        {%- assign cv_ol_ids = cv_ol_ids | append: ' cv-ol-' | append: cv_where | append: '-' | append: b.id -%}
+      {%- endif -%}
+      {%- if cv_limits.below_minimum_quantity or cv_limits.above_maximum_quantity -%}
+        {%- assign cv_ol_ids = cv_ol_ids | append: ' cv-olq-' | append: cv_where | append: '-' | append: b.id -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- assign cv_ol_ids = cv_ol_ids | strip -%}
+{%- endif -%}
+<div class="cv-sum">
+  {%- assign cv_has_checkout = false -%}
+  {%- for b in settings.blocks -%}
+    {%- if b.disabled or b.settings.show == false -%}{%- continue -%}{%- endif -%}
+    {%- case b.type -%}
+      {%- when 'free_shipping' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-ship{%- endcomment -%}
+{%- comment -%}/partial:cart-ship{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'offers' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-offers{%- endcomment -%}
+{%- comment -%}/partial:cart-offers{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'discounts' -%}
+        {%- assign cv_show_offers = true -%}{%- if b.settings.show_available_discounts == false -%}{%- assign cv_show_offers = false -%}{%- endif -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-codes{%- endcomment -%}
+{%- comment -%}/partial:cart-codes{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'totals' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-totals{%- endcomment -%}
+{%- comment -%}/partial:cart-totals{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'price_notes' -%}
+        {%- assign cv_pn = cart.price_notes -%}{%- assign cv_bs = b.settings -%}{%- assign cv_pn_cls = 'cv-sum__tax' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:price-notes{%- endcomment -%}
+{%- comment -%}/partial:price-notes{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'order_limit' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:order-limit{%- endcomment -%}
+{%- comment -%}/partial:order-limit{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'optional_services' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:optional-services{%- endcomment -%}
+{%- comment -%}/partial:optional-services{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'shipping_estimate' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-estimate{%- endcomment -%}
+{%- comment -%}/partial:cart-estimate{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'cart_note' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-note{%- endcomment -%}
+{%- comment -%}/partial:cart-note{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'checkout' -%}
+        {%- assign cv_has_checkout = true -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-checkout{%- endcomment -%}
+{%- comment -%}/partial:cart-checkout{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'express_checkout' -%}
+        {%- comment -%} The platform's wallet buttons for the cart (ctx.express), hidden until the device can pay; refreshed with the section. In the
+          editor, the platform's reason when it is off here. {%- endcomment -%}
+        {%- if express.available -%}
+          {{ b._editor_block_open }}<div class="cv-xc">{{ express.slot }}</div>{{ b._editor_block_close }}
+        {%- elsif design_mode and express.reason_label != blank -%}
+          {{ b._editor_block_open }}<p class="cv-editor-hint cv-xc-hint">{{ 'express.editor_off' | t: reason: express.reason_label }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'note' -%}
+        {%- if b.settings.note != blank -%}{{ b._editor_block_open }}<div dir="auto" data-tf-field="note" class="cv-rte cv-muted cv-cart__note">{{ b.settings.note }}</div>{{ b._editor_block_close }}{%- endif -%}
+    {%- endcase -%}
+  {%- endfor -%}
+  {%- unless cv_has_checkout -%}
+{%- comment -%}partial:cart-checkout{%- endcomment -%}
+{%- comment -%}/partial:cart-checkout{%- endcomment -%}
+  {%- endunless -%}
+</div>

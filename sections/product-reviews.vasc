@@ -1,0 +1,607 @@
+<style>
+  /* Canvas design system. Repeated in every section, because sections are standalone. */
+  :where(.cv) { --cv-pad-x: clamp(16px, 4vw, 56px); --cv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --cv-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+    --cv-soft: color-mix(in srgb, var(--text) 5%, var(--bg)); --cv-line: color-mix(in srgb, var(--text) 10%, transparent);
+    font-family: var(--tf-font-body_font, "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: 15px; line-height: 1.55; letter-spacing: -0.006em; color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01", "cv11"; }
+  :where(.cv *) { box-sizing: border-box; }
+  .cv[hidden], .cv [hidden] { display: none !important; }
+  :where(.cv img) { max-width: 100%; display: block; }
+  :where(.cv a) { color: inherit; }
+  :where(.cv-section) { padding-block: calc(var(--cv-gap-y, clamp(56px, 8vw, 112px)) * 0.58); }
+  :where(.cv-section--page) { padding-top: clamp(28px, 4vw, 56px); }
+  :where(.cv-page-title) { font-size: calc(clamp(32px, 4vw, 56px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-wrap) { width: 100%; max-width: var(--cv-width, 1440px); margin-inline: auto; padding-inline: var(--cv-pad-x); }
+  :where(.cv-app-blocks) { display: grid; gap: 16px; margin-top: 24px; }
+  .cv-app-blocks:empty { display: none; }
+  :where(.cv-h1, .cv-h2, .cv-h3, .cv-h4) { font-family: var(--tf-font-heading_font, inherit); font-weight: 500; line-height: 1.04;
+    letter-spacing: -0.035em; text-transform: var(--cv-heading-case, none); margin: 0; text-wrap: balance; }
+  :where(.cv-h1) { font-size: calc(clamp(40px, 6.4vw, 88px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h2) { font-size: calc(clamp(28px, 3.6vw, 48px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h3) { font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); letter-spacing: -0.02em; line-height: 1.2; }
+  :where(.cv-h4) { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+  :where(.cv-eyebrow) { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0; }
+  :where(.cv-muted) { color: var(--text-muted); }
+  :where(.cv-meta > * + *)::before { content: " · "; }
+  :where(.cv-rte) { line-height: 1.65; }
+  :where(.cv-rte > * + *) { margin-top: 0.9em; }
+  :where(.cv-rte a) { text-underline-offset: 3px; }
+  :where(.cv-rte ul, .cv-rte ol) { margin: 0; padding-inline-start: 1.25em; }
+  :where(.cv-rte li + li) { margin-top: 0.3em; }
+
+  :where(.cv-btn) { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 26px;
+    font: inherit; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+    background: var(--btn); color: var(--btn-text); border: 0; border-radius: var(--cv-btn-radius, 999px); -webkit-tap-highlight-color: transparent;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(0 0 0 / 0.08);
+    transition: transform 0.25s var(--cv-ease), background-color 0.25s var(--cv-ease), color 0.25s var(--cv-ease), box-shadow 0.25s var(--cv-ease); }
+  :where(.cv-btn:hover) { background: color-mix(in srgb, var(--btn) 86%, var(--bg)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 6px 18px -6px rgb(0 0 0 / 0.35); }
+  :where(.cv-btn:active) { transform: scale(0.97); }
+  :where(.cv-btn--outline, .cv-btn--soft) { background: var(--cv-soft); color: var(--text); box-shadow: none; }
+  :where(.cv-btn--outline:hover, .cv-btn--soft:hover) { background: color-mix(in srgb, var(--text) 10%, var(--bg)); box-shadow: none; }
+  :where(.cv-btn--ghost) { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--ghost:hover) { background: var(--cv-soft); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--link) { min-height: 0; padding: 0; gap: 6px; background: none; box-shadow: none; color: var(--text); font-weight: 500; text-decoration: none; }
+  :where(.cv-btn--link)::after { content: ""; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--cv-arrow) center / contain no-repeat; mask: var(--cv-arrow) center / contain no-repeat; transition: transform 0.25s var(--cv-ease); }
+  :where(.cv-btn--link:hover) { background: none; box-shadow: none; }
+  :where([dir="rtl"] .cv-btn--link)::after { transform: scaleX(-1); }
+  :where(.cv-btn--link:active) { transform: none; }
+  :where(.cv-btn--plain)::after { content: none; }
+  :where(.cv-btn--block) { width: 100%; }
+  :where(.cv-btn--sm) { min-height: 38px; padding: 0 16px; font-size: 14px; }
+  :where(.cv-btn--lg) { min-height: 56px; padding: 0 32px; font-size: 16px; }
+  :where(.cv-btn:disabled, .cv-btn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  :where(.cv-btn.is-loading, .cv-btn.is-done) { opacity: 1; cursor: progress; }
+  :where(.cv-btn.is-loading) > *, :where(.cv-btn.is-loading) { color: transparent; }
+  :where(.cv-btn.is-loading)::before { content: ""; position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+    border: 2px solid var(--btn-text); border-right-color: transparent; animation: cv-spin 0.7s linear infinite; }
+  :where(.cv-btn--outline.is-loading, .cv-btn--soft.is-loading, .cv-btn--ghost.is-loading)::before { border-color: var(--text); border-right-color: transparent; }
+  /* A link button (wishlist, share) keeps its icon and label while busy and only dims: a spinner on a borderless button reads as the control vanishing. */
+  .cv-btn--link.is-loading, .cv-btn--link.is-loading > * { color: inherit; }
+  .cv-btn--link.is-loading { opacity: 0.55; }
+  .cv-btn--link.is-loading::before { content: none; }
+  :where(.cv-btn.is-done) { animation: cv-pop 0.4s var(--cv-ease); }
+  /* Text buttons: actions set as words (Clear cart, Create account, Edit, Show more), on <button>, <a> or <summary>. No underline and
+     no arrow, at rest or on hover: muted at rest, ink on hover. A surface with other colours sets --cv-tbtn and --cv-tbtn-hover.
+     Links inside running prose keep the browser underline; .cv-btn--link (with its arrow) is for navigation such as "Continue shopping". */
+  :where(.cv-tbtn) { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 0; font: inherit; font-weight: 500; letter-spacing: inherit;
+    color: var(--cv-tbtn, var(--text-muted)); text-align: start; text-decoration: none; background: none; border: 0; border-radius: 4px; cursor: pointer;
+    list-style: none; -webkit-tap-highlight-color: transparent; transition: color 0.2s var(--cv-ease); }
+  :where(.cv-tbtn:hover) { color: var(--cv-tbtn-hover, var(--text)); text-decoration: none; }
+  :where(.cv-tbtn)::-webkit-details-marker { display: none; }
+  :where(.cv-tbtn:disabled, .cv-tbtn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; }
+  @keyframes cv-spin { to { transform: rotate(360deg); } }
+  @keyframes cv-pop { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+  :where(.cv-field) { display: grid; gap: 6px; }
+  :where(.cv-label) { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+  :where(.cv-input) { width: 100%; min-height: 50px; padding: 0 18px; font: inherit; font-size: 15px; color: var(--text); background: var(--cv-soft);
+    border: 1px solid transparent; border-radius: var(--cv-field-radius, 14px); outline: none; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
+  :where(.cv-input::placeholder) { color: color-mix(in srgb, var(--text) 45%, transparent); }
+  :where(.cv-input:hover) { background: color-mix(in srgb, var(--text) 7%, var(--bg)); }
+  :where(.cv-input:focus) { background: var(--bg); border-color: var(--text); box-shadow: none; }
+  :where(textarea.cv-input) { min-height: 132px; padding: 14px 18px; resize: vertical; }
+  :where(select.cv-input) { appearance: none; padding-inline-end: 44px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 18px center; }
+  /* Focus. Fields (text, email, phone, code, search, quantity, select, textarea) show it with their own border only, for mouse, touch and
+     keyboard alike. Everything else (buttons, links, swatches, cards, checks, tabs, dots, chips) gets one thin ring, for keyboard focus only.
+     A field drawn by its wrapper (newsletter pill, search bar, quantity stepper) puts .cv-shell on the wrapper, which takes the border.
+     Sections only move the ring (offset, colour) or draw it on a proxy with var(--cv-ring); they never add their own. */
+  :where(.cv) { --cv-ring: 2px solid var(--text); --cv-ring-offset: 2px; }
+  :where(.cv :focus-visible) { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }
+  :where(.cv [tabindex="-1"]:focus-visible) { outline: none; }
+  /* After a click or tap no ring shows, even where a script moved focus (a drawer focusing its close button). */
+  html.cv-pointer :where(.cv :focus-visible) { outline: none; }
+  :where(.cv) :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="submit"], [type="button"], [type="reset"], [type="image"], [type="color"]), select, textarea):focus { outline: none; }
+  .cv-shell:is(:focus, :has(input:focus, select:focus, textarea:focus)) { box-shadow: 0 0 0 1px var(--text); }
+  :where(.cv-check) { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+  :where(.cv-check input) { width: 18px; height: 18px; accent-color: var(--text); border-radius: 6px; }
+
+  :where(.cv-media) { position: relative; overflow: hidden; background: var(--surface); border-radius: var(--cv-radius, 16px); isolation: isolate; }
+  :where(.cv-media > img, .cv-media > svg, .cv-media > video, .cv-media > picture) { width: 100%; height: 100%; object-fit: cover; }
+  /* A real product (or post) without an image: a quiet tinted tile with its name, never a placeholder drawing. */
+  .cv-noimg { position: absolute; inset: 0; display: grid; place-items: center; padding: 12%; overflow: hidden; font-size: 13px; line-height: 1.35; text-align: center; color: var(--text-muted, currentColor);
+    background: color-mix(in srgb, var(--text) 6%, var(--bg)); overflow-wrap: anywhere; }
+  .cv-noimg--lg { font-family: var(--tf-font-heading_font, inherit); font-size: clamp(18px, 2vw, 26px); }
+  :where(.cv-price) { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
+  :where(.cv-price__sale) { color: var(--accent); }
+  :where(.cv-price__was) { color: var(--text-muted); text-decoration: line-through; font-size: 0.9em; }
+  :where(.cv-badge) { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+    border-radius: 999px; background: color-mix(in srgb, var(--bg) 92%, transparent); color: var(--text); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  :where(.cv-badge--sale) { background: var(--accent); color: var(--bg); }
+  :where(.cv-badge--sold) { background: color-mix(in srgb, var(--text) 82%, transparent); color: var(--bg); }
+  :where(.cv-notice) { padding: 14px 18px; font-size: 14px; background: var(--cv-soft); border-radius: 14px; }
+  :where(.cv-notice--ok) { background: color-mix(in srgb, var(--status-ok) 10%, var(--bg)); color: color-mix(in srgb, var(--status-ok) 80%, var(--text)); }
+  /* A notice marked cv-toast floats at the bottom of the window instead of pushing the page down. */
+  .cv-toast { position: fixed; z-index: 400; inset-inline: 16px; bottom: max(24px, env(safe-area-inset-bottom)); width: auto; max-width: 440px; margin: 0 auto;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 18px 44px -16px rgb(0 0 0 / 0.35); }
+  .cv-toast[hidden] { display: none; }
+  /* A confirmation toast wears the button colours of its scheme (Theme settings > Notifications); errors keep their warning colours. */
+  .cv-toast.cv-notice--ok { background: var(--btn); color: var(--btn-text); }
+  .cv-toast--top_center { top: max(20px, env(safe-area-inset-top)); bottom: auto; }
+  .cv-toast--bottom_end { inset-inline: auto 20px; margin: 0; }
+  /* The in-theme confirm dialog for destructive actions (data-cv-confirm). */
+  .cv-confirm { position: fixed; inset: 0; margin: auto; height: fit-content; max-height: calc(100dvh - 32px); border: 0; padding: 24px; width: min(420px, calc(100vw - 32px)); border-radius: var(--cv-field-radius, 14px); background: var(--bg); color: var(--text);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 24px 64px -20px rgb(0 0 0 / 0.4); }
+  .cv-confirm::backdrop { background: rgb(0 0 0 / 0.4); }
+  .cv-confirm__msg { margin: 0 0 20px; font-size: 1rem; line-height: 1.5; }
+  .cv-confirm__acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+  @media (prefers-reduced-motion: no-preference) { .cv-toast:not([hidden]) { animation: cv-toast-in 0.2s ease-out; } @keyframes cv-toast-in { from { opacity: 0; transform: translateY(8px); } } }
+  :where(.cv-notice--error) { background: color-mix(in srgb, var(--accent) 9%, var(--bg)); color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  :where(.cv-sr) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  :where(.cv-icon) { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  :where([dir="rtl"] .cv-icon--dir) { transform: scaleX(-1); }
+  :where(.cv-pk-ico) { width: 1.15em; height: 1.15em; vertical-align: -0.2em; stroke-width: 1.6; }
+  :where(.cv-grid) { display: grid; gap: var(--cv-grid-gap, clamp(28px, 3vw, 40px)) var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); grid-template-columns: repeat(var(--cv-cols-m, 2), minmax(0, 1fr)); }
+  @media (min-width: 750px) { :where(.cv-grid) { grid-template-columns: repeat(var(--cv-cols, 4), minmax(0, 1fr)); } }
+  :where(.cv-head) { display: flex; flex-wrap: wrap; align-items: last baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: clamp(24px, 3.4vw, 48px); }
+  :where(.cv-head--center) { flex-direction: column; align-items: center; text-align: center; }
+  /* Tile cards are panels: rows sit as close as columns, so the gutters read as one even grid. */
+  :where(.cv-grid:has(> .cv-card--tile)) { row-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); }
+  :where(.cv-head p) { margin: 10px 0 0; max-width: 56ch; }
+  :where(.cv-stars) { --cv-star: var(--text); display: inline-block; width: 72px; height: 13px;
+    background: linear-gradient(90deg, var(--cv-star) var(--cv-rating, 0%), color-mix(in srgb, var(--text) 16%, transparent) var(--cv-rating, 0%));
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x; }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      :where(.cv-reveal) { animation: cv-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+      @keyframes cv-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { :where(.cv, .cv *), :where(.cv, .cv *)::before, :where(.cv, .cv *)::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+  /* Section spacing (each section's "Space above and below"). */
+  .cv-section.cv-pad--compact { padding-block: calc(var(--cv-gap-y, 96px) * 0.4); }
+  .cv-section.cv-pad--relaxed { padding-block: calc(var(--cv-gap-y, 96px) * 0.9); }
+  .cv-section.cv-pad--none { padding-block: 0; }
+  .cv-section.cv-pad--top-none { padding-top: 0; }
+
+  /* Phones: link, small and text buttons get a 44px tap target; type and icon sizes stay the same. */
+  @media (max-width: 749px) {
+    :where(.cv-btn--link) { min-height: 44px; padding-block: 12px; }
+    :where(.cv-btn--sm) { min-height: 44px; padding-block: 12px; }
+    /* The padding gives a 44px target; the equal negative margin keeps the line where it was, also inside a sentence. */
+    :where(.cv-tbtn) { padding-block: 12px; margin-block: -12px; }
+  }
+  /* Wishlist limit: when the wishlist is full, hearts that would add are dimmed and explain at the button (on a card, across the foot of its image). */
+  :where([data-cv-wish].is-full) { opacity: 0.5; cursor: not-allowed; }
+  :where(.cv-wishmsg) { position: absolute; z-index: 6; inset-block-start: calc(100% + 8px); inset-inline-start: 0; width: max-content; max-width: min(280px, 80vw); margin: 0; padding: 9px 12px;
+    font-size: 13px; line-height: 1.4; text-align: start; color: var(--bg); background: var(--text); border-radius: 10px; box-shadow: 0 10px 28px -10px rgb(0 0 0 / 0.35); }
+  :where(.cv-wishmsg[hidden]) { display: none; }
+  :where(.cv-card__media > .cv-wishmsg) { inset: auto 8px 8px; width: auto; max-width: none; }
+  @media (prefers-reduced-motion: no-preference) { :where(.cv-wishmsg) { animation: cv-wishmsg-in 0.2s var(--cv-ease, ease-out); } @keyframes cv-wishmsg-in { from { opacity: 0; transform: translateY(4px); } } }
+
+/* Editor-only note on a section that shoppers can't see yet. */
+.cv-editor-hint { margin: 0 auto 16px; max-width: 640px; padding: 10px 14px; font-size: 13px; line-height: 1.45; text-align: center; color: var(--text-muted); border: 1px dashed var(--cv-line); border-radius: 12px; }
+
+/* Theme blocks (blocks/*.vasc): the content blocks sections, slides and tiles hold. Section's style ("auto") is the look the
+   section gives that part (a slide's headline, a tile's heading); sections style .cv-blk-*--auto where they hold blocks. */
+  :where(.cv-blk-eyebrow, .cv-blk-heading, .cv-blk-text) { margin: 0; }
+  :where(.cv-blk-heading) { max-width: 100%; overflow-wrap: break-word; }
+  :where(.cv-blk-text--small) { font-size: 14px; }
+  :where(.cv-blk-text--medium) { font-size: 17px; }
+  :where(.cv-blk-text--large) { font-size: calc(clamp(18px, 1.6vw, 22px)); }
+  :where(.cv-blk-buttons) { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  :where(.cv-blk-image) { width: var(--cv-blk-w, 100%); max-width: 100%; }
+  :where(.cv-blk-image img) { display: block; width: 100%; height: auto; }
+  :where(.cv-blk-image--square img) { aspect-ratio: 1 / 1; object-fit: cover; }
+  :where(.cv-blk-image--portrait img) { aspect-ratio: 4 / 5; object-fit: cover; }
+  :where(.cv-blk-image--landscape img) { aspect-ratio: 4 / 3; object-fit: cover; }
+  :where(.cv-blk-image__ph) { display: block; aspect-ratio: 4 / 3; background: var(--cv-soft); border-radius: var(--cv-radius, 16px); overflow: hidden; }
+  :where(.cv-blk-image__ph svg) { width: 100%; height: 100%; }
+  :where(.cv-blk-spacer) { height: var(--cv-blk-h, 32px); width: 100%; }
+  :where(.cv-blk-spacer--line) { display: flex; align-items: center; }
+  :where(.cv-blk-spacer--line)::before { content: ""; flex: 1; border-top: 1px solid var(--cv-line); }
+  .cv-blk-hint { margin: 0; }
+  :where(.cv-blk-heading__link) { color: inherit; text-decoration: none; }
+  :where(.cv-blk-heading__link:hover) { text-decoration: underline; text-underline-offset: 0.12em; text-decoration-thickness: 1px; }
+  /* An eyebrow that links (the product page's vendor): underlined on hover only. */
+  :where(.cv-eyebrow__link) { color: inherit; text-decoration: none; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  :where(.cv-eyebrow__link:hover) { text-decoration: underline; }
+/* A tile's own link (promo and split tiles, mega menu promotions): the pointer target over the whole tile. Its heading and button blocks carry the
+   same link for keyboards and screen readers; they sit above it, and the rest of the content lets clicks through to it. */
+  :where(.cv-tile-link) { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  :where(.cv-tile-over) { position: relative; z-index: 2; }
+  :where(.cv-tile-link ~ .cv-tile-over) { pointer-events: none; }
+  :where(.cv-tile-link ~ .cv-tile-over :is(a, button, input, select, textarea, video, [tabindex])) { pointer-events: auto; }
+  /* The platform metafield block (theme:metafield): the storefront writes its markup (tf-metafield); Canvas styles it. */
+  :where(.tf-metafield) { display: grid; gap: 4px; }
+  :where(.tf-metafield__label) { font-size: 13px; color: var(--text-muted); }
+  :where(.tf-metafield__value) { font-size: 15px; overflow-wrap: anywhere; }
+  :where(.tf-metafield__list) { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+  :where(.tf-metafield--list-product-reference, .tf-metafield--list-variant-reference) :where(.tf-metafield__reference) { display: inline-flex; padding: 6px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__image, .tf-metafield__video) { max-width: 100%; height: auto; border-radius: 12px; }
+  :where(.tf-metafield__file) { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 8px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__json) { margin: 0; font: inherit; white-space: pre-wrap; }
+  :where(.tf-metafield-notice) { font-size: 14px; }
+  :where(.cv-pl__block) { margin-block: 12px; }
+
+.cv-rv__grid { display: grid; gap: clamp(28px, 4vw, 72px); }
+  @media (min-width: 990px) { .cv-rv__grid { grid-template-columns: minmax(260px, 1fr) 2fr; } .cv-rv__side { position: sticky; top: 100px; align-self: start; } }
+  .cv-rv__side { display: grid; gap: 18px; align-content: start; }
+  .cv-rv__avg { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin: 0; }
+  .cv-rv__num { font-size: 48px; font-weight: 500; letter-spacing: -0.04em; line-height: 1; }
+  .cv-rv__avg .cv-stars { width: 86px; height: 15px; -webkit-mask-size: 17.2px 15px; mask-size: 17.2px 15px; }
+  .cv-rv__avg .cv-muted { flex-basis: 100%; font-size: 14px; }
+  .cv-rv__bars { display: grid; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .cv-rv__bar { display: grid; grid-template-columns: 34px 1fr 32px; align-items: center; gap: 10px; padding: 4px 8px; margin-inline: -8px; font-size: 13px; color: var(--text);
+    text-decoration: none; border-radius: 10px; transition: background 0.2s; }
+  .cv-rv__bar:hover { background: var(--cv-soft); }
+  .cv-rv__bar.is-active { background: var(--cv-soft); font-weight: 600; }
+  .cv-rv__bar-n { display: inline-flex; align-items: center; gap: 4px; }
+  .cv-rv__bar-n svg { width: 11px; height: 10px; fill: currentColor; }
+  .cv-rv__bar .cv-muted { text-align: end; }
+  .cv-rv__track { height: 6px; background: var(--cv-soft); border-radius: 999px; overflow: hidden; }
+  .cv-rv__track span { display: block; height: 100%; background: var(--text); border-radius: inherit; }
+  .cv-rv__main { display: grid; gap: 22px; min-width: 0; align-content: start; }
+  .cv-rv__sort { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cv-rv__chip { padding: 8px 16px; font-size: 13.5px; color: var(--text); text-decoration: none; background: var(--cv-soft); border-radius: 999px; transition: background 0.2s, color 0.2s; }
+  .cv-rv__chip:hover { background: color-mix(in srgb, var(--text) 10%, var(--bg)); }
+  .cv-rv__chip.is-active { color: var(--btn-text); background: var(--btn); }
+  .cv-rv__list { display: grid; }
+  .cv-rv__item { display: grid; gap: 12px; padding: 24px 0; border-bottom: 1px solid var(--cv-line); }
+  .cv-rv__item:first-child { padding-top: 4px; }
+  .cv-rv__head { display: flex; align-items: center; gap: 12px; }
+  .cv-rv__avatar { display: grid; place-items: center; flex: none; width: 40px; height: 40px; font-size: 15px; font-weight: 600; color: var(--text); background: var(--cv-soft); border-radius: 50%; }
+  .cv-rv__who { display: grid; gap: 3px; min-width: 0; }
+  .cv-rv__who p { margin: 0; }
+  .cv-rv__by { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 14.5px; font-weight: 500; }
+  .cv-rv__verified { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; color: color-mix(in srgb, var(--status-ok) 85%, var(--text)); }
+  .cv-rv__verified svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .cv-rv__meta { display: flex; align-items: center; gap: 10px; }
+  .cv-rv__date { font-size: 13px; }
+  .cv-rv__body { margin: 0; white-space: pre-line; line-height: 1.65; }
+  .cv-rv__photos { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cv-rv__photos a { width: 88px; height: 88px; border-radius: 12px; }
+  .cv-rv__reply { padding: 14px 18px; background: var(--cv-soft); border-radius: 14px; font-size: 14px; }
+  .cv-rv__reply p { margin: 0; }
+  .cv-rv__reply-by { font-weight: 600; margin-bottom: 4px !important; }
+  .cv-rv__votes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+  .cv-rv__vote { display: inline-flex; align-items: center; min-height: 32px; padding: 0 14px; font: inherit; font-size: 13px; color: var(--text); background: transparent; border: 0;
+    border-radius: 999px; box-shadow: inset 0 0 0 1px var(--cv-line); cursor: pointer; transition: background 0.2s; }
+  .cv-rv__vote:hover:not(:disabled) { background: var(--cv-soft); }
+  .cv-rv__vote:disabled { opacity: 0.6; cursor: default; }
+  .cv-rv__pager { display: flex; gap: 10px; }
+  .cv-rv__form-wrap { display: grid; gap: 20px; padding: clamp(20px, 3vw, 32px); background: var(--cv-soft); border-radius: calc(var(--cv-radius, 16px) * 1.25); scroll-margin-top: 110px; }
+  .cv-rv__form-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .cv-rv__close { display: grid; place-items: center; width: 40px; height: 40px; color: var(--text); background: var(--bg); border: 0; border-radius: 50%; cursor: pointer; }
+  .cv-rv__form { display: grid; gap: 16px; }
+  .cv-rv__form .cv-input { background: var(--bg); }
+  .cv-rv__two { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .cv-rv__rate { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: 6px; margin: 0; padding: 0; border: 0; }
+  .cv-rv__rate legend { width: 100%; margin-bottom: 8px; }
+  .cv-rv__rate label { display: grid; place-items: center; width: 44px; height: 44px; color: color-mix(in srgb, var(--text) 18%, transparent); background: var(--bg); border-radius: 12px; cursor: pointer;
+    transition: color 0.15s, transform 0.2s var(--cv-ease); }
+  .cv-rv__rate label svg { width: 24px; height: 22px; fill: currentColor; }
+  .cv-rv__rate label:active { transform: scale(0.9); }
+  .cv-rv__rate input:checked ~ label, .cv-rv__rate label:hover, .cv-rv__rate label:hover ~ label { color: var(--text); }
+  .cv-rv__rate input:focus-visible + label { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }
+  .cv-rv__photos-pick { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cv-rv__drop { display: grid; place-items: center; align-content: center; gap: 6px; width: 96px; height: 96px; padding: 8px; font-size: 12px; font-weight: 500; text-align: center; color: var(--text-muted);
+    background: var(--bg); border: 1.5px dashed color-mix(in srgb, var(--text) 22%, transparent); border-radius: 14px; cursor: pointer; transition: border-color 0.2s, color 0.2s; }
+  .cv-rv__drop:hover, .cv-rv__drop:focus-within { color: var(--text); border-color: var(--text); }
+  .cv-rv__drop .cv-icon { width: 24px; height: 24px; }
+  .cv-rv__thumb { position: relative; width: 96px; height: 96px; overflow: hidden; background: var(--bg); border-radius: 14px; }
+  .cv-rv__thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .cv-rv__thumb.is-loading img { opacity: 0.45; }
+  .cv-rv__thumb.is-loading::after { content: ""; position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px; border: 2px solid var(--text); border-right-color: transparent;
+    border-radius: 50%; animation: cv-spin 0.7s linear infinite; }
+  .cv-rv__thumb-x { position: absolute; top: 6px; inset-inline-end: 6px; display: grid; place-items: center; width: 24px; height: 24px; padding: 0; font-size: 16px; line-height: 1; color: var(--media-ink-light);
+    background: rgb(0 0 0 / 0.6); border: 0; border-radius: 50%; cursor: pointer; }
+  .cv-rv__submit { justify-self: start; min-width: 180px; }
+  .cv-rv-signin { display: grid; gap: 14px; justify-items: start; }
+  .cv-rv-signin p { margin: 0; }
+  .cv-rv__thumb-x .cv-icon { width: 14px; height: 14px; }
+  .cv-rv__rule { margin: 0; font-size: 13.5px; color: var(--text-muted); }
+  .cv-rv__opt { font-weight: 400; color: color-mix(in srgb, var(--text) 45%, transparent); }
+  .cv-rv__count { display: flex; justify-content: space-between; gap: 12px; margin: 0; font-size: 13px; color: var(--text-muted); }
+  .cv-rv__num-chars { margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+  .cv-rv__reply-by .cv-rv__date { margin-inline-start: 10px; font-weight: 400; }
+  .cv-rv__photos img { width: 100%; height: 100%; object-fit: cover; }
+</style>
+{%- assign cv_rvc = reviews.stats.count | default: 0 -%}{%- assign cv_rva = reviews.stats.average | default: 0 -%}{%- assign cv_rvf = reviews.rating_filter | default: 0 -%}{%- assign cv_rvp = reviews.page | default: 1 -%}
+{%- if reviews.enabled or design_mode -%}
+{%- assign cv_rf = forms.review -%}
+{%- comment -%} Signed-out visitors get a sign-in link instead of a form the store would refuse: when it takes no guest reviews, or only takes them from buyers of this product (the server checks the purchase). {%- endcomment -%}
+{%- assign cv_rv_signin = false -%}
+{%- if customer.logged_in != true -%}{%- if cv_rf.guests_allowed == false or cv_rf.purchase_required -%}{%- assign cv_rv_signin = true -%}{%- endif -%}{%- endif -%}
+<section data-cv-notice-host class="cv cv-section cv-rv tf-scheme-{{ settings.color_scheme }}" id="cv-reviews" data-tf-soft-nav="product-reviews">
+  {%- if design_mode and reviews.enabled != true -%}<p class="cv-editor-hint">{{ 'sections.editor_reviews_off' | t }}</p>{%- endif -%}
+  <div class="cv-wrap cv-rv__grid">
+    <div class="cv-rv__side">
+      {%- if settings.heading != blank -%}<h2 dir="auto" data-tf-field="heading" class="cv-h2">{{ settings.heading }}</h2>{%- endif -%}
+      {%- if cv_rvc > 0 -%}
+        <p class="cv-rv__avg"><span class="cv-rv__num">{{ reviews.stats.average }}</span>
+          <span class="cv-stars" style="--cv-rating: {{ cv_rva | times: 20 }}%" aria-hidden="true"></span>
+          <span class="cv-muted">{{ 'reviews.count' | t: count: reviews.stats.count }}</span></p>
+        <ul class="cv-rv__bars" role="list">
+          {%- for star in (1..5) reversed -%}
+            {%- assign cv_key = star | append: '' -%}
+            {%- assign cv_c = reviews.stats.stars[cv_key] | default: 0 -%}
+            {%- assign cv_pct = cv_c | times: 100 | divided_by: cv_rvc | round -%}
+            <li><a class="cv-rv__bar{% if reviews.rating_filter == star %} is-active{% endif %}" href="?reviews_rating={% if reviews.rating_filter == star %}0{% else %}{{ star }}{% endif %}#cv-reviews" rel="nofollow">
+              <span class="cv-rv__bar-n">{{ star }} <svg viewBox="0 0 16 14" aria-hidden="true"><path d="M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z"/></svg></span><span class="cv-rv__track"><span style="width: {{ cv_pct }}%"></span></span><span class="cv-muted">{{ cv_c }}</span></a></li>
+          {%- endfor -%}
+        </ul>
+      {%- else -%}
+        <p class="cv-muted">{{ 'reviews.none' | t }}</p>
+      {%- endif -%}
+      <a class="cv-btn cv-btn--block" href="#cv-review-form" data-cv-review-open>{{ 'reviews.write' | t }}</a>
+      {%- if cv_rf.purchase_required -%}<p class="cv-rv__rule">{{ 'reviews.buyers_only' | t }}</p>{%- endif -%}
+    </div>
+
+    <div class="cv-rv__main">
+      <p class="cv-notice {% if form_notice.success %}cv-notice--ok{% else %}cv-notice--error{% endif %}" role="status" data-cv-notice{% if form_notice.message == blank %} hidden{% endif %}>{{ form_notice.message }}</p>
+      {%- if cv_rvc > 0 -%}
+        <div class="cv-rv__sort">
+          {%- assign cv_sorts = 'newest,highest,lowest,helpful' | split: ',' -%}
+          {%- for s in cv_sorts -%}
+            <a class="cv-rv__chip{% if reviews.sort == s %} is-active{% endif %}" href="?reviews_sort={{ s }}{% if cv_rvf > 0 %}&reviews_rating={{ reviews.rating_filter }}{% endif %}#cv-reviews" rel="nofollow">{{ 'reviews.sort_' | append: s | t }}</a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+      <div class="cv-rv__list">
+        {%- for r in reviews.items -%}
+          <article class="cv-rv__item">
+            <div class="cv-rv__head">
+              <span class="cv-rv__avatar" aria-hidden="true">{{ r.reviewer_name | default: '?' | slice: 0 | upcase }}</span>
+              <div class="cv-rv__who"><p class="cv-rv__by">{{ r.reviewer_name }}{% if r.verification_source == 'order' %} <span class="cv-rv__verified"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>{{ 'reviews.verified' | t }}</span>{% elsif r.verification_source == 'import' %} <span class="cv-rv__verified"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>{{ 'reviews.verified_imported' | t }}</span>{% endif %}</p>
+                <p class="cv-rv__meta"><span class="cv-stars" style="--cv-rating: {{ r.rating | times: 20 }}%" role="img" aria-label="{{ 'reviews.stars' | t: rating: r.rating }}"></span><time class="cv-muted cv-rv__date" datetime="{{ r.created_at_iso }}">{{ r.created_at }}</time></p></div>
+            </div>
+            {%- if r.title != blank -%}<h3 class="cv-h4">{{ r.title }}</h3>{%- endif -%}
+            <p class="cv-rv__body">{{ r.content }}</p>
+            {%- if r.images.size > 0 -%}
+              <div class="cv-rv__photos">{%- for img in r.images -%}<a class="cv-media" href="{{ img.url }}" target="_blank" rel="noopener"><img src="{{ img.url | image_url: width: 176 }}" alt="{{ 'reviews.photo_alt' | t: n: forloop.index, name: r.reviewer_name }}" loading="lazy" width="88" height="88"></a>{%- endfor -%}</div>
+            {%- endif -%}
+            {%- if r.store_response.content != blank -%}
+              <div class="cv-rv__reply"><p class="cv-rv__reply-by">{{ 'reviews.store_reply' | t: store: shop.name }}{%- if r.store_response.created_at != blank -%}<span class="cv-muted cv-rv__date">{%- if r.store_response.created_at_iso -%}<time datetime="{{ r.store_response.created_at_iso }}">{{ r.store_response.created_at }}</time>{%- else -%}{{ r.store_response.created_at }}{%- endif -%}</span>{%- endif -%}</p><p class="cv-rv__body">{{ r.store_response.content }}</p></div>
+            {%- endif -%}
+            <div class="cv-rv__votes" data-cv-vote="{{ r.id }}" hidden>
+              <span class="cv-muted">{{ 'reviews.helpful' | t }}</span>
+              <button class="cv-rv__vote" type="button" data-vote="helpful">{{ 'general.yes' | t }} (<span data-count>{{ r.helpful_count }}</span>)</button>
+              <button class="cv-rv__vote" type="button" data-vote="unhelpful">{{ 'general.no' | t }} (<span data-count>{{ r.unhelpful_count }}</span>)</button>
+            </div>
+          </article>
+        {%- endfor -%}
+      </div>
+      {%- if reviews.has_more or cv_rvp > 1 -%}
+        <nav class="cv-rv__pager" aria-label="{{ 'general.pagination' | t }}">
+          {%- if cv_rvp > 1 -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="?reviews_page={{ cv_rvp | minus: 1 }}&reviews_sort={{ reviews.sort }}{% if cv_rvf > 0 %}&reviews_rating={{ cv_rvf }}{% endif %}#cv-reviews" rel="nofollow">{{ 'general.previous' | t }}</a>{%- endif -%}
+          {%- if reviews.has_more -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="?reviews_page={{ cv_rvp | plus: 1 }}&reviews_sort={{ reviews.sort }}{% if cv_rvf > 0 %}&reviews_rating={{ cv_rvf }}{% endif %}#cv-reviews" rel="nofollow">{{ 'general.next' | t }}</a>{%- endif -%}
+        </nav>
+      {%- endif -%}
+
+      <div class="cv-rv__form-wrap" id="cv-review-form"{% unless form_notice and form_notice.success == false %} hidden{% endunless %} data-cv-review-form data-remove-label="{{ 'cart.remove' | t }}">
+        <div class="cv-rv__form-head"><h3 class="cv-h3">{{ 'reviews.write' | t }}</h3>
+          <button class="cv-rv__close" type="button" data-cv-review-close aria-label="{{ 'general.close' | t }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+        {%- if cv_rf.purchase_required -%}<p class="cv-rv__rule">{{ 'reviews.buyers_only' | t }}</p>{%- endif -%}
+        {%- if cv_rv_signin -%}
+          <div class="cv-rv-signin"><p>{{ 'reviews.sign_in_to_review' | t }}</p><a class="cv-btn" href="{{ routes.login_url }}">{{ 'auth.sign_in' | t }}</a></div>
+        {%- else -%}
+        {%- comment -%} Lengths and required fields follow the store's review settings (forms.review); a signed-in customer's name and email come from the account. {%- endcomment -%}
+        {%- assign cv_ft = cv_rf.title -%}{%- assign cv_fc = cv_rf.content -%}{%- assign cv_fn = cv_rf.reviewer_name -%}{%- assign cv_fe = cv_rf.reviewer_email -%}
+        {%- assign cv_cmin = cv_fc.min_length | default: 0 -%}{%- assign cv_tmin = cv_ft.min_length | default: 0 -%}{%- assign cv_nmin = cv_fn.min_length | default: 0 -%}{%- assign cv_emin = cv_fe.min_length | default: 0 -%}{%- assign cv_cmax = cv_fc.max_length | default: 0 -%}
+        {% form 'review_submit', class: 'cv-rv__form' %}
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          {%- if product.selected_variant -%}<input type="hidden" name="variant_id" value="{{ product.selected_variant.id }}">{%- endif -%}
+          <fieldset class="cv-rv__rate">
+            <legend class="cv-label">{{ 'reviews.your_rating' | t }}</legend>
+            {%- for star in (1..5) reversed -%}
+              <input class="cv-sr" type="radio" id="cv-rate-{{ star }}" name="rating" value="{{ star }}" required>
+              <label for="cv-rate-{{ star }}" title="{{ 'reviews.stars' | t: rating: star }}"><svg viewBox="0 0 16 14" aria-hidden="true"><path d="M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z"/></svg><span class="cv-sr">{{ 'reviews.stars' | t: rating: star }}</span></label>
+            {%- endfor -%}
+          </fieldset>
+          <label class="cv-field"><span class="cv-label">{{ 'reviews.title' | t }}{% unless cv_ft.required %} <span class="cv-rv__opt">{{ 'reviews.optional' | t }}</span>{% endunless %}</span>
+            <input class="cv-input" name="title" maxlength="{{ cv_ft.max_length | default: 200 }}"{% if cv_tmin > 0 %} minlength="{{ cv_tmin }}"{% endif %}{% if cv_ft.required %} required{% endif %}></label>
+          <div class="cv-field">
+            <label class="cv-label" for="cv-rv-content-{{ product.id }}">{{ 'reviews.body' | t }}</label>
+            <textarea class="cv-input" id="cv-rv-content-{{ product.id }}" name="content" rows="5"{% if cv_fc.required != false %} required{% endif %}{% if cv_cmin > 0 %} minlength="{{ cv_cmin }}"{% endif %}{% if cv_cmax > 0 %} maxlength="{{ cv_cmax }}"{% endif %} aria-describedby="cv-rv-count-{{ product.id }}" data-cv-rv-content></textarea>
+            <p class="cv-rv__count" id="cv-rv-count-{{ product.id }}">
+              {%- if cv_cmin > 0 -%}<span class="cv-rv__min">{{ 'reviews.min_chars' | t: min: cv_cmin }}</span>{%- endif -%}
+              <span class="cv-rv__num-chars"><span data-cv-rv-count>0</span>{% if cv_cmax > 0 %} / {{ cv_cmax }}{% endif %}</span>
+            </p>
+          </div>
+          {%- unless customer.logged_in -%}
+          <div class="cv-rv__two">
+            <label class="cv-field"><span class="cv-label">{{ 'forms.name' | t }}{% unless cv_fn.required %} <span class="cv-rv__opt">{{ 'reviews.optional' | t }}</span>{% endunless %}</span>
+              <input class="cv-input" name="reviewer_name" autocomplete="name" maxlength="{{ cv_fn.max_length | default: 100 }}"{% if cv_nmin > 0 %} minlength="{{ cv_nmin }}"{% endif %}{% if cv_fn.required %} required{% endif %}></label>
+            <label class="cv-field"><span class="cv-label">{{ 'forms.email' | t }}{% unless cv_fe.required %} <span class="cv-rv__opt">{{ 'reviews.optional' | t }}</span>{% endunless %}</span>
+              <input class="cv-input" type="email" name="reviewer_email" autocomplete="email" maxlength="{{ cv_fe.max_length | default: 255 }}"{% if cv_emin > 0 %} minlength="{{ cv_emin }}"{% endif %}{% if cv_fe.required %} required{% endif %}></label>
+          </div>
+          {%- endunless -%}
+          {%- assign cv_rmax = cv_rf.max_images | default: 0 -%}
+          {%- if cv_rf.allow_images and cv_rmax > 0 -%}
+            <div class="cv-field">
+              <span class="cv-label">{{ 'reviews.photos' | t: max: cv_rmax }}</span>
+              <div class="cv-rv__photos-pick" data-cv-review-thumbs>
+                <label class="cv-rv__drop">
+                  <input class="cv-sr" type="file" accept="image/jpeg,image/png" multiple data-cv-review-files data-max="{{ cv_rmax }}" data-error="{{ 'reviews.photo_upload_failed' | t }}">
+                  <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg>
+                  <span>{{ 'reviews.add_photos' | t }}</span>
+                </label>
+              </div>
+              <input type="hidden" name="review_media_ids" value="" data-cv-review-ids>
+            </div>
+          {%- endif -%}
+          <button class="cv-btn cv-rv__submit" type="submit">{{ 'reviews.submit' | t }}</button>
+        {% endform %}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+(function () {
+  if (window.__cvReviews) return; window.__cvReviews = true;
+  // A submitted review closes the form; the platform's message shows above it.
+  document.addEventListener("tf:action-done", function (e) {
+    var d = e.detail || {};
+    if (d.action !== "review_submit" || !d.form || !d.form.closest) return;
+    var box = d.form.closest("[data-cv-review-form]");
+    if (box) box.hidden = true;
+    d.form.querySelectorAll("[data-cv-thumb-remove]").forEach(function (b) { b.closest(".cv-rv__thumb").remove(); });
+    var ids = d.form.querySelector("[data-cv-review-ids]");
+    if (ids) { ids.value = ""; reviewUploads(d.form); }
+    refreshReviews(d.form.closest("#cv-reviews"));
+  });
+  // A published review shows at once: the section is rendered again (only
+  // this one, not on every storefront action), keeping the platform's message.
+  function refreshReviews(section) {
+    if (!section) return;
+    var url = new URL(location.href);
+    url.searchParams.set("_sections", "product-reviews");
+    fetch(url.toString(), { headers: { Accept: "application/json" }, credentials: "same-origin" })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var html = data && data.success && data.sections && data.sections["product-reviews"];
+        if (!html || !section.isConnected) return;
+        var tpl = document.createElement("template");
+        tpl.innerHTML = html;
+        var fresh = tpl.content.querySelector("#cv-reviews");
+        if (!fresh) return;
+        var notice = section.querySelector("[data-cv-notice]"), next = fresh.querySelector("[data-cv-notice]");
+        if (notice && next && !notice.hidden) { next.textContent = notice.textContent; next.className = notice.className; next.setAttribute("role", notice.getAttribute("role") || "status"); next.hidden = false; }
+        section.replaceWith(fresh);
+        document.dispatchEvent(new CustomEvent("section:soft-nav"));
+      })
+      .catch(function () {});
+  }
+  // Helpful votes need the platform bridge; without it they stay hidden.
+  function votes() { if (window.tringify && window.tringify.reviews && window.tringify.reviews.vote) document.querySelectorAll("[data-cv-vote][hidden]").forEach(function (v) { v.hidden = false; }); }
+  // The review body counts its characters as the shopper types.
+  function count(t) { var n = t.form && t.form.querySelector("[data-cv-rv-count]"); if (n) n.textContent = t.value.length; }
+  function ready() { votes(); document.querySelectorAll("[data-cv-rv-content]").forEach(count); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready); else ready();
+  addEventListener("load", votes);
+  document.addEventListener("section:soft-nav", ready);
+  document.addEventListener("input", function (e) { if (e.target.matches && e.target.matches("[data-cv-rv-content]")) count(e.target); });
+  document.addEventListener("reset", function (e) { var t = e.target.querySelector && e.target.querySelector("[data-cv-rv-content]"); if (t) setTimeout(function () { count(t); }); }, true);
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-cv-vote] [data-vote]");
+    if (!b || !window.tringify || !window.tringify.reviews) return;
+    var box = b.closest("[data-cv-vote]");
+    window.tringify.reviews.vote({ review_id: box.getAttribute("data-cv-vote"), vote: b.getAttribute("data-vote") }).then(function (r) {
+      if (!r || !r.success) return;
+      var c = box.querySelectorAll("[data-count]");
+      c[0].textContent = r.helpful_count; c[1].textContent = r.unhelpful_count;
+      box.querySelectorAll("[data-vote]").forEach(function (x) { x.disabled = true; });
+    });
+  });
+  // Editor: selecting this section shows the review form; deselecting hides it again.
+  document.addEventListener("tf:section-selected", function (e) {
+    var box = document.querySelector("[data-cv-review-form]");
+    if (box && e.detail && e.detail.type === "product-reviews" && box.hidden) { box.hidden = false; box.setAttribute("data-cv-editor-open", ""); }
+  });
+  document.addEventListener("tf:section-deselected", function (e) {
+    var box = document.querySelector("[data-cv-review-form][data-cv-editor-open]");
+    if (box && e.detail && e.detail.type === "product-reviews") { box.hidden = true; box.removeAttribute("data-cv-editor-open"); }
+  });
+  document.addEventListener("click", function (e) {
+    var open = e.target.closest && e.target.closest("[data-cv-review-open]");
+    var close = e.target.closest && e.target.closest("[data-cv-review-close]");
+    if (!open && !close) return;
+    var box = document.querySelector("[data-cv-review-form]");
+    if (!box) return;
+    e.preventDefault();
+    box.hidden = !!close;
+    if (open) { box.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); var first = box.querySelector("input[name=rating]"); if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 400); }
+  });
+  // Photo uploads. Every pick uploads its files at once; each finished upload
+  // adds its id to the form as it lands, so a second pick made while the first
+  // is still uploading keeps both. Photos still uploading count against the
+  // limit, and the review cannot be sent until they have all finished.
+  // Failures show the store's message in the platform toast.
+  function reviewIDs(form) { return form.querySelector("[data-cv-review-ids]").value.split(",").filter(Boolean); }
+  function reviewUploads(form) {
+    var input = form.querySelector("[data-cv-review-files]"), drop = form.querySelector(".cv-rv__drop");
+    var busy = form.querySelectorAll(".cv-rv__thumb.is-loading").length;
+    form.querySelector("[type=submit]").disabled = busy > 0;
+    if (drop) drop.hidden = reviewIDs(form).length + busy >= (Number(input.getAttribute("data-max")) || 3);
+  }
+  document.addEventListener("click", function (e) {
+    var rm = e.target.closest && e.target.closest("[data-cv-thumb-remove]");
+    if (!rm) return;
+    var form = rm.closest("form"), ids = form.querySelector("[data-cv-review-ids]"), id = rm.getAttribute("data-cv-thumb-remove");
+    ids.value = reviewIDs(form).filter(function (x) { return x !== id; }).join(",");
+    rm.closest(".cv-rv__thumb").remove();
+    reviewUploads(form);
+  });
+  document.addEventListener("change", function (e) {
+    var input = e.target.matches && e.target.matches("[data-cv-review-files]") ? e.target : null;
+    if (!input || !window.tringify || !window.tringify.reviews) return;
+    var form = input.form, ids = form.querySelector("[data-cv-review-ids]");
+    var thumbs = form.querySelector("[data-cv-review-thumbs]"), drop = form.querySelector(".cv-rv__drop");
+    var max = Number(input.getAttribute("data-max")) || 3;
+    var taken = reviewIDs(form).length + form.querySelectorAll(".cv-rv__thumb.is-loading").length;
+    var files = Array.prototype.slice.call(input.files, 0, Math.max(0, max - taken));
+    input.value = "";
+    if (!files.length) return;
+    var told = {};
+    function fail(message) {
+      var text = message || input.getAttribute("data-error") || "";
+      if (!text || told[text]) return;
+      told[text] = true;
+      if (window.tringify.ui && window.tringify.ui.toast) window.tringify.ui.toast(text, { ok: false });
+    }
+    files.forEach(function (f) {
+      var t = document.createElement("div"); t.className = "cv-rv__thumb is-loading";
+      var img = document.createElement("img"); img.alt = ""; img.src = URL.createObjectURL(f); t.appendChild(img);
+      thumbs.insertBefore(t, drop);
+      window.tringify.reviews.uploadMedia(f).then(function (r) {
+        t.classList.remove("is-loading");
+        if (!t.isConnected) return;
+        if (r && r.success) {
+          ids.value = reviewIDs(form).concat(r.media_id).join(",");
+          var b = document.createElement("button"); b.type = "button"; b.className = "cv-rv__thumb-x"; b.setAttribute("data-cv-thumb-remove", r.media_id); b.setAttribute("aria-label", t.closest("[data-cv-review-form]") ? t.closest("[data-cv-review-form]").getAttribute("data-remove-label") || "" : ""); b.innerHTML = '<svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'; t.appendChild(b);
+        } else {
+          URL.revokeObjectURL(img.src); t.remove(); fail(r && r.message);
+        }
+      }, function () {
+        URL.revokeObjectURL(img.src); t.remove(); fail("");
+      }).then(function () { reviewUploads(form); });
+    });
+    reviewUploads(form);
+  });
+})();
+</script>
+{%- endif -%}
+{% schema %}
+{
+  "name": "product-reviews",
+  "icon": "message-square",
+  "ctx_needs": [
+    "reviews",
+    "product",
+    "forms",
+    "customer.logged_in",
+    "form_notice",
+    "csrf_token",
+    "shop",
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.product_reviews.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ]
+}
+{% endschema %}

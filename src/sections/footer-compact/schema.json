@@ -1,0 +1,312 @@
+{
+  "name": "footer-compact",
+  "kind": "layout",
+  "target": "global_body_end",
+  "icon": "panel-bottom",
+  "preview_image": "assets/canvas-layout-footer-compact.png",
+  "ctx_needs": [
+    "shop",
+    "customer_settings.privacy_request_url",
+    "routes",
+    "localization",
+    "policies",
+    "form_notice",
+    "csrf_token",
+    "consent",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "show_store_name",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "show_store_name",
+        "group": "content"
+      }
+    },
+    {
+      "id": "show_top_border",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "show_top_border",
+        "group": "design"
+      }
+    },
+    {
+      "id": "align",
+      "type": "select",
+      "default": "start",
+      "options": [
+        {
+          "value": "start",
+          "label": "opt_start"
+        },
+        {
+          "value": "center",
+          "label": "opt_center"
+        }
+      ],
+      "editor": {
+        "label": "alignment",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "spacing",
+      "type": "select",
+      "default": "normal",
+      "options": [
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "normal",
+          "label": "opt_normal"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "light",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "menu-links",
+      "text",
+      "social-links",
+      "logo",
+      "custom-vascula"
+    ],
+    "max": 16,
+    "default": [
+      "copyright",
+      "policies",
+      "localization",
+      "social",
+      "powered_by"
+    ],
+    "types": [
+      {
+        "type": "copyright",
+        "editor": {
+          "label": "ft_copyright"
+        },
+        "settings": [
+          {
+            "id": "copyright",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "copyright",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "policies",
+        "editor": {
+          "label": "ft_policies"
+        },
+        "settings": [
+          {
+            "id": "show_policies",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_policies",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_consent",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_consent",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_privacy_request",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_privacy_request",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "localization",
+        "editor": {
+          "label": "ft_localization"
+        },
+        "settings": [
+          {
+            "id": "show_localization",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_localization",
+              "group": "content"
+            }
+          },
+          {
+            "id": "picker_style",
+            "type": "select",
+            "default": "theme",
+            "options": [
+              {
+                "value": "theme",
+                "label": "opt_loc_theme"
+              },
+              {
+                "value": "dropdown",
+                "label": "opt_loc_dropdown"
+              },
+              {
+                "value": "pill",
+                "label": "opt_loc_pill"
+              },
+              {
+                "value": "modal",
+                "label": "opt_loc_modal"
+              },
+              {
+                "value": "sheet",
+                "label": "opt_loc_sheet"
+              },
+              {
+                "value": "links",
+                "label": "opt_loc_links"
+              }
+            ],
+            "editor": {
+              "label": "picker_style",
+              "group": "design"
+            }
+          }
+        ]
+      },
+      {
+        "type": "social",
+        "editor": {
+          "label": "ft_social"
+        },
+        "settings": [
+          {
+            "id": "show_social",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_social",
+              "group": "content"
+            }
+          },
+          {
+            "id": "style",
+            "type": "select",
+            "default": "icons",
+            "options": [
+              {
+                "value": "icons",
+                "label": "opt_icons"
+              },
+              {
+                "value": "names",
+                "label": "opt_icons_names"
+              }
+            ],
+            "editor": {
+              "label": "style",
+              "group": "design"
+            }
+          }
+        ]
+      },
+      {
+        "type": "payment",
+        "editor": {
+          "label": "ft_payment"
+        },
+        "settings": [
+          {
+            "id": "payment_methods",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "payment_methods",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "note",
+        "editor": {
+          "label": "ft_note"
+        },
+        "settings": [
+          {
+            "id": "text",
+            "type": "richtext",
+            "default": "",
+            "editor": {
+              "label": "text",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "powered_by",
+        "editor": {
+          "label": "ft_powered"
+        },
+        "settings": [
+          {
+            "id": "show_powered_by",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_powered_by",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "id": "menu-to-menu-links",
+      "op": "rename_block",
+      "from_type": "menu",
+      "to_type": "theme:menu-links",
+      "source_defaults": {
+        "menu": "footer",
+        "layout": "inline"
+      }
+    }
+  ]
+}

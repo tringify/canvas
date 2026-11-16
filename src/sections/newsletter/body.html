@@ -1,0 +1,13 @@
+{%- comment -%} Email signup: the merchant's content blocks (a heading and text by default) above the signup form. {%- endcomment -%}
+<section data-cv-notice-host class="cv cv-section cv-nl tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-wrap cv-nl__inner">
+    {% blocks %}
+    <p class="cv-notice {% if form_notice.success %}cv-notice--ok{% else %}cv-notice--error{% endif %}" role="status" data-cv-notice{% if form_notice.message == blank %} hidden{% endif %}>{{ form_notice.message }}</p>
+    {% form 'newsletter_subscribe', class: 'cv-nl__form cv-shell' %}
+      <label class="cv-sr" for="cv-nl-email">{{ 'forms.email' | t }}</label>
+      <input class="cv-input" id="cv-nl-email" type="email" name="email" required autocomplete="email" maxlength="{{ forms.newsletter.email.max_length | default: 254 }}" placeholder="{{ 'forms.email' | t }}">
+      <input class="cv-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      {%- if settings.button_label != blank -%}<button dir="auto" data-tf-field="button_label" class="cv-btn" type="submit">{{ settings.button_label }}</button>{%- else -%}<button class="cv-btn" type="submit" aria-label="{{ 'footer.subscribe' | t }}"><span class="cv-icon--dir" aria-hidden="true">→</span></button>{%- endif -%}
+    {% endform %}
+  </div>
+</section>

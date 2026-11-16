@@ -1,0 +1,419 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- assign cv_list = product.related -%}
+{%- if cv_list.size > 0 or design_mode -%}
+<section class="cv cv-section cv-recs tf-scheme-{{ settings.color_scheme }}" data-cv-rec="related_products" data-csrf="{{ csrf_token }}">
+  <div class="cv-wrap">
+    {%- if settings.heading != blank -%}<div class="cv-head"><h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2></div>{%- endif -%}
+    <div class="cv-grid cv-recs__row" style="--cv-cols: {{ settings.columns }}; --cv-cols-m: 2">
+      {%- for cv_p in cv_list limit: settings.limit -%}
+{%- assign cv_wl = nil -%}
+{%- comment -%}partial:card{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Product card. Input: cv_p (product_card); cv_wl, assigned right before every card (nil outside the wishlist; sync_partials.py
+  checks it). Reads theme.settings for card options.
+  Wishlist mode (main-wishlist), set before each card and cleared after it: cv_wl is the saved row, cv_wl_url the saved variant's address,
+  cv_wl_opts its options as text, cv_wl_reg its regular price, cv_card_cls extra classes. The heart and quick add become Remove (cv_wl_rm:
+  'icon' in the corner, else a link) and Move to cart (cv_wl_move: the move action, else an add that keeps the row). {%- endcomment -%}
+{%- assign cv_td = cv_p.price.tax_display.current -%}
+{%- assign cv_tr = cv_p.price.tax_display.regular -%}
+{%- assign cv_cur = cv_p.price.current -%}
+{%- assign cv_reg = cv_p.price.regular -%}
+{%- if cv_td and cv_td.status != 'unavailable' and cv_td.status != 'not_applicable' -%}{%- assign cv_cur = cv_td.primary -%}{%- endif -%}
+{%- if cv_tr and cv_tr.status != 'unavailable' and cv_tr.status != 'not_applicable' -%}{%- assign cv_reg = cv_tr.primary -%}{%- endif -%}
+{%- assign cv_sale = cv_p.price.on_sale -%}{%- assign cv_range = cv_p.price_range.has_range -%}
+{%- assign cv_url = cv_p.url -%}
+{%- assign cv_img = cv_p.featured_image | default: cv_p.media -%}
+{%- if cv_wl -%}
+  {%- assign cv_url = cv_wl_url -%}
+  {%- comment -%} A saved variant shows its own price. Its regular price has no tax display of its own, so it is struck through only when the price shown is the price entered. {%- endcomment -%}
+  {%- if cv_wl.variant_id and cv_wl.price -%}
+    {%- assign cv_range = false -%}{%- assign cv_sale = cv_wl.on_sale -%}{%- assign cv_reg = cv_wl_reg -%}
+    {%- assign cv_cur = cv_wl.price -%}{%- assign cv_wl_td = cv_wl.price.tax_display -%}
+    {%- if cv_wl_td and cv_wl_td.status != 'unavailable' and cv_wl_td.status != 'not_applicable' -%}{%- assign cv_cur = cv_wl_td.primary -%}{%- if cv_wl_td.primary.amount != cv_wl_td.entered.amount -%}{%- assign cv_reg = nil -%}{%- endif -%}{%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+{%- comment -%} A card shows a picture: a video or 3D model shows its generated poster, or the placeholder until there is one. {%- endcomment -%}
+{%- assign cv_img_alt = cv_img.alt_text | default: cv_p.title -%}
+{%- assign cv_img_w = cv_img.width -%}{%- assign cv_img_h = cv_img.height -%}
+{%- if cv_img.media_type and cv_img.media_type != 'image' -%}{%- assign cv_img = cv_img.preview_image -%}{%- assign cv_img_w = nil -%}{%- endif -%}
+{%- assign cv_img2 = cv_p.secondary_image -%}
+{%- if cv_img2.media_type and cv_img2.media_type != 'image' -%}{%- assign cv_img2 = cv_img2.preview_image -%}{%- endif -%}
+{%- assign cv_img_src = cv_img.url -%}
+{%- if cv_wl.variant.media.url and cv_wl.variant.media.is_image != false -%}
+  {%- assign cv_img_src = cv_wl.variant.media.url -%}{%- assign cv_img_alt = cv_wl.variant.media.alt_text | default: cv_p.title -%}{%- assign cv_img_w = nil -%}
+  {%- comment -%} The saved variant's photo leads; on hover the product's own photo shows when it differs. {%- endcomment -%}
+  {%- if cv_img2.url == cv_img_src and cv_img.url != cv_img_src -%}{%- assign cv_img2 = cv_img -%}{%- endif -%}
+{%- endif -%}
+{%- comment -%} Quick add's style (theme setting): icon is the round + on the image; button a full-width button under the price; hover_bar a bar
+  that slides up over the bottom of the image on hover or focus (always shown on touch screens). All three post the same forms and open the same
+  options; button and bar also give gift cards their Choose options and show a disabled button with the reason on cards the shopper cannot buy. {%- endcomment -%}
+{%- assign cv_add_style = 'icon' -%}
+{%- if theme.settings.card_quick_add and cv_wl == nil -%}{%- assign cv_add_style = theme.settings.card_add_style | default: 'icon' -%}{%- endif -%}
+{%- assign cv_add_wide = false -%}{%- if cv_add_style == 'button' or cv_add_style == 'hover_bar' -%}{%- assign cv_add_wide = true -%}{%- endif -%}
+<article class="cv-card cv-card--{{ theme.settings.card_style | default: 'soft' }}{% if theme.settings.card_wishlist_display != 'always' and cv_wl == nil %} cv-card--wish-hover{% endif %}{% if cv_add_style == 'button' %} cv-card--add-button{% elsif cv_add_style == 'hover_bar' %} cv-card--add-bar{% endif %} cv-reveal{% if cv_wl and cv_card_cls != blank %} {{ cv_card_cls }}{% endif %}" data-product-id="{{ cv_p.id }}"{% if cv_p.selection_complete and cv_p.selected_variant.id %} data-variant-id="{{ cv_p.selected_variant.id }}"{% endif %}>
+  <div class="cv-card__media cv-media">
+    <a class="cv-card__img"{% if cv_url != blank %} href="{{ cv_url }}"{% endif %} tabindex="-1" aria-hidden="true">
+      {%- if cv_img_src -%}
+        <img src="{{ cv_img_src | image_url: width: 640 }}" srcset="{{ cv_img_src | image_srcset: max: 1080 }}"
+             sizes="(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw" alt="{{ cv_img_alt }}"{% if cv_img_w and cv_img_h %} width="{{ cv_img_w }}" height="{{ cv_img_h }}"{% endif %} {{ cv_img_src | image_loading }}>
+        {%- if theme.settings.card_hover_image != false and cv_img2.url -%}
+          <img class="cv-card__img2" src="{{ cv_img2.url | image_url: width: 640 }}" srcset="{{ cv_img2.url | image_srcset: max: 1080 }}"
+               sizes="(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw" alt="" loading="lazy">
+        {%- endif -%}
+      {%- else -%}
+        <span class="cv-noimg">{{ cv_p.title }}</span>
+      {%- endif -%}
+    </a>
+    {%- comment -%} Stock badges (theme setting): the platform reports in_stock, low_stock or out_of_stock without a count, so low stock reads "Low stock". {%- endcomment -%}
+    {%- assign cv_stock_on = false -%}{%- if theme.settings.card_stock_badge != false -%}{%- assign cv_stock_on = true -%}{%- endif -%}
+    {%- assign cv_sold = false -%}
+    {%- if cv_p.available_for_sale == false -%}{%- assign cv_sold = true -%}{%- endif -%}
+    {%- if cv_stock_on and cv_p.inventory_status == 'out_of_stock' -%}{%- assign cv_sold = true -%}{%- endif -%}
+    {%- assign cv_sold_label = 'products.sold_out' | t -%}
+    {%- comment -%} A card the shopper cannot buy says why in the platform's words (sold out, or in pickup mode not at the pickup store); a wishlist row's own reason wins below. Options a pickup store lacks read "Not at this store". {%- endcomment -%}
+    {%- if cv_p.availability_reason != blank -%}{%- assign cv_sold_label = cv_p.availability_reason_label -%}{%- endif -%}
+    {%- assign cv_unavail = cv_sold_label -%}
+    {%- if shopping.mode == 'pickup' -%}{%- assign cv_unavail = 'pickup.not_at_store' | t -%}{%- endif -%}
+    {%- assign cv_low_status = cv_p.inventory_status -%}
+    {%- if cv_wl -%}
+      {%- comment -%} A saved row the shopper cannot buy (sold out, unpublished) says why when the platform gives a reason. A saved variant's stock is known only when it is the card's selected variant. {%- endcomment -%}
+      {%- if cv_wl.available_for_sale == false -%}{%- assign cv_sold = true -%}{%- assign cv_sold_label = cv_wl.availability_reason_label | default: cv_sold_label -%}{%- endif -%}
+      {%- if cv_wl.variant_id and cv_p.selected_variant.id != cv_wl.variant_id -%}{%- assign cv_low_status = '' -%}{%- endif -%}
+    {%- endif -%}
+    {%- assign cv_low = false -%}
+    {%- if cv_stock_on and cv_sold == false and cv_low_status == 'low_stock' -%}{%- assign cv_low = true -%}{%- endif -%}
+    {%- if cv_sold or cv_low or cv_sale -%}
+      <div class="cv-card__badges">
+        {%- if cv_sold -%}
+          <span class="cv-card__badge cv-badge cv-badge--sold">{{ cv_sold_label }}</span>
+        {%- else -%}
+          {%- if cv_sale -%}<span class="cv-card__badge cv-badge cv-badge--sale">{{ 'products.sale' | t }}</span>{%- endif -%}
+          {%- if cv_low -%}<span class="cv-card__badge cv-badge cv-badge--low">{{ 'products.low_stock' | t }}</span>{%- endif -%}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    {%- if cv_wl -%}
+      {%- if cv_wl_rm == 'icon' -%}
+        {% form 'wishlist_remove', class: 'cv-card__wishform' %}
+          <input type="hidden" name="product_id" value="{{ cv_wl.product_id }}">
+          {%- if cv_wl.variant_id -%}<input type="hidden" name="variant_id" value="{{ cv_wl.variant_id }}">{%- endif -%}
+          {%- if cv_wl.identity_hash -%}<input type="hidden" name="identity_hash" value="{{ cv_wl.identity_hash }}">{%- endif -%}
+          <button class="cv-card__wish cv-card__rm" type="submit" data-cv-wl-rm aria-label="{{ 'wishlist.remove_item' | t: title: cv_p.title }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        {% endform %}
+      {%- endif -%}
+    {%- elsif customer_settings.wishlist_enabled and theme.settings.card_wishlist != false -%}
+      {%- assign cv_wsaved = cv_p.session_state.wishlist.direct_saved -%}
+      {% form 'wishlist_toggle', class: 'cv-card__wishform' %}
+        <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+        <button class="cv-card__wish" type="submit" data-cv-wish aria-pressed="{% if cv_wsaved %}true{% else %}false{% endif %}" aria-label="{{ 'products.wishlist_add' | t }}: {{ cv_p.title }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+      {% endform %}
+    {%- endif -%}
+    {%- comment -%} Inline option picker (theme setting, off by default): a product with several variants shows its options under the price, and quick add adds the chosen variant. {%- endcomment -%}
+    {%- assign cv_inline = false -%}
+    {%- comment -%} Nested so that a card reads its variant matrix (fetched on demand) only with the picker on. {%- endcomment -%}
+    {%- if theme.settings.card_quick_add and theme.settings.card_inline_picker and cv_wl == nil -%}
+      {%- if cv_p.available_for_sale and cv_p.is_gift_card != true and cv_p.options.size > 0 -%}{%- if cv_p.variant_matrix.size > 1 -%}{%- assign cv_inline = true -%}{%- endif -%}{%- endif -%}
+    {%- endif -%}
+    {%- assign cv_pre = '' -%}{%- if cv_inline and cv_p.selection_complete and cv_p.selected_variant.available_for_sale -%}{%- assign cv_pre = cv_p.selected_variant.id -%}{%- endif -%}
+    {%- if cv_add_style != 'button' -%}
+{%- comment -%}partial:card-add{%- endcomment -%}
+{%- comment -%} The card's quick add (partials/card.html places it on the image, or under the price for the button style). Input: the card's
+  cv_p, cv_wl, cv_inline, cv_pre, cv_add_wide, cv_sold_label, cv_unavail and cv_tz. {%- endcomment -%}
+    {%- if cv_add_wide and cv_p.available_for_sale != true -%}
+      <button class="cv-card__quick cv-card__add cv-btn" type="button" disabled><span class="cv-card__add-label">{{ cv_sold_label }}</span></button>
+    {%- elsif theme.settings.card_quick_add and cv_p.available_for_sale and cv_wl == nil -%}
+    {%- if cv_p.is_gift_card != true or cv_add_wide -%}
+      {%- assign cv_quick = false -%}
+      {%- if cv_p.variant_matrix.size == 1 or cv_p.options.size == 0 -%}{%- assign cv_quick = true -%}{%- endif -%}
+      {%- comment -%} A gift card asks for its recipient on its own page: the button and bar open it as Choose options does. {%- endcomment -%}
+      {%- assign cv_gift = false -%}{%- if cv_p.is_gift_card -%}{%- assign cv_gift = true -%}{%- assign cv_quick = false -%}{%- endif -%}
+      {%- if cv_inline -%}
+        {% form 'cart_add', class: 'cv-card__quick' %}
+          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+          <input type="hidden" name="variant_id" value="{{ cv_pre }}" data-cv-pick-variant>
+          <input type="hidden" name="quantity" value="1">
+          <button class="cv-card__add cv-btn" type="submit" data-cv-pick-submit aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.add_to_cart' | t }}</span>
+          </button>
+        {% endform %}
+      {%- elsif cv_quick -%}
+        {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+        {% form 'cart_add', class: 'cv-card__quick' %}
+          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+          {%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}
+          <input type="hidden" name="quantity" value="1">
+          <button class="cv-card__add cv-btn" type="submit" aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.add_to_cart' | t }}</span>
+          </button>
+        {% endform %}
+      {%- elsif theme.settings.card_choose_opens != 'product_page' -%}
+        {%- comment -%} Quick view (theme setting "Choose options opens"): the header's quick view opens the product's options, media and Add to cart over the page; without scripts the link opens the product page. {%- endcomment -%}
+        <a class="cv-card__quick cv-card__add cv-btn" href="{{ cv_p.url }}" data-cv-qv aria-haspopup="dialog" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </a>
+      {%- elsif cv_p.variant_matrix.size > 1 and theme.settings.card_option_picker and cv_gift == false -%}
+        <button class="cv-card__quick cv-card__add cv-btn" type="button" data-cv-pick-open aria-expanded="false" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </button>
+        <div class="cv-card__pick" hidden data-cv-pick data-matrix="{{ cv_p.variant_matrix | json | escape }}" data-unavailable="{{ cv_unavail }}">
+          {%- for cv_r in cv_p.variant_matrix -%}{%- if cv_r.price -%}<span hidden data-cv-pick-px="{{ cv_r.id }}">{{ cv_r.price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}{%- endfor -%}
+          <button class="cv-card__pick-x" type="button" data-cv-pick-close aria-label="{{ 'general.close' | t }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          {%- for cv_opt in cv_p.options -%}
+            <div class="cv-card__pick-opt" data-cv-pick-attr="{{ cv_opt.attribute_slug }}" role="group" aria-label="{{ cv_opt.attribute_name }}">
+              <p class="cv-card__pick-name">{{ cv_opt.attribute_name }}</p>
+              <div class="cv-card__pick-vals">
+                {%- for cv_v in cv_opt.values -%}<button type="button" class="cv-card__pick-val{% if cv_v.color != blank %} cv-card__pick-val--sw{% endif %}" data-cv-pick-val="{{ cv_v.value }}" aria-pressed="false"{% if cv_v.color != blank %} style="--cv-sw: {{ cv_v.color }}" title="{{ cv_v.label }}"{% endif %}>{% if cv_v.color != blank %}<span class="cv-sr">{{ cv_v.label }}</span>{% else %}{{ cv_v.label }}{% endif %}</button>{%- endfor -%}
+              </div>
+            </div>
+          {%- endfor -%}
+          {% form 'cart_add', class: 'cv-card__pick-form' %}
+            <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+            <input type="hidden" name="variant_id" value="" data-cv-pick-variant>
+            <input type="hidden" name="quantity" value="1">
+            <button class="cv-btn cv-btn--sm cv-card__pick-add" type="submit" disabled data-cv-pick-submit>{{ 'products.add_to_cart' | t }}<span class="cv-card__pick-price" data-cv-pick-price></span></button>
+          {% endform %}
+        </div>
+      {%- else -%}
+        <a class="cv-card__quick cv-card__add cv-btn" href="{{ cv_p.url }}" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </a>
+      {%- endif -%}
+    {%- endif -%}
+    {%- endif -%}
+{%- comment -%}/partial:card-add{%- endcomment -%}
+    {%- endif -%}
+  </div>
+  <div class="cv-card__info">
+    {%- if theme.settings.card_show_vendor and cv_p.vendor != blank -%}<p class="cv-card__vendor">{{ cv_p.vendor }}</p>{%- endif -%}
+    <h3 dir="auto" class="cv-card__title"><a{% if cv_url != blank %} href="{{ cv_url }}"{% endif %}>{{ cv_p.title }}</a></h3>
+    {%- if cv_wl and cv_wl_opts != blank -%}<p dir="auto" class="cv-card__variant">{{ cv_wl_opts }}</p>{%- endif %}
+    <p class="cv-card__price cv-price"{% if cv_inline %} aria-live="polite"{% endif %}>
+      {%- if cv_inline -%}<span data-cv-pick-price hidden></span>{%- endif -%}
+      <span class="cv-card__price-base" data-cv-pick-base>
+      {%- if cv_range -%}
+        <span><span class="cv-muted">{{ 'products.from' | t }}</span> {{ cv_cur | money: isolate: true, trim_zeros: cv_tz }}</span>
+      {%- elsif cv_sale -%}
+        <span class="cv-price__sale">{{ cv_cur | money: isolate: true, trim_zeros: cv_tz }}</span>
+        {% if cv_reg %}<s class="cv-price__was">{{ cv_reg | money: isolate: true, trim_zeros: cv_tz }}</s>{% endif %}
+      {%- else -%}
+        <span>{{ cv_cur | money: isolate: true, trim_zeros: cv_tz }}</span>
+      {%- endif -%}
+      </span>
+    </p>
+    {%- comment -%} Stock line (theme setting) on cards the shopper can buy: "In stock" or "Low stock"; with Stock count, how many are left when the
+      platform gives a number (products without options), else the same words. {%- endcomment -%}
+    {%- assign cv_sl = theme.settings.card_stock_line | default: 'off' -%}
+    {%- if cv_sl != 'off' and cv_sold == false and cv_p.available_for_sale and cv_p.is_gift_card != true -%}
+      {%- assign cv_sl_low = false -%}{%- if cv_low_status == 'low_stock' -%}{%- assign cv_sl_low = true -%}{%- endif -%}
+      {%- assign cv_sl_n = nil -%}
+      {%- if cv_sl == 'count' and cv_p.quantity_available != nil and cv_low_status != '' -%}{%- assign cv_sl_n = cv_p.quantity_available | default: 0 -%}{%- if cv_sl_n < 1 -%}{%- assign cv_sl_n = nil -%}{%- endif -%}{%- endif -%}
+      <p class="cv-card__stock{% if cv_sl_low %} is-low{% endif %}">
+        {%- if cv_sl_n and cv_sl_low -%}{{ 'products.only_left' | t: count: cv_sl_n }}
+        {%- elsif cv_sl_n -%}{{ 'products.count_in_stock' | t: count: cv_sl_n }}
+        {%- elsif cv_sl_low -%}{{ 'products.low_stock' | t }}
+        {%- else -%}{{ 'products.in_stock' | t }}{%- endif -%}
+      </p>
+    {%- endif -%}
+    {%- if cv_inline -%}
+      {%- comment -%} The shopper's choice fills the quick-add form above; values with no variant left to sell are marked. {%- endcomment -%}
+      <div class="cv-card__opts" data-cv-pick data-cv-pick-inline data-matrix="{{ cv_p.variant_matrix | json | escape }}" data-unavailable="{{ cv_unavail }}">
+        {%- for cv_r in cv_p.variant_matrix -%}{%- if cv_r.price -%}<span hidden data-cv-pick-px="{{ cv_r.id }}">{{ cv_r.price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}{%- endfor -%}
+        {%- for cv_opt in cv_p.options -%}
+          <div class="cv-card__opt" data-cv-pick-attr="{{ cv_opt.attribute_slug }}" role="group" aria-label="{{ cv_opt.attribute_name }}: {{ cv_p.title }}">
+            {%- for cv_v in cv_opt.values -%}
+              {%- assign cv_on = false -%}
+              {%- if cv_opt.values.size == 1 -%}{%- assign cv_on = true -%}{%- endif -%}
+              {%- if cv_pre != '' -%}{%- for cv_so in cv_p.selected_variant.selected_options -%}{%- if cv_so.attribute_slug == cv_opt.attribute_slug and cv_so.option_value == cv_v.value -%}{%- assign cv_on = true -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+              <button type="button" class="cv-card__pick-val cv-card__opt-val{% if cv_v.color != blank %} cv-card__pick-val--sw{% endif %}" data-cv-pick-val="{{ cv_v.value }}" aria-pressed="{% if cv_on %}true{% else %}false{% endif %}"{% if cv_v.color != blank %} style="--cv-sw: {{ cv_v.color }}" title="{{ cv_v.label }}"{% endif %}>{% if cv_v.color != blank %}<span class="cv-sr">{{ cv_v.label }}</span>{% else %}{{ cv_v.label }}{% endif %}</button>
+            {%- endfor -%}
+          </div>
+        {%- endfor -%}
+        <p class="cv-card__opts-hint" data-cv-pick-hint hidden>{{ 'products.choose_options' | t }}</p>
+      </div>
+    {%- endif -%}
+    <div class="cv-card__extra">
+      {%- if theme.settings.card_show_swatches and cv_inline == false -%}
+        {%- for cv_opt in cv_p.options -%}
+          {%- assign cv_has_color = 0 -%}{%- for cv_v in cv_opt.values -%}{%- if cv_v.color != blank -%}{%- assign cv_has_color = cv_has_color | plus: 1 -%}{%- endif -%}{%- endfor -%}
+          {%- if cv_opt.sub_type == 'swatch' or cv_has_color > 0 -%}
+            <ul class="cv-card__swatches" role="list" aria-label="{{ cv_opt.attribute_name }}">
+              {%- for cv_v in cv_opt.values limit: 5 -%}
+                <li class="cv-swatch" title="{{ cv_v.label }}" style="--cv-sw: {{ cv_v.color | default: 'transparent' }}"><span class="cv-sr">{{ cv_v.label }}</span></li>
+              {%- endfor -%}
+              {%- if cv_opt.values.size > 5 -%}<li class="cv-card__more cv-muted">+{{ cv_opt.values.size | minus: 5 }}</li>{%- endif -%}
+            </ul>
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {%- assign cv_rc = cv_p.rating.count | default: 0 -%}
+      {%- if theme.settings.card_show_rating and cv_rc > 0 -%}
+        <p class="cv-card__rating" aria-label="{{ 'products.rating' | t: rating: cv_p.rating.average, count: cv_p.rating.count }}">
+          <svg viewBox="0 0 16 14" aria-hidden="true"><path d="M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z"/></svg>{{ cv_p.rating.average }} <span class="cv-muted">({{ cv_p.rating.count }})</span>
+        </p>
+      {%- endif -%}
+    </div>
+    {%- if cv_add_style == 'button' -%}
+    <div class="cv-card__buy">
+{%- comment -%}partial:card-add{%- endcomment -%}
+{%- comment -%} The card's quick add (partials/card.html places it on the image, or under the price for the button style). Input: the card's
+  cv_p, cv_wl, cv_inline, cv_pre, cv_add_wide, cv_sold_label, cv_unavail and cv_tz. {%- endcomment -%}
+    {%- if cv_add_wide and cv_p.available_for_sale != true -%}
+      <button class="cv-card__quick cv-card__add cv-btn" type="button" disabled><span class="cv-card__add-label">{{ cv_sold_label }}</span></button>
+    {%- elsif theme.settings.card_quick_add and cv_p.available_for_sale and cv_wl == nil -%}
+    {%- if cv_p.is_gift_card != true or cv_add_wide -%}
+      {%- assign cv_quick = false -%}
+      {%- if cv_p.variant_matrix.size == 1 or cv_p.options.size == 0 -%}{%- assign cv_quick = true -%}{%- endif -%}
+      {%- comment -%} A gift card asks for its recipient on its own page: the button and bar open it as Choose options does. {%- endcomment -%}
+      {%- assign cv_gift = false -%}{%- if cv_p.is_gift_card -%}{%- assign cv_gift = true -%}{%- assign cv_quick = false -%}{%- endif -%}
+      {%- if cv_inline -%}
+        {% form 'cart_add', class: 'cv-card__quick' %}
+          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+          <input type="hidden" name="variant_id" value="{{ cv_pre }}" data-cv-pick-variant>
+          <input type="hidden" name="quantity" value="1">
+          <button class="cv-card__add cv-btn" type="submit" data-cv-pick-submit aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.add_to_cart' | t }}</span>
+          </button>
+        {% endform %}
+      {%- elsif cv_quick -%}
+        {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+        {% form 'cart_add', class: 'cv-card__quick' %}
+          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+          {%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}
+          <input type="hidden" name="quantity" value="1">
+          <button class="cv-card__add cv-btn" type="submit" aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.add_to_cart' | t }}</span>
+          </button>
+        {% endform %}
+      {%- elsif theme.settings.card_choose_opens != 'product_page' -%}
+        {%- comment -%} Quick view (theme setting "Choose options opens"): the header's quick view opens the product's options, media and Add to cart over the page; without scripts the link opens the product page. {%- endcomment -%}
+        <a class="cv-card__quick cv-card__add cv-btn" href="{{ cv_p.url }}" data-cv-qv aria-haspopup="dialog" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </a>
+      {%- elsif cv_p.variant_matrix.size > 1 and theme.settings.card_option_picker and cv_gift == false -%}
+        <button class="cv-card__quick cv-card__add cv-btn" type="button" data-cv-pick-open aria-expanded="false" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </button>
+        <div class="cv-card__pick" hidden data-cv-pick data-matrix="{{ cv_p.variant_matrix | json | escape }}" data-unavailable="{{ cv_unavail }}">
+          {%- for cv_r in cv_p.variant_matrix -%}{%- if cv_r.price -%}<span hidden data-cv-pick-px="{{ cv_r.id }}">{{ cv_r.price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}{%- endfor -%}
+          <button class="cv-card__pick-x" type="button" data-cv-pick-close aria-label="{{ 'general.close' | t }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          {%- for cv_opt in cv_p.options -%}
+            <div class="cv-card__pick-opt" data-cv-pick-attr="{{ cv_opt.attribute_slug }}" role="group" aria-label="{{ cv_opt.attribute_name }}">
+              <p class="cv-card__pick-name">{{ cv_opt.attribute_name }}</p>
+              <div class="cv-card__pick-vals">
+                {%- for cv_v in cv_opt.values -%}<button type="button" class="cv-card__pick-val{% if cv_v.color != blank %} cv-card__pick-val--sw{% endif %}" data-cv-pick-val="{{ cv_v.value }}" aria-pressed="false"{% if cv_v.color != blank %} style="--cv-sw: {{ cv_v.color }}" title="{{ cv_v.label }}"{% endif %}>{% if cv_v.color != blank %}<span class="cv-sr">{{ cv_v.label }}</span>{% else %}{{ cv_v.label }}{% endif %}</button>{%- endfor -%}
+              </div>
+            </div>
+          {%- endfor -%}
+          {% form 'cart_add', class: 'cv-card__pick-form' %}
+            <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+            <input type="hidden" name="variant_id" value="" data-cv-pick-variant>
+            <input type="hidden" name="quantity" value="1">
+            <button class="cv-btn cv-btn--sm cv-card__pick-add" type="submit" disabled data-cv-pick-submit>{{ 'products.add_to_cart' | t }}<span class="cv-card__pick-price" data-cv-pick-price></span></button>
+          {% endform %}
+        </div>
+      {%- else -%}
+        <a class="cv-card__quick cv-card__add cv-btn" href="{{ cv_p.url }}" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </a>
+      {%- endif -%}
+    {%- endif -%}
+    {%- endif -%}
+{%- comment -%}/partial:card-add{%- endcomment -%}
+    </div>
+    {%- endif -%}
+    {%- if cv_wl -%}
+      {%- comment -%} Wishlist actions. Move to cart adds the saved variant (or the product's only one) directly; a product with options left to
+        choose opens them as the theme's Choose options does (quick view or the product page). A row the shopper cannot buy has none. {%- endcomment -%}
+      <div class="cv-card__wl">
+        {%- if cv_wl.available_for_sale and cv_url != blank -%}
+          {%- comment -%} Without a saved variant, a product with nothing to choose is added as the shop grid's quick add adds it. {%- endcomment -%}
+          {%- assign cv_wl_vid = cv_wl.variant_id -%}{%- assign cv_wl_direct = true -%}
+          {%- unless cv_wl_vid -%}
+            {%- assign cv_wl_direct = false -%}
+            {%- if cv_p.options.size == 0 or cv_p.variant_matrix.size == 1 -%}{%- assign cv_wl_direct = true -%}{%- assign cv_wl_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}{%- endif -%}
+          {%- endunless -%}
+          {%- assign cv_wl_label = 'products.add_to_cart' | t -%}{%- if cv_wl_move -%}{%- assign cv_wl_label = 'wishlist.move_to_cart' | t -%}{%- endif -%}
+          {%- if cv_wl_direct -%}
+            {%- if cv_wl_move -%}
+              {% form 'wishlist_move_to_cart', class: 'cv-card__wl-form' %}
+                <input type="hidden" name="product_id" value="{{ cv_wl.product_id }}">
+                {%- if cv_wl_vid -%}<input type="hidden" name="variant_id" value="{{ cv_wl_vid }}">{%- endif -%}
+                {%- if cv_wl.variant_id -%}<input type="hidden" name="wishlist_variant_id" value="{{ cv_wl.variant_id }}">{%- endif -%}
+                {%- if cv_wl.identity_hash -%}<input type="hidden" name="wishlist_identity_hash" value="{{ cv_wl.identity_hash }}">{%- endif -%}
+                <button class="cv-btn cv-btn--sm cv-btn--block" type="submit" aria-label="{{ cv_wl_label }}: {{ cv_p.title }}">{{ cv_wl_label }}</button>
+              {% endform %}
+            {%- else -%}
+              {% form 'cart_add', class: 'cv-card__wl-form' %}
+                <input type="hidden" name="product_id" value="{{ cv_wl.product_id }}">
+                {%- if cv_wl_vid -%}<input type="hidden" name="variant_id" value="{{ cv_wl_vid }}">{%- endif -%}
+                <input type="hidden" name="quantity" value="1">
+                <button class="cv-btn cv-btn--sm cv-btn--block" type="submit" aria-label="{{ cv_wl_label }}: {{ cv_p.title }}">{{ cv_wl_label }}</button>
+              {% endform %}
+            {%- endif -%}
+          {%- elsif theme.settings.card_choose_opens != 'product_page' -%}
+            <a class="cv-btn cv-btn--sm cv-btn--block" href="{{ cv_url }}" data-cv-qv data-cv-wl-choose aria-haspopup="dialog" aria-label="{{ cv_wl_label }}: {{ cv_p.title }}">{{ cv_wl_label }}</a>
+          {%- else -%}
+            <a class="cv-btn cv-btn--sm cv-btn--block" href="{{ cv_url }}" aria-label="{{ cv_wl_label }}: {{ cv_p.title }}">{{ cv_wl_label }}</a>
+          {%- endif -%}
+        {%- endif -%}
+        {%- if cv_wl.available_for_sale == false and cv_wl.notify_me_eligible and cv_wl_notify and cv_wl_url != blank -%}
+          {%- comment -%} A sold-out saved row asks to hear when it is back on its product page, with the saved variant selected. {%- endcomment -%}
+          <a class="cv-tbtn cv-card__wl-notify" href="{{ cv_wl_url }}">{{ 'products.notify_title_short' | t }}</a>
+        {%- endif -%}
+        {%- if cv_wl_rm != 'icon' -%}
+          {% form 'wishlist_remove', class: 'cv-card__wl-form' %}
+            <input type="hidden" name="product_id" value="{{ cv_wl.product_id }}">
+            {%- if cv_wl.variant_id -%}<input type="hidden" name="variant_id" value="{{ cv_wl.variant_id }}">{%- endif -%}
+            {%- if cv_wl.identity_hash -%}<input type="hidden" name="identity_hash" value="{{ cv_wl.identity_hash }}">{%- endif -%}
+            <button class="cv-tbtn cv-card__wl-rm" type="submit" data-cv-wl-rm aria-label="{{ 'wishlist.remove_item' | t: title: cv_p.title }}">{{ 'wishlist.remove' | t }}</button>
+          {% endform %}
+        {%- endif -%}
+      </div>
+    {%- endif %}
+  </div>
+</article>
+{%- comment -%} Wishlist mode belongs to one card: clear its inputs. {%- endcomment -%}
+{%- assign cv_wl = nil -%}{%- assign cv_wl_url = nil -%}{%- assign cv_wl_opts = nil -%}{%- assign cv_wl_reg = nil -%}{%- assign cv_wl_rm = nil -%}{%- assign cv_wl_move = nil -%}{%- assign cv_wl_notify = nil -%}{%- assign cv_card_cls = nil -%}
+{%- comment -%}/partial:card{%- endcomment -%}
+      {%- endfor -%}
+      {%- if cv_list.size == 0 -%}
+        {%- comment -%} Editor only: shoppers see nothing when a product has no related products. {%- endcomment -%}
+        {%- for i in (1..settings.limit) -%}
+          <div class="cv-card cv-card--placeholder">
+            <div class="cv-card__media cv-media">{%- assign cv_ph = i | modulo: 6 | plus: 1 -%}{{ 'product-' | append: cv_ph | placeholder_svg }}</div>
+            <div class="cv-card__info"><h3 dir="auto" class="cv-card__title">{{ 'products.example_title' | t }}</h3><p class="cv-card__price cv-muted">{{ 'products.example_price' | t }}</p></div>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+    {%- if cv_list.size == 0 -%}<p class="cv-muted cv-recs__note">{{ 'sections.related_products.editor_empty' | t }}</p>{%- endif -%}
+  </div>
+</section>
+{%- comment -%}partial:rec-click{%- endcomment -%}
+<script>
+(function () {
+  // Recommendation clicks: following a card (any [data-product-id] item) in a [data-cv-rec] rail sends the platform's rec_click
+  // event (POST /events/rec-click: placement, product_id, and variant_id when the card links one, with
+  // the page's CSRF token). A beacon never holds up the navigation, and a refused one changes nothing.
+  if (window.__cvRecClick) return; window.__cvRecClick = true;
+  function send(e) {
+    if (e.type === "auxclick" && e.button !== 1) return;
+    var a = e.target.closest && e.target.closest("[data-cv-rec] [data-product-id] a[href]");
+    var sec = a && a.closest("[data-cv-rec]"), card = a && a.closest("[data-product-id]");
+    var pid = card && card.getAttribute("data-product-id"), vid = card && card.getAttribute("data-variant-id");
+    if (!sec || !/^[1-9][0-9]*$/.test(pid || "")) return;
+    var fd = new FormData();
+    fd.append("_csrf", sec.getAttribute("data-csrf") || "");
+    fd.append("placement", sec.getAttribute("data-cv-rec"));
+    fd.append("product_id", pid);
+    if (/^[1-9][0-9]*$/.test(vid || "")) fd.append("variant_id", vid);
+    try { if (navigator.sendBeacon && navigator.sendBeacon("/events/rec-click", fd)) return; } catch (_) {}
+    try { fetch("/events/rec-click", { method: "POST", body: fd, credentials: "same-origin", keepalive: true }).catch(function () {}); } catch (_) {}
+  }
+  document.addEventListener("click", send, true);
+  document.addEventListener("auxclick", send, true);
+})();
+</script>
+{%- comment -%}/partial:rec-click{%- endcomment -%}
+{%- endif -%}

@@ -1,0 +1,105 @@
+{
+  "page_type": "product",
+  "sections": [
+    {
+      "type": "main-product",
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-editorial-product__0",
+            "type": "vendor",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__1",
+            "type": "title",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__2",
+            "type": "rating",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__3",
+            "type": "price",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__3_notes",
+            "type": "price_notes",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__8",
+            "type": "availability",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__11",
+            "type": "offers",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__4",
+            "type": "variant_picker",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__5",
+            "type": "buy_buttons",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__10",
+            "type": "express_checkout",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__6",
+            "type": "description",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__7",
+            "type": "collapsible",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-product__9",
+            "type": "share",
+            "settings": {}
+          }
+        ],
+        "gallery_layout": "stack",
+        "media_size": "large",
+        "media_position": "left"
+      },
+      "position": 1
+    },
+    {
+      "type": "video",
+      "settings": {
+        "blocks": [],
+        "layout": "split",
+        "products": []
+      },
+      "position": 2
+    },
+    {
+      "type": "related-products",
+      "settings": {},
+      "position": 3
+    },
+    {
+      "type": "product-reviews",
+      "settings": {},
+      "position": 4
+    },
+    {
+      "type": "recently-viewed",
+      "settings": {},
+      "position": 5
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+  .cv-faq__inner { display: grid; gap: 24px; max-width: 880px; }
+  .cv-faq--split { max-width: var(--cv-width, 1400px); }
+  @media (min-width: 990px) { .cv-faq--split { grid-template-columns: 1fr 2fr; gap: 64px; } }
+  .cv-faq__head { display: grid; gap: 12px; align-content: start; }
+  .cv-faq__list { border-top: 1px solid var(--border); }
+  .cv-faq__item { border-bottom: 1px solid var(--border); }
+  .cv-faq__q { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0; font-size: 17px; font-weight: 500; cursor: pointer; list-style: none; }
+  .cv-faq__q::-webkit-details-marker { display: none; }
+  .cv-faq__mark { position: relative; width: 14px; height: 14px; flex: none; }
+  .cv-faq__mark::before, .cv-faq__mark::after { content: ""; position: absolute; inset: 6px 0 auto; height: 1.5px; background: currentColor; transition: transform 0.2s var(--cv-ease); }
+  .cv-faq__mark::after { transform: rotate(90deg); }
+  .cv-faq__item[open] .cv-faq__mark::after { transform: rotate(0deg); }
+  .cv-faq__a { padding: 0 0 22px; color: var(--text-muted); max-width: 68ch; }

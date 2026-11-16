@@ -1,0 +1,23 @@
+{%- comment -%} Eyebrow: a short line above a heading, in the theme's small capitals. {%- endcomment -%}
+{%- if settings.text != blank -%}<p dir="auto" class="cv-eyebrow cv-blk-eyebrow" data-tf-field="text">{{ settings.text }}</p>{%- elsif design_mode -%}<p class="cv-editor-hint cv-blk-hint">{{ 'sections.editor_empty_block' | t }}</p>{%- endif -%}
+{% schema %}
+{
+  "name": "eyebrow",
+  "kind": "block",
+  "icon": "tag",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "text",
+      "type": "text",
+      "default": "@t:sections.promo_grid.tile.eyebrow",
+      "editor": {
+        "label": "eyebrow",
+        "group": "content"
+      }
+    }
+  ]
+}
+{% endschema %}

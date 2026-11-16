@@ -1,0 +1,2378 @@
+<style>
+  /* Canvas design system. Repeated in every section, because sections are standalone. */
+  :where(.cv) { --cv-pad-x: clamp(16px, 4vw, 56px); --cv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --cv-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+    --cv-soft: color-mix(in srgb, var(--text) 5%, var(--bg)); --cv-line: color-mix(in srgb, var(--text) 10%, transparent);
+    font-family: var(--tf-font-body_font, "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: 15px; line-height: 1.55; letter-spacing: -0.006em; color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01", "cv11"; }
+  :where(.cv *) { box-sizing: border-box; }
+  .cv[hidden], .cv [hidden] { display: none !important; }
+  :where(.cv img) { max-width: 100%; display: block; }
+  :where(.cv a) { color: inherit; }
+  :where(.cv-section) { padding-block: calc(var(--cv-gap-y, clamp(56px, 8vw, 112px)) * 0.58); }
+  :where(.cv-section--page) { padding-top: clamp(28px, 4vw, 56px); }
+  :where(.cv-page-title) { font-size: calc(clamp(32px, 4vw, 56px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-wrap) { width: 100%; max-width: var(--cv-width, 1440px); margin-inline: auto; padding-inline: var(--cv-pad-x); }
+  :where(.cv-app-blocks) { display: grid; gap: 16px; margin-top: 24px; }
+  .cv-app-blocks:empty { display: none; }
+  :where(.cv-h1, .cv-h2, .cv-h3, .cv-h4) { font-family: var(--tf-font-heading_font, inherit); font-weight: 500; line-height: 1.04;
+    letter-spacing: -0.035em; text-transform: var(--cv-heading-case, none); margin: 0; text-wrap: balance; }
+  :where(.cv-h1) { font-size: calc(clamp(40px, 6.4vw, 88px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h2) { font-size: calc(clamp(28px, 3.6vw, 48px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h3) { font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); letter-spacing: -0.02em; line-height: 1.2; }
+  :where(.cv-h4) { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+  :where(.cv-eyebrow) { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0; }
+  :where(.cv-muted) { color: var(--text-muted); }
+  :where(.cv-meta > * + *)::before { content: " · "; }
+  :where(.cv-rte) { line-height: 1.65; }
+  :where(.cv-rte > * + *) { margin-top: 0.9em; }
+  :where(.cv-rte a) { text-underline-offset: 3px; }
+  :where(.cv-rte ul, .cv-rte ol) { margin: 0; padding-inline-start: 1.25em; }
+  :where(.cv-rte li + li) { margin-top: 0.3em; }
+
+  :where(.cv-btn) { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 26px;
+    font: inherit; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+    background: var(--btn); color: var(--btn-text); border: 0; border-radius: var(--cv-btn-radius, 999px); -webkit-tap-highlight-color: transparent;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(0 0 0 / 0.08);
+    transition: transform 0.25s var(--cv-ease), background-color 0.25s var(--cv-ease), color 0.25s var(--cv-ease), box-shadow 0.25s var(--cv-ease); }
+  :where(.cv-btn:hover) { background: color-mix(in srgb, var(--btn) 86%, var(--bg)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 6px 18px -6px rgb(0 0 0 / 0.35); }
+  :where(.cv-btn:active) { transform: scale(0.97); }
+  :where(.cv-btn--outline, .cv-btn--soft) { background: var(--cv-soft); color: var(--text); box-shadow: none; }
+  :where(.cv-btn--outline:hover, .cv-btn--soft:hover) { background: color-mix(in srgb, var(--text) 10%, var(--bg)); box-shadow: none; }
+  :where(.cv-btn--ghost) { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--ghost:hover) { background: var(--cv-soft); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--link) { min-height: 0; padding: 0; gap: 6px; background: none; box-shadow: none; color: var(--text); font-weight: 500; text-decoration: none; }
+  :where(.cv-btn--link)::after { content: ""; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--cv-arrow) center / contain no-repeat; mask: var(--cv-arrow) center / contain no-repeat; transition: transform 0.25s var(--cv-ease); }
+  :where(.cv-btn--link:hover) { background: none; box-shadow: none; }
+  :where([dir="rtl"] .cv-btn--link)::after { transform: scaleX(-1); }
+  :where(.cv-btn--link:active) { transform: none; }
+  :where(.cv-btn--plain)::after { content: none; }
+  :where(.cv-btn--block) { width: 100%; }
+  :where(.cv-btn--sm) { min-height: 38px; padding: 0 16px; font-size: 14px; }
+  :where(.cv-btn--lg) { min-height: 56px; padding: 0 32px; font-size: 16px; }
+  :where(.cv-btn:disabled, .cv-btn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  :where(.cv-btn.is-loading, .cv-btn.is-done) { opacity: 1; cursor: progress; }
+  :where(.cv-btn.is-loading) > *, :where(.cv-btn.is-loading) { color: transparent; }
+  :where(.cv-btn.is-loading)::before { content: ""; position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+    border: 2px solid var(--btn-text); border-right-color: transparent; animation: cv-spin 0.7s linear infinite; }
+  :where(.cv-btn--outline.is-loading, .cv-btn--soft.is-loading, .cv-btn--ghost.is-loading)::before { border-color: var(--text); border-right-color: transparent; }
+  /* A link button (wishlist, share) keeps its icon and label while busy and only dims: a spinner on a borderless button reads as the control vanishing. */
+  .cv-btn--link.is-loading, .cv-btn--link.is-loading > * { color: inherit; }
+  .cv-btn--link.is-loading { opacity: 0.55; }
+  .cv-btn--link.is-loading::before { content: none; }
+  :where(.cv-btn.is-done) { animation: cv-pop 0.4s var(--cv-ease); }
+  /* Text buttons: actions set as words (Clear cart, Create account, Edit, Show more), on <button>, <a> or <summary>. No underline and
+     no arrow, at rest or on hover: muted at rest, ink on hover. A surface with other colours sets --cv-tbtn and --cv-tbtn-hover.
+     Links inside running prose keep the browser underline; .cv-btn--link (with its arrow) is for navigation such as "Continue shopping". */
+  :where(.cv-tbtn) { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 0; font: inherit; font-weight: 500; letter-spacing: inherit;
+    color: var(--cv-tbtn, var(--text-muted)); text-align: start; text-decoration: none; background: none; border: 0; border-radius: 4px; cursor: pointer;
+    list-style: none; -webkit-tap-highlight-color: transparent; transition: color 0.2s var(--cv-ease); }
+  :where(.cv-tbtn:hover) { color: var(--cv-tbtn-hover, var(--text)); text-decoration: none; }
+  :where(.cv-tbtn)::-webkit-details-marker { display: none; }
+  :where(.cv-tbtn:disabled, .cv-tbtn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; }
+  @keyframes cv-spin { to { transform: rotate(360deg); } }
+  @keyframes cv-pop { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+  :where(.cv-field) { display: grid; gap: 6px; }
+  :where(.cv-label) { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+  :where(.cv-input) { width: 100%; min-height: 50px; padding: 0 18px; font: inherit; font-size: 15px; color: var(--text); background: var(--cv-soft);
+    border: 1px solid transparent; border-radius: var(--cv-field-radius, 14px); outline: none; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
+  :where(.cv-input::placeholder) { color: color-mix(in srgb, var(--text) 45%, transparent); }
+  :where(.cv-input:hover) { background: color-mix(in srgb, var(--text) 7%, var(--bg)); }
+  :where(.cv-input:focus) { background: var(--bg); border-color: var(--text); box-shadow: none; }
+  :where(textarea.cv-input) { min-height: 132px; padding: 14px 18px; resize: vertical; }
+  :where(select.cv-input) { appearance: none; padding-inline-end: 44px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 18px center; }
+  /* Focus. Fields (text, email, phone, code, search, quantity, select, textarea) show it with their own border only, for mouse, touch and
+     keyboard alike. Everything else (buttons, links, swatches, cards, checks, tabs, dots, chips) gets one thin ring, for keyboard focus only.
+     A field drawn by its wrapper (newsletter pill, search bar, quantity stepper) puts .cv-shell on the wrapper, which takes the border.
+     Sections only move the ring (offset, colour) or draw it on a proxy with var(--cv-ring); they never add their own. */
+  :where(.cv) { --cv-ring: 2px solid var(--text); --cv-ring-offset: 2px; }
+  :where(.cv :focus-visible) { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }
+  :where(.cv [tabindex="-1"]:focus-visible) { outline: none; }
+  /* After a click or tap no ring shows, even where a script moved focus (a drawer focusing its close button). */
+  html.cv-pointer :where(.cv :focus-visible) { outline: none; }
+  :where(.cv) :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="submit"], [type="button"], [type="reset"], [type="image"], [type="color"]), select, textarea):focus { outline: none; }
+  .cv-shell:is(:focus, :has(input:focus, select:focus, textarea:focus)) { box-shadow: 0 0 0 1px var(--text); }
+  :where(.cv-check) { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+  :where(.cv-check input) { width: 18px; height: 18px; accent-color: var(--text); border-radius: 6px; }
+
+  :where(.cv-media) { position: relative; overflow: hidden; background: var(--surface); border-radius: var(--cv-radius, 16px); isolation: isolate; }
+  :where(.cv-media > img, .cv-media > svg, .cv-media > video, .cv-media > picture) { width: 100%; height: 100%; object-fit: cover; }
+  /* A real product (or post) without an image: a quiet tinted tile with its name, never a placeholder drawing. */
+  .cv-noimg { position: absolute; inset: 0; display: grid; place-items: center; padding: 12%; overflow: hidden; font-size: 13px; line-height: 1.35; text-align: center; color: var(--text-muted, currentColor);
+    background: color-mix(in srgb, var(--text) 6%, var(--bg)); overflow-wrap: anywhere; }
+  .cv-noimg--lg { font-family: var(--tf-font-heading_font, inherit); font-size: clamp(18px, 2vw, 26px); }
+  :where(.cv-price) { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
+  :where(.cv-price__sale) { color: var(--accent); }
+  :where(.cv-price__was) { color: var(--text-muted); text-decoration: line-through; font-size: 0.9em; }
+  :where(.cv-badge) { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+    border-radius: 999px; background: color-mix(in srgb, var(--bg) 92%, transparent); color: var(--text); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  :where(.cv-badge--sale) { background: var(--accent); color: var(--bg); }
+  :where(.cv-badge--sold) { background: color-mix(in srgb, var(--text) 82%, transparent); color: var(--bg); }
+  :where(.cv-notice) { padding: 14px 18px; font-size: 14px; background: var(--cv-soft); border-radius: 14px; }
+  :where(.cv-notice--ok) { background: color-mix(in srgb, var(--status-ok) 10%, var(--bg)); color: color-mix(in srgb, var(--status-ok) 80%, var(--text)); }
+  /* A notice marked cv-toast floats at the bottom of the window instead of pushing the page down. */
+  .cv-toast { position: fixed; z-index: 400; inset-inline: 16px; bottom: max(24px, env(safe-area-inset-bottom)); width: auto; max-width: 440px; margin: 0 auto;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 18px 44px -16px rgb(0 0 0 / 0.35); }
+  .cv-toast[hidden] { display: none; }
+  /* A confirmation toast wears the button colours of its scheme (Theme settings > Notifications); errors keep their warning colours. */
+  .cv-toast.cv-notice--ok { background: var(--btn); color: var(--btn-text); }
+  .cv-toast--top_center { top: max(20px, env(safe-area-inset-top)); bottom: auto; }
+  .cv-toast--bottom_end { inset-inline: auto 20px; margin: 0; }
+  /* The in-theme confirm dialog for destructive actions (data-cv-confirm). */
+  .cv-confirm { position: fixed; inset: 0; margin: auto; height: fit-content; max-height: calc(100dvh - 32px); border: 0; padding: 24px; width: min(420px, calc(100vw - 32px)); border-radius: var(--cv-field-radius, 14px); background: var(--bg); color: var(--text);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 24px 64px -20px rgb(0 0 0 / 0.4); }
+  .cv-confirm::backdrop { background: rgb(0 0 0 / 0.4); }
+  .cv-confirm__msg { margin: 0 0 20px; font-size: 1rem; line-height: 1.5; }
+  .cv-confirm__acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+  @media (prefers-reduced-motion: no-preference) { .cv-toast:not([hidden]) { animation: cv-toast-in 0.2s ease-out; } @keyframes cv-toast-in { from { opacity: 0; transform: translateY(8px); } } }
+  :where(.cv-notice--error) { background: color-mix(in srgb, var(--accent) 9%, var(--bg)); color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  :where(.cv-sr) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  :where(.cv-icon) { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  :where([dir="rtl"] .cv-icon--dir) { transform: scaleX(-1); }
+  :where(.cv-pk-ico) { width: 1.15em; height: 1.15em; vertical-align: -0.2em; stroke-width: 1.6; }
+  :where(.cv-grid) { display: grid; gap: var(--cv-grid-gap, clamp(28px, 3vw, 40px)) var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); grid-template-columns: repeat(var(--cv-cols-m, 2), minmax(0, 1fr)); }
+  @media (min-width: 750px) { :where(.cv-grid) { grid-template-columns: repeat(var(--cv-cols, 4), minmax(0, 1fr)); } }
+  :where(.cv-head) { display: flex; flex-wrap: wrap; align-items: last baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: clamp(24px, 3.4vw, 48px); }
+  :where(.cv-head--center) { flex-direction: column; align-items: center; text-align: center; }
+  /* Tile cards are panels: rows sit as close as columns, so the gutters read as one even grid. */
+  :where(.cv-grid:has(> .cv-card--tile)) { row-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); }
+  :where(.cv-head p) { margin: 10px 0 0; max-width: 56ch; }
+  :where(.cv-stars) { --cv-star: var(--text); display: inline-block; width: 72px; height: 13px;
+    background: linear-gradient(90deg, var(--cv-star) var(--cv-rating, 0%), color-mix(in srgb, var(--text) 16%, transparent) var(--cv-rating, 0%));
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x; }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      :where(.cv-reveal) { animation: cv-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+      @keyframes cv-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { :where(.cv, .cv *), :where(.cv, .cv *)::before, :where(.cv, .cv *)::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+  /* Section spacing (each section's "Space above and below"). */
+  .cv-section.cv-pad--compact { padding-block: calc(var(--cv-gap-y, 96px) * 0.4); }
+  .cv-section.cv-pad--relaxed { padding-block: calc(var(--cv-gap-y, 96px) * 0.9); }
+  .cv-section.cv-pad--none { padding-block: 0; }
+  .cv-section.cv-pad--top-none { padding-top: 0; }
+
+  /* Phones: link, small and text buttons get a 44px tap target; type and icon sizes stay the same. */
+  @media (max-width: 749px) {
+    :where(.cv-btn--link) { min-height: 44px; padding-block: 12px; }
+    :where(.cv-btn--sm) { min-height: 44px; padding-block: 12px; }
+    /* The padding gives a 44px target; the equal negative margin keeps the line where it was, also inside a sentence. */
+    :where(.cv-tbtn) { padding-block: 12px; margin-block: -12px; }
+  }
+  /* Wishlist limit: when the wishlist is full, hearts that would add are dimmed and explain at the button (on a card, across the foot of its image). */
+  :where([data-cv-wish].is-full) { opacity: 0.5; cursor: not-allowed; }
+  :where(.cv-wishmsg) { position: absolute; z-index: 6; inset-block-start: calc(100% + 8px); inset-inline-start: 0; width: max-content; max-width: min(280px, 80vw); margin: 0; padding: 9px 12px;
+    font-size: 13px; line-height: 1.4; text-align: start; color: var(--bg); background: var(--text); border-radius: 10px; box-shadow: 0 10px 28px -10px rgb(0 0 0 / 0.35); }
+  :where(.cv-wishmsg[hidden]) { display: none; }
+  :where(.cv-card__media > .cv-wishmsg) { inset: auto 8px 8px; width: auto; max-width: none; }
+  @media (prefers-reduced-motion: no-preference) { :where(.cv-wishmsg) { animation: cv-wishmsg-in 0.2s var(--cv-ease, ease-out); } @keyframes cv-wishmsg-in { from { opacity: 0; transform: translateY(4px); } } }
+
+/* Editor-only note on a section that shoppers can't see yet. */
+.cv-editor-hint { margin: 0 auto 16px; max-width: 640px; padding: 10px 14px; font-size: 13px; line-height: 1.45; text-align: center; color: var(--text-muted); border: 1px dashed var(--cv-line); border-radius: 12px; }
+
+/* Theme blocks (blocks/*.vasc): the content blocks sections, slides and tiles hold. Section's style ("auto") is the look the
+   section gives that part (a slide's headline, a tile's heading); sections style .cv-blk-*--auto where they hold blocks. */
+  :where(.cv-blk-eyebrow, .cv-blk-heading, .cv-blk-text) { margin: 0; }
+  :where(.cv-blk-heading) { max-width: 100%; overflow-wrap: break-word; }
+  :where(.cv-blk-text--small) { font-size: 14px; }
+  :where(.cv-blk-text--medium) { font-size: 17px; }
+  :where(.cv-blk-text--large) { font-size: calc(clamp(18px, 1.6vw, 22px)); }
+  :where(.cv-blk-buttons) { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  :where(.cv-blk-image) { width: var(--cv-blk-w, 100%); max-width: 100%; }
+  :where(.cv-blk-image img) { display: block; width: 100%; height: auto; }
+  :where(.cv-blk-image--square img) { aspect-ratio: 1 / 1; object-fit: cover; }
+  :where(.cv-blk-image--portrait img) { aspect-ratio: 4 / 5; object-fit: cover; }
+  :where(.cv-blk-image--landscape img) { aspect-ratio: 4 / 3; object-fit: cover; }
+  :where(.cv-blk-image__ph) { display: block; aspect-ratio: 4 / 3; background: var(--cv-soft); border-radius: var(--cv-radius, 16px); overflow: hidden; }
+  :where(.cv-blk-image__ph svg) { width: 100%; height: 100%; }
+  :where(.cv-blk-spacer) { height: var(--cv-blk-h, 32px); width: 100%; }
+  :where(.cv-blk-spacer--line) { display: flex; align-items: center; }
+  :where(.cv-blk-spacer--line)::before { content: ""; flex: 1; border-top: 1px solid var(--cv-line); }
+  .cv-blk-hint { margin: 0; }
+  :where(.cv-blk-heading__link) { color: inherit; text-decoration: none; }
+  :where(.cv-blk-heading__link:hover) { text-decoration: underline; text-underline-offset: 0.12em; text-decoration-thickness: 1px; }
+  /* An eyebrow that links (the product page's vendor): underlined on hover only. */
+  :where(.cv-eyebrow__link) { color: inherit; text-decoration: none; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  :where(.cv-eyebrow__link:hover) { text-decoration: underline; }
+/* A tile's own link (promo and split tiles, mega menu promotions): the pointer target over the whole tile. Its heading and button blocks carry the
+   same link for keyboards and screen readers; they sit above it, and the rest of the content lets clicks through to it. */
+  :where(.cv-tile-link) { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  :where(.cv-tile-over) { position: relative; z-index: 2; }
+  :where(.cv-tile-link ~ .cv-tile-over) { pointer-events: none; }
+  :where(.cv-tile-link ~ .cv-tile-over :is(a, button, input, select, textarea, video, [tabindex])) { pointer-events: auto; }
+  /* The platform metafield block (theme:metafield): the storefront writes its markup (tf-metafield); Canvas styles it. */
+  :where(.tf-metafield) { display: grid; gap: 4px; }
+  :where(.tf-metafield__label) { font-size: 13px; color: var(--text-muted); }
+  :where(.tf-metafield__value) { font-size: 15px; overflow-wrap: anywhere; }
+  :where(.tf-metafield__list) { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+  :where(.tf-metafield--list-product-reference, .tf-metafield--list-variant-reference) :where(.tf-metafield__reference) { display: inline-flex; padding: 6px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__image, .tf-metafield__video) { max-width: 100%; height: auto; border-radius: 12px; }
+  :where(.tf-metafield__file) { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 8px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__json) { margin: 0; font: inherit; white-space: pre-wrap; }
+  :where(.tf-metafield-notice) { font-size: 14px; }
+  :where(.cv-pl__block) { margin-block: 12px; }
+
+/* partial:cart */
+  .cv-lines { display: grid; list-style: none; margin: 0; padding: 0; }
+  .cv-line { display: grid; grid-template-columns: 96px 1fr; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--cv-line); }
+  .cv-line:first-child { padding-top: 0; }
+  .cv-line.is-unavailable .cv-line__media { opacity: 0.5; }
+  .cv-line__media { aspect-ratio: 1 / 1; }
+  .cv-line__media > .cv-line__custom { object-fit: var(--cv-custom-fit, contain); padding: 4px; }
+  .cv-group { padding: 18px 0; border-bottom: 1px solid var(--cv-line); }
+  .cv-group:first-child { padding-top: 0; }
+  .cv-group__head { display: grid; grid-template-columns: 96px 1fr auto; gap: 16px; align-items: start; }
+  .cv-group__lines { margin: 14px 0 0; padding: 4px 12px; background: var(--cv-soft); border-radius: 16px; }
+  .cv-line--member { grid-template-columns: 64px 1fr; padding: 12px 0; }
+  .cv-line--member:first-child { padding-top: 12px; }
+  .cv-line--member:last-child { border-bottom: 0; }
+  .cv-line--member .cv-line__media { background: var(--bg); }
+  .cv-line--member .cv-line__title { font-size: 14px; font-weight: 500; }
+  .cv-line--member .cv-line__qty { background: var(--bg); }
+  .cv-line__body { display: grid; gap: 8px; min-width: 0; }
+  .cv-line__top { display: flex; justify-content: space-between; gap: 12px; }
+  .cv-line__top > .cv-line__info { flex: 1; }
+  .cv-line__info { display: grid; gap: 4px; min-width: 0; }
+  .cv-line__title { font-size: 15px; color: var(--text); text-decoration: none; }
+  a.cv-line__title { transition: opacity 0.2s var(--cv-ease); }
+  a.cv-line__title:hover { opacity: 0.65; }
+  .cv-line__meta, .cv-line__unit { margin: 0; font-size: 13px; color: var(--text-muted); }
+  .cv-line__gift { display: flex; align-items: flex-start; gap: 6px; }
+  .cv-line__gift-text { display: grid; min-width: 0; overflow-wrap: anywhere; }
+  .cv-line__gift-msg { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; white-space: pre-line; }
+  .cv-line__gift .cv-icon { width: 14px; height: 14px; flex: none; margin-top: 2px; }
+  .cv-line__total { margin: 0; font-size: 15px; white-space: nowrap; }
+  .cv-line__warn { margin: 0; font-size: 13px; color: var(--accent); }
+  .cv-line__notify { font-size: 14px; }
+  .cv-line__notify > summary { list-style: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .cv-line__notify[open] > summary { margin-block-end: 10px; }
+  .cv-line__notify .cv-notify { padding: 14px; border-radius: 14px; }
+  .cv-line__disc { margin: 0; font-size: 13px; color: var(--accent); }
+  .cv-line__actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .cv-line__qty { display: inline-flex; align-items: center; background: var(--cv-soft); border-radius: var(--cv-btn-radius, 999px); }
+  .cv-line__qty .cv-qty__btn { width: 38px; height: 38px; font-size: 16px; color: var(--text); background: none; border: 0; border-radius: inherit; cursor: pointer; }
+  .cv-line__qty .cv-qty__btn:hover:not(:disabled) { background: color-mix(in srgb, var(--text) 7%, transparent); }
+  .cv-line__qty .cv-qty__btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .cv-line__q { min-width: 28px; text-align: center; font-size: 14px; }
+  .cv-line__qlabel { display: contents; }
+  .cv-line__qty .cv-qty__input { width: 40px; height: 38px; padding: 0; font: inherit; font-size: 14px; font-weight: 500; text-align: center; color: var(--text); background: none; border: 0; border-radius: 8px; }
+  .cv-line__qty .cv-qty__input:read-only { opacity: 0.5; cursor: progress; }
+  /* Remove: a quiet × at the line's top-right, after the line total. The negative margins line the cross up with the total's text. */
+  .cv-line__remove { flex: none; margin: -7px -8px 0 -4px; }
+  .cv-line__rm { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; color: var(--text-muted); background: none; border: 0; border-radius: 999px;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; transition: color 0.2s var(--cv-ease), background-color 0.2s var(--cv-ease); }
+  .cv-line__rm:hover { color: var(--text); background: var(--cv-soft); }
+  .cv-line__rm .cv-icon { width: 16px; height: 16px; }
+  .cv-line__media { border-radius: calc(var(--cv-radius, 16px) * 0.75); }
+  .cv-sum { display: grid; gap: 16px; }
+  .cv-sum__ship { display: grid; gap: 8px; }
+  .cv-sum__ship-text { margin: 0; font-size: 14px; }
+  .cv-sum__bar { display: block; height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+  .cv-sum__bar span { display: block; height: 100%; background: var(--text); transition: width 0.4s var(--cv-ease); }
+  .cv-ol { display: grid; gap: 10px; }
+  .cv-ol__text { margin: 0; }
+  .cv-ol--subtle { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  .cv-ol--accent { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
+  .cv-ol--accent strong { color: var(--accent); }
+  .cv-ol-hint { margin: 0; max-width: none; }
+  /* Optional services: one checkbox row per fee; plain rows between hairlines, or the list in an outline (theme line or accent). */
+  .cv-osv { display: grid; gap: 6px; }
+  .cv-osv__title { margin: 0; font-size: 14px; font-weight: 500; }
+  .cv-osv__list { display: grid; margin: 0; padding: 0; list-style: none; }
+  .cv-osv__list > li + li { border-top: 1px solid var(--cv-line); }
+  .cv-osv__row { display: grid; grid-template-columns: auto 1fr; column-gap: 12px; align-items: start; padding: 10px 0; }
+  .cv-osv__check { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--text); cursor: pointer; }
+  .cv-osv__row[aria-busy="true"] .cv-osv__check { cursor: progress; }
+  .cv-osv__label { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; min-width: 0; font-size: 14px; cursor: pointer; }
+  .cv-osv__name { min-width: 0; overflow-wrap: anywhere; }
+  .cv-osv__amt { white-space: nowrap; color: var(--text-muted); }
+  .cv-osv__desc { grid-column: 2; margin: 4px 0 0; font-size: 13px; color: var(--text-muted); overflow-wrap: anywhere; }
+  .cv-osv__go { display: none; }
+  .cv-osv--outline .cv-osv__list, .cv-osv--accent .cv-osv__list { padding: 2px 14px; border-radius: calc(var(--cv-radius, 16px) * 0.75); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  .cv-osv--accent .cv-osv__list { box-shadow: inset 0 0 0 1px var(--accent); }
+  .cv-osv--accent .cv-osv__check { accent-color: var(--accent); }
+  .cv-osv-hint { margin: 0; max-width: none; }
+  /* A fee the cart does not meet: muted, its reason under the name; a chosen one keeps its tick and reads Not applied. */
+  .cv-osv__list > li.is-off .cv-osv__label { color: var(--text-muted); }
+  .cv-osv__check:disabled, .cv-osv__check:disabled + .cv-osv__label { cursor: default; }
+  .cv-osv__off { grid-column: 2; margin: 4px 0 0; font-size: 13px; color: var(--text-muted); overflow-wrap: anywhere; }
+  .cv-osv__na { color: var(--text); font-weight: 500; }
+  /* A chosen fee's text: the prompt and a field under the fee's name, saved when it changes. */
+  .cv-osv__text { display: grid; gap: 6px; padding: 0 0 12px; padding-inline-start: 30px; }
+  .cv-osv__prompt { font-size: 13px; color: var(--text-muted); overflow-wrap: anywhere; }
+  .cv-osv__req { font-size: 12px; }
+  .cv-osv__input { min-height: 42px; padding-inline: 14px; font-size: 14px; }
+  textarea.cv-osv__input { min-height: 66px; padding-block: 10px; }
+  .cv-osv__text[aria-busy="true"] .cv-osv__input { cursor: progress; }
+  .cv-osv__input[aria-invalid="true"] { border-color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  .cv-osv__err { margin: 0; font-size: 13px; color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  .cv-osv__save { display: none; }
+  /* Without script a fee has an Add or Remove button instead of its box, and its text a Save button. */
+  @media (scripting: none) {
+    .cv-osv__check { display: none; }
+    .cv-osv__row { grid-template-columns: 1fr auto; }
+    .cv-osv__desc, .cv-osv__off { grid-column: 1; }
+    .cv-osv__go { display: inline-flex; grid-row: 1; grid-column: 2; }
+    .cv-osv__text { padding-inline-start: 0; }
+    .cv-osv__save { display: inline-flex; justify-self: start; }
+  }
+  .cv-sum__gift { display: grid; grid-template-columns: 52px 1fr auto; align-items: center; gap: 12px; padding: 12px; border: 1px dashed var(--cv-line); border-radius: 14px; }
+  .cv-sum__gift-media { width: 52px; height: 52px; }
+  .cv-sum__gift-info p { margin: 0; font-size: 14px; }
+  .cv-sum__gift-title { font-weight: 500; }
+  .cv-sum__nudge { margin: 0; padding: 12px 14px; font-size: 13px; background: var(--cv-soft); border-radius: 12px; }
+  .cv-sum__nudge p { margin: 0; }
+  .cv-sum__nudge-save { color: var(--accent); font-weight: 500; }
+  .cv-sum__bundle { display: grid; gap: 8px; list-style: none; margin: 10px 0 0; padding: 0; }
+  .cv-sum__bitem { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 10px; }
+  .cv-sum__bmedia { width: 44px; height: 44px; border-radius: 8px; }
+  .cv-sum__binfo { display: grid; min-width: 0; font-size: 13px; }
+  .cv-sum__binfo a { color: var(--text); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-sum__codes { display: grid; gap: 10px; }
+  .cv-sum__applied { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+  .cv-sum__chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px; font-size: 13px; background: var(--cv-soft); border-radius: 999px; }
+  .cv-sum__chip .cv-icon { width: 14px; height: 14px; }
+  .cv-sum__chip button { display: inline-flex; padding: 0 4px; font-size: 16px; line-height: 1; color: var(--text); background: none; border: 0; cursor: pointer; }
+  .cv-sum__chip.is-inactive { opacity: .6; text-decoration: line-through; }
+  .cv-sum__chip.is-inactive button { text-decoration: none; }
+  .cv-sum__codenote { margin: 4px 0 0; font-size: 12px; }
+  .cv-sum__codeform > summary { font-size: 14px; font-weight: 500; cursor: pointer; list-style: none; }
+  .cv-sum__codeform > summary::after { content: ""; display: inline-block; width: 12px; height: 12px; margin-inline-start: 6px; vertical-align: -0.15em; background: var(--text-muted); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 6v12M6 12h12'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M12 6v12M6 12h12'/%3E%3C/svg%3E") center / contain no-repeat; }
+  .cv-sum__codeform[open] > summary::after { -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E"); mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E"); }
+  .cv-sum__codeform > summary::-webkit-details-marker { display: none; }
+  .cv-sum__apply { display: flex; gap: 8px; margin-top: 10px; }
+  .cv-sum__apply .cv-input { flex: 1; min-width: 0; min-height: 44px; text-transform: uppercase; }
+  .cv-sum__cap { margin: 0; font-size: 13px; }
+  /* Available discounts: a row opens a floating side sheet (a bottom sheet on phones) of coupon tickets. */
+  .cv-offers { display: flex; align-items: center; gap: 10px; width: 100%; padding: 14px 16px; font: inherit; font-size: 14px; font-weight: 500; color: var(--text); text-align: start; background: var(--bg); border: 0; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--cv-line); cursor: pointer; transition: box-shadow 0.2s var(--cv-ease); }
+  .cv-offers:hover { box-shadow: inset 0 0 0 1px var(--text); }
+  .cv-offers > span:first-of-type { flex: 1; min-width: 0; }
+  .cv-offers__count { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; font-size: 12px; color: var(--btn-text); background: var(--btn); border-radius: 999px; }
+  .cv-offers__caret { color: var(--text-muted); }
+  .cv-offers-sheet { --cv-sheet-bg: color-mix(in srgb, var(--text) 4%, var(--bg)); position: fixed; inset: 12px 12px 12px auto; width: min(440px, calc(100vw - 24px)); max-width: none; height: calc(100dvh - 24px); max-height: none; margin: 0; padding: 0; color: var(--text); background: var(--cv-sheet-bg); border: 0; border-radius: 20px; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28); overflow: hidden; }
+  .cv-offers-sheet[open] { display: flex; flex-direction: column; animation: cv-sheet-in 0.32s var(--cv-ease); }
+  .cv-offers-sheet::backdrop { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(2px); }
+  @keyframes cv-sheet-in { from { transform: translateX(calc(100% + 24px)); } }
+  .cv-offers-sheet__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 22px 10px; }
+  .cv-offers-sheet__head h2 { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+  .cv-offers-sheet__close { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; color: inherit; background: var(--bg); border: 0; border-radius: 50%; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); cursor: pointer; }
+  .cv-offers-sheet__close:hover { color: var(--bg); background: var(--text); }
+  .cv-offers__list { display: grid; align-content: start; gap: 12px; list-style: none; margin: 0; padding: 12px 22px 26px; overflow-y: auto; }
+  .cv-offer { --cv-stub: 104px; display: grid; grid-template-columns: var(--cv-stub) minmax(0, 1fr) auto; align-items: center; gap: 0 14px; min-height: 88px; padding-inline-end: 14px; background: var(--bg); border-radius: 14px;
+    -webkit-mask: radial-gradient(circle at var(--cv-stub) 0, #0000 9px, #000 9.5px) top / 100% 51% no-repeat, radial-gradient(circle at var(--cv-stub) 100%, #0000 9px, #000 9.5px) bottom / 100% 51% no-repeat;
+    mask: radial-gradient(circle at var(--cv-stub) 0, #0000 9px, #000 9.5px) top / 100% 51% no-repeat, radial-gradient(circle at var(--cv-stub) 100%, #0000 9px, #000 9.5px) bottom / 100% 51% no-repeat; }
+  .cv-offer__stub { align-self: stretch; display: grid; place-items: center; margin: 0; padding: 14px 10px; font-size: 17px; font-weight: 600; line-height: 1.2; text-align: center; overflow-wrap: anywhere; color: var(--btn-text); background: var(--btn); border-inline-end: 2px dashed var(--cv-sheet-bg, var(--cv-soft)); }
+  .cv-offer__body { display: grid; gap: 3px; min-width: 0; padding: 14px 0; }
+  .cv-offer__body p { margin: 0; }
+  .cv-offer__code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; overflow-wrap: anywhere; }
+  .cv-offer__name { font-size: 13px; color: var(--text-muted); }
+  .cv-offer__save { font-size: 13px; color: var(--accent); }
+  .cv-offer__unlock { font-size: 13px; font-weight: 500; }
+  .cv-offer__note { font-size: 12px; color: var(--text-muted); }
+  .cv-offer.is-locked > :not(.cv-offer__form) { opacity: 0.55; }
+  .cv-offer__form { flex: none; }
+  @media (max-width: 749px) { .cv-offers-sheet { inset: auto 0 0 0; width: 100vw; height: auto; max-height: 85dvh; border-radius: 20px 20px 0 0; } .cv-offers-sheet[open] { animation-name: cv-sheet-up; } .cv-offer { --cv-stub: 88px; gap: 0 10px; padding-inline-end: 10px; } .cv-offer__stub { font-size: 15px; } }
+  @keyframes cv-sheet-up { from { transform: translateY(100%); } }
+  @media (prefers-reduced-motion: reduce) { .cv-offers-sheet[open] { animation: none; } }
+  @media (scripting: none) { .cv-offers-sheet { position: static; display: block; width: auto; height: auto; box-shadow: none; } .cv-offers-sheet__close, .cv-offers { display: none; } }
+  .cv-sum__totals { display: grid; gap: 8px; margin: 0; padding-top: 12px; border-top: 1px solid var(--cv-line); }
+  .cv-sum__totals div { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
+  .cv-sum__totals dt, .cv-sum__totals dd { margin: 0; }
+  .cv-sum__disc { color: var(--accent); }
+  .cv-sum__total { font-size: 18px !important; font-weight: 600; }
+  .cv-sum__tax { margin: -8px 0 0; font-size: 13px; }
+  .cv-qty__btn { display: inline-flex; align-items: center; justify-content: center; }
+  .cv-qty__ico { width: 16px; height: 16px; }
+  .cv-sum__chip button .cv-icon { width: 14px; height: 14px; }
+
+  @media (max-width: 749px) {
+    a.cv-line__title { min-height: 44px; padding-block: 12px; }
+    .cv-line__remove { margin: -13px -14px 0 -10px; }
+    .cv-line__rm { width: 44px; height: 44px; }
+    .cv-line__qty .cv-qty__btn { width: 44px; height: 44px; padding: 12px; }
+    .cv-line__qty .cv-qty__input { width: 44px; height: 44px; font-size: 16px; }
+    .cv-sum__codeform > summary { min-height: 44px; padding-block: 12px; }
+    .cv-osv__label { padding-block: 12px; margin-block: -12px; }
+    .cv-osv__row { padding-block: 12px; }
+    .cv-osv__check { width: 20px; height: 20px; margin-top: 0; }
+    .cv-osv__text { padding-inline-start: 32px; }
+    .cv-osv__input { font-size: 16px; }
+  }
+  /* Cart blocks: the shopper's note and Recently viewed. */
+  .cv-cart__items { min-width: 0; }
+  .cv-sum__note { display: grid; gap: 8px; margin-top: 10px; }
+  .cv-sum__note-input { min-height: 88px; padding: 12px 14px; font: inherit; font-size: 14px; line-height: 1.5; resize: vertical; background: var(--bg); border-radius: 12px; }
+  .cv-sum__note-save { justify-self: end; }
+  .cv-sum__note:not(.is-edited) .cv-sum__note-save { display: none; }
+  @media (scripting: none) { .cv-sum__note .cv-sum__note-save { display: inline-flex; } }
+  /* Shipping estimate (partials/cart-estimate): the fields stack in the narrow summary; the answer reads like the totals. */
+  .cv-est__form { display: grid; gap: 10px; margin-top: 10px; }
+  .cv-est__fields { display: grid; gap: 10px; }
+  .cv-est__fields:empty { display: none; }
+  .cv-est .cv-input { min-height: 44px; font-size: 14px; background: var(--bg); }
+  .cv-est__go { justify-self: start; }
+  .cv-est__out { margin-top: 12px; }
+  .cv-est__rows div { font-size: 14px; }
+  .cv-est__rows dd { text-align: end; font-variant-numeric: tabular-nums; }
+  .cv-est__alt { color: var(--text-muted); }
+  .cv-est__note { margin: 8px 0 0; font-size: 13px; color: var(--text-muted); }
+  .cv-est__err { margin: 0; font-size: 14px; color: var(--status-error, var(--text)); }
+  .cv-est [aria-invalid="true"] { border-color: var(--status-error, var(--text)); }
+  @media (scripting: none) { .cv-est { display: none; } }
+  .cv-crec { display: grid; gap: 12px; width: 100%; text-align: start; }
+  .cv-crec__title { margin: 0; font-size: 15px; font-weight: 600; }
+  .cv-crec__list { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .cv-crec__item { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+  .cv-crec__media { aspect-ratio: 1 / 1; }
+  .cv-crec__info { display: grid; gap: 2px; min-width: 0; }
+  .cv-crec__name { overflow: hidden; color: inherit; font-size: 14px; font-weight: 500; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-crec__name:hover { text-decoration: underline; }
+  .cv-crec__price { margin: 0; color: var(--text-muted); font-size: 13px; }
+  .cv-crec__add { margin: 0; }
+  .cv-crec__btn { min-height: 36px; padding: 0 14px; font-size: 13px; }
+  @media (pointer: coarse) { .cv-crec__btn { min-height: 44px; } }
+/* /partial:cart */
+/* partial:notify */
+  /* Back-in-stock request: a soft panel under the sold-out button; Email / Text message as a segmented choice */
+  .cv-notify { display: grid; gap: 12px; padding: 18px; background: var(--cv-soft); border-radius: 18px; }
+  .cv-notify__title { margin: 0; font-weight: 500; }
+  .cv-notify__note { margin: 0; font-size: 13px; color: var(--text-muted); overflow-wrap: anywhere; }
+  .cv-notify__form { display: grid; gap: 10px; }
+  .cv-notify__by { min-width: 0; margin: 0; padding: 0; border: 0; }
+  .cv-notify__row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cv-notify__row > .cv-input, .cv-notify__phone { flex: 999 1 200px; min-width: 0; }
+  .cv-notify__row .cv-input, .cv-notify .cv-phone__cc { background: var(--bg); }
+  .cv-notify__row .cv-btn { flex: 1 0 auto; }
+  .cv-notify__row .cv-input[hidden], .cv-notify__phone[hidden] { display: none; }
+  /* In the one-line row the number is labelled like the email: for screen readers, with the example as its placeholder. */
+  .cv-notify__phone .cv-phone { gap: 0; }
+  .cv-notify__phone .cv-phone > .cv-label, .cv-notify__phone .cv-phone__hint { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .cv-seg { display: inline-flex; justify-self: start; padding: 3px; background: var(--bg); border-radius: 999px; box-shadow: inset 0 0 0 1px var(--cv-line); }
+  .cv-seg label { position: relative; padding: 7px 14px; font-size: 13px; border-radius: 999px; cursor: pointer; }
+  .cv-seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .cv-seg label:has(input:checked) { color: var(--btn-text); background: var(--btn); }
+  .cv-seg label:has(input:focus-visible) { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }
+/* /partial:notify */
+  .cv-cart__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 28px; }
+  .cv-cart__grid { display: grid; gap: clamp(24px, 4vw, 56px); align-items: start; }
+  @media (min-width: 990px) { .cv-cart__grid { grid-template-columns: 1fr 400px; } .cv-cart__side { position: sticky; top: 100px; } }
+  .cv-cart__side { display: grid; gap: 16px; padding: clamp(20px, 3vw, 32px); background: var(--cv-soft); border-radius: calc(var(--cv-radius, 16px) * 1.25); }
+  .cv-cart__side .cv-input { background: var(--bg); }
+  .cv-cart__side .cv-sum__chip, .cv-cart__side .cv-sum__nudge { background: var(--bg); }
+  .cv-cart__note { font-size: 13px; }
+  /* Express checkout: the platform's slot, full width under the checkout button; no space is kept while the platform keeps it hidden. */
+  .cv-xc { width: 100%; min-width: 0; margin-top: -4px; }
+  .cv-xc:has(> [data-tf-express][hidden]) { display: none; }
+  .cv-xc-hint { margin: 0; max-width: none; text-align: start; }
+  .cv-cart__empty { display: grid; gap: 16px; justify-items: center; padding: 72px 0; text-align: center; }
+  .cv-cart__empty > .cv-crec { max-width: 520px; margin-top: 24px; }
+  .cv-cart__lines { display: grid; gap: 32px; align-content: start; min-width: 0; }
+  .cv-cart__clear { margin-top: 16px; }
+  .cv-cart__clear .cv-tbtn { font-size: 13px; }
+/* partial:phone */
+  /* Phone field: country button and number share one field; the country list opens below it. */
+  .cv-phone { position: relative; min-width: 0; container-type: inline-size; }
+  /* A narrow field (a cart line) keeps room for the number. */
+  @container (max-width: 260px) { .cv-phone__cc { gap: 4px; padding-inline: 10px 6px; } .cv-phone__chev { width: 13px; height: 13px; } .cv-phone__num { padding-inline: 12px; } }
+  .cv-phone__row { display: flex; min-width: 0; }
+  .cv-phone__cc { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 50px; padding-inline: 14px 10px; font: inherit; font-size: 15px; color: var(--text);
+    background: var(--cv-soft); border: 1px solid transparent; border-start-start-radius: var(--cv-field-radius, 14px); border-end-start-radius: var(--cv-field-radius, 14px);
+    border-start-end-radius: 0; border-end-end-radius: 0; cursor: pointer; transition: background-color 0.2s, border-color 0.2s; }
+  .cv-phone__cc[hidden] { display: none; }
+  button.cv-phone__cc:hover { background: color-mix(in srgb, var(--text) 7%, var(--bg)); }
+  .cv-phone__cc--fixed { cursor: default; padding-inline-end: 14px; }
+  .cv-phone__cc:focus-visible { outline: none; border-color: var(--text); background: var(--bg); }
+  .cv-phone__cc[aria-expanded="true"] { background: var(--bg); border-color: var(--text); }
+  .cv-phone__flag, .cv-phone__oflag { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 26px; height: 18px; padding: 0 5px; border-radius: 5px; box-shadow: inset 0 0 0 1px var(--cv-line); background: var(--cv-soft); font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .cv-phone__flag:empty, .cv-phone__oflag:empty { display: none; }
+  .cv-phone__dial { font-variant-numeric: tabular-nums; }
+  .cv-phone__chev { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; opacity: 0.6; transition: transform 0.2s; }
+  .cv-phone__cc[aria-expanded="true"] .cv-phone__chev { transform: rotate(180deg); }
+  /* The number field is always left-to-right, so its corners follow the page direction physically. */
+  .cv-phone.is-enhanced .cv-phone__num { border-top-left-radius: 0; border-bottom-left-radius: 0; box-shadow: inset 1px 0 0 var(--cv-line); }
+  [dir="rtl"] .cv-phone.is-enhanced .cv-phone__num { border-radius: var(--cv-field-radius, 14px) 0 0 var(--cv-field-radius, 14px); box-shadow: inset -1px 0 0 var(--cv-line); }
+  .cv-phone__num { min-width: 0; flex: 1 1 auto; font-variant-numeric: tabular-nums; }
+  [dir="rtl"] .cv-phone__num { text-align: right; }
+  .cv-phone__hint { margin: 0; font-size: 13px; }
+  .cv-phone__hint[hidden] { display: none; }
+  .cv-phone__pop { position: absolute; z-index: 30; inset-inline: 0; inset-block-start: calc(100% + 6px); display: grid; gap: 8px; padding: 10px;
+    background: var(--bg); border-radius: var(--cv-field-radius, 14px); box-shadow: 0 0 0 1px var(--cv-line), 0 18px 44px -16px rgb(0 0 0 / 0.28); }
+  .cv-phone__pop[hidden], .cv-phone__pop[popover]:not(:popover-open) { display: none; }
+  /* With the popover API the list is in the top layer, placed by the script from the field's position. */
+  .cv-phone__pop[popover] { position: fixed; inset: auto; margin: 0; border: 0; color: var(--text); overflow: visible; box-sizing: border-box;
+    /* Safari gives a top-layer popover the window's height; size it to its content so the search field keeps its height. */
+    height: fit-content; max-height: calc(100vh - 16px); align-content: start; }
+  .cv-phone__search { min-height: 44px; }
+  .cv-phone__search::-webkit-search-cancel-button { filter: grayscale(1); opacity: 0.6; cursor: pointer; }
+  .cv-phone__list { max-height: min(300px, 46vh, var(--cv-phone-room, 100vh)); margin: 0; padding: 0; overflow-y: auto; overscroll-behavior: contain; list-style: none; }
+  .cv-phone__opt { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; min-height: 44px; padding: 8px 10px; font-size: 14.5px;
+    border-radius: 10px; cursor: pointer; }
+  .cv-phone__opt:hover, .cv-phone__opt.is-active { background: var(--cv-soft); }
+  .cv-phone__opt.is-current .cv-phone__oname { font-weight: 600; }
+  .cv-phone__oname { min-width: 0; overflow-wrap: anywhere; }
+  .cv-phone__odial { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .cv-phone__none { margin: 0; padding: 4px 10px; font-size: 14px; }
+  .cv-phone__none:empty { display: none; }
+  @media (prefers-reduced-motion: no-preference) { .cv-phone__pop:not([hidden]) { animation: cv-phone-in 0.18s ease-out; } @keyframes cv-phone-in { from { opacity: 0; transform: translateY(-4px); } } }
+/* /partial:phone */
+</style>
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- assign cv_where = 'page' -%}
+<section class="cv cv-section cv-section--page cv-cart tf-scheme-{{ settings.color_scheme }}" data-tf-refresh="main-cart" data-tf-refresh-origin="true">
+  <div class="cv-wrap">
+    <div class="cv-cart__head"><h1 class="cv-h2 cv-page-title">{{ 'cart.title' | t }}</h1>
+      {%- if cart.item_count > 0 -%}<a class="cv-btn cv-btn--link" href="{{ routes.shop_url }}">{{ 'general.continue_shopping' | t }}</a>{%- endif -%}</div>
+    {%- if cart.item_count > 0 -%}
+      <div class="cv-cart__grid">
+        <div class="cv-cart__lines">
+{%- comment -%}partial:cart-main{%- endcomment -%}
+{%- comment -%} Cart page and drawer: the blocks beside the summary, in the merchant's order: Line items (with the pickup location above them and
+  Clear cart below) and the theme and app blocks (Recently viewed, apps). The summary blocks render in partials/cart-summary. Reads cart,
+  shopping, routes, design_mode, restock_notifications, customer; cv_where is 'page' or 'drawer'. {%- endcomment -%}
+{%- for b in settings.blocks -%}
+  {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+  {%- case b.type -%}
+    {%- when 'lines' -%}
+      {{ b._editor_block_open }}
+      <div class="cv-cart__items" style="--cv-custom-fit: {{ b.settings.custom_image_fit | default: 'contain' }};">
+{%- comment -%}partial:pickup-cart{%- endcomment -%}
+{%- comment -%} Cart page and drawer, above the lines: in pickup mode, where the cart is collected (cart.pickup_location) and a way to change it.
+  Lines the location cannot supply say so in partials/cart-lines. Nothing renders while the store offers no pickup. {%- endcomment -%}
+{%- if shopping.pickup_available -%}
+  {%- if cart.mode == 'pickup' and cart.pickup_location -%}
+  <div class="cv-pk-cart">
+    <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20"/></svg>
+    <p class="cv-pk-cart__text"><strong>{{ 'pickup.picking_up_at' | t: store: cart.pickup_location.name }}</strong>{%- if cart.pickup_location.ready_in_label != blank -%}<span class="cv-muted"> · {{ cart.pickup_location.ready_in_label }}</span>{%- endif -%}</p>
+    <button class="cv-tbtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-pickup" data-cv-pk-open>{{ 'pickup.change' | t }}<span class="cv-sr">: {{ 'pickup.title' | t }}</span></button>
+  </div>
+  {%- endif -%}
+{%- elsif design_mode -%}
+  <p class="cv-editor-hint cv-pk-hint">{{ 'pickup.editor_off' | t }}</p>
+{%- endif -%}
+{%- comment -%}/partial:pickup-cart{%- endcomment -%}
+{%- assign cv_ls = b.settings -%}
+{%- comment -%}partial:cart-lines{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart lines. Reads cart; cv_ls is the Line items block's settings. {%- endcomment -%}
+<ul class="cv-lines" role="list">
+  {%- assign cv_group_on = true -%}{%- if cv_ls.group_customizations == false -%}{%- assign cv_group_on = false -%}{%- endif -%}
+  {%- for head in cart.items -%}
+    {%- assign cv_head_series = false -%}
+    {%- assign cv_sc = head.series.count | default: 0 -%}{%- assign cv_sx = head.series.index | default: 1 -%}
+    {%- if cv_group_on and head.series and cv_sc > 1 -%}{%- assign cv_head_series = true -%}{%- endif -%}
+    {%- if cv_head_series and cv_sx > 1 -%}{%- continue -%}{%- endif -%}
+    {%- if cv_head_series -%}
+    {%- assign cv_gm = head.series.media | default: head.variant.media | default: head.product.media -%}
+    <li class="cv-group">
+      <div class="cv-group__head">
+        <a class="cv-line__media cv-media" href="{{ head.product.url }}" tabindex="-1" aria-hidden="true">
+          {%- if cv_gm.url and cv_gm.is_image != false -%}<img src="{{ cv_gm.url | image_url: width: 160 }}" srcset="{{ cv_gm.url | image_srcset: max: 320 }}" sizes="96px" alt="" loading="lazy">{%- else -%}{%- if design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}{%- endif -%}
+        </a>
+        <div class="cv-line__info">
+          <a dir="auto" class="cv-line__title" href="{{ head.product.url }}">{{ head.product.title }}</a>
+          {%- if head.variant.options.size > 0 -%}<p class="cv-line__meta">{%- for o in head.variant.options -%}{{ o.name }}: {{ o.value }}{% unless forloop.last %} · {% endunless %}{%- endfor -%}</p>{%- endif -%}
+          <p class="cv-line__meta">{{ 'cart.group_count' | t: count: head.series.count, quantity: head.series.quantity }}</p>
+        </div>
+        {%- if head.series.subtotal -%}<p class="cv-line__total">{{ head.series.subtotal | money: isolate: true, trim_zeros: cv_tz }}</p>{%- endif -%}
+      </div>
+      <ul class="cv-lines cv-group__lines" role="list">
+    {%- endif -%}
+    {%- for line in cart.items -%}
+      {%- if cv_head_series -%}
+        {%- if line.series.key != head.series.key -%}{%- continue -%}{%- endif -%}
+      {%- elsif line.line_id != head.line_id -%}{%- continue -%}{%- endif -%}
+      {%- assign cv_grouped = cv_head_series -%}
+      {%- assign cv_m = line.variant.media | default: line.product.media -%}
+        <li class="cv-line{% if cv_grouped %} cv-line--member{% endif %}{% if line.available_for_sale == false %} is-unavailable{% endif %}">
+          <a class="cv-line__media cv-media" href="{{ line.product.url }}" tabindex="-1" aria-hidden="true">
+            {%- if line.thumbnail and cv_ls.line_image != 'product' -%}<img class="cv-line__custom" src="{{ line.thumbnail }}" alt="" loading="lazy">
+            {%- elsif cv_m.url and cv_m.is_image != false -%}<img src="{{ cv_m.url | image_url: width: 160 }}" srcset="{{ cv_m.url | image_srcset: max: 320 }}" sizes="96px" alt="" loading="lazy">
+            {%- else -%}{%- if design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}{%- endif -%}
+          </a>
+          <div class="cv-line__body">
+            <div class="cv-line__top">
+              <div class="cv-line__info">
+                {%- if cv_grouped -%}<p dir="auto" class="cv-line__title">{{ 'cart.group_item' | t: index: line.series.index, count: line.series.count }}</p>{%- else -%}<a dir="auto" class="cv-line__title" href="{{ line.product.url }}">{{ line.product.title }}</a>{%- endif -%}
+                {%- if line.is_free_gift -%}<span class="cv-badge">{{ 'cart.free_gift' | t }}</span>{%- endif -%}
+                {%- if line.variant.options.size > 0 and cv_grouped != true -%}
+                  <p class="cv-line__meta">{%- for o in line.variant.options -%}{{ o.name }}: {{ o.value }}{% unless forloop.last %} · {% endunless %}{%- endfor -%}</p>
+                {%- endif -%}
+                {%- if cv_ls.show_line_properties != false -%}{%- for prop in line.property_list -%}{%- if prop.value contains 'https://' -%}{%- continue -%}{%- endif -%}<p class="cv-line__meta">{{ prop.name }}: {{ prop.display_value }}</p>{%- endfor -%}{%- endif -%}
+                {%- if line.gift_card_recipient -%}
+                  {%- comment -%} The whole recipient, each part that is present: who (the name, else the email, else the phone), the email
+                    and phone not already shown as who, the message (two lines at most; the full text stays in the line and in its title)
+                    and when it sends. {%- endcomment -%}
+                  {%- assign cv_gr = line.gift_card_recipient -%}
+                  {%- assign cv_to = cv_gr.name -%}{%- assign cv_to_is = 'name' -%}
+                  {%- if cv_to == blank and cv_gr.email != blank -%}{%- assign cv_to = cv_gr.email -%}{%- assign cv_to_is = 'email' -%}
+                  {%- elsif cv_to == blank -%}{%- assign cv_to = cv_gr.phone_display -%}{%- assign cv_to_is = 'phone' -%}{%- endif -%}
+                  <p class="cv-line__meta cv-line__gift">
+                    <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-1.5-3-5-3.5-5-1.2C7 7 9.5 7 12 7Zm0 0c1.5-3 5-3.5 5-1.2C17 7 14.5 7 12 7Z"/></svg>
+                    <span class="cv-line__gift-text"><span dir="auto">{{ 'cart.gift_for' | t: name: cv_to }}</span>
+                    {%- if cv_gr.email != blank and cv_to_is != 'email' -%}{%- assign cv_rp = cv_gr.email | split: '@' -%}<span><bdi dir="ltr">{{ cv_rp.first }}@<wbr>{{ cv_rp.last }}</bdi></span>{%- endif -%}
+                    {%- if cv_gr.phone_display != blank and cv_to_is != 'phone' -%}<span><bdi dir="ltr">{{ cv_gr.phone_display }}</bdi></span>{%- endif -%}
+                    {%- if cv_gr.message != blank -%}<span class="cv-line__gift-msg" dir="auto" title="{{ cv_gr.message }}">{{ 'cart.gift_message' | t: message: cv_gr.message }}</span>{%- endif -%}
+                    {%- if cv_gr.deliver_at_display != blank -%}<span><time datetime="{{ cv_gr.deliver_at }}">{{ 'cart.gift_send_on' | t: date: cv_gr.deliver_at_display }}</time></span>{%- endif -%}</span>
+                  </p>
+                {%- endif -%}
+                <p class="cv-line__unit cv-price">
+                  {%- if line.on_sale -%}<span class="cv-price__sale">{{ line.unit_price | money: isolate: true, trim_zeros: cv_tz }}</span><s class="cv-price__was">{{ line.regular_unit_price | money: isolate: true, trim_zeros: cv_tz }}</s>
+                  {%- else -%}<span>{{ line.unit_price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}
+                </p>
+              </div>
+              <p class="cv-line__total">{{ line.total | money: isolate: true, trim_zeros: cv_tz }}</p>
+              {%- if cv_grouped -%}{%- assign cv_rm_name = 'cart.group_item' | t: index: line.series.index, count: line.series.count | prepend: ' – ' | prepend: line.product.title -%}{%- else -%}{%- assign cv_rm_name = line.product.title -%}{%- endif -%}
+              {% form 'cart_remove', class: 'cv-line__remove' %}
+                <input type="hidden" name="product_id" value="{{ line.product_id }}">
+                {%- if line.variant_id -%}<input type="hidden" name="variant_id" value="{{ line.variant_id }}">{%- endif -%}
+                <input type="hidden" name="line_id" value="{{ line.line_id }}">
+                <button class="cv-line__rm" type="submit" aria-label="{{ 'cart.remove_item' | t: title: cv_rm_name | escape }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
+              {% endform %}
+            </div>
+            {%- comment -%} Pickup mode: a line the pickup location cannot supply offers another store (the sheet) or delivery. {%- endcomment -%}
+            {%- assign cv_qa = line.quantity_available | default: 0 -%}
+            {%- if line.available_for_sale == false and cart.mode == 'pickup' and line.availability_reason == 'not_at_pickup_location' or line.available_for_sale == false and cart.mode == 'pickup' and line.availability_reason == 'insufficient_stock' -%}
+              <div class="cv-pk-lwarn">
+                <p class="cv-line__warn">{{ line.availability_reason_label }}</p>
+                <div class="cv-pk-acts">
+                  <button class="cv-tbtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-pickup" data-cv-pk-open>{{ 'pickup.switch_store' | t }}</button>
+                  {% form 'shopping_mode_set' %}<input type="hidden" name="mode" value="delivery"><button class="cv-tbtn" type="submit">{{ 'pickup.deliver_instead' | t }}</button>{% endform %}
+                </div>
+              </div>
+            {%- elsif line.available_for_sale == false and line.availability_reason == 'insufficient_stock' and cv_qa > 0 -%}
+              {%- comment -%} Short of stock: how many are left (unless the merchant hides stock levels) and a one-tap change to that quantity. {%- endcomment -%}
+              <div class="cv-line__fix">
+                <p class="cv-line__warn">{%- if theme.settings.cart_show_stock_left != false -%}{{ 'cart.only_left' | t: count: line.quantity_available }}{%- else -%}{{ line.availability_reason_label }}{%- endif -%}</p>
+                {% form 'cart_update' %}
+                  <input type="hidden" name="product_id" value="{{ line.product_id }}">
+                  {%- if line.variant_id -%}<input type="hidden" name="variant_id" value="{{ line.variant_id }}">{%- endif -%}
+                  <input type="hidden" name="line_id" value="{{ line.line_id }}">
+                  <button class="cv-tbtn" type="submit" name="quantity" value="{{ line.quantity_available }}">{{ 'cart.change_to' | t: count: line.quantity_available }}</button>
+                {% endform %}
+              </div>
+            {%- elsif line.available_for_sale == false and line.availability_reason != blank -%}
+              {%- comment -%} Anything else checkout cannot take (sold out, no longer for sale): the reason and a removal. {%- endcomment -%}
+              <div class="cv-line__fix">
+                <p class="cv-line__warn">{{ line.availability_reason_label }}</p>
+                {% form 'cart_update' %}
+                  <input type="hidden" name="product_id" value="{{ line.product_id }}">
+                  {%- if line.variant_id -%}<input type="hidden" name="variant_id" value="{{ line.variant_id }}">{%- endif -%}
+                  <input type="hidden" name="line_id" value="{{ line.line_id }}">
+                  <button class="cv-tbtn" type="submit" name="quantity" value="0">{{ 'cart.remove' | t }}</button>
+                {% endform %}
+              </div>
+            {%- endif -%}
+            {%- if line.available_for_sale == false and line.notify_me_eligible and restock_notifications.enabled -%}
+              {%- comment -%} A sold-out line can ask to hear when it is back, folded under one link so the cart stays short. {%- endcomment -%}
+              <details class="cv-line__notify">
+                <summary class="cv-tbtn">{{ 'products.notify_title_short' | t }}</summary>
+                {%- assign cv_nf_pid = line.product_id -%}{%- assign cv_nf_vid = line.variant_id -%}{%- assign cv_nf_id = 'cv-notify-line-' | append: line.line_id -%}{%- assign cv_nf_head = false -%}
+                {%- comment -%}partial:notify-me{%- endcomment -%}
+{%- comment -%} Back-in-stock request (cart_notify_me) for a sold-out product or variant. Inputs: cv_nf_pid (product id), cv_nf_vid (variant id, blank for the
+  whole product), cv_nf_id (unique id prefix), cv_nf_head (false hides the heading, when a summary already says it).
+  Shows only while the store's restock alerts are on. In account_email mode a signed-in customer confirms with one button and the platform writes to their
+  account email; visitors type an email, or pick Text message and enter a phone number (partials/phone-field) when the store sends texts. {%- endcomment -%}
+{%- assign cv_nf_mode = restock_notifications.mode | default: 'disabled' -%}
+{%- if restock_notifications.enabled and cv_nf_mode != 'disabled' -%}
+{%- assign cv_nf_sms = false -%}{%- if restock_notifications.sms_available and cv_nf_mode == 'email_input' -%}{%- assign cv_nf_sms = true -%}{%- endif -%}
+{%- assign cv_nf_account = false -%}{%- if cv_nf_mode == 'account_email' and customer.logged_in -%}{%- assign cv_nf_account = true -%}{%- endif -%}
+<div class="cv-notify" data-cv-notice-host="{{ cv_nf_id }}">
+  {%- if cv_nf_head != false -%}<p class="cv-notify__title">{%- if cv_nf_sms -%}{{ 'products.notify_title_any' | t }}{%- else -%}{{ 'products.notify_title' | t }}{%- endif -%}</p>{%- endif -%}
+  <p class="cv-notice cv-notice--ok" role="status" data-cv-notice hidden></p>
+  {%- if restock_notifications.login_required and customer.logged_in != true -%}
+    <p class="cv-notify__note">{{ 'products.notify_login' | t }} <a class="cv-tbtn" href="{{ routes.login_url }}">{{ 'header.sign_in' | t }}</a></p>
+  {%- else -%}
+    {% form 'cart_notify_me', class: 'cv-notify__form' %}
+      <input type="hidden" name="product_id" value="{{ cv_nf_pid }}">
+      {%- if cv_nf_vid != blank -%}<input type="hidden" name="variant_id" value="{{ cv_nf_vid }}">{%- endif -%}
+      {%- if cv_nf_account -%}
+        <input type="hidden" name="contact_type" value="email">
+        <button class="cv-btn cv-btn--block" type="submit">{{ 'products.notify_account_button' | t }}</button>
+        <p class="cv-notify__note">{%- if customer.email != blank -%}{{ 'products.notify_account_to' | t: email: customer.email }}{%- else -%}{{ 'products.notify_account_note' | t }}{%- endif -%}</p>
+      {%- else -%}
+        {%- if cv_nf_sms -%}
+          <fieldset class="cv-notify__by">
+            <legend class="cv-sr">{{ 'products.notify_by' | t }}</legend>
+            <div class="cv-seg">
+              <label><input type="radio" name="contact_type" value="email" checked data-cv-notify-kind> {{ 'forms.email' | t }}</label>
+              <label><input type="radio" name="contact_type" value="sms" data-cv-notify-kind> {{ 'products.notify_sms' | t }}</label>
+            </div>
+          </fieldset>
+        {%- else -%}
+          <input type="hidden" name="contact_type" value="email">
+        {%- endif -%}
+        <div class="cv-notify__row">
+          <label class="cv-sr" for="{{ cv_nf_id }}-email">{{ 'forms.email' | t }}</label>
+          <input class="cv-input" id="{{ cv_nf_id }}-email" type="email" name="email" required autocomplete="email" maxlength="256" placeholder="{{ 'forms.email' | t }}" data-cv-notify-field="email">
+          {%- if cv_nf_sms -%}
+            <div class="cv-notify__phone" data-cv-notify-field="sms" hidden>
+            {%- assign cv_ph_id = cv_nf_id | append: '-phone' -%}{%- assign cv_ph_name = 'phone' -%}{%- assign cv_ph_value = '' -%}
+            {%- assign cv_ph_label = 'forms.phone' | t -%}{%- assign cv_ph_required = false -%}{%- assign cv_ph_country = localization.country.iso_code -%}
+            {%- assign cv_ph_disabled = true -%}{%- assign cv_ph_describedby = '' -%}{%- assign cv_ph_auto = '' -%}
+{%- comment -%}partial:phone-field{%- endcomment -%}
+{%- comment -%} Phone field with a searchable country picker (country code, name and dial code from ctx.phone_countries; the section needs
+phone_countries and customer_settings in ctx_needs). Set every input before each use, since assigns carry over:
+cv_ph_id (unique id), cv_ph_name (the field the action takes), cv_ph_value (saved number, E.164), cv_ph_label,
+cv_ph_required and cv_ph_disabled (true/false), cv_ph_country (ISO code to start from when it is a phone country; then the store's
+default_phone_country, then the first country), cv_ph_describedby (extra hint id or blank), cv_ph_auto (autocomplete, blank: tel).
+The script sends one E.164 number (+ and digits) under cv_ph_name. Without it, the number field itself is sent and asks for a
++ number; the hint shows the starting country's example in international form. {%- endcomment -%}
+{%- assign cv_ph_start = phone_countries.first -%}
+{%- for pc in phone_countries -%}{%- if pc.iso_code == customer_settings.default_phone_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}
+{%- if cv_ph_country != blank -%}{%- for pc in phone_countries -%}{%- if pc.iso_code == cv_ph_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- assign cv_ph_ex = '' -%}{%- if cv_ph_start.example != blank -%}{%- assign cv_ph_ex = cv_ph_start.dial_code | append: ' ' | append: cv_ph_start.example -%}{%- endif -%}
+{%- assign cv_ph_desc = cv_ph_id | append: '-hint' -%}{%- if cv_ph_describedby != blank -%}{%- assign cv_ph_desc = cv_ph_desc | append: ' ' | append: cv_ph_describedby -%}{%- endif -%}
+{%- assign cv_ph_ac = cv_ph_auto | default: 'tel' -%}
+<div class="cv-field cv-phone" data-cv-phone data-default="{{ cv_ph_start.iso_code }}" data-countries="{{ phone_countries | json | escape }}"
+     data-label-selected="{{ 'phone.selected' | t: country: '__C__' }}" data-label-example="{{ 'phone.example' | t: example: '__EX__' }}">
+  <label class="cv-label" for="{{ cv_ph_id }}">{{ cv_ph_label }}</label>
+  <div class="cv-phone__row" data-cv-phone-row>
+    <button class="cv-phone__cc" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="{{ cv_ph_id }}-pop" hidden data-cv-phone-cc>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <svg class="cv-phone__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </button>
+    <span class="cv-phone__cc cv-phone__cc--fixed" id="{{ cv_ph_id }}-cc" hidden data-cv-phone-fixed>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </span>
+    <input class="cv-input cv-phone__num" id="{{ cv_ph_id }}" type="tel" name="{{ cv_ph_name }}" value="{{ cv_ph_value }}" autocomplete="{{ cv_ph_ac }}" inputmode="tel" dir="ltr" maxlength="24"
+      pattern="[+][1-9][\d \(\)\-\.]{5,22}" title="{{ 'products.gift_phone_plus' | t }}"{% if cv_ph_ex != blank %} placeholder="{{ cv_ph_ex }}"{% endif %} aria-describedby="{{ cv_ph_desc }}"{% if cv_ph_required %} required{% endif %}{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-num>
+    <input type="hidden" value="{{ cv_ph_value }}" data-name="{{ cv_ph_name }}"{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-out>
+  </div>
+  <p class="cv-sr cv-phone__hint" id="{{ cv_ph_id }}-hint" data-cv-phone-hint{% if cv_ph_ex == blank %} hidden{% endif %}>{%- if cv_ph_ex != blank -%}{{ 'phone.example' | t: example: cv_ph_ex }}{%- endif -%}</p>
+  <div class="cv-phone__pop" id="{{ cv_ph_id }}-pop" hidden data-cv-phone-pop>
+    <input class="cv-input cv-phone__search" type="search" role="combobox" aria-expanded="true" aria-controls="{{ cv_ph_id }}-list" aria-autocomplete="list"
+           autocomplete="off" spellcheck="false" placeholder="{{ 'phone.search' | t }}" aria-label="{{ 'phone.search' | t }}" data-cv-phone-q>
+    <ul class="cv-phone__list" id="{{ cv_ph_id }}-list" role="listbox" aria-label="{{ 'phone.country' | t }}" data-cv-phone-list></ul>
+    <p class="cv-muted cv-phone__none" role="status" data-cv-phone-none></p>
+    <span hidden data-cv-phone-none-text>{{ 'phone.no_results' | t }}</span>
+  </div>
+</div>
+{%- comment -%}/partial:phone-field{%- endcomment -%}
+            </div>
+          {%- endif -%}
+          <button class="cv-btn" type="submit">{{ 'products.notify_button' | t }}</button>
+        </div>
+      {%- endif -%}
+    {% endform %}
+  {%- endif -%}
+</div>
+{%- endif -%}
+{%- comment -%}/partial:notify-me{%- endcomment -%}
+              </details>
+            {%- endif -%}
+            {%- assign cv_ld = line.line_discount.amount | default: 0 | plus: 0 -%}
+            {%- assign cv_fu = line.free_units | default: 0 -%}
+            {%- if cv_fu > 0 -%}<p class="cv-line__disc">{{ 'cart.n_free' | t: count: cv_fu }}</p>{%- endif -%}
+            {%- if cv_ld > 0 -%}<p class="cv-line__disc">{{ 'cart.line_saving' | t }} {{ line.line_discount | money: isolate: true, trim_zeros: cv_tz }}</p>{%- endif -%}
+            <div class="cv-line__actions">
+              {%- if line.is_free_gift != true -%}
+              {%- comment -%} The typed quantity goes through the hidden first button, so Enter never submits the − button. The platform caps a line at its quantity plus quantity_can_add (nil: no cap). {%- endcomment -%}
+              {%- assign cv_qmax = nil -%}{%- if line.quantity_can_add != nil -%}{%- assign cv_qadd = line.quantity_can_add | default: 0 -%}{%- assign cv_qmax = line.quantity | plus: cv_qadd -%}{%- endif -%}
+              {%- if line.quantity_at_limit -%}{%- assign cv_qmax = line.quantity -%}{%- endif -%}
+              {% form 'cart_update', class: 'cv-line__qty cv-shell' %}
+                <input type="hidden" name="product_id" value="{{ line.product_id }}">
+                {%- if line.variant_id -%}<input type="hidden" name="variant_id" value="{{ line.variant_id }}">{%- endif -%}
+                <input type="hidden" name="line_id" value="{{ line.line_id }}">
+                <button type="submit" name="quantity" value="{{ line.quantity }}" hidden tabindex="-1" data-cv-qty-set></button>
+                <button class="cv-qty__btn" type="submit" name="quantity" value="{{ line.quantity | minus: 1 }}"><svg class="cv-icon cv-qty__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg><span class="cv-sr">{{ 'products.decrease' | t }}</span></button>
+                <label class="cv-line__qlabel"><span class="cv-sr">{{ 'products.quantity' | t }}</span><input class="cv-qty__input cv-line__q" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="{{ line.quantity }}" data-cv-qty data-cv-qty-line="{{ line.line_id }}" data-min="0"{% if cv_qmax != nil %} data-max="{{ cv_qmax }}" data-max-msg="{{ 'products.quantity_max' | t: max: cv_qmax }}"{% endif %}></label>
+                <button class="cv-qty__btn" type="submit" name="quantity" value="{{ line.quantity | plus: 1 }}"{% if line.quantity_at_limit or line.quantity_can_add == 0 %} disabled{% endif %}><svg class="cv-icon cv-qty__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-sr">{{ 'products.increase' | t }}</span></button>
+              {% endform %}
+              {%- else -%}
+              <span class="cv-muted cv-line__q">× {{ line.quantity }}</span>
+              {%- endif -%}
+            </div>
+          </div>
+        </li>
+    {%- endfor -%}
+    {%- if cv_head_series -%}
+      </ul>
+    </li>
+    {%- endif -%}
+  {%- endfor -%}
+</ul>
+{%- comment -%}/partial:cart-lines{%- endcomment -%}
+        {%- if cv_ls.show_clear_cart != false -%}{% form 'cart_clear', class: 'cv-cart__clear' %}<button class="cv-tbtn" type="submit" data-cv-confirm="{{ 'cart.clear_confirm' | t }}">{{ 'cart.clear' | t }}</button>{% endform %}{%- endif -%}
+      </div>
+      {{ b._editor_block_close }}
+    {%- when 'free_shipping', 'offers', 'discounts', 'totals', 'price_notes', 'order_limit', 'cart_note', 'checkout', 'express_checkout', 'note' -%}
+    {%- else -%}
+      {% blocks b %}
+  {%- endcase -%}
+{%- endfor -%}
+{%- comment -%}/partial:cart-main{%- endcomment -%}
+        </div>
+        <aside class="cv-cart__side">
+{%- comment -%}partial:cart-summary{%- endcomment -%}
+{%- comment -%} Cart page and drawer: the summary blocks in the merchant's order (Line items and the theme and app blocks render in
+  partials/cart-main). Reads cart, routes, express, design_mode; cv_where is 'page' or 'drawer'. The checkout button always shows, at the end
+  when its block was removed. cv_ol_ids: the ids of the order limit notices that print, which the checkout button names as its reason.
+  {%- endcomment -%}
+{%- assign cv_ol_ids = '' -%}
+{%- assign cv_limits = cart.checkout_limits -%}
+{%- if cv_limits and cv_limits.within_range == false -%}
+  {%- assign cv_ol_key = '' -%}
+  {%- if cv_limits.below_minimum -%}{%- assign cv_ol_key = 'min_message' -%}{%- elsif cv_limits.above_maximum -%}{%- assign cv_ol_key = 'max_message' -%}{%- endif -%}
+  {%- for b in settings.blocks -%}
+    {%- if b.type == 'order_limit' and b.disabled != true and b.settings.show != false -%}
+      {%- if cv_ol_key != blank and b.settings[cv_ol_key] != blank -%}
+        {%- assign cv_ol_ids = cv_ol_ids | append: ' cv-ol-' | append: cv_where | append: '-' | append: b.id -%}
+      {%- endif -%}
+      {%- if cv_limits.below_minimum_quantity or cv_limits.above_maximum_quantity -%}
+        {%- assign cv_ol_ids = cv_ol_ids | append: ' cv-olq-' | append: cv_where | append: '-' | append: b.id -%}
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- assign cv_ol_ids = cv_ol_ids | strip -%}
+{%- endif -%}
+<div class="cv-sum">
+  {%- assign cv_has_checkout = false -%}
+  {%- for b in settings.blocks -%}
+    {%- if b.disabled or b.settings.show == false -%}{%- continue -%}{%- endif -%}
+    {%- case b.type -%}
+      {%- when 'free_shipping' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-ship{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: progress to free shipping. Reads cart. A pickup cart is not shipped, so it shows none. {%- endcomment -%}
+{%- if cart.free_shipping and cart.free_shipping.threshold and cart.mode != 'pickup' -%}
+  <div class="cv-sum__ship">
+    {%- if cart.free_shipping.qualified -%}
+      <p class="cv-sum__ship-text">{{ 'cart.free_shipping_done' | t }}</p>
+    {%- else -%}
+      <p class="cv-sum__ship-text">{{ 'cart.free_shipping_left' | t }} <strong>{{ cart.free_shipping.remaining | money: isolate: true, trim_zeros: cv_tz }}</strong></p>
+    {%- endif -%}
+    <span class="cv-sum__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ cart.free_shipping.progress | default: 0 }}"><span style="width: {{ cart.free_shipping.progress | default: 0 }}%"></span></span>
+  </div>
+{%- endif -%}
+{%- comment -%}/partial:cart-ship{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'offers' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-offers{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: free gifts and offers the cart is close to. Reads cart. {%- endcomment -%}
+{%- for gift in cart.gift_offers -%}
+  {%- if gift.mode == 'offer' and gift.remaining_quantity > 0 and gift.product -%}
+    <div class="cv-sum__gift">
+      <span class="cv-sum__gift-media cv-media">{%- if gift.product.media.url and gift.product.media.is_image != false -%}<img src="{{ gift.product.media.url | image_url: width: 160 }}" alt="" loading="lazy">{%- else -%}{%- if design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}{%- endif -%}</span>
+      <div class="cv-sum__gift-info"><p class="cv-sum__gift-title">{{ 'cart.gift_available' | t }}</p><p class="cv-muted">{{ gift.product.title }}</p></div>
+      {% form 'cart_add', class: 'cv-sum__gift-form' %}
+        <input type="hidden" name="product_id" value="{{ gift.product_id }}">
+        {%- if gift.variant_id -%}<input type="hidden" name="variant_id" value="{{ gift.variant_id }}">{%- endif -%}
+        <input type="hidden" name="quantity" value="{{ gift.remaining_quantity }}">
+        <button class="cv-btn cv-btn--sm" type="submit">{{ 'cart.claim_gift' | t }}</button>
+      {% endform %}
+    </div>
+  {%- endif -%}
+{%- endfor -%}
+
+{%- for n in cart.discount_nudges -%}
+  <div class="cv-sum__nudge">
+    <p><strong>{{ n.name }}</strong> {{ n.reason }}{% if n.bundle.saving %}{% assign cv_save = n.bundle.saving | money: isolate: true, trim_zeros: cv_tz %} <span class="cv-sum__nudge-save">{{ 'cart.bundle_save' | t: amount: cv_save }}</span>{% endif %}</p>
+    {%- if n.bundle.missing_items.size > 0 -%}
+      <ul class="cv-sum__bundle" role="list">
+        {%- for m in n.bundle.missing_items -%}
+          <li class="cv-sum__bitem">
+            <a class="cv-sum__bmedia cv-media" href="{{ m.url }}">{%- if m.media.url and m.media.is_image != false -%}<img src="{{ m.media.url | image_url: width: 120 }}" alt="" loading="lazy">{%- else -%}{%- if design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}{%- endif -%}</a>
+            <div class="cv-sum__binfo"><a href="{{ m.url }}">{{ m.title }}</a>
+              <span class="cv-muted">{% if m.quantity_needed > 1 %}{{ m.quantity_needed }} × {% endif %}{{ m.unit_price | money: isolate: true, trim_zeros: cv_tz }}</span></div>
+            {%- if m.requires_options -%}
+            <a class="cv-btn cv-btn--sm cv-sum__badd" href="{{ m.url }}">{{ 'products.choose_options' | t }}</a>
+            {%- else -%}
+            {% form 'cart_add', class: 'cv-sum__badd' %}
+              <input type="hidden" name="product_id" value="{{ m.product_id }}">
+              {%- if m.variant_id -%}<input type="hidden" name="variant_id" value="{{ m.variant_id }}">{%- endif -%}
+              <input type="hidden" name="quantity" value="{{ m.quantity_needed | default: 1 }}">
+              <button class="cv-btn cv-btn--sm" type="submit">{{ 'cart.add' | t }}</button>
+            {% endform %}
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+{%- endfor -%}
+{%- comment -%}/partial:cart-offers{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'discounts' -%}
+        {%- assign cv_show_offers = true -%}{%- if b.settings.show_available_discounts == false -%}{%- assign cv_show_offers = false -%}{%- endif -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-codes{%- endcomment -%}
+{%- comment -%} Cart summary block: discount codes. Reads cart; cv_show_offers lists the store's advertised codes. {%- endcomment -%}
+<div class="cv-sum__codes">
+  {%- if cart.coupon_codes.size > 0 -%}
+    <ul class="cv-sum__applied" role="list">
+      {%- for code in cart.coupon_codes -%}
+        {%- assign cv_code_note = nil -%}
+        {%- assign cv_code_key = code | upcase -%}
+        {%- for ic in cart.inactive_coupons -%}{%- assign cv_ic_key = ic.code | upcase -%}{%- if cv_ic_key == cv_code_key -%}{%- assign cv_code_note = ic.reason | default: ' ' -%}{%- endif -%}{%- endfor -%}
+        <li>
+          {% form 'discount_code_remove', class: 'cv-sum__chipform' %}
+            <input type="hidden" name="code" value="{{ code }}">
+            <span class="cv-sum__chip{% if cv_code_note %} is-inactive{% endif %}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>{{ code }}
+              <button type="submit"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'cart.remove_code' | t: code: code }}</span></button></span>
+          {% endform %}
+          {%- if cv_code_note and cv_code_note != ' ' -%}<p class="cv-sum__codenote cv-muted">{{ cv_code_note }}</p>{%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+  {%- if cart.discount_stacking.at_capacity and cart.discount_stacking.capacity_reason != blank -%}
+  <p class="cv-sum__cap cv-muted">{{ cart.discount_stacking.capacity_reason }}</p>
+  {%- endif -%}
+  {%- unless cart.discount_stacking.at_capacity -%}
+  <details class="cv-sum__codeform"{% if cart.coupon_codes.size > 0 %} open{% endif %}>
+    <summary>{{ 'cart.discount_code' | t }}</summary>
+    {% form 'discount_code_apply', class: 'cv-sum__apply' %}
+      <label class="cv-sr" for="cv-code-{{ cv_where }}">{{ 'cart.discount_code' | t }}</label>
+      <input class="cv-input" id="cv-code-{{ cv_where }}" name="code" required autocomplete="off" autocapitalize="characters" placeholder="{{ 'cart.discount_code' | t }}">
+      <button class="cv-btn cv-btn--outline" type="submit">{{ 'cart.apply' | t }}</button>
+    {% endform %}
+  </details>
+  {%- endunless -%}
+  {%- if cv_show_offers -%}
+  {%- assign cv_offer_n = 0 -%}
+  {%- for c in cart.advertised_coupons -%}{%- unless cart.coupon_codes contains c.code -%}{%- assign cv_offer_n = cv_offer_n | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+  {%- if cv_offer_n > 0 -%}
+  <button type="button" class="cv-offers" data-cv-offers-open aria-haspopup="dialog">
+    <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+    <span>{{ 'cart.view_available_discounts' | t }}</span><span class="cv-offers__count">{{ cv_offer_n }}</span>
+    <svg class="cv-icon cv-offers__caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+  </button>
+  {%- comment -%} The offers open in a side sheet (a bottom sheet on phones); without script they list in place. {%- endcomment -%}
+  <dialog class="cv-offers-sheet" data-cv-offers-sheet aria-labelledby="cv-offers-title-{{ cv_where }}">
+    <div class="cv-offers-sheet__head">
+      <h2 id="cv-offers-title-{{ cv_where }}">{{ 'cart.available_discounts' | t }}</h2>
+      <button type="button" class="cv-offers-sheet__close" data-cv-offers-close aria-label="{{ 'general.close' | t }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <ul class="cv-offers__list" role="list">
+      {%- for c in cart.advertised_coupons -%}
+        {%- if cart.coupon_codes contains c.code -%}{%- continue -%}{%- endif -%}
+        <li class="cv-offer{% unless c.eligible %} is-locked{% endunless %}">
+          <p class="cv-offer__stub">{{ c.savings_text }}</p>
+          <div class="cv-offer__body">
+            <p class="cv-offer__code">{{ c.code }}</p>
+            {%- if c.name != blank and c.name != c.code -%}<p class="cv-offer__name">{{ c.name }}</p>{%- endif -%}
+            {%- if c.formatted_threshold_shortfall -%}
+              <p class="cv-offer__unlock">{{ 'cart.offer_add_more' | t: amount: c.formatted_threshold_shortfall }}</p>
+            {%- elsif c.eligible != true and c.reason != blank -%}
+              <p class="cv-offer__note">{{ c.reason }}</p>
+            {%- elsif c.has_potential_savings -%}
+              <p class="cv-offer__save">{{ 'cart.offer_save' | t }} {{ c.formatted_potential_amount }}</p>
+            {%- endif -%}
+            {%- if c.formatted_min_subtotal or c.ends_at -%}
+              <p class="cv-offer__note">
+                {%- if c.formatted_min_subtotal -%}{{ 'cart.offer_min_order' | t: amount: c.formatted_min_subtotal }}{%- endif -%}
+                {%- if c.formatted_min_subtotal and c.ends_at %} · {% endif -%}
+                {%- if c.ends_at -%}{%- assign cv_end = c.ends_at | date: 'medium' -%}{{ 'cart.offer_valid_till' | t: date: cv_end }}{%- endif -%}
+              </p>
+            {%- endif -%}
+          </div>
+          {% form 'discount_code_apply', class: 'cv-offer__form' %}
+            <input type="hidden" name="code" value="{{ c.code }}">
+            <button class="cv-btn cv-btn--sm" type="submit"{% unless c.eligible %} disabled{% endunless %}>{{ 'cart.apply' | t }}</button>
+          {% endform %}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </dialog>
+  {%- endif -%}
+  {%- endif -%}
+</div>
+{%- comment -%}/partial:cart-codes{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'totals' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-totals{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: subtotal, discounts and total. Reads cart. The tax, shipping and duty notes are the Price notes block. {%- endcomment -%}
+<dl class="cv-sum__totals">
+  <div><dt>{{ 'cart.subtotal' | t }}</dt><dd>{{ cart.subtotal | money: isolate: true, trim_zeros: cv_tz }}</dd></div>
+  {%- for d in cart.discounts -%}
+    {%- assign cv_discount_amount = d.amount | plus: 0 -%}
+    {%- if d.eligible != false and d.formatted_adjustment != blank -%}<div{% if cv_discount_amount > 0 %} class="cv-sum__disc"{% endif %}><dt>{{ d.name }}{% if d.code != blank %} ({{ d.code }}){% endif %}</dt><dd>{{ d.formatted_adjustment }}</dd></div>{%- endif -%}
+  {%- endfor -%}
+  <div class="cv-sum__total"><dt>{{ 'cart.total' | t }}</dt><dd>{{ cart.total | money: isolate: true, trim_zeros: cv_tz }}</dd></div>
+</dl>
+{%- comment -%}/partial:cart-totals{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'price_notes' -%}
+        {%- assign cv_pn = cart.price_notes -%}{%- assign cv_bs = b.settings -%}{%- assign cv_pn_cls = 'cv-sum__tax' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:price-notes{%- endcomment -%}
+{%- comment -%} Price notes block (product page, cart page, cart drawer): the market's tax, shipping and duty notes (ctx price_notes), the ones the
+  merchant ticked, printed as given. The text is the market's (Markets › Tax, Shipping and Duties); a note that does not apply or that the merchant
+  emptied is null and prints nothing. Input: cv_pn (product.price_notes or cart.price_notes), cv_bs (the block's settings), cv_pn_cls (the class). {%- endcomment -%}
+{%- assign cv_pn_t = nil -%}{%- assign cv_pn_s = nil -%}{%- assign cv_pn_d = nil -%}
+{%- if cv_bs.show_tax -%}{%- assign cv_pn_t = cv_pn.tax -%}{%- endif -%}
+{%- if cv_bs.show_shipping -%}{%- assign cv_pn_s = cv_pn.shipping -%}{%- endif -%}
+{%- if cv_bs.show_duty -%}{%- assign cv_pn_d = cv_pn.duty -%}{%- endif -%}
+{%- if cv_pn_t or cv_pn_s or cv_pn_d -%}
+<p dir="auto" class="cv-notes {{ cv_pn_cls }} cv-muted">
+  {%- if cv_pn_t -%}<span>{{ cv_pn_t }}</span>{%- endif -%}
+  {%- if cv_pn_s -%}{% if cv_pn_t %}&#32;{% endif %}<span>{{ cv_pn_s }}</span>{%- endif -%}
+  {%- if cv_pn_d -%}{% if cv_pn_t or cv_pn_s %}&#32;{% endif %}<span>{{ cv_pn_d }}</span>{%- endif -%}
+</p>
+{%- elsif design_mode -%}
+<p class="cv-editor-hint cv-notes-hint">{{ 'price_notes.editor_empty' | t }}</p>
+{%- endif -%}
+{%- comment -%}/partial:price-notes{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'order_limit' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:order-limit{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: the order limit notice. Reads cart, design_mode and the block (b); cv_where keeps the page's and the drawer's ids apart.
+  The market's checkout limits (cart.checkout_limits) decide when it shows and the amount; the block's copy ({amount} is filled in) and tone
+  how. A blank message prints nothing; in the editor, a cart within the limits shows when the notice appears. Outside the quantity limits the
+  platform's quantity_message prints in the same tone (cv-olq-…), whatever the block's copy. The Check out button names them as its reason
+  (partials/cart-summary, cart-checkout). {%- endcomment -%}
+{%- assign cv_limits = cart.checkout_limits -%}
+{%- if cv_limits and cv_limits.within_range == false -%}
+  {%- assign cv_ol_tone = b.settings.tone | default: 'alert' -%}
+  {%- assign cv_ol_msg = '' -%}
+  {%- if cv_limits.below_minimum -%}
+    {%- assign cv_ol_field = 'min_message' -%}{%- assign cv_ol_msg = b.settings.min_message -%}
+    {%- assign cv_ol_amt = cv_limits.shortfall | money: isolate: true, trim_zeros: cv_tz -%}
+  {%- elsif cv_limits.above_maximum -%}
+    {%- assign cv_ol_field = 'max_message' -%}{%- assign cv_ol_msg = b.settings.max_message -%}
+    {%- assign cv_ol_amt = cv_limits.excess | money: isolate: true, trim_zeros: cv_tz -%}
+  {%- endif -%}
+  {%- if cv_ol_msg != blank -%}
+    <div class="cv-notice cv-ol cv-ol--{{ cv_ol_tone }}{% if cv_ol_tone == 'alert' %} cv-notice--error{% endif %}" id="cv-ol-{{ cv_where }}-{{ b.id }}">
+      <p class="cv-ol__text" dir="auto" data-tf-field="{{ cv_ol_field }}">
+        {%- if cv_ol_msg contains '{amount}' -%}
+          {%- assign cv_ol_pre = '' -%}{%- assign cv_ol_lead = cv_ol_msg | slice: 0, 8 -%}
+          {%- if cv_ol_lead != '{amount}' -%}{%- assign cv_ol_pre = cv_ol_msg | split: '{amount}' | first -%}{%- endif -%}
+          {{ cv_ol_pre }}<strong>{{ cv_ol_amt }}</strong>{{ cv_ol_msg | remove_first: cv_ol_pre | remove_first: '{amount}' | replace: '{amount}', cv_ol_amt }}
+        {%- else -%}{{ cv_ol_msg }}{%- endif -%}
+      </p>
+    </div>
+  {%- endif -%}
+  {%- if cv_limits.below_minimum_quantity or cv_limits.above_maximum_quantity -%}
+    <div class="cv-notice cv-ol cv-ol--{{ cv_ol_tone }}{% if cv_ol_tone == 'alert' %} cv-notice--error{% endif %}" id="cv-olq-{{ cv_where }}-{{ b.id }}">
+      <p class="cv-ol__text" dir="auto">{{ cv_limits.quantity_message }}</p>
+    </div>
+  {%- endif -%}
+{%- elsif design_mode -%}
+  <p class="cv-editor-hint cv-ol-hint">{{ 'editor.order_limit' | t }}</p>
+{%- endif -%}
+{%- comment -%}/partial:order-limit{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'optional_services' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:optional-services{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: optional services, the market's optional checkout fees (cart.optional_fees, in the store's order). Reads cart,
+  design_mode and the block (b); cv_where keeps the page's and the drawer's ids apart. Each fee is a checkbox in its own cart_fee_select form,
+  ticked when the cart has chosen it; partials/optional-services-script sends a change at once and puts the box back when the platform refuses
+  it (the platform shows its message). Checkout prices and taxes what is chosen. A fixed fee prints the platform's amount (per item when it is
+  charged per item), a percent fee its share of the subtotal (and its cap, percent_cap). Without script each fee has an Add or Remove button
+  instead of the box. A fee the cart does not meet (applies false) shows the platform's unavailable_reason; its box is disabled unless the cart
+  chose it, which then reads Not applied and can still be removed. A chosen fee that asks for text (fee.text) shows its prompt and a field under
+  it, prefilled with customer_text and saved with another cart_fee_select (selected=true, text) when it changes; a refusal shows at the field.
+  {%- endcomment -%}
+{%- assign cv_osv = cart.optional_fees -%}
+{%- if cv_osv != blank -%}
+  {%- assign cv_osv_id = 'cv-osv-' | append: cv_where | append: '-' | append: b.id -%}
+  {%- assign cv_osv_desc = false -%}{%- if b.settings.show_descriptions -%}{%- assign cv_osv_desc = true -%}{%- endif -%}
+  <div class="cv-osv cv-osv--{{ b.settings.style | default: 'plain' }}" role="group" aria-labelledby="{{ cv_osv_id }}">
+    {%- if b.settings.heading != blank -%}
+    <p class="cv-osv__title" id="{{ cv_osv_id }}" dir="auto" data-tf-field="heading">{{ b.settings.heading }}</p>
+    {%- else -%}
+    <p class="cv-sr" id="{{ cv_osv_id }}">{{ 'cart.optional_services' | t }}</p>
+    {%- endif -%}
+    <ul class="cv-osv__list">
+      {%- for fee in cv_osv -%}
+        {%- assign cv_osv_fid = cv_osv_id | append: '-' | append: forloop.index -%}
+        {%- assign cv_osv_has_desc = false -%}{%- if cv_osv_desc and fee.description != blank -%}{%- assign cv_osv_has_desc = true -%}{%- endif -%}
+        {%- assign cv_osv_off = false -%}{%- if fee.applies == false -%}{%- assign cv_osv_off = true -%}{%- endif -%}
+        {%- assign cv_osv_lock = false -%}{%- if cv_osv_off and fee.selected != true -%}{%- assign cv_osv_lock = true -%}{%- endif -%}
+        {%- assign cv_osv_by = '' -%}
+        {%- if cv_osv_off -%}{%- assign cv_osv_by = cv_osv_fid | append: '-u' -%}{%- endif -%}
+        {%- if cv_osv_has_desc -%}{%- assign cv_osv_by = cv_osv_by | append: ' ' | append: cv_osv_fid | append: '-d' | strip -%}{%- endif -%}
+        <li{% if cv_osv_off %} class="is-off"{% endif %}>
+          {% form 'cart_fee_select', class: 'cv-osv__row' %}
+            <input type="hidden" name="fee_id" value="{{ fee.id }}">
+            <input type="hidden" name="selected" value="{% if fee.selected %}false{% else %}true{% endif %}" data-cv-osv-sel>
+            <input class="cv-osv__check" type="checkbox" id="{{ cv_osv_fid }}" data-cv-osv{% if fee.selected %} checked{% endif %}{% if cv_osv_lock %} disabled{% endif %}{% if cv_osv_by != blank %} aria-describedby="{{ cv_osv_by }}"{% endif %}>
+            <label class="cv-osv__label" for="{{ cv_osv_fid }}" id="{{ cv_osv_fid }}-n">
+              <span class="cv-osv__name" dir="auto">{{ fee.name }}</span>
+              <span class="cv-osv__amt">
+                {%- if fee.fee_type == 'percent' -%}
+                  {%- assign cv_osv_pc = fee.percent | format_number -%}
+                  {%- if fee.percent_cap -%}
+                    {%- assign cv_osv_cap = fee.percent_cap | money: isolate: true, trim_zeros: cv_tz -%}{{ 'cart.fee_percent_capped' | t: percent: cv_osv_pc, cap: cv_osv_cap }}
+                  {%- else -%}{{ 'cart.fee_percent' | t: percent: cv_osv_pc }}{%- endif -%}
+                {%- else -%}
+                  {%- assign cv_osv_amt = fee.amount | money: isolate: true, trim_zeros: cv_tz -%}
+                  {%- if fee.apply_per == 'item' -%}{{ 'cart.fee_per_item' | t: amount: cv_osv_amt }}{%- else -%}{{ cv_osv_amt }}{%- endif -%}
+                {%- endif -%}
+              </span>
+            </label>
+            {%- if cv_osv_off -%}
+            <p class="cv-osv__off" id="{{ cv_osv_fid }}-u" dir="auto">
+              {%- if fee.selected -%}<span class="cv-osv__na">{{ 'cart.fee_not_applied' | t }}</span>{%- endif -%}
+              {%- if fee.selected and fee.unavailable_reason != blank %} · {% endif -%}{{ fee.unavailable_reason }}
+            </p>
+            {%- endif -%}
+            {%- if cv_osv_has_desc -%}<p class="cv-osv__desc" id="{{ cv_osv_fid }}-d" dir="auto">{{ fee.description }}</p>{%- endif -%}
+            {%- unless cv_osv_lock -%}
+            <button class="cv-tbtn cv-osv__go" type="submit" aria-describedby="{{ cv_osv_fid }}-n">{% if fee.selected %}{{ 'cart.remove' | t }}{% else %}{{ 'cart.add' | t }}{% endif %}</button>
+            {%- endunless -%}
+          {% endform %}
+          {%- if fee.text and fee.selected and cv_osv_off == false -%}
+          {% form 'cart_fee_select', class: 'cv-osv__text' %}
+            <input type="hidden" name="fee_id" value="{{ fee.id }}">
+            <input type="hidden" name="selected" value="true">
+            <label class="cv-osv__prompt" for="{{ cv_osv_fid }}-t" dir="auto">{{ fee.text.prompt }}{% if fee.text.required %} <span class="cv-osv__req">{{ 'cart.fee_text_required' | t }}</span>{% endif %}</label>
+            {%- assign cv_osv_max = fee.text.max_length | default: 0 -%}
+            {%- if cv_osv_max > 80 -%}
+            <textarea class="cv-input cv-osv__input" id="{{ cv_osv_fid }}-t" name="text" rows="2" dir="auto" maxlength="{{ fee.text.max_length }}"{% if fee.text.required %} aria-required="true"{% endif %} aria-describedby="{{ cv_osv_fid }}-e" data-cv-osv-text>{{ fee.customer_text }}</textarea>
+            {%- else -%}
+            <input class="cv-input cv-osv__input" type="text" id="{{ cv_osv_fid }}-t" name="text" dir="auto" maxlength="{{ fee.text.max_length }}" value="{{ fee.customer_text }}"{% if fee.text.required %} aria-required="true"{% endif %} aria-describedby="{{ cv_osv_fid }}-e" data-cv-osv-text>
+            {%- endif -%}
+            <p class="cv-osv__err" id="{{ cv_osv_fid }}-e" role="alert" data-cv-osv-err hidden></p>
+            <button class="cv-tbtn cv-osv__save" type="submit">{{ 'cart.fee_text_save' | t }}</button>
+          {% endform %}
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- elsif design_mode -%}
+  <p class="cv-editor-hint cv-osv-hint">{{ 'editor.optional_services' | t }}</p>
+{%- endif -%}
+{%- comment -%}/partial:optional-services{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'shipping_estimate' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-estimate{%- endcomment -%}
+{%- comment -%} Cart summary block: estimate shipping, tax, duties and cash on delivery for a country, state and postal code before
+  checkout (cart.shipping_estimate, the cart_estimate action). Reads cart, csrf_token and the block (b); cv_where keeps the page's and
+  the drawer's ids apart. Folds like the note; the script (partials/cart-estimate-script) sends the fields and shows the answer, and
+  remembers the last address on this device so a refreshed cart estimates it again. Hidden when there is nothing to estimate.
+  {%- endcomment -%}
+{%- assign cv_est = cart.shipping_estimate -%}
+{%- if cv_est -%}
+{%- assign cv_est_label = b.settings.label | default: '' -%}
+{%- if cv_est_label == blank -%}{%- assign cv_est_label = 'cart.estimate_heading' | t -%}{%- endif -%}
+{%- assign cv_est_cc = '' -%}
+{%- for c in cv_est.countries -%}{%- if c.selected -%}{%- assign cv_est_cc = c.iso_code -%}{%- endif -%}{%- endfor -%}
+{%- if cv_est_cc == blank -%}{%- assign cv_est_cc = cv_est.countries.first.iso_code -%}{%- endif -%}
+<details class="cv-sum__codeform cv-est" data-cv-est{% if cv_where == 'page' %} data-cv-est-auto{% endif %} data-url="{{ cv_est.url }}" data-csrf="{{ csrf_token }}"
+  data-lookup-url="{{ cv_est.postal_lookup.url }}" data-lookup="{{ cv_est.postal_lookup.countries | join: ',' }}"
+  data-t-shipping="{{ 'cart.estimate_shipping' | t | escape }}" data-t-free="{{ 'cart.estimate_free' | t | escape }}"
+  data-t-tax="{{ 'cart.estimate_tax' | t | escape }}" data-t-tax-included="{{ 'cart.estimate_tax_included' | t | escape }}"
+  data-t-state="{{ 'cart.estimate_state_hint' | t | escape }}" data-t-duties="{{ 'cart.estimate_duties' | t | escape }}"
+  data-t-cod="{{ 'cart.estimate_cod' | t | escape }}" data-t-cod-yes="{{ 'cart.estimate_cod_available' | t | escape }}"
+  data-t-cod-no="{{ 'cart.estimate_cod_unavailable' | t | escape }}" data-t-cod-fee="{{ 'cart.estimate_cod_fee' | t | escape }}"
+  data-t-total="{{ 'cart.estimate_total' | t | escape }}" data-t-note="{{ 'cart.estimate_note' | t | escape }}"
+  data-t-error="{{ 'cart.estimate_error' | t | escape }}">
+  <summary dir="auto"{% if b.settings.label != blank %} data-tf-field="label"{% endif %}>{{ cv_est_label }}</summary>
+  <form class="cv-est__form" data-cv-est-form novalidate>
+    <label class="cv-field"><span class="cv-label">{{ 'cart.estimate_country' | t }}</span>
+      <select class="cv-input" name="country_code" autocomplete="shipping country" data-cv-est-country>
+        {%- for c in cv_est.countries -%}<option value="{{ c.iso_code }}"{% if c.iso_code == cv_est_cc %} selected{% endif %}>{{ c.name }}</option>{%- endfor -%}
+      </select>
+    </label>
+    {%- for c in cv_est.countries -%}
+      {%- assign cv_est_fields = cv_est.fields_by_country[c.iso_code] -%}
+      <div class="cv-est__fields" data-cv-est-for="{{ c.iso_code }}"{% if c.iso_code != cv_est_cc %} hidden{% endif %}>
+        {%- for f in cv_est_fields -%}
+          <label class="cv-field"><span class="cv-label">{{ f.label }}</span>
+          {%- if f.options.size > 0 -%}
+            <select class="cv-input" name="{{ f.key }}" autocomplete="shipping address-level1"{% if c.iso_code != cv_est_cc %} disabled{% endif %}><option value="">—</option>{%- for o in f.options -%}<option value="{{ o.value }}">{{ o.label }}</option>{%- endfor -%}</select>
+          {%- else -%}
+            <input class="cv-input" name="{{ f.key }}" autocomplete="shipping postal-code" inputmode="{{ f.input_mode }}" maxlength="{{ f.max_length }}"{% if f.placeholder != blank %} placeholder="{{ f.placeholder }}"{% endif %}{% if c.iso_code != cv_est_cc %} disabled{% endif %}>
+          {%- endif -%}</label>
+        {%- endfor -%}
+      </div>
+    {%- endfor -%}
+    <button class="cv-btn cv-btn--sm cv-btn--soft cv-est__go" type="submit">{{ 'cart.estimate_submit' | t }}</button>
+  </form>
+  <div class="cv-est__out" data-cv-est-out aria-live="polite" hidden></div>
+</details>
+{%- endif -%}
+{%- comment -%}/partial:cart-estimate{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'cart_note' -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-note{%- endcomment -%}
+{%- comment -%} Cart summary block: the shopper's note for the store (cart.note), saved with cart_note_update; checkout places it on the order.
+  Reads cart and the block (b); cv_where keeps the page's and the drawer's ids apart. It folds like the discount code row and opens
+  when a note exists. With script, Save shows only after an edit; without script it always shows. {%- endcomment -%}
+{%- assign cv_note_label = b.settings.label | default: '' -%}
+{%- if cv_note_label == blank -%}{%- assign cv_note_label = 'cart.note_label' | t -%}{%- endif -%}
+<details class="cv-sum__codeform cv-sum__notebox"{% if cart.note != blank %} open{% endif %}>
+  <summary dir="auto"{% if b.settings.label != blank %} data-tf-field="label"{% endif %}>{{ cv_note_label }}</summary>
+  {% form 'cart_note_update', class: 'cv-sum__note' %}
+    <label class="cv-sr" for="cv-note-{{ cv_where }}">{{ cv_note_label }}</label>
+    <textarea class="cv-input cv-sum__note-input" id="cv-note-{{ cv_where }}" name="note" rows="3" dir="auto" maxlength="{{ cart.note_max_length }}" placeholder="{{ 'cart.note_placeholder' | t }}" data-cv-note-input>{{ cart.note }}</textarea>
+    <button class="cv-btn cv-btn--sm cv-sum__note-save" type="submit">{{ 'cart.note_save' | t }}</button>
+  {% endform %}
+</details>
+{%- comment -%}/partial:cart-note{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'checkout' -%}
+        {%- assign cv_has_checkout = true -%}
+        {{ b._editor_block_open }}
+{%- comment -%}partial:cart-checkout{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: the checkout button. Reads cart, routes; cv_ol_ids (partials/cart-summary) names the order limit notices
+  shown. Checkout opens only when the platform says it can take the cart (cart.checkout_ready); outside the market's checkout limits the button
+  points at the notices, or, with none shown, at a reason only screen readers read. {%- endcomment -%}
+{%- assign cv_limits = cart.checkout_limits -%}
+{%- if cv_limits and cv_limits.within_range == false -%}
+  {%- assign cv_co_reason = cv_ol_ids -%}
+  {%- if cv_co_reason == blank -%}
+    {%- assign cv_co_reason = 'cv-ol-reason-' | append: cv_where -%}
+    {%- assign cv_co_msg = '' -%}
+    {%- if cv_limits.below_minimum -%}
+      {%- assign cv_co_msg = 'cart.limit_min_message' | t -%}{%- assign cv_co_amt = cv_limits.shortfall | money: isolate: true, trim_zeros: cv_tz -%}
+    {%- elsif cv_limits.above_maximum -%}
+      {%- assign cv_co_msg = 'cart.limit_max_message' | t -%}{%- assign cv_co_amt = cv_limits.excess | money: isolate: true, trim_zeros: cv_tz -%}
+    {%- endif -%}
+    <span class="cv-sr" id="{{ cv_co_reason }}">{% if cv_co_msg != blank %}{{ cv_co_msg | replace: '{amount}', cv_co_amt }}{% endif %}{% if cv_co_msg != blank and cv_limits.quantity_message != blank %} {% endif %}{{ cv_limits.quantity_message }}</span>
+  {%- endif -%}
+  <button class="cv-btn cv-btn--block" type="button" aria-disabled="true" aria-describedby="{{ cv_co_reason }}">{{ 'cart.checkout' | t }}</button>
+{%- elsif cart.checkout_ready == false and cart.issues.size > 0 -%}
+  <p class="cv-notice cv-notice--error" id="cv-co-issues-{{ cv_where }}">{{ 'cart.fix_to_checkout' | t }}</p>
+  <button class="cv-btn cv-btn--block" type="button" aria-disabled="true" aria-describedby="cv-co-issues-{{ cv_where }}">{{ 'cart.checkout' | t }}</button>
+{%- else -%}
+  <a class="cv-btn cv-btn--block cv-sum__checkout" href="{{ routes.checkout_url }}">{{ 'cart.checkout' | t }}</a>
+{%- endif -%}
+{%- comment -%}/partial:cart-checkout{%- endcomment -%}
+        {{ b._editor_block_close }}
+      {%- when 'express_checkout' -%}
+        {%- comment -%} The platform's wallet buttons for the cart (ctx.express), hidden until the device can pay; refreshed with the section. In the
+          editor, the platform's reason when it is off here. {%- endcomment -%}
+        {%- if express.available -%}
+          {{ b._editor_block_open }}<div class="cv-xc">{{ express.slot }}</div>{{ b._editor_block_close }}
+        {%- elsif design_mode and express.reason_label != blank -%}
+          {{ b._editor_block_open }}<p class="cv-editor-hint cv-xc-hint">{{ 'express.editor_off' | t: reason: express.reason_label }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'note' -%}
+        {%- if b.settings.note != blank -%}{{ b._editor_block_open }}<div dir="auto" data-tf-field="note" class="cv-rte cv-muted cv-cart__note">{{ b.settings.note }}</div>{{ b._editor_block_close }}{%- endif -%}
+    {%- endcase -%}
+  {%- endfor -%}
+  {%- unless cv_has_checkout -%}
+{%- comment -%}partial:cart-checkout{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: the checkout button. Reads cart, routes; cv_ol_ids (partials/cart-summary) names the order limit notices
+  shown. Checkout opens only when the platform says it can take the cart (cart.checkout_ready); outside the market's checkout limits the button
+  points at the notices, or, with none shown, at a reason only screen readers read. {%- endcomment -%}
+{%- assign cv_limits = cart.checkout_limits -%}
+{%- if cv_limits and cv_limits.within_range == false -%}
+  {%- assign cv_co_reason = cv_ol_ids -%}
+  {%- if cv_co_reason == blank -%}
+    {%- assign cv_co_reason = 'cv-ol-reason-' | append: cv_where -%}
+    {%- assign cv_co_msg = '' -%}
+    {%- if cv_limits.below_minimum -%}
+      {%- assign cv_co_msg = 'cart.limit_min_message' | t -%}{%- assign cv_co_amt = cv_limits.shortfall | money: isolate: true, trim_zeros: cv_tz -%}
+    {%- elsif cv_limits.above_maximum -%}
+      {%- assign cv_co_msg = 'cart.limit_max_message' | t -%}{%- assign cv_co_amt = cv_limits.excess | money: isolate: true, trim_zeros: cv_tz -%}
+    {%- endif -%}
+    <span class="cv-sr" id="{{ cv_co_reason }}">{% if cv_co_msg != blank %}{{ cv_co_msg | replace: '{amount}', cv_co_amt }}{% endif %}{% if cv_co_msg != blank and cv_limits.quantity_message != blank %} {% endif %}{{ cv_limits.quantity_message }}</span>
+  {%- endif -%}
+  <button class="cv-btn cv-btn--block" type="button" aria-disabled="true" aria-describedby="{{ cv_co_reason }}">{{ 'cart.checkout' | t }}</button>
+{%- elsif cart.checkout_ready == false and cart.issues.size > 0 -%}
+  <p class="cv-notice cv-notice--error" id="cv-co-issues-{{ cv_where }}">{{ 'cart.fix_to_checkout' | t }}</p>
+  <button class="cv-btn cv-btn--block" type="button" aria-disabled="true" aria-describedby="cv-co-issues-{{ cv_where }}">{{ 'cart.checkout' | t }}</button>
+{%- else -%}
+  <a class="cv-btn cv-btn--block cv-sum__checkout" href="{{ routes.checkout_url }}">{{ 'cart.checkout' | t }}</a>
+{%- endif -%}
+{%- comment -%}/partial:cart-checkout{%- endcomment -%}
+  {%- endunless -%}
+</div>
+{%- comment -%}/partial:cart-summary{%- endcomment -%}
+        </aside>
+      </div>
+    {%- else -%}
+      <div class="cv-cart__empty">
+        {%- if settings.empty_heading != blank -%}<p class="cv-h3">{{ settings.empty_heading }}</p>{%- endif -%}
+        {%- if settings.empty_text != blank -%}<p class="cv-muted">{{ settings.empty_text }}</p>{%- endif -%}
+        {%- if settings.empty_button_label != blank -%}<a class="cv-btn" href="{{ settings.empty_button_link | default: routes.shop_url }}">{{ settings.empty_button_label }}</a>{%- endif -%}
+        {%- if customer.logged_in != true -%}
+          <p class="cv-muted">{{ 'cart.have_account' | t }} <a class="cv-tbtn" href="{{ routes.login_url }}">{{ 'header.sign_in' | t }}</a></p>
+        {%- endif -%}
+        {%- comment -%} An empty cart still shows the Recently viewed block when the merchant placed one. {%- endcomment -%}
+        {%- for b in settings.blocks -%}{%- if b.type == 'theme:cart-recommendations' and b.disabled != true -%}{% blocks b %}{%- endif -%}{%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+{%- comment -%} Shipping estimate: the script runs once per page, outside the summary, so a block that appears with a refresh works too. {%- endcomment -%}
+{%- for b in settings.blocks -%}{%- if b.type == 'shipping_estimate' and b.disabled != true -%}
+{%- comment -%}partial:cart-estimate-script{%- endcomment -%}
+<script>
+// Shipping estimate ([data-cv-est], partials/cart-estimate): the country picks which state and postal fields send; a PIN code
+// fills the state from the platform's lookup. Estimate posts them to the cart_estimate action and shows the answer: shipping
+// (each option), tax, duties, cash on delivery and the total, or the platform's message. The last address is kept on this device
+// and, on the cart page, estimated again when the cart redraws (a quantity change), so the figures follow the cart. Nothing is
+// saved on the server.
+(function () {
+  if (window.__cvEst) return; window.__cvEst = true;
+  var KEY = "cv-est-addr";
+  function saved() { try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (_) { return null; } }
+  function keep(a) { try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (_) {} }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function show(root, cc) {
+    root.querySelectorAll("[data-cv-est-for]").forEach(function (g) {
+      var on = g.getAttribute("data-cv-est-for") === cc; g.hidden = !on;
+      g.querySelectorAll("input, select").forEach(function (i) { i.disabled = !on; });
+    });
+  }
+  function row(dl, label, value, cls) {
+    var d = el("div", cls); d.appendChild(el("dt", null, label)); d.appendChild(el("dd", null, value)); dl.appendChild(d); return d;
+  }
+  function render(root, est) {
+    var out = root.querySelector("[data-cv-est-out]"), t = function (k) { return root.getAttribute("data-t-" + k) || ""; };
+    out.textContent = ""; out.hidden = false;
+    var dl = el("dl", "cv-sum__totals cv-est__rows");
+    if (est.requires_shipping) {
+      (est.shipping_options || []).forEach(function (o, i) {
+        row(dl, i === 0 ? t("shipping") + " · " + o.name : o.name, o.free ? t("free") : o.formatted_price, i === 0 ? "" : "cv-est__alt");
+      });
+    }
+    (est.fees || []).forEach(function (f) { row(dl, f.name, f.formatted); });
+    if (est.tax) {
+      if (est.tax.included) { if (Number(est.tax.amount) > 0) row(dl, t("tax-included"), est.tax.formatted, "cv-est__alt"); }
+      else row(dl, t("tax"), est.tax.formatted);
+    }
+    if (est.duties && est.duties.collected_at_checkout) row(dl, t("duties"), est.duties.formatted);
+    if (est.cash_on_delivery) {
+      var c = est.cash_on_delivery;
+      row(dl, t("cod"), c.available ? (c.formatted_fee ? t("cod-yes") + " · " + c.formatted_fee + " " + t("cod-fee") : t("cod-yes")) : t("cod-no"), "cv-est__alt");
+    }
+    row(dl, t("total"), est.total.formatted, "cv-sum__total");
+    out.appendChild(dl);
+    var notes = [];
+    if (est.tax && est.tax.needs_state) notes.push(t("state"));
+    if (est.duties && est.duties.note) notes.push(est.duties.note);
+    if (est.cash_on_delivery && est.cash_on_delivery.note) notes.push(est.cash_on_delivery.note);
+    notes.push(t("note"));
+    notes.forEach(function (n) { out.appendChild(el("p", "cv-est__note", n)); });
+  }
+  function fail(root, message, field) {
+    var out = root.querySelector("[data-cv-est-out]"); out.textContent = ""; out.hidden = false;
+    out.appendChild(el("p", "cv-est__err", message || root.getAttribute("data-t-error")));
+    root.querySelectorAll("[aria-invalid]").forEach(function (i) { i.removeAttribute("aria-invalid"); });
+    if (field) { var i = root.querySelector("[data-cv-est-for]:not([hidden]) [name='" + field + "']"); if (i) i.setAttribute("aria-invalid", "true"); }
+  }
+  function send(root) {
+    var form = root.querySelector("[data-cv-est-form]"), btn = form.querySelector(".cv-est__go");
+    if (root.__cvBusy) return; root.__cvBusy = true; btn.classList.add("is-loading");
+    var body = new URLSearchParams(new FormData(form)), addr = {};
+    body.forEach(function (v, k) { addr[k] = v; });
+    keep(addr);
+    fetch(root.getAttribute("data-url"), { method: "POST", body: body, credentials: "same-origin",
+      headers: { "Accept": "application/json", "X-CSRF-Token": root.getAttribute("data-csrf") || "" } })
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (j) {
+        if (j && j.success && j.estimate) { root.querySelectorAll("[aria-invalid]").forEach(function (i) { i.removeAttribute("aria-invalid"); }); render(root, j.estimate); }
+        else { var e = j && j.user_errors && j.user_errors[0]; fail(root, e && e.message, e && e.field && e.field[0]); }
+      })
+      .catch(function () { fail(root); })
+      .then(function () { root.__cvBusy = false; btn.classList.remove("is-loading"); });
+  }
+  function setup(root) {
+    if (root.__cvEst) return; root.__cvEst = true;
+    var form = root.querySelector("[data-cv-est-form]"), sel = form.querySelector("[data-cv-est-country]"), a = saved();
+    if (a && a.country_code && sel.querySelector("option[value='" + a.country_code + "']")) {
+      sel.value = a.country_code; show(root, a.country_code);
+      ["province_code", "postal_code"].forEach(function (k) {
+        var i = form.querySelector("[data-cv-est-for='" + a.country_code + "'] [name='" + k + "']"); if (i && a[k]) i.value = a[k];
+      });
+      // The cart page estimates the remembered address at once; the drawer only fills it in, since it is drawn on every page.
+      if (root.hasAttribute("data-cv-est-auto")) { root.open = true; send(root); }
+    }
+    sel.addEventListener("change", function () { show(root, sel.value); });
+    form.addEventListener("submit", function (e) { e.preventDefault(); send(root); });
+    // A PIN code fills the state, where the platform knows the country's postal codes.
+    form.addEventListener("change", function (e) {
+      var i = e.target; if (!i || i.name !== "postal_code") return;
+      var cc = sel.value, known = (root.getAttribute("data-lookup") || "").split(",");
+      if (known.indexOf(cc) < 0 || !i.value.trim()) return;
+      var st = form.querySelector("[data-cv-est-for='" + cc + "'] [name='province_code']"); if (!st) return;
+      fetch(root.getAttribute("data-lookup-url") + "?country_code=" + encodeURIComponent(cc) + "&postal_code=" + encodeURIComponent(i.value.trim()), { headers: { Accept: "application/json" } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { if (j && j.province_code) st.value = j.province_code; })
+        .catch(function () {});
+    });
+  }
+  function all() { document.querySelectorAll("[data-cv-est]").forEach(setup); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", all); else all();
+  var t = 0;
+  new MutationObserver(function () { cancelAnimationFrame(t); t = requestAnimationFrame(all); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+{%- comment -%}/partial:cart-estimate-script{%- endcomment -%}
+{%- break -%}{%- endif -%}{%- endfor -%}
+{%- comment -%} Optional services: the script runs once per page, outside the summary, so a block that appears with a refresh works too. {%- endcomment -%}
+{%- for b in settings.blocks -%}{%- if b.type == 'optional_services' and b.disabled != true -%}
+{%- comment -%}partial:optional-services-script{%- endcomment -%}
+<script>
+// Optional services ([data-cv-osv], partials/optional-services): ticking or unticking a fee sends its cart_fee_select form at
+// once; the box shows the new choice while it is sent. A change made while one is in flight is sent when it ends. A refusal
+// (a fee the market no longer offers, more than ten chosen, a failed request) puts the box back as the cart has it, and the
+// platform shows its message. A refresh redraws the boxes from the cart. A fee's text ([data-cv-osv-text]) is sent when it
+// changes (on leaving the field); a newer text typed while one is in flight follows it. A refusal of the text itself
+// (too long: a user error on field text) shows under the field; others the platform shows.
+(function () {
+  if (window.__cvOsv) return; window.__cvOsv = true;
+  function box(f) { return f && f.querySelector && f.querySelector("input[data-cv-osv]"); }
+  function field(f) { return f && f.querySelector && f.querySelector("[data-cv-osv-text]"); }
+  function submit(f, b) {
+    f.__cvOsvBusy = true; f.setAttribute("aria-busy", "true");
+    if (f.requestSubmit) f.requestSubmit(); else f.querySelector(b).click();
+  }
+  function send(f) {
+    var i = box(f); if (!i) return;
+    if (f.__cvOsvBusy) { f.__cvOsvAgain = true; return; }
+    f.querySelector("[data-cv-osv-sel]").value = i.checked ? "true" : "false";
+    submit(f, ".cv-osv__go");
+  }
+  function sendText(f) {
+    if (f.__cvOsvBusy) { f.__cvOsvAgain = true; return; }
+    say(f, ""); f.__cvOsvSent = field(f).value;
+    submit(f, ".cv-osv__save");
+  }
+  function say(f, msg) {
+    var p = f.querySelector("[data-cv-osv-err]"), t = field(f);
+    if (p) { p.textContent = msg; p.hidden = !msg; }
+    if (msg) t.setAttribute("aria-invalid", "true"); else t.removeAttribute("aria-invalid");
+  }
+  function idle(f) { f.__cvOsvBusy = false; f.removeAttribute("aria-busy"); }
+  // A box no request is changing shows the cart's choice, which the server wrote as its checked attribute.
+  function sync() {
+    document.querySelectorAll("input[data-cv-osv]").forEach(function (i) { if (!i.form || !i.form.__cvOsvBusy) i.checked = i.defaultChecked; });
+  }
+  function isFee(d) { return d && d.action === "cart_fee_select" && box(d.form); }
+  function isText(d) { return d && d.action === "cart_fee_select" && field(d.form); }
+  document.addEventListener("change", function (e) {
+    var i = e.target; if (!i || !i.matches) return;
+    if (i.matches("input[data-cv-osv]")) send(i.form);
+    else if (i.matches("[data-cv-osv-text]")) sendText(i.form);
+  });
+  document.addEventListener("tf:action-done", function (e) {
+    var f = isFee(e.detail) ? e.detail.form : null;
+    if (f) {
+      idle(f);
+      var again = f.__cvOsvAgain; f.__cvOsvAgain = false;
+      if (again && box(f).checked !== box(f).defaultChecked) { send(f); }
+    }
+    var t = isText(e.detail) ? e.detail.form : null;
+    if (t) {
+      idle(t);
+      var more = t.__cvOsvAgain; t.__cvOsvAgain = false;
+      if (more && t.isConnected && field(t).value !== t.__cvOsvSent) { sendText(t); }
+    }
+    sync();
+  });
+  document.addEventListener("tf:action-error", function (e) {
+    if (isText(e.detail)) {
+      var t = e.detail.form, errs = (e.detail.result && e.detail.result.user_errors) || [];
+      idle(t); t.__cvOsvAgain = false;
+      var mine = errs.filter(function (u) { return (u.field || []).indexOf("text") >= 0; });
+      var msg = mine.map(function (u) { return u.message; }).filter(Boolean).join(" ");
+      if (msg && mine.length === errs.length) { e.preventDefault(); say(t, msg); }
+      return;
+    }
+    if (!isFee(e.detail)) return;
+    var f = e.detail.form; idle(f); f.__cvOsvAgain = false; box(f).checked = box(f).defaultChecked;
+  });
+  document.addEventListener("tf:section-rendered", sync);
+})();
+</script>
+{%- comment -%}/partial:optional-services-script{%- endcomment -%}
+{%- break -%}{%- endif -%}{%- endfor -%}
+{%- comment -%}partial:qty{%- endcomment -%}
+<script>
+// Typed quantities ([data-cv-qty]): cart lines and the product page. A value is committed on
+// Enter, on blur, or after a pause in typing, never per keystroke. It is clamped to data-min…data-max
+// (the platform's limits); empty or invalid input goes back to the last good value. A cart line
+// commits through its own form, the same cart_update the − / + buttons use, and 0 submits the
+// line's remove form. The product page only keeps the value in range for Add to cart.
+(function () {
+  if (window.__cvQty) return; window.__cvQty = true;
+  var PAUSE = 600;
+  function field(t) { return t && t.matches && t.matches("input[data-cv-qty]") ? t : null; }
+  function isLine(i) { return i.hasAttribute("data-cv-qty-line"); }
+  function last(i) { return parseInt(i.defaultValue, 10) || 0; }
+  function max(i) { return i.hasAttribute("data-max") ? parseInt(i.getAttribute("data-max"), 10) : Infinity; }
+  function say(msg) { if (msg && window.tringify && tringify.ui && tringify.ui.toast) tringify.ui.toast(msg); }
+  function lineForms(i) {
+    var line = i.closest(".cv-line");
+    return { qty: i.form, rm: line && line.querySelector("form.cv-line__remove") };
+  }
+  function submit(form, button) {
+    if (!form || !button) return;
+    if (form.requestSubmit) form.requestSubmit(button); else button.click();
+  }
+  // why: "enter", "blur" or "pause". A pause leaves an unfinished entry alone and never removes a line.
+  function commit(i, why) {
+    clearTimeout(i.__cvQtyT); i.__cvQtyT = null;
+    var was = i.__cvQtyFor; i.__cvQtyFor = null;
+    if (i.readOnly) return true;
+    // A refresh can redraw this field as another line while the shopper is typing in it.
+    if (was && was !== i.getAttribute("data-cv-qty-line")) { i.value = last(i); return false; }
+    var raw = i.value.trim();
+    if (!/^[0-9]+$/.test(raw)) { if (why !== "pause") i.value = last(i); return false; }
+    var v = parseInt(raw, 10), min = parseInt(i.getAttribute("data-min"), 10) || 0;
+    if (v === 0 && isLine(i) && why === "pause") return true;
+    if (v > max(i)) { v = max(i); say(i.getAttribute("data-max-msg")); }
+    if (v < min) v = min;
+    i.value = v;
+    if (v === last(i)) return true;
+    if (!isLine(i)) { i.defaultValue = v; i.dispatchEvent(new Event("change", { bubbles: true })); return true; }
+    var f = lineForms(i);
+    if (v === 0) submit(f.rm, f.rm && f.rm.querySelector("[type=submit]"));
+    else { var set = f.qty.querySelector("[data-cv-qty-set]"); set.value = v; submit(f.qty, set); }
+    return true;
+  }
+  document.addEventListener("input", function (e) {
+    var i = field(e.target); if (!i) return;
+    clearTimeout(i.__cvQtyT);
+    if (isLine(i) && !i.__cvQtyFor) i.__cvQtyFor = i.getAttribute("data-cv-qty-line");
+    i.__cvQtyT = setTimeout(function () { if (i.isConnected) commit(i, "pause"); }, PAUSE);
+  });
+  document.addEventListener("focusout", function (e) { var i = field(e.target); if (i) commit(i, "blur"); });
+  document.addEventListener("keydown", function (e) {
+    var i = field(e.target); if (!i || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === "Enter") {
+      // On a cart line Enter only updates the line; on the product page it adds to cart once the value is good.
+      if (!commit(i, "enter") || isLine(i)) e.preventDefault();
+      return;
+    }
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    e.preventDefault();
+    if (i.readOnly) return;
+    var cur = /^[0-9]+$/.test(i.value.trim()) ? parseInt(i.value, 10) : last(i);
+    var v = Math.max(1, Math.min(max(i), cur + (e.key === "ArrowUp" ? 1 : -1)));
+    if (String(v) === i.value) return;
+    i.value = v;
+    i.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  // Busy state: while a line's update or removal is in flight its field is read-only and its
+  // − / + are disabled. A refresh redraws the line from the cart, so typed values are reset to it.
+  function lineOf(form) {
+    var acts = form && form.closest && form.closest(".cv-line__actions");
+    return acts && acts.querySelector("input[data-cv-qty-line]");
+  }
+  function busy(form, on) {
+    var i = lineOf(form); if (!i) return;
+    i.readOnly = on;
+    if (on) i.form.setAttribute("aria-busy", "true"); else i.form.removeAttribute("aria-busy");
+    i.form.querySelectorAll(".cv-qty__btn").forEach(function (b) {
+      if (on && !b.disabled) { b.disabled = true; b.setAttribute("data-cv-qty-busy", ""); }
+      else if (!on && b.hasAttribute("data-cv-qty-busy")) { b.disabled = false; b.removeAttribute("data-cv-qty-busy"); }
+    });
+  }
+  function sync() {
+    document.querySelectorAll("input[data-cv-qty-line]").forEach(function (i) {
+      if (i.__cvQtyFor && i.__cvQtyFor !== i.getAttribute("data-cv-qty-line")) { clearTimeout(i.__cvQtyT); i.__cvQtyT = null; i.__cvQtyFor = null; }
+      if (!i.__cvQtyT && i.value !== i.defaultValue) i.value = i.defaultValue;
+    });
+  }
+  function isCart(d) { return d && (d.action === "cart_update" || d.action === "cart_remove"); }
+  document.addEventListener("tf:action-start", function (e) { if (isCart(e.detail)) busy(e.detail.form, true); });
+  document.addEventListener("tf:action-done", function (e) { if (isCart(e.detail)) busy(e.detail.form, false); sync(); });
+  // A refused update leaves the cart as it was: the platform's message shows as for − / +, and the field goes back.
+  document.addEventListener("tf:action-error", function (e) { if (isCart(e.detail)) { busy(e.detail.form, false); var i = lineOf(e.detail.form); if (i) i.value = i.defaultValue; } });
+})();
+</script>
+{%- comment -%}/partial:qty{%- endcomment -%}
+{%- if restock_notifications.sms_available -%}
+{%- comment -%}partial:phone-script{%- endcomment -%}
+<script>
+(function () {
+  // Phone fields ([data-cv-phone]): a country button (country code and dial code) opens a searchable list of the
+  // store's phone countries. The visible field then takes the national number, and a hidden field sends
+  // one E.164 number (+ and digits) under the original name. A number typed or pasted with + or 00 moves
+  // to its country. Without the script, or without country data, the field takes an international number.
+  if (window.__cvPhone) return; window.__cvPhone = true;
+  // Countries sharing a dial code: a number is shown under the code's main country unless the current or default country shares it.
+  var MAIN = { "1": "US", "7": "RU", "39": "IT", "44": "GB", "47": "NO", "61": "AU", "212": "MA", "262": "RE", "290": "SH", "358": "FI", "590": "GP", "599": "CW" };
+  // National trunk prefixes that the international number drops: [prefix, national length after it (0: any)].
+  // Most countries use a single 0; these keep their leading 0 (it is part of the number) or use another prefix.
+  var TRUNK = { IT: null, SM: null, VA: null, CI: null, CG: null, GA: null, HU: ["06", 0], RU: ["8", 10], KZ: ["8", 10], BY: ["80", 9], LT: ["8", 8], TM: ["8", 8], TJ: ["8", 9] };
+  var TOP = typeof HTMLElement !== "undefined" && typeof HTMLElement.prototype.showPopover === "function";
+  var lists = {};
+  function digits(s) { return String(s || "").replace(/\D/g, ""); }
+  function fold(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+  // The country's ISO code in a small badge: emoji flags render as two letters on Windows anyway.
+  function flagOf(c) {
+    var iso = String(c.iso_code || "").toUpperCase();
+    return /^[A-Z]{2}$/.test(iso) ? iso : "";
+  }
+  // Fields on one page share the same list; it is parsed and sorted once.
+  function countries(root) {
+    var raw = root.getAttribute("data-countries") || "[]";
+    if (lists[raw]) return lists[raw];
+    var list = []; try { list = JSON.parse(raw); } catch (_) {}
+    list = (list || []).filter(function (c) { return c && c.iso_code && c.name && /^\+[0-9]+$/.test(c.dial_code || ""); });
+    var coll = window.Intl && Intl.Collator ? new Intl.Collator(document.documentElement.lang || undefined, { sensitivity: "base" }) : null;
+    list.sort(function (a, b) { return coll ? coll.compare(a.name, b.name) : (a.name < b.name ? -1 : 1); });
+    return (lists[raw] = list);
+  }
+  // "+44 (0)7700 900123" or "0044 7700 900123" -> { c: GB, rest: "7700900123" }. While the code is still being
+  // typed (a longer dial code could match, or nothing follows it) it waits unless final.
+  function detect(st, s, final) {
+    var compact = String(s || "").replace(/\(0\)/g, "").replace(/[^0-9+]/g, "");
+    var intl = compact.charAt(0) === "+" ? compact.slice(1) : /^00/.test(compact) ? compact.slice(2) : null;
+    if (intl === null) return null;
+    var d = digits(intl), best = null, bl = 0;
+    if (!final && st.list.some(function (c) { var dc = digits(c.dial_code); return dc.length > d.length && dc.indexOf(d) === 0; })) return null;
+    st.list.forEach(function (c) {
+      var dc = digits(c.dial_code);
+      if (!dc || d.indexOf(dc) !== 0 || dc.length < bl) return;
+      if (dc.length > bl) { best = c; bl = dc.length; return; }
+      var rank = function (x) { return x === st.cur ? 3 : x === st.def ? 2 : MAIN[dc] === x.iso_code ? 1 : 0; };
+      if (rank(c) > rank(best)) best = c;
+    });
+    if (!best) return null;
+    var rest = d.slice(bl);
+    if (!final && !rest) return null;
+    return { c: best, rest: rest };
+  }
+  function national(c, d) {
+    var t = TRUNK.hasOwnProperty(c.iso_code) ? TRUNK[c.iso_code] : digits(c.dial_code) === "1" ? ["1", 10] : ["0", 0];
+    if (t && d.indexOf(t[0]) === 0 && (!t[1] || d.length === t[0].length + t[1])) return d.slice(t[0].length);
+    return d;
+  }
+  // The typed national number, cut to the country's longest number (a leading trunk prefix such as 0 is extra).
+  function cap(c, d) {
+    var max = +c.max_digits || 0;
+    if (!max) return d.slice(0, 15);
+    var extra = d.length - national(c, d).length;
+    return d.slice(0, extra + max);
+  }
+  // Groups digits like the country's sample number ("081 234 5678"); the sample's trunk prefix is
+  // left out when the shopper did not type one. Digits beyond the sample follow after a space.
+  function group(c, d) {
+    var ex = String(c.example || ""), exd = digits(ex);
+    if (!d || !exd) return d;
+    var lead = exd.length - national(c, exd).length;
+    if (lead && d.slice(0, lead) !== exd.slice(0, lead)) {
+      var seen = 0, i = 0;
+      while (i < ex.length && seen < lead) { if (/\d/.test(ex.charAt(i))) seen++; i++; }
+      ex = ex.slice(i).replace(/^[^\d(]+/, "");
+    }
+    var out = "", k = 0;
+    for (var j = 0; j < ex.length && k < d.length; j++) out += /\d/.test(ex.charAt(j)) ? d.charAt(k++) : ex.charAt(j);
+    return k < d.length ? out + " " + d.slice(k) : out;
+  }
+  // A national number as typed: digits only, within the country's length, grouped. The caret keeps
+  // its place among the digits, so editing in the middle of the number works.
+  function shape(st) {
+    var el = st.num, v = String(el.value || "");
+    if (/^\s*(\+|00)/.test(v)) { if (v.length > 20) el.value = v.slice(0, 20); return; }
+    var at = el.selectionStart == null ? v.length : el.selectionStart;
+    var before = digits(v.slice(0, at)).length, d = cap(st.cur, digits(v)), next = group(st.cur, d);
+    if (next === v) return;
+    el.value = next;
+    var pos = 0, n = 0;
+    while (pos < next.length && n < Math.min(before, d.length)) { if (/\d/.test(next.charAt(pos))) n++; pos++; }
+    if (document.activeElement === el) el.setSelectionRange(pos, pos);
+  }
+  function value(st) {
+    var s = String(st.num.value || "").trim(), compact = s.replace(/\(0\)/g, "").replace(/[^0-9+]/g, ""), d = digits(compact);
+    if (!d) return "";
+    if (compact.charAt(0) === "+") return "+" + d;
+    if (/^00/.test(compact)) return "+" + d.slice(2);
+    return st.cur.dial_code + national(st.cur, d);
+  }
+  function sync(st) { st.out.value = value(st); }
+  function load(st, s) {
+    var hit = detect(st, s, true);
+    if (hit) { st.cur = hit.c; st.num.value = group(hit.c, cap(hit.c, hit.rest)); } else st.num.value = String(s || "").trim();
+  }
+  function setup(root) {
+    if (root.__cvPh !== undefined) return root.__cvPh;
+    root.__cvPh = null;
+    var list = countries(root);
+    if (!list.length) return null;
+    var st = {
+      root: root, list: list, num: root.querySelector("[data-cv-phone-num]"), out: root.querySelector("[data-cv-phone-out]"),
+      btn: root.querySelector("[data-cv-phone-cc]"), pop: root.querySelector("[data-cv-phone-pop]"), q: root.querySelector("[data-cv-phone-q]"),
+      ul: root.querySelector("[data-cv-phone-list]"), row: root.querySelector("[data-cv-phone-row]"), cur: null, shown: [], one: list.length === 1
+    };
+    var want = String(root.getAttribute("data-default") || "").toUpperCase();
+    st.def = list.filter(function (c) { return c.iso_code === want; })[0] || list[0];
+    // Setting a hidden input's value rewrites its default, so the saved number is kept for a form reset.
+    st.cur = st.def; st.saved = st.out.getAttribute("value") || st.num.getAttribute("value") || "";
+    load(st, st.saved);
+    // From here the visible field holds the national number and the hidden one is sent.
+    st.out.name = st.out.getAttribute("data-name"); st.num.removeAttribute("name");
+    st.num.removeAttribute("pattern"); st.num.removeAttribute("title");
+    if (st.num.getAttribute("autocomplete") === "tel") st.num.setAttribute("autocomplete", "tel-national");
+    if (st.one) {
+      // A single country is a fixed prefix, read with the number.
+      var fx = root.querySelector("[data-cv-phone-fixed]");
+      fx.hidden = false; st.btn.remove(); st.btn = null;
+      st.num.setAttribute("aria-describedby", (fx.id + " " + (st.num.getAttribute("aria-describedby") || "")).trim());
+    } else {
+      st.btn.hidden = false;
+      if (TOP) { st.pop.setAttribute("popover", "manual"); st.pop.hidden = false; }
+    }
+    root.classList.add("is-enhanced");
+    root.__cvPh = st;
+    choose(st, st.cur, false);
+    return st;
+  }
+  function choose(st, c, focus) {
+    st.cur = c;
+    var root = st.root, label = (root.getAttribute("data-label-selected") || "").replace("__C__", c.name + " (" + c.dial_code + ")");
+    root.querySelectorAll("[data-cv-phone-flag]").forEach(function (el) { el.textContent = flagOf(c); });
+    root.querySelectorAll("[data-cv-phone-dial]").forEach(function (el) { el.textContent = c.dial_code; });
+    root.querySelectorAll("[data-cv-phone-cc-label]").forEach(function (el) { el.textContent = label; });
+    var hint = root.querySelector("[data-cv-phone-hint]");
+    if (hint) { hint.textContent = c.example ? (root.getAttribute("data-label-example") || "").replace("__EX__", c.example) : ""; hint.hidden = !c.example; }
+    if (c.example) st.num.setAttribute("placeholder", c.example); else st.num.removeAttribute("placeholder");
+    shape(st);
+    sync(st);
+    if (focus) st.num.focus();
+  }
+  function render(st) {
+    var raw = st.q.value.trim(), q = fold(raw), qd = digits(raw);
+    // Names that start with the search come first, then names with a word starting with it, then the rest.
+    function rank(c) {
+      var n = fold(c.name);
+      if (c.iso_code.toLowerCase() === q || n.indexOf(q) === 0) return 0;
+      if (new RegExp("[\\s(\\-]" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).test(n)) return 1;
+      return 2;
+    }
+    st.shown = st.list.filter(function (c) {
+      return !raw || fold(c.name).indexOf(q) !== -1 || c.iso_code.toLowerCase() === q || (qd && digits(c.dial_code).indexOf(qd) === 0);
+    });
+    if (q && !qd) st.shown = st.shown.map(function (c, i) { return [rank(c), i, c]; }).sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }).map(function (x) { return x[2]; });
+    var frag = document.createDocumentFragment();
+    st.shown.forEach(function (c) {
+      var li = document.createElement("li");
+      li.id = st.ul.id + "-" + c.iso_code; li.className = "cv-phone__opt" + (c === st.cur ? " is-current" : "");
+      li.setAttribute("role", "option"); li.setAttribute("aria-selected", "false"); li.setAttribute("data-iso", c.iso_code);
+      var f = document.createElement("span"); f.className = "cv-phone__oflag"; f.setAttribute("aria-hidden", "true"); f.textContent = flagOf(c);
+      var n = document.createElement("span"); n.className = "cv-phone__oname"; n.textContent = c.name;
+      var dl = document.createElement("bdi"); dl.className = "cv-phone__odial"; dl.setAttribute("dir", "ltr"); dl.textContent = c.dial_code;
+      li.appendChild(f); li.appendChild(n); li.appendChild(dl); frag.appendChild(li);
+    });
+    st.ul.replaceChildren(frag);
+    st.root.querySelector("[data-cv-phone-none]").textContent = st.shown.length ? "" : st.root.querySelector("[data-cv-phone-none-text]").textContent;
+    var at = raw ? 0 : st.shown.indexOf(st.cur);
+    active(st, st.shown.length ? Math.max(0, at) : -1);
+  }
+  function active(st, i) {
+    var opts = st.ul.children;
+    st.at = i;
+    for (var k = 0; k < opts.length; k++) { opts[k].setAttribute("aria-selected", k === i ? "true" : "false"); opts[k].classList.toggle("is-active", k === i); }
+    if (i >= 0 && opts[i]) { st.q.setAttribute("aria-activedescendant", opts[i].id); opts[i].scrollIntoView({ block: "nearest" }); }
+    else st.q.removeAttribute("aria-activedescendant");
+  }
+  // In the top layer the list is never clipped by a drawer or panel; it sits under the field, or above it when there is more room there.
+  function place(st) {
+    if (!TOP) return;
+    var r = st.row.getBoundingClientRect(), vh = window.innerHeight, below = vh - r.bottom - 12, above = r.top - 12, up = below < 240 && above > below;
+    // At least 300px wide in a narrow row (a cart line), kept inside the window and aligned to the field's start edge.
+    var vw = document.documentElement.clientWidth, w = Math.min(Math.max(r.width, 300), vw - 16);
+    var x = getComputedStyle(st.root).direction === "rtl" ? r.right - w : r.left, s = st.pop.style;
+    s.left = Math.min(Math.max(8, x), vw - 8 - w) + "px"; s.width = w + "px";
+    if (up) { s.top = "auto"; s.bottom = (vh - r.top + 6) + "px"; } else { s.bottom = "auto"; s.top = (r.bottom + 6) + "px"; }
+    s.setProperty("--cv-phone-room", Math.max(140, (up ? above : below) - 80) + "px");
+  }
+  function isOpen(st) { return !!st && (TOP ? st.pop.matches(":popover-open") : !st.pop.hidden); }
+  var openSt = null;
+  function open(st) {
+    if (openSt && openSt !== st) close(openSt, false);
+    openSt = st; st.btn.setAttribute("aria-expanded", "true");
+    if (TOP) { st.pop.showPopover(); place(st); } else st.pop.hidden = false;
+    st.q.value = ""; render(st); st.q.focus();
+  }
+  function close(st, back) {
+    if (!isOpen(st)) return;
+    if (TOP) st.pop.hidePopover(); else st.pop.hidden = true;
+    st.btn.setAttribute("aria-expanded", "false");
+    if (openSt === st) openSt = null;
+    if (back) st.btn.focus();
+  }
+  function stOf(el) { var root = el && el.closest && el.closest("[data-cv-phone]"); return root ? setup(root) : null; }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-cv-phone-cc]");
+    if (b) { var st = stOf(b); if (st) { if (isOpen(st)) close(st, true); else open(st); } return; }
+    var o = e.target.closest && e.target.closest(".cv-phone__opt");
+    if (o) {
+      var s2 = stOf(o), c = s2 && s2.list.filter(function (x) { return x.iso_code === o.getAttribute("data-iso"); })[0];
+      if (c) { close(s2, false); choose(s2, c, true); }
+      return;
+    }
+    if (openSt && !openSt.root.contains(e.target)) close(openSt, false);
+  });
+  document.addEventListener("input", function (e) {
+    if (e.target.matches && e.target.matches("[data-cv-phone-q]")) { var st = stOf(e.target); if (st) render(st); return; }
+    if (e.target.matches && e.target.matches("[data-cv-phone-num]")) {
+      var s2 = stOf(e.target); if (!s2) return;
+      var hit = detect(s2, s2.num.value, false);
+      if (hit && !s2.one) { s2.num.value = hit.rest; choose(s2, hit.c, false); } else { shape(s2); sync(s2); }
+    }
+  });
+  document.addEventListener("focusout", function (e) {
+    if (!(e.target.matches && e.target.matches("[data-cv-phone-num]"))) return;
+    var st = stOf(e.target), hit = st && !st.one && detect(st, st.num.value, true);
+    if (hit) { st.num.value = hit.rest; choose(st, hit.c, false); }
+  });
+  // Only digits and the usual separators can be typed; a letter never reaches the field.
+  document.addEventListener("beforeinput", function (e) {
+    if (!(e.target.matches && e.target.matches("[data-cv-phone-num]")) || !e.data || !/^insert/.test(e.inputType)) return;
+    if (/[^\d\s+()\-.]/.test(e.data) && !/\d/.test(e.data)) e.preventDefault();
+  });
+  // Escape closes only the list: caught on the window before a drawer or dialog sees it.
+  addEventListener("keydown", function (e) {
+    if (e.key !== "Escape" || !openSt || !openSt.root.contains(e.target)) return;
+    e.preventDefault(); e.stopPropagation(); close(openSt, true);
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    if (!(e.target.matches && e.target.matches("[data-cv-phone-q]"))) return;
+    var st = stOf(e.target); if (!st) return;
+    var n = st.shown.length;
+    if (e.key === "ArrowDown") { e.preventDefault(); if (n) active(st, (st.at + 1) % n); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); if (n) active(st, (st.at - 1 + n) % n); }
+    else if (e.key === "Home" && n) { e.preventDefault(); active(st, 0); }
+    else if (e.key === "End" && n) { e.preventDefault(); active(st, n - 1); }
+    else if (e.key === "Enter") { e.preventDefault(); if (st.at >= 0 && st.shown[st.at]) { var c = st.shown[st.at]; close(st, false); choose(st, c, true); } }
+    else if (e.key === "Tab") close(st, false);
+  });
+  addEventListener("resize", function () { if (openSt) place(openSt); });
+  addEventListener("scroll", function () { if (openSt) place(openSt); }, { capture: true, passive: true });
+  // The sent value is current at submit, whatever changed the number (autofill included).
+  document.addEventListener("submit", function (e) {
+    var f = e.target; if (!f || !f.querySelectorAll) return;
+    f.querySelectorAll("[data-cv-phone]").forEach(function (root) { var st = setup(root); if (st) sync(st); });
+  }, true);
+  // A reset form goes back to its saved number (or none), under that number's country.
+  document.addEventListener("reset", function (e) {
+    var f = e.target; if (!f || !f.querySelectorAll) return;
+    setTimeout(function () {
+      f.querySelectorAll("[data-cv-phone]").forEach(function (root) {
+        var st = setup(root); if (!st) return;
+        st.cur = st.def; load(st, st.saved); choose(st, st.cur, false);
+      });
+    });
+  }, true);
+  // In an address form, the address country picks the phone country while the number is still empty.
+  document.addEventListener("change", function (e) {
+    var sel = e.target.matches && e.target.matches("select[data-cv-country]") ? e.target : null;
+    var root = sel && sel.form && sel.form.querySelector("[data-cv-phone]"), st = root && setup(root);
+    if (!st || String(st.num.value || "").trim()) return;
+    var c = st.list.filter(function (x) { return x.iso_code === sel.value; })[0];
+    if (c) choose(st, c, false);
+  });
+  function all() { document.querySelectorAll("[data-cv-phone]").forEach(setup); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", all); else all();
+  var t = 0;
+  new MutationObserver(function () { cancelAnimationFrame(t); t = requestAnimationFrame(all); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+{%- comment -%}/partial:phone-script{%- endcomment -%}
+{%- endif -%}
+{% schema %}
+{
+  "name": "main-cart",
+  "icon": "shopping-cart",
+  "ctx_needs": [
+    "cart",
+    "routes",
+    "csrf_token",
+    "restock_notifications",
+    "customer.email",
+    "customer_settings",
+    "customer.logged_in",
+    "design_mode",
+    "phone_countries",
+    "localization",
+    "shopping",
+    "express"
+  ],
+  "settings": [
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    },
+    {
+      "id": "empty_heading",
+      "type": "text",
+      "default": "@t:cart.empty",
+      "editor": {
+        "label": "heading",
+        "group": "empty_state"
+      }
+    },
+    {
+      "id": "empty_text",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "text",
+        "group": "empty_state"
+      }
+    },
+    {
+      "id": "empty_button_label",
+      "type": "text",
+      "default": "@t:general.continue_shopping",
+      "editor": {
+        "label": "button_label",
+        "group": "empty_state"
+      }
+    },
+    {
+      "id": "empty_button_link",
+      "type": "url",
+      "editor": {
+        "label": "link",
+        "group": "empty_state"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_app_blocks": true,
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "cart-recommendations"
+    ],
+    "max": 20,
+    "default": [
+      "lines",
+      "free_shipping",
+      "offers",
+      "discounts",
+      "cart_note",
+      "shipping_estimate",
+      "totals",
+      "price_notes",
+      "order_limit",
+      "checkout",
+      "express_checkout",
+      "note"
+    ],
+    "types": [
+      {
+        "type": "lines",
+        "editor": {
+          "label": "cart_lines"
+        },
+        "settings": [
+          {
+            "id": "line_image",
+            "type": "select",
+            "default": "custom",
+            "options": [
+              {
+                "value": "custom",
+                "label": "opt_customer_design"
+              },
+              {
+                "value": "product",
+                "label": "opt_product_image"
+              }
+            ],
+            "editor": {
+              "label": "line_image",
+              "group": "content"
+            }
+          },
+          {
+            "id": "custom_image_fit",
+            "type": "select",
+            "default": "contain",
+            "options": [
+              {
+                "value": "contain",
+                "label": "opt_whole_design"
+              },
+              {
+                "value": "cover",
+                "label": "opt_fill_frame"
+              }
+            ],
+            "editor": {
+              "label": "custom_image_fit",
+              "group": "content"
+            },
+            "visible_if": {
+              "setting": "line_image",
+              "values": [
+                "custom"
+              ]
+            }
+          },
+          {
+            "id": "group_customizations",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "group_customizations",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_line_properties",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_line_properties",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_clear_cart",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_clear_cart",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "free_shipping",
+        "editor": {
+          "label": "cart_free_shipping"
+        },
+        "settings": [
+          {
+            "id": "show",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "offers",
+        "editor": {
+          "label": "cart_offers"
+        },
+        "settings": [
+          {
+            "id": "show",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "discounts",
+        "editor": {
+          "label": "cart_discounts"
+        },
+        "settings": [
+          {
+            "id": "show_available_discounts",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_available_discounts",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "totals",
+        "editor": {
+          "label": "cart_totals"
+        },
+        "settings": [
+          {
+            "id": "show",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "price_notes",
+        "editor": {
+          "label": "price_notes"
+        },
+        "settings": [
+          {
+            "id": "show_tax",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "price_notes_tax",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_shipping",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "price_notes_shipping",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_duty",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "price_notes_duty",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "order_limit",
+        "editor": {
+          "label": "order_limit"
+        },
+        "settings": [
+          {
+            "id": "min_message",
+            "type": "text",
+            "default": "@t:cart.limit_min_message",
+            "editor": {
+              "label": "order_limit_min_message",
+              "group": "content"
+            }
+          },
+          {
+            "id": "max_message",
+            "type": "text",
+            "default": "@t:cart.limit_max_message",
+            "editor": {
+              "label": "order_limit_max_message",
+              "group": "content"
+            }
+          },
+          {
+            "id": "tone",
+            "type": "select",
+            "default": "alert",
+            "options": [
+              {
+                "value": "subtle",
+                "label": "opt_subtle"
+              },
+              {
+                "value": "accent",
+                "label": "opt_accent"
+              },
+              {
+                "value": "alert",
+                "label": "opt_alert"
+              }
+            ],
+            "editor": {
+              "label": "order_limit_tone",
+              "group": "design"
+            }
+          }
+        ]
+      },
+      {
+        "type": "optional_services",
+        "editor": {
+          "label": "optional_services"
+        },
+        "settings": [
+          {
+            "id": "heading",
+            "type": "text",
+            "default": "@t:cart.optional_services",
+            "editor": {
+              "label": "heading",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_descriptions",
+            "type": "checkbox",
+            "default": false,
+            "editor": {
+              "label": "show_description",
+              "group": "content"
+            }
+          },
+          {
+            "id": "style",
+            "type": "select",
+            "default": "plain",
+            "options": [
+              {
+                "value": "plain",
+                "label": "opt_plain"
+              },
+              {
+                "value": "outline",
+                "label": "opt_outline"
+              },
+              {
+                "value": "accent",
+                "label": "opt_accent"
+              }
+            ],
+            "editor": {
+              "label": "style",
+              "group": "design"
+            }
+          }
+        ]
+      },
+      {
+        "type": "checkout",
+        "editor": {
+          "label": "cart_checkout"
+        },
+        "settings": [
+          {
+            "id": "show",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "express_checkout",
+        "editor": {
+          "label": "express_checkout"
+        },
+        "settings": [
+          {
+            "id": "show",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "note",
+        "editor": {
+          "label": "note_below_checkout"
+        },
+        "settings": [
+          {
+            "id": "note",
+            "type": "richtext",
+            "default": "",
+            "editor": {
+              "label": "note_below_checkout",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "cart_note",
+        "editor": {
+          "label": "cart_note"
+        },
+        "settings": [
+          {
+            "id": "label",
+            "type": "text",
+            "default": "@t:cart.note_label",
+            "editor": {
+              "label": "heading",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "shipping_estimate",
+        "editor": {
+          "label": "cart_shipping_estimate"
+        },
+        "settings": [
+          {
+            "id": "label",
+            "type": "text",
+            "default": "@t:cart.estimate_heading",
+            "editor": {
+              "label": "heading",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "id": "cart-lines-block-line-image",
+      "op": "remove_setting",
+      "from": {
+        "setting": "line_image"
+      }
+    },
+    {
+      "id": "cart-lines-block-custom-image-fit",
+      "op": "remove_setting",
+      "from": {
+        "setting": "custom_image_fit"
+      }
+    },
+    {
+      "id": "cart-lines-block-group-customizations",
+      "op": "remove_setting",
+      "from": {
+        "setting": "group_customizations"
+      }
+    },
+    {
+      "id": "cart-lines-block-show-line-properties",
+      "op": "remove_setting",
+      "from": {
+        "setting": "show_line_properties"
+      }
+    },
+    {
+      "id": "cart-lines-block-show-clear-cart",
+      "op": "remove_setting",
+      "from": {
+        "setting": "show_clear_cart"
+      }
+    }
+  ]
+}
+{% endschema %}

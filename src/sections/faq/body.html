@@ -1,0 +1,40 @@
+{%- comment -%} Questions without an answer stay hidden on the live store; with none answered the section hides. {%- endcomment -%}
+{%- assign cv_faqs = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled != true and b.settings.answer != blank -%}{%- assign cv_faqs = cv_faqs | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_faqs > 0 or design_mode -%}
+<section class="cv cv-section cv-faq tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}">
+  <div class="cv-wrap cv-faq__inner{% if settings.layout == 'split' %} cv-faq--split{% endif %}">
+    <div class="cv-faq__head">
+      {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+      {%- if settings.text != blank -%}<div dir="auto" class="cv-rte cv-muted" data-tf-field="text">{{ settings.text }}</div>{%- endif -%}
+    </div>
+    <div class="cv-faq__list">
+      {%- for b in settings.blocks -%}
+        {%- unless b.disabled -%}
+        {%- if b.settings.answer == blank -%}{%- continue -%}{%- endif -%}
+        {{ b._editor_block_open }}
+        <details class="cv-faq__item"{% if forloop.first and settings.open_first %} open{% endif %}>
+          <summary dir="auto" data-tf-field="question" class="cv-faq__q">{{ b.settings.question }}<span class="cv-faq__mark" aria-hidden="true"></span></summary>
+          <div dir="auto" data-tf-field="answer" class="cv-faq__a cv-rte">{{ b.settings.answer }}</div>
+        </details>
+        {{ b._editor_block_close }}
+        {%- endunless -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+{%- endif -%}
+<script>
+(function () {
+  if (window.__cvFaqEditor) return; window.__cvFaqEditor = true;
+  // Editor: a selected question opens, and closes again when deselected.
+  document.addEventListener("tf:block-selected", function (e) {
+    var el = e.detail && e.detail.element, d = el && el.querySelector && el.querySelector("details.cv-faq__item");
+    if (d && !d.open) { d.open = true; d.setAttribute("data-cv-editor-open", ""); }
+  });
+  document.addEventListener("tf:block-deselected", function (e) {
+    var el = e.detail && e.detail.element, d = el && el.querySelector && el.querySelector("details.cv-faq__item[data-cv-editor-open]");
+    if (d) { d.open = false; d.removeAttribute("data-cv-editor-open"); }
+  });
+})();
+</script>

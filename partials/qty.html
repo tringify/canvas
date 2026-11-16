@@ -1,0 +1,94 @@
+<script>
+// Typed quantities ([data-cv-qty]): cart lines and the product page. A value is committed on
+// Enter, on blur, or after a pause in typing, never per keystroke. It is clamped to data-min…data-max
+// (the platform's limits); empty or invalid input goes back to the last good value. A cart line
+// commits through its own form, the same cart_update the − / + buttons use, and 0 submits the
+// line's remove form. The product page only keeps the value in range for Add to cart.
+(function () {
+  if (window.__cvQty) return; window.__cvQty = true;
+  var PAUSE = 600;
+  function field(t) { return t && t.matches && t.matches("input[data-cv-qty]") ? t : null; }
+  function isLine(i) { return i.hasAttribute("data-cv-qty-line"); }
+  function last(i) { return parseInt(i.defaultValue, 10) || 0; }
+  function max(i) { return i.hasAttribute("data-max") ? parseInt(i.getAttribute("data-max"), 10) : Infinity; }
+  function say(msg) { if (msg && window.tringify && tringify.ui && tringify.ui.toast) tringify.ui.toast(msg); }
+  function lineForms(i) {
+    var line = i.closest(".cv-line");
+    return { qty: i.form, rm: line && line.querySelector("form.cv-line__remove") };
+  }
+  function submit(form, button) {
+    if (!form || !button) return;
+    if (form.requestSubmit) form.requestSubmit(button); else button.click();
+  }
+  // why: "enter", "blur" or "pause". A pause leaves an unfinished entry alone and never removes a line.
+  function commit(i, why) {
+    clearTimeout(i.__cvQtyT); i.__cvQtyT = null;
+    var was = i.__cvQtyFor; i.__cvQtyFor = null;
+    if (i.readOnly) return true;
+    // A refresh can redraw this field as another line while the shopper is typing in it.
+    if (was && was !== i.getAttribute("data-cv-qty-line")) { i.value = last(i); return false; }
+    var raw = i.value.trim();
+    if (!/^[0-9]+$/.test(raw)) { if (why !== "pause") i.value = last(i); return false; }
+    var v = parseInt(raw, 10), min = parseInt(i.getAttribute("data-min"), 10) || 0;
+    if (v === 0 && isLine(i) && why === "pause") return true;
+    if (v > max(i)) { v = max(i); say(i.getAttribute("data-max-msg")); }
+    if (v < min) v = min;
+    i.value = v;
+    if (v === last(i)) return true;
+    if (!isLine(i)) { i.defaultValue = v; i.dispatchEvent(new Event("change", { bubbles: true })); return true; }
+    var f = lineForms(i);
+    if (v === 0) submit(f.rm, f.rm && f.rm.querySelector("[type=submit]"));
+    else { var set = f.qty.querySelector("[data-cv-qty-set]"); set.value = v; submit(f.qty, set); }
+    return true;
+  }
+  document.addEventListener("input", function (e) {
+    var i = field(e.target); if (!i) return;
+    clearTimeout(i.__cvQtyT);
+    if (isLine(i) && !i.__cvQtyFor) i.__cvQtyFor = i.getAttribute("data-cv-qty-line");
+    i.__cvQtyT = setTimeout(function () { if (i.isConnected) commit(i, "pause"); }, PAUSE);
+  });
+  document.addEventListener("focusout", function (e) { var i = field(e.target); if (i) commit(i, "blur"); });
+  document.addEventListener("keydown", function (e) {
+    var i = field(e.target); if (!i || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === "Enter") {
+      // On a cart line Enter only updates the line; on the product page it adds to cart once the value is good.
+      if (!commit(i, "enter") || isLine(i)) e.preventDefault();
+      return;
+    }
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    e.preventDefault();
+    if (i.readOnly) return;
+    var cur = /^[0-9]+$/.test(i.value.trim()) ? parseInt(i.value, 10) : last(i);
+    var v = Math.max(1, Math.min(max(i), cur + (e.key === "ArrowUp" ? 1 : -1)));
+    if (String(v) === i.value) return;
+    i.value = v;
+    i.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  // Busy state: while a line's update or removal is in flight its field is read-only and its
+  // − / + are disabled. A refresh redraws the line from the cart, so typed values are reset to it.
+  function lineOf(form) {
+    var acts = form && form.closest && form.closest(".cv-line__actions");
+    return acts && acts.querySelector("input[data-cv-qty-line]");
+  }
+  function busy(form, on) {
+    var i = lineOf(form); if (!i) return;
+    i.readOnly = on;
+    if (on) i.form.setAttribute("aria-busy", "true"); else i.form.removeAttribute("aria-busy");
+    i.form.querySelectorAll(".cv-qty__btn").forEach(function (b) {
+      if (on && !b.disabled) { b.disabled = true; b.setAttribute("data-cv-qty-busy", ""); }
+      else if (!on && b.hasAttribute("data-cv-qty-busy")) { b.disabled = false; b.removeAttribute("data-cv-qty-busy"); }
+    });
+  }
+  function sync() {
+    document.querySelectorAll("input[data-cv-qty-line]").forEach(function (i) {
+      if (i.__cvQtyFor && i.__cvQtyFor !== i.getAttribute("data-cv-qty-line")) { clearTimeout(i.__cvQtyT); i.__cvQtyT = null; i.__cvQtyFor = null; }
+      if (!i.__cvQtyT && i.value !== i.defaultValue) i.value = i.defaultValue;
+    });
+  }
+  function isCart(d) { return d && (d.action === "cart_update" || d.action === "cart_remove"); }
+  document.addEventListener("tf:action-start", function (e) { if (isCart(e.detail)) busy(e.detail.form, true); });
+  document.addEventListener("tf:action-done", function (e) { if (isCart(e.detail)) busy(e.detail.form, false); sync(); });
+  // A refused update leaves the cart as it was: the platform's message shows as for − / +, and the field goes back.
+  document.addEventListener("tf:action-error", function (e) { if (isCart(e.detail)) { busy(e.detail.form, false); var i = lineOf(e.detail.form); if (i) i.value = i.defaultValue; } });
+})();
+</script>

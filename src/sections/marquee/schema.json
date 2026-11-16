@@ -1,0 +1,136 @@
+{
+  "name": "marquee",
+  "icon": "text",
+  "ctx_needs": [],
+  "settings": [
+    {
+      "id": "size",
+      "type": "select",
+      "editor": {
+        "label": "text_size",
+        "group": "layout"
+      },
+      "default": "large",
+      "options": [
+        {
+          "value": "small",
+          "label": "opt_small"
+        },
+        {
+          "value": "large",
+          "label": "opt_large"
+        }
+      ]
+    },
+    {
+      "id": "speed",
+      "type": "range",
+      "editor": {
+        "label": "speed",
+        "group": "layout"
+      },
+      "min": 10,
+      "max": 80,
+      "step": 5,
+      "default": 35,
+      "unit": "s"
+    },
+    {
+      "id": "separator",
+      "type": "select",
+      "editor": {
+        "label": "separator",
+        "group": "layout"
+      },
+      "default": "star",
+      "options": [
+        {
+          "value": "star",
+          "label": "opt_icon_star"
+        },
+        {
+          "value": "dot",
+          "label": "opt_dot"
+        },
+        {
+          "value": "none",
+          "label": "opt_none"
+        }
+      ]
+    },
+    {
+      "id": "pause_on_hover",
+      "type": "checkbox",
+      "editor": {
+        "label": "pause_on_hover",
+        "group": "layout"
+      },
+      "default": true
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 12,
+    "default": [
+      "item",
+      "item",
+      "item",
+      "item"
+    ],
+    "types": [
+      {
+        "type": "item",
+        "editor": {
+          "label": "text"
+        },
+        "settings": [
+          {
+            "id": "text",
+            "type": "text",
+            "editor": {
+              "label": "text",
+              "group": "content"
+            },
+            "default": "@t:sections.marquee.item.text"
+          },
+          {
+            "id": "link",
+            "type": "url",
+            "editor": {
+              "label": "link",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "scrolling-text",
+      "category": "text",
+      "blocks": [
+        {
+          "type": "item",
+          "settings": {
+            "text": "@t:sections.marquee.item.text"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "text": "@t:content.secure_checkout"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "name": "main-search",
+  "icon": "search",
+  "ctx_needs": [
+    "search",
+    "products",
+    "filters",
+    "routes",
+    "csrf_token",
+    "customer_settings",
+    "design_mode",
+    "shopping"
+  ],
+  "settings": [
+    {
+      "id": "filter_layout",
+      "type": "select",
+      "default": "drawer",
+      "options": [
+        {
+          "value": "sidebar",
+          "label": "opt_sidebar"
+        },
+        {
+          "value": "horizontal",
+          "label": "opt_filter_bar"
+        },
+        {
+          "value": "drawer",
+          "label": "opt_drawer"
+        }
+      ],
+      "editor": {
+        "label": "filter_layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "product_layout",
+      "type": "select",
+      "default": "grid",
+      "options": [
+        {
+          "value": "grid",
+          "label": "opt_grid"
+        },
+        {
+          "value": "editorial",
+          "label": "opt_editorial_grid"
+        },
+        {
+          "value": "list",
+          "label": "opt_list"
+        }
+      ],
+      "editor": {
+        "label": "product_layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4,
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "page_size",
+      "type": "range",
+      "min": 8,
+      "max": 60,
+      "step": 4,
+      "default": 24,
+      "editor": {
+        "label": "page_size",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "paging",
+      "type": "select",
+      "default": "numbered",
+      "options": [
+        {
+          "value": "numbered",
+          "label": "opt_numbered"
+        },
+        {
+          "value": "load_more",
+          "label": "opt_load_more"
+        },
+        {
+          "value": "infinite",
+          "label": "opt_infinite_scroll"
+        }
+      ],
+      "editor": {
+        "label": "paging",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "name": "testimonials",
+  "icon": "quote",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.testimonials.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3,
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 12,
+    "default": [
+      "testimonial",
+      "testimonial",
+      "testimonial"
+    ],
+    "types": [
+      {
+        "type": "testimonial",
+        "editor": {
+          "label": "testimonial"
+        },
+        "settings": [
+          {
+            "id": "quote",
+            "type": "textarea",
+            "default": "",
+            "editor": {
+              "label": "quote",
+              "group": "content"
+            }
+          },
+          {
+            "id": "author",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "author",
+              "group": "content"
+            }
+          },
+          {
+            "id": "detail",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "author_detail",
+              "group": "content"
+            }
+          },
+          {
+            "id": "rating",
+            "type": "range",
+            "min": 0,
+            "max": 5,
+            "step": 1,
+            "default": 0,
+            "editor": {
+              "label": "rating",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "testimonials",
+      "category": "social_proof",
+      "blocks": [
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        }
+      ]
+    }
+  ]
+}

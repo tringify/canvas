@@ -1,0 +1,10 @@
+{
+  "page_type": "track_order",
+  "sections": [
+    {
+      "type": "main-track-order",
+      "position": 1,
+      "settings": {}
+    }
+  ]
+}

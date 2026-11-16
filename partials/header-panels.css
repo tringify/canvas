@@ -1,0 +1,57 @@
+  .cv-hd__search { padding-block: 8px 18px; }
+  .cv-hd__sform { display: flex; align-items: center; gap: 10px; padding-inline-start: 18px; background: var(--cv-soft); border-radius: 999px; }
+  .cv-hd__sinput { flex: 1; min-width: 0; height: 48px; font: inherit; font-size: 16px; color: var(--text); background: transparent; border: 0; outline: none; }
+/* partial:suggest */
+/* /partial:suggest */
+  .cv-mnav { position: fixed; inset: 0; z-index: 100; }
+  .cv-mnav__backdrop { position: absolute; inset: 0; background: rgb(0 0 0 / 0.3); backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s var(--cv-ease); }
+  .cv-mnav__panel { position: absolute; inset-block: 8px; inset-inline-start: 8px; width: min(calc(100vw - 16px), 400px); display: flex; flex-direction: column; border-radius: 22px;
+    background: var(--bg); color: var(--text); transform: translateX(calc(-100% - 16px)); transition: transform 0.4s var(--cv-ease); overflow-y: auto; box-shadow: 0 24px 64px -12px rgb(0 0 0 / 0.3); }
+  [dir="rtl"] .cv-mnav__panel { transform: translateX(100%); }
+  .cv-mnav.is-open .cv-mnav__backdrop { opacity: 1; }
+  .cv-mnav.is-open .cv-mnav__panel { transform: none; }
+  .cv-mnav__top { display: flex; align-items: center; justify-content: space-between; padding: 14px 12px 6px 22px; }
+  .cv-mnav__list { display: grid; padding: 8px 0; }
+  .cv-mnav__row { display: flex; align-items: center; justify-content: space-between; padding: 12px 22px; font-size: 22px; font-weight: 500; letter-spacing: -0.03em; color: var(--text);
+    text-decoration: none; cursor: pointer; list-style: none; }
+  .cv-mnav__row::-webkit-details-marker { display: none; }
+  .cv-mnav__group[open] > .cv-mnav__row .cv-icon { transform: rotate(180deg); }
+  .cv-mnav__children { display: grid; padding: 0 22px 12px; }
+  .cv-mnav__child { padding: 8px 4px; font-size: 16px; color: var(--text-muted); text-decoration: none; }
+  .cv-mnav__child--deep { padding-inline-start: 28px; color: var(--text-muted); }
+  .cv-mnav__foot { margin-top: auto; display: grid; gap: 4px; padding: 16px 22px 24px; }
+  .cv-mnav__util { display: flex; align-items: center; gap: 12px; padding: 10px 0; font-size: 15px; color: var(--text); text-decoration: none; }
+  .cv-hd__wish { position: relative; }
+  .cv-mnav__badge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; margin-inline-start: 6px; font-size: 12px; font-weight: 600; color: var(--btn-text); background: var(--btn); border-radius: 999px; }
+  .cv-hd__loc { display: inline-flex; align-items: center; gap: 2px; }
+/* partial:loc-picker */
+/* /partial:loc-picker */
+  /* The header's pickers sit flat in the bar like its icons: no outline, a soft fill on hover. */
+  .cv-hd__loc .cv-loc { flex-wrap: nowrap; gap: 2px; }
+  .cv-hd__loc .cv-loc__select { height: 36px; min-height: 0; max-width: 180px; padding: 0 26px 0 10px; color: inherit; background-color: transparent; box-shadow: none;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: right 13px center, right 9px center; background-size: 4px 4px; background-repeat: no-repeat; }
+  [dir="rtl"] .cv-hd__loc .cv-loc__select { padding: 0 10px 0 26px; background-position: left 9px center, left 13px center; }
+  .cv-hd__loc .cv-loc__trigger { color: inherit; background: transparent; box-shadow: none; }
+  .cv-hd__loc .cv-loc__chev { color: inherit; opacity: 0.6; }
+  .cv-hd__loc :is(.cv-loc__select, .cv-loc__trigger):hover { background-color: var(--cv-soft); }
+  .cv-hd__loc .cv-loc__link { color: inherit; opacity: 0.72; }
+  .cv-hd__loc .cv-loc__link:is(:hover, [aria-current="true"]) { opacity: 1; }
+  /* Phones: the bar has no room for the pickers; the menu sheet carries them. */
+  .cv-mnav__loc { padding-top: 10px; }
+  .cv-mnav__loc .cv-loc__select { max-width: 100%; }
+  @media (max-width: 749px) { .cv-hd__loc { display: none; } }
+  /* Without script the menu sheet cannot open, so phones keep the bar's picker: its disclosure, with the choices under the header. */
+  @media (max-width: 749px) and (scripting: none) {
+    .cv-hd__loc { display: inline-flex; }
+    .cv-hd__loc .cv-loc__nojs { position: static; }
+    .cv-hd__loc .cv-loc__nojs > summary { gap: 6px; padding-inline: 8px; }
+    .cv-hd__loc .cv-loc__nojs > summary :is(.cv-loc__flag, .cv-loc__chev) { display: none; }
+    .cv-hd__loc .cv-loc__nojs-panel { inset-inline: var(--cv-pad-x, 16px); width: auto; max-width: none; }
+  }
+  .cv-hd__actions .cv-hd__link { white-space: nowrap; }
+
+  @media (max-width: 749px) {
+    .cv-hd__logo { min-height: 44px; padding-block: 6px; }
+    .cv-mnav__child, .cv-mnav__util { min-height: 44px; padding-block: 12px; }
+  }

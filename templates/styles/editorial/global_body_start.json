@@ -1,0 +1,47 @@
+{
+  "page_type": "global_body_start",
+  "sections": [
+    {
+      "type": "header",
+      "position": 1,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-editorial-header__logo",
+            "type": "logo",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-header__menu",
+            "type": "menu",
+            "settings": {
+              "menu": "main-menu"
+            }
+          },
+          {
+            "id": "canvas-editorial-header__search",
+            "type": "search",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-header__account",
+            "type": "account",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-header__wishlist",
+            "type": "wishlist",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-header__cart",
+            "type": "cart",
+            "settings": {}
+          }
+        ],
+        "logo_position": "stacked",
+        "show_border": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+<script>
+(function () {
+  if (window.__cvFtFold) return; window.__cvFtFold = true;
+  // "Fold columns on phones": a column that starts with a heading folds its other blocks behind it on phones; the heading becomes the
+  // button. Wider screens show every column (the buttons are hidden there).
+  function setup(root) {
+    root.querySelectorAll(".cv-ft--fold .cv-ftc").forEach(function (col, i) {
+      if (col.classList.contains("has-fold")) return;
+      var first = col.firstElementChild;
+      var head = first && (first.matches(".cv-blk-heading") ? first : first.querySelector(":scope > .cv-blk-heading"));
+      if (!head || col.children.length < 2) return;
+      var id = "cv-ftc-" + Math.random().toString(36).slice(2, 8) + i;
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "cv-ftc__toggle"; b.setAttribute("aria-expanded", "false"); b.setAttribute("aria-controls", id);
+      b.innerHTML = '<span class="cv-sr"></span><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+      b.firstChild.textContent = head.textContent.trim();
+      head.classList.add("cv-ftc__head"); head.appendChild(b);
+      col.id = col.id || id; b.setAttribute("aria-controls", col.id);
+      col.classList.add("has-fold", "is-folded");
+      b.addEventListener("click", function () { var open = col.classList.toggle("is-folded") === false; b.setAttribute("aria-expanded", open ? "true" : "false"); });
+    });
+  }
+  setup(document);
+  document.addEventListener("DOMContentLoaded", function () { setup(document); });
+  // Editor: a re-rendered footer sets up again, and a selected block inside a folded column opens it.
+  if (document.querySelector("[data-tf-section-id]")) {
+    var queued = false;
+    new MutationObserver(function () {
+      if (queued) return; queued = true;
+      requestAnimationFrame(function () { queued = false; setup(document); });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+  document.addEventListener("tf:block-selected", function (e) {
+    var el = e.detail && e.detail.element;
+    var col = el && el.closest && el.closest(".cv-ftc.is-folded");
+    var b = col && col.querySelector(".cv-ftc__toggle");
+    if (b) b.click();
+  });
+})();
+</script>

@@ -1,0 +1,500 @@
+{%- comment -%} Password. The store's name drawn in outline across the foot of the page; it fills in on the way into the store. The form posts
+to the platform's unlock (POST /password) with the locale and the address to return to; a wrong password (or too many tries, or a check
+that failed) comes back as this page with form_error. The heading, text, placeholder and button are settings the platform fills in the
+shopper's language when they are blank; title and message carry the merchant's translations. {%- endcomment -%}
+{%- assign cv_pw_err = form_error.message | default: settings.password_error -%}
+{%- assign cv_pw_btn = settings.button_label -%}{%- if cv_pw_btn == blank -%}{%- assign cv_pw_btn = 'gate.enter' | t -%}{%- endif -%}
+{%- assign cv_pw_ph = settings.password_placeholder -%}{%- if cv_pw_ph == blank -%}{%- assign cv_pw_ph = 'gate.password' | t -%}{%- endif -%}
+{%- assign cv_gate_status = 'gate.status_password' | t -%}
+{%- assign cv_gate_band = 'outline' -%}
+<main class="cv cv-gate cv-gate--password tf-scheme-{{ settings.color_scheme }}{% if cv_pw_err == blank %} is-arriving{% endif %}" data-cv-gate="password"{% if design_mode %} data-cv-gate-editor{% endif %}>
+{%- comment -%}partial:gate-top{%- endcomment -%}
+{%- comment -%} Gate pages (coming soon, password, maintenance): the top row. The page renders without the header, so the theme-wide
+  variables come with it. The store's logo (the section's own image; gate pages have no header logo), the page's status, and the
+  store's languages from settings.language_options (code, native_name, url, selected; the storefront adds them to every gate page):
+  one, nothing; two to five, the codes inline; more, Canvas's header picker (pill, a list of native names under it, a bottom sheet on
+  phones), with search over ten. Each choice is a link to that language's address. Input: cv_gate_status. {%- endcomment -%}
+{%- comment -%}partial:header-vars{%- endcomment -%}
+<style>
+  :root {
+    --cv-width: {{ theme.settings.page_width }};
+    --cv-radius: {{ theme.settings.corner_radius }};
+    --cv-btn-radius: {{ theme.settings.button_radius }};
+    {% case theme.settings.button_radius %}{% when '0px' %}--cv-field-radius: 0px;{% when '10px' %}--cv-field-radius: 10px;{% else %}--cv-field-radius: 14px;{% endcase %}
+    --cv-card-ratio: {{ theme.settings.card_image_ratio }};
+    --cv-card-fit: {{ theme.settings.card_image_fit }};
+    --cv-heading-case: {{ theme.settings.heading_case }};
+    {% case theme.settings.heading_scale %}{% when '90' %}--cv-heading-scale: 0.9;{% when '115' %}--cv-heading-scale: 1.15;{% else %}--cv-heading-scale: 1;{% endcase %}
+    {% case theme.settings.section_spacing %}{% when 'compact' %}--cv-gap-y: clamp(36px, 5vw, 64px);{% when 'relaxed' %}--cv-gap-y: clamp(72px, 10vw, 144px);{% else %}--cv-gap-y: clamp(56px, 8vw, 112px);{% endcase %}
+  }
+</style>
+{%- comment -%}/partial:header-vars{%- endcomment -%}
+<header class="cv-gate__top">
+  <div class="cv-gate__id">
+    {%- if settings.logo -%}
+    <img class="cv-gate__logo" src="{{ settings.logo | image_url: width: 480 }}" srcset="{{ settings.logo | image_srcset: max: 960 }}" sizes="160px" alt="{{ shop.name }}" style="--cv-gate-logo-h: {{ settings.logo_height | default: 32 }}px" data-tf-field="logo">
+    {%- else -%}
+    <span class="cv-sr">{{ shop.name }}</span>
+    {%- endif -%}
+    <p class="cv-eyebrow cv-gate__status"><span class="cv-gate__dot" aria-hidden="true"></span><span data-cv-gate-status>{{ cv_gate_status }}</span></p>
+  </div>
+  {%- assign cv_gate_langs = settings.language_options -%}
+  {%- if cv_gate_langs.size > 1 -%}
+    {%- assign cv_gate_lang_now = cv_gate_langs.first -%}
+    {%- for l in cv_gate_langs -%}{%- if l.selected -%}{%- assign cv_gate_lang_now = l -%}{%- endif -%}{%- endfor -%}
+    {%- assign cv_gate_lang_code = cv_gate_lang_now.code | split: '-' | first | upcase -%}
+    {%- if cv_gate_langs.size <= 5 -%}
+    <nav class="cv-gate__langs" aria-label="{{ 'localization.language' | t }}">
+      <ul role="list">
+        {%- for l in cv_gate_langs -%}
+        <li><a href="{{ l.url }}" hreflang="{{ l.code }}" lang="{{ l.code }}" aria-label="{{ l.native_name | default: l.label }}"{% if l.selected %} aria-current="true"{% endif %}>{{ l.code }}</a></li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+    {%- else -%}
+    <div class="cv-gate__pick cv-loc cv-loc--pill">
+      <button class="cv-loc__trigger cv-loc__trigger--pill" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-loc-gate" data-cv-loc-open="cv-loc-gate">
+        <span class="cv-sr">{{ 'localization.language' | t }}:</span><span class="cv-sr">{{ cv_gate_lang_now.native_name | default: cv_gate_lang_now.label }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ cv_gate_lang_code }}</span>
+        <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <dialog class="cv-loc-dlg cv-loc-dlg--pill" id="cv-loc-gate" aria-labelledby="cv-loc-gate-t" data-cv-loc-dlg>
+        <span class="cv-loc-dlg__handle" aria-hidden="true"></span>
+        <div class="cv-loc-dlg__head">
+          <h2 class="cv-loc-dlg__title" id="cv-loc-gate-t">{{ 'localization.language' | t }}</h2>
+          <button class="cv-loc-dlg__close" type="button" data-cv-loc-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+        </div>
+        <div class="cv-loc-dlg__body">
+          <div class="cv-loc-dlg__group">
+            {%- if cv_gate_langs.size > 10 -%}
+            <label class="cv-loc-dlg__search cv-shell">
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <span class="cv-sr">{{ 'localization.lang_search' | t }}</span>
+              <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.lang_search' | t }}" aria-controls="cv-loc-gate-langs" data-cv-loc-search>
+            </label>
+            {%- endif -%}
+            <ul class="cv-loc-dlg__list cv-loc-dlg__list--langs" id="cv-loc-gate-langs" role="list">
+              {%- for l in cv_gate_langs -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ l.native_name | downcase }} {{ l.label | downcase }} {{ l.code | downcase }}">
+                <a class="cv-loc-dlg__opt" href="{{ l.url }}" hreflang="{{ l.code }}" lang="{{ l.code }}"{% if l.selected %} aria-current="true"{% endif %}>
+                  <span class="cv-loc-dlg__name"><bdi>{{ l.native_name | default: l.label }}</bdi></span>
+                  {%- if l.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </a>
+              </li>
+              {%- endfor -%}
+            </ul>
+            <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.lang_none' | t }}</p>
+          </div>
+        </div>
+      </dialog>
+      {%- comment -%} Without script the dialog cannot open: the same links in a disclosure instead (partials/loc-picker.css). {%- endcomment -%}
+      <noscript>
+        <style>.cv-gate__pick > .cv-loc__trigger[data-cv-loc-open] { display: none; }</style>
+        <details class="cv-loc__nojs">
+          <summary class="cv-loc__trigger cv-loc__trigger--pill"><span class="cv-sr">{{ 'localization.language' | t }}:</span><span class="cv-loc__code" dir="ltr">{{ cv_gate_lang_code }}</span><svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="cv-loc__nojs-panel">
+            {%- for l in cv_gate_langs -%}
+            <a class="cv-loc-dlg__opt" href="{{ l.url }}" hreflang="{{ l.code }}"{% if l.selected %} aria-current="true"{% endif %}><span class="cv-loc-dlg__name"><bdi lang="{{ l.code }}">{{ l.native_name | default: l.label }}</bdi></span></a>
+            {%- endfor -%}
+          </div>
+        </details>
+      </noscript>
+    </div>
+{%- comment -%}partial:loc-script{%- endcomment -%}
+<script>
+(function () {
+  if (window.__cvLoc) return; window.__cvLoc = true;
+  // Dropdown pickers submit on change.
+  if (!window.__cvAutosubmit) {
+    window.__cvAutosubmit = true;
+    document.addEventListener("change", function (e) {
+      var s = e.target.closest && e.target.closest("select[data-cv-autosubmit]");
+      if (s && s.form) s.form.requestSubmit ? s.form.requestSubmit() : s.form.submit();
+    });
+  }
+  // Focus rings follow the last input: a click or a tap opens a list with focus on the current choice but no ring (Safari otherwise rings
+  // focus moved by script after a tap); a key brings the ring back. Pages without the header (the gate pages) get the page-wide cv-pointer
+  // switch from here.
+  var kbd = false, html = document.documentElement;
+  addEventListener("pointerdown", function () { kbd = false; html.classList.add("cv-pointer"); }, true);
+  addEventListener("keydown", function (e) {
+    if (e.key !== "Tab" && e.key !== "Escape" && !/^Arrow/.test(e.key) && e.key !== "Enter" && e.key !== " ") return;
+    kbd = true; html.classList.remove("cv-pointer");
+    document.querySelectorAll("dialog[data-cv-loc-dlg].is-pointer").forEach(function (d) { d.classList.remove("is-pointer"); });
+  }, true);
+  // List pickers: the trigger opens its <dialog> (modal, so focus stays in it and Escape closes it). The pill's list sits under the pill on
+  // wider screens, lined up with it on the page grid; every list is a bottom sheet on phones.
+  var wide = window.matchMedia("(min-width: 750px)");
+  function place(d, t) {
+    if (!d.classList.contains("cv-loc-dlg--pill")) return;
+    if (!wide.matches) { ["--cv-loc-y", "--cv-loc-x", "--cv-loc-b", "--cv-loc-w"].forEach(function (p) { d.style.removeProperty(p); }); return; }
+    var r = t.getBoundingClientRect(), vw = html.clientWidth, vh = window.innerHeight;
+    // The grid: the content box of the row the trigger sits in (the header bar, the gate's top row), else 16px in from the window.
+    var g = t.closest(".cv-wrap, .cv-gate__top"), lo = 16, hi = vw - 16;
+    if (g) {
+      var gr = g.getBoundingClientRect(), gs = getComputedStyle(g);
+      lo = Math.max(lo, gr.left + parseFloat(gs.paddingLeft)); hi = Math.min(hi, gr.right - parseFloat(gs.paddingRight));
+    }
+    var w = Math.min(340, hi - lo);
+    // The list's edge meets the trigger's: the right edges when the trigger is in the right half of the row, else the left edges.
+    var left = (r.left + r.right) / 2 > (lo + hi) / 2 ? r.right - w : r.left;
+    left = Math.max(lo, Math.min(left, hi - w));
+    var rtl = getComputedStyle(d).direction === "rtl";
+    d.style.setProperty("--cv-loc-w", w + "px");
+    d.style.setProperty("--cv-loc-x", (rtl ? vw - left - w : left) + "px");
+    var below = vh - r.bottom, y = below > 280 || below > r.top ? r.bottom + 8 : null;
+    if (y === null) { d.style.setProperty("--cv-loc-y", "auto"); d.style.setProperty("--cv-loc-b", (vh - r.top + 8) + "px"); }
+    else { d.style.setProperty("--cv-loc-y", y + "px"); d.style.removeProperty("--cv-loc-b"); }
+  }
+  function open(t) {
+    var d = document.getElementById(t.getAttribute("data-cv-loc-open"));
+    if (!d || d.open || !d.showModal) return;
+    place(d, t);
+    d.classList.toggle("is-pointer", !kbd);
+    d.showModal();
+    t.setAttribute("aria-expanded", "true");
+    d.__cvTrigger = t;
+    // Wider screens start in the first list's search, if it has one; otherwise (and on phones, where it would raise the keyboard) on the
+    // current choice.
+    var search = wide.matches && d.querySelector(".cv-loc-dlg__group:first-child [data-cv-loc-search]");
+    var cur = d.querySelector('.cv-loc-dlg__opt[aria-current="true"], .cv-loc-dlg__chip[aria-current="true"]');
+    var focus = search || cur;
+    if (focus) focus.focus({ preventScroll: true, focusVisible: kbd });
+    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
+  }
+  function norm(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function filter(input) {
+    // Each list (countries, languages) has its own search.
+    var d = input.closest(".cv-loc-dlg__group") || input.closest("dialog"), q = norm(input.value.trim()), shown = 0;
+    d.querySelectorAll("[data-cv-loc-item]").forEach(function (li) {
+      var hit = !q || norm(li.getAttribute("data-cv-loc-q")).indexOf(q) !== -1 || norm(li.textContent).indexOf(q) !== -1;
+      li.hidden = !hit; if (hit) shown++;
+    });
+    var none = d.querySelector("[data-cv-loc-none]"); if (none) none.hidden = shown > 0;
+  }
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest) return;
+    var t = e.target.closest("[data-cv-loc-open]");
+    if (t) { open(t); return; }
+    var x = e.target.closest("[data-cv-loc-close]");
+    if (x) { x.closest("dialog").close(); return; }
+    // A click on the backdrop (the dialog element itself, outside its content) closes it.
+    if (e.target.matches && e.target.matches("dialog[data-cv-loc-dlg]")) {
+      var r = e.target.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
+    }
+  });
+  document.addEventListener("input", function (e) { if (e.target.matches && e.target.matches("[data-cv-loc-search]")) filter(e.target); });
+  document.addEventListener("close", function (e) {
+    var d = e.target;
+    if (!d.matches || !d.matches("dialog[data-cv-loc-dlg]")) return;
+    if (d.__cvTrigger) d.__cvTrigger.setAttribute("aria-expanded", "false");
+    d.querySelectorAll("[data-cv-loc-search]").forEach(function (s) { if (s.value) { s.value = ""; filter(s); } });
+  }, true);
+  window.addEventListener("resize", function () {
+    document.querySelectorAll("dialog[data-cv-loc-dlg][open]").forEach(function (d) { if (d.__cvTrigger) place(d, d.__cvTrigger); });
+  });
+})();
+</script>
+{%- comment -%}/partial:loc-script{%- endcomment -%}
+    {%- endif -%}
+  {%- endif -%}
+</header>
+{%- comment -%}/partial:gate-top{%- endcomment -%}
+  <div class="cv-gate__main">
+    <div class="cv-gate__copy">
+      {%- if settings.title != blank -%}<h1 class="cv-h2 cv-gate__title" dir="auto" data-tf-field="title">{{ settings.title }}</h1>{%- endif -%}
+      {%- if settings.message != blank -%}<p class="cv-gate__text" dir="auto" data-tf-field="message">{{ settings.message }}</p>{%- endif -%}
+    </div>
+    <div class="cv-gate__act">
+      {%- if cv_pw_err != blank -%}<p class="cv-sr" data-cv-gate-result="error">{{ cv_pw_err }}</p>{%- endif -%}
+      <form class="cv-gate__form" method="post" action="/password" data-cv-gate-form="password">
+        <input type="hidden" name="_csrf" value="{{ csrf_token }}">
+        {%- if settings.locale != blank -%}<input type="hidden" name="locale" value="{{ settings.locale }}">{%- endif -%}
+        {%- if settings.return_to != blank -%}<input type="hidden" name="return_to" value="{{ settings.return_to }}">{%- endif -%}
+        <div class="cv-gate__field cv-gate__field--pw{% if cv_pw_err != blank %} is-invalid{% endif %}">
+          <label class="cv-sr" for="cv-gate-pw">{{ 'gate.password' | t }}</label>
+          <input class="cv-input" id="cv-gate-pw" type="password" name="password" required autocomplete="current-password" placeholder="{{ cv_pw_ph }}" aria-describedby="cv-gate-msg"{% if cv_pw_err != blank %} aria-invalid="true"{% endif %}>
+          <button class="cv-tbtn cv-gate__peek" type="button" aria-pressed="false" aria-controls="cv-gate-pw" aria-label="{{ 'gate.show_password' | t }}" data-show="{{ 'gate.show' | t }}" data-hide="{{ 'gate.hide' | t }}" data-show-label="{{ 'gate.show_password' | t }}" data-hide-label="{{ 'gate.hide_password' | t }}" data-cv-gate-peek hidden>{{ 'gate.show' | t }}</button>
+          <button class="cv-btn" type="submit"><span>{{ cv_pw_btn }}</span><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+        <p class="cv-gate__msg" id="cv-gate-msg" role="alert" data-fallback="{{ 'gate.password_failed' | t }}"{% if cv_pw_err == blank %} hidden{% endif %}><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/></svg><span>{{ cv_pw_err }}</span></p>
+        <p class="cv-sr" role="status" data-cv-gate-live data-opening="{{ 'gate.opening' | t }}"></p>
+      </form>
+    </div>
+  </div>
+{%- comment -%}partial:gate-foot{%- endcomment -%}
+{%- comment -%} Gate pages: the hairline row (social profiles from Theme settings > Social media, Powered by) and the store's name set as a
+  wordmark across the foot of the page, in one of footer-wordmark's styles. Input: cv_gate_band ("solid", "image", "outline", "tint").
+  The script sizes it so its longest line fills the width (CSS gives the same size without script, on one line). {%- endcomment -%}
+<footer class="cv-gate__foot">
+  {%- assign cv_soc_style = 'icons' -%}
+{%- comment -%}partial:social-icons{%- endcomment -%}
+{%- comment -%} Social profiles from Theme settings > Social media (https addresses only). Input: cv_soc_style ("icons", or "names" for an
+  icon with the network's name). Output: cv_has_social. {%- endcomment -%}
+{%- assign cv_networks = 'instagram,facebook,x,youtube,tiktok,pinterest,linkedin' | split: ',' -%}
+{%- assign cv_has_social = false -%}
+{%- for cv_n in cv_networks -%}
+  {%- assign cv_key = 'social_' | append: cv_n -%}
+  {%- assign cv_url = theme.settings[cv_key] | strip -%}
+  {%- assign cv_scheme = cv_url | slice: 0, 8 -%}
+  {%- if cv_scheme == 'https://' -%}{%- assign cv_has_social = true -%}{%- endif -%}
+{%- endfor -%}
+{%- if cv_has_social -%}
+<ul class="cv-social cv-social--{{ cv_soc_style | default: 'icons' }}" role="list">
+  {%- for cv_n in cv_networks -%}
+    {%- assign cv_key = 'social_' | append: cv_n -%}
+    {%- assign cv_url = theme.settings[cv_key] | strip -%}
+    {%- assign cv_scheme = cv_url | slice: 0, 8 -%}
+    {%- if cv_scheme == 'https://' -%}
+    <li><a href="{{ cv_url }}" target="_blank" rel="noopener"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true">{%- case cv_n -%}
+{%- when 'instagram' -%}<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6"/>
+{%- when 'facebook' -%}<path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V9H7v3h2v9h3v-9h2.6l.4-3h-3V7a1 1 0 0 1 1-1h2z"/>
+{%- when 'x' -%}<path d="M4 4l16 16M20 4 4 20"/>
+{%- when 'youtube' -%}<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10 9 5 3-5 3z"/>
+{%- when 'tiktok' -%}<path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5M14 3c.5 2.5 2.5 4.5 5 4.5"/>
+{%- when 'pinterest' -%}<circle cx="12" cy="12" r="9"/><path d="m10.5 21 2.2-9.5M9.5 14c-1-3 .8-6 3.5-6 2.3 0 3.5 1.6 3.5 3.6 0 2.4-1.4 4.4-3.3 4.4"/>
+{%- when 'linkedin' -%}<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/>
+{%- endcase -%}</svg><span class="{% if cv_soc_style == 'names' %}cv-social__name{% else %}cv-sr{% endif %}">{{ 'social.' | append: cv_n | t }}</span></a></li>
+    {%- endif -%}
+  {%- endfor -%}
+</ul>
+{%- endif -%}
+{%- comment -%}/partial:social-icons{%- endcomment -%}
+  <p class="cv-gate__powered"><a href="https://tringify.com" target="_blank" rel="noopener">{{ 'footer.powered_by' | t }}</a></p>
+</footer>
+<div class="cv-gate__band cv-gate__band--{{ cv_gate_band }}" aria-hidden="true">
+  <p class="cv-gate__mark" dir="auto" data-cv-gate-fit data-name="{{ shop.name }}" style="--cv-chars: {{ shop.name | size }}">
+    <span class="cv-gate__line"><span class="cv-gate__ink" data-t="{{ shop.name }}"><span class="cv-gate__o">{{ shop.name }}</span></span></span>
+  </p>
+</div>
+{%- if cv_gate_band == 'outline' -%}
+<svg class="cv-gate__defs" width="0" height="0" aria-hidden="true" focusable="false"><filter id="cv-gate-outline" x="-5%" y="-5%" width="110%" height="110%"><feMorphology id="cv-gate-dilate" in="SourceGraphic" operator="dilate" radius="2" result="d"/><feComposite in="d" in2="SourceGraphic" operator="out"/></filter></svg>
+{%- endif -%}
+{%- comment -%}/partial:gate-foot{%- endcomment -%}
+{%- comment -%}partial:gate-script{%- endcomment -%}
+{%- comment -%} Gate pages' script. Every form works without it as a plain POST; with it, the page stays put:
+  - wordmark: the fewest lines (breaking at spaces only) whose longest line, set to the width, reads as a name;
+  - coming soon: checks the address and consent first, then posts to /notify and reads the outcome (notify_state) from the page the
+    platform sends back; only "ok" shows the thank-you, anything else (no state included) is an error;
+  - password: Show/Hide; posts to /password; the page coming back as the password page means it failed (its message is shown);
+    anything else means the store opened (the outline fills in, then the browser follows);
+  - maintenance: every 30 seconds fetches this address again. The store is back when a storefront page comes back without this page's
+    marker, whatever the status code (the platform answers maintenance with 503). Never reloads by itself. {%- endcomment -%}
+<script>
+(function () {
+  var root = document.currentScript && document.currentScript.closest(".cv-gate");
+  if (!root || root.__cvGate) return; root.__cvGate = true;
+  var kind = root.getAttribute("data-cv-gate"), editor = root.hasAttribute("data-cv-gate-editor");
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function q(s) { return root.querySelector(s); }
+
+  // Wordmark
+  var mark = q("[data-cv-gate-fit]"), words = (mark.getAttribute("data-name") || "").trim().split(/\s+/), probe;
+  function width(s) { probe.textContent = s; return probe.getBoundingClientRect().width; }
+  function split(n) { // balanced: the split whose widest line is narrowest
+    var best = null;
+    (function go(i, k, acc) {
+      if (k === 1) { var l = acc.concat([words.slice(i).join(" ")]), m = Math.max.apply(null, l.map(width)); if (!best || m < best.m) best = { l: l, m: m }; return; }
+      for (var j = i + 1; j <= words.length - k + 1; j++) go(j, k - 1, acc.concat([words.slice(i, j).join(" ")]));
+    })(0, n, []);
+    return best;
+  }
+  function fit() {
+    var band = mark.parentNode, cs = getComputedStyle(band), room = band.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    if (room <= 0 || !words[0]) return;
+    probe = document.createElement("span");
+    probe.className = "cv-gate__mark"; probe.style.cssText = "position:absolute;visibility:hidden;font-size:100px;width:auto;margin:0";
+    band.appendChild(probe);
+    var phone = innerWidth < 750, maxH = innerHeight * (phone ? 0.24 : 0.33), minS = Math.min(room * (phone ? 0.11 : 0.075), 120), pick = null;
+    for (var n = 1; n <= Math.min(words.length, phone ? 4 : 3); n++) {
+      var b = split(n), s = 100 * room / b.m, h = n * s * 0.86;
+      if (n === 1 && h > maxH) { s = maxH / 0.86; h = maxH; }
+      if (h > maxH && pick) break;
+      pick = { l: b.l, s: s };
+      if (s >= minS) break;
+    }
+    probe.remove();
+    var key = pick.l.join("\n") + "|" + pick.s.toFixed(1);
+    if (mark.__cvKey === key) return; mark.__cvKey = key;
+    mark.style.fontSize = pick.s.toFixed(2) + "px";
+    mark.textContent = "";
+    pick.l.forEach(function (text, i) {
+      var line = document.createElement("span"), ink = document.createElement("span"), o = document.createElement("span");
+      line.className = "cv-gate__line"; ink.className = "cv-gate__ink"; o.className = "cv-gate__o";
+      ink.style.setProperty("--i", i); ink.setAttribute("data-t", text); o.textContent = text;
+      ink.appendChild(o); line.appendChild(ink); mark.appendChild(line);
+    });
+    var dil = root.querySelector("#cv-gate-dilate"); if (dil) dil.setAttribute("radius", Math.max(1, pick.s * 0.0065).toFixed(2));
+  }
+  fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  var rz; addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(fit, 100); });
+  setTimeout(function () { root.classList.remove("is-arriving"); }, 2200);
+
+  // Posts a form the way the browser would, follows the redirect, and hands back the page that came back.
+  function send(form) {
+    return fetch(form.action, { method: "POST", body: new URLSearchParams(new FormData(form)), credentials: "same-origin", redirect: "follow",
+      headers: { Accept: "text/html" } }).then(function (r) {
+      return r.text().then(function (html) { return { url: r.url, doc: new DOMParser().parseFromString(html, "text/html") }; });
+    });
+  }
+  function fresh(form, doc) { // a new form nonce, if the page that came back has one
+    var a = form.querySelector('input[name="_csrf"]'), b = doc.querySelector('.cv-gate input[name="_csrf"]');
+    if (a && b && b.value) a.value = b.value;
+  }
+  function say(el, text) { el.querySelector("span").textContent = text; el.hidden = false; }
+  function busy(form, btn, input, on) {
+    btn.classList.toggle("is-loading", on); input.readOnly = on;
+    if (on) { btn.setAttribute("aria-disabled", "true"); form.setAttribute("aria-busy", "true"); }
+    else { btn.removeAttribute("aria-disabled"); form.removeAttribute("aria-busy"); }
+  }
+
+  // Coming soon
+  var nf = q('[data-cv-gate-form="notify"]');
+  if (nf && !editor) {
+    nf.noValidate = true;
+    var email = nf.querySelector('input[type="email"]'), box = nf.querySelector('input[type="checkbox"]'), field = email.closest(".cv-gate__field"),
+        msg = q("#cv-gate-msg"), cmsg = q("#cv-gate-cmsg"), nbtn = nf.querySelector('[type="submit"]'), done = q("[data-cv-gate-done]");
+    var clear = function () {
+      field.classList.remove("is-invalid"); email.removeAttribute("aria-invalid"); msg.hidden = true;
+      if (box) { box.closest(".cv-gate__consent").classList.remove("is-invalid"); box.removeAttribute("aria-invalid"); cmsg.hidden = true; }
+    };
+    email.addEventListener("input", function () { if (field.classList.contains("is-invalid")) clear(); });
+    if (box) box.addEventListener("change", function () { if (box.checked) { box.closest(".cv-gate__consent").classList.remove("is-invalid"); box.removeAttribute("aria-invalid"); cmsg.hidden = true; } });
+    nf.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (nbtn.classList.contains("is-loading")) return;
+      clear();
+      if (!email.value.trim() || !email.checkValidity() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())) {
+        field.classList.add("is-invalid"); email.setAttribute("aria-invalid", "true"); say(msg, msg.getAttribute("data-invalid")); email.focus(); return;
+      }
+      if (box && !box.checked) {
+        box.closest(".cv-gate__consent").classList.add("is-invalid"); box.setAttribute("aria-invalid", "true"); say(cmsg, cmsg.getAttribute("data-required")); box.focus(); return;
+      }
+      busy(nf, nbtn, email, true);
+      send(nf).then(function (res) {
+        busy(nf, nbtn, email, false);
+        var page = res.doc.querySelector('[data-cv-gate="coming_soon"]');
+        if (!page) { location.assign(res.url); return; } // the store opened meanwhile
+        fresh(nf, res.doc);
+        // The platform's outcome is notify_state on the form that came back; only "ok" is success. Anything else, a page
+        // without a state included, is an error: the platform's wording when it sent one, ours otherwise.
+        var came = page.querySelector("[data-cv-gate-state]"), state = came ? came.getAttribute("data-cv-gate-state") : "",
+            ok = page.querySelector('[data-cv-gate-result="ok"]'), bad = page.querySelector('[data-cv-gate-result="error"]');
+        if (state === "ok") {
+          if (ok) done.querySelector("[data-cv-gate-done-text]").textContent = ok.textContent.trim();
+          nf.classList.add("is-gone"); done.hidden = false; done.focus();
+          return;
+        }
+        var text = bad && bad.textContent.trim();
+        if (state === "consent_required" && box) {
+          box.closest(".cv-gate__consent").classList.add("is-invalid"); box.setAttribute("aria-invalid", "true");
+          say(cmsg, text || cmsg.getAttribute("data-required")); box.focus(); return;
+        }
+        if (state === "invalid_email") { field.classList.add("is-invalid"); email.setAttribute("aria-invalid", "true"); }
+        say(msg, text || msg.getAttribute(state === "invalid_email" ? "data-invalid" : "data-failed")); email.focus();
+      }, function () { busy(nf, nbtn, email, false); nf.submit(); });
+    });
+  }
+  var again = q("[data-cv-gate-again]");
+  if (again && nf && !editor) again.addEventListener("click", function (e) {
+    e.preventDefault();
+    var done = q("[data-cv-gate-done]"); done.hidden = true; nf.classList.remove("is-gone");
+    var email = nf.querySelector('input[type="email"]'); email.value = ""; email.focus();
+  });
+
+  // Password
+  var pf = q('[data-cv-gate-form="password"]');
+  if (pf && !editor) {
+    pf.noValidate = true;
+    var pw = pf.querySelector('input[name="password"]'), pfield = pw.closest(".cv-gate__field"), peek = q("[data-cv-gate-peek]"),
+        pbtn = pf.querySelector('[type="submit"]'), pmsg = q("#cv-gate-msg"), live = q("[data-cv-gate-live]");
+    if (peek) {
+      peek.hidden = false;
+      peek.addEventListener("click", function () {
+        var on = pw.type === "password"; pw.type = on ? "text" : "password";
+        peek.textContent = peek.getAttribute(on ? "data-hide" : "data-show");
+        peek.setAttribute("aria-label", peek.getAttribute(on ? "data-hide-label" : "data-show-label"));
+        peek.setAttribute("aria-pressed", String(on)); pw.focus();
+      });
+    }
+    var shake = function () { pfield.classList.remove("is-shake"); void pfield.offsetWidth; pfield.classList.add("is-shake"); };
+    if (pfield.classList.contains("is-invalid")) { shake(); pw.focus(); pw.select(); }
+    pw.addEventListener("input", function () { pfield.classList.remove("is-invalid"); pw.removeAttribute("aria-invalid"); pmsg.hidden = true; });
+    pf.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (pbtn.classList.contains("is-loading")) return;
+      if (!pw.value) { pw.focus(); return; }
+      busy(pf, pbtn, pw, true); pmsg.hidden = true;
+      send(pf).then(function (res) {
+        var page = res.doc.querySelector('[data-cv-gate="password"]');
+        if (page) {
+          busy(pf, pbtn, pw, false); fresh(pf, res.doc);
+          var err = page.querySelector("[data-cv-gate-result]");
+          pfield.classList.add("is-invalid"); pw.setAttribute("aria-invalid", "true");
+          say(pmsg, err ? err.textContent.trim() : pmsg.getAttribute("data-fallback"));
+          shake(); pw.focus(); pw.select();
+          return;
+        }
+        // Open: the outline fills in, then the store.
+        root.classList.add("is-open"); live.textContent = live.getAttribute("data-opening");
+        setTimeout(function () { location.assign(res.url); }, still.matches ? 0 : 1100);
+      }, function () { busy(pf, pbtn, pw, false); pf.submit(); });
+    });
+  }
+
+  // Maintenance
+  var watch = q("[data-cv-gate-watch]");
+  if (watch && !editor) {
+    var every = 30, left = every, line = watch.querySelector("[data-cv-gate-next]"), label = line.querySelector("span"), ring = line.querySelector(".fg"),
+        next = line.getAttribute("data-next"), checking = line.getAttribute("data-checking"), timer;
+    watch.hidden = false;
+    var nojs = q("[data-cv-gate-recheck]"); if (nojs) nojs.hidden = true;
+    var paint = function () { label.textContent = next.replace("#", left); ring.style.setProperty("--cv-left", (44 * (1 - left / every)).toFixed(1)); };
+    var back = function (url) {
+      clearInterval(timer);
+      root.classList.add("is-back");
+      var st = q("[data-cv-gate-status]"), h = q("[data-cv-gate-title]"), m = q("[data-cv-gate-message]"), b = q("[data-cv-gate-back]");
+      st.textContent = b.getAttribute("data-status");
+      if (h) h.textContent = b.getAttribute("data-heading");
+      if (m) m.hidden = true;
+      watch.hidden = true; b.hidden = false;
+      var go = b.querySelector("a"); if (go) go.href = url;
+      q("[data-cv-gate-live]").textContent = b.getAttribute("data-heading");
+      document.title = "● " + b.getAttribute("data-status") + " — " + (mark.getAttribute("data-name") || "");
+    };
+    var check = function () {
+      line.classList.add("is-checking"); label.textContent = checking;
+      fetch(location.href, { cache: "no-store", credentials: "same-origin", headers: { Accept: "text/html" } }).then(function (r) {
+        var type = r.headers.get("content-type") || "";
+        return r.text().then(function (html) {
+          if (type.indexOf("html") === -1) return false;
+          var doc = new DOMParser().parseFromString(html, "text/html");
+          if (doc.querySelector('[data-cv-gate="maintenance"]')) return false;
+          // A storefront page (the platform's page script, or this theme's markup), not a proxy's error page.
+          return !!(doc.getElementById("tf-events-bootstrap") || doc.querySelector("main.cv, .cv[class*='tf-scheme-']")) && r.url;
+        });
+      }).catch(function () { return false; }).then(function (url) {
+        line.classList.remove("is-checking");
+        if (url) { back(url); return; }
+        left = every; paint();
+      });
+    };
+    paint();
+    timer = setInterval(function () {
+      if (line.classList.contains("is-checking")) return;
+      left -= 1;
+      if (left <= 0) { left = 0; check(); return; }
+      paint();
+    }, 1000);
+  }
+
+  // Languages: a choice closes the list as it leaves.
+  root.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest(".cv-loc-dlg__opt");
+    if (a) { var d = a.closest("dialog"); if (d && d.open) d.close(); }
+  });
+})();
+</script>
+{%- comment -%}/partial:gate-script{%- endcomment -%}
+</main>

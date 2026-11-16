@@ -1,0 +1,130 @@
+{%- comment -%} Multicolumn column: the merchant's image, or the theme photo the section picks for its place (its --cv-fb; none while the section's
+  theme photos are off), above the column's content blocks. The section sets the image's shape. {%- endcomment -%}
+<div class="cv-mc__col cv-reveal">
+  {%- if settings.image -%}<div class="cv-mc__media cv-media"><img data-tf-field="image" src="{{ settings.image | image_url: width: 640 }}" srcset="{{ settings.image | image_srcset: max: 1080 }}" sizes="(min-width: 750px) 33vw, 100vw" alt="" {{ settings.image | image_loading }}></div>
+  {%- elsif settings.fallback_photo != 'off' -%}<div class="cv-mc__media cv-mc__media--fb cv-media" aria-hidden="true"><span class="cv-mc__fb"></span></div>{%- endif -%}
+  {% blocks %}
+</div>
+{% schema %}
+{
+  "name": "column",
+  "kind": "block",
+  "icon": "columns-3",
+  "settings": [
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "content"
+      }
+    },
+    {
+      "id": "fallback_photo",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "opt_photo_auto"
+        },
+        {
+          "value": "room",
+          "label": "opt_photo_room"
+        },
+        {
+          "value": "table",
+          "label": "opt_photo_table"
+        },
+        {
+          "value": "shelf",
+          "label": "opt_photo_shelf"
+        },
+        {
+          "value": "corner",
+          "label": "opt_photo_corner"
+        },
+        {
+          "value": "parcel",
+          "label": "opt_photo_parcel"
+        },
+        {
+          "value": "linen",
+          "label": "opt_photo_linen"
+        },
+        {
+          "value": "bedroom",
+          "label": "opt_photo_bedroom"
+        },
+        {
+          "value": "bench",
+          "label": "opt_photo_bench"
+        },
+        {
+          "value": "evening",
+          "label": "opt_photo_evening"
+        },
+        {
+          "value": "off",
+          "label": "opt_photo_none"
+        }
+      ],
+      "editor": {
+        "label": "fallback_photo",
+        "group": "content"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "custom-vascula"
+    ],
+    "max": 6
+  },
+  "migrations": [
+    {
+      "id": "column-copy-to-blocks",
+      "op": "settings_to_blocks",
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "title"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "text"
+          }
+        },
+        {
+          "type": "theme:buttons",
+          "settings": {
+            "button_label": "link_label",
+            "button_link": "link"
+          },
+          "values": {
+            "button_style": "link"
+          },
+          "when": [
+            "link_label",
+            "link"
+          ]
+        }
+      ],
+      "source_defaults": {
+        "title": "@t:sections.multicolumn.column.title",
+        "text": "@t:sections.multicolumn.column.text"
+      }
+    }
+  ]
+}
+{% endschema %}

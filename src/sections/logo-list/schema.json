@@ -1,0 +1,145 @@
+{
+  "name": "logo-list",
+  "icon": "layout-grid",
+  "ctx_needs": [
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": "@t:sections.logo_list.heading"
+    },
+    {
+      "id": "grayscale",
+      "type": "checkbox",
+      "editor": {
+        "label": "grayscale",
+        "group": "design"
+      },
+      "default": true
+    },
+    {
+      "id": "logo_height",
+      "type": "range",
+      "editor": {
+        "label": "logo_height",
+        "group": "layout"
+      },
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "default": 36,
+      "unit": "px"
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 12,
+    "default": [
+      "logo",
+      "logo",
+      "logo",
+      "logo",
+      "logo"
+    ],
+    "types": [
+      {
+        "type": "logo",
+        "editor": {
+          "label": "logo"
+        },
+        "settings": [
+          {
+            "id": "image",
+            "type": "image",
+            "editor": {
+              "label": "image",
+              "group": "content"
+            }
+          },
+          {
+            "id": "name",
+            "type": "text",
+            "editor": {
+              "label": "name",
+              "group": "content"
+            },
+            "default": ""
+          },
+          {
+            "id": "link",
+            "type": "url",
+            "editor": {
+              "label": "link",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "logo-list",
+      "category": "social_proof",
+      "blocks": [
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        },
+        {
+          "type": "logo"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,459 @@
+{%- comment -%} After a save to the wishlist (Theme settings › Notifications, "Show a message after saving to the wishlist"): the theme's toast,
+  with a link to the wishlist, once a visit. The script fills the text when it shows, so screen readers hear it. {%- endcomment -%}
+{%- if customer_settings.wishlist_enabled and theme.settings.wishlist_toast != false -%}
+<p class="cv cv-notice cv-notice--ok cv-toast cv-toast--{{ theme.settings.notice_position }}{% if theme.settings.notice_scheme != blank %} tf-scheme-{{ theme.settings.notice_scheme }}{% endif %} cv-wish-toast" role="status" hidden data-cv-wish-toast><span data-cv-wish-toast-text data-text="{{ 'wishlist.saved_toast' | t }}"></span> <a class="cv-tbtn" href="{{ routes.wishlist_url }}">{{ 'wishlist.view' | t }}</a></p>
+{%- endif -%}
+<script>
+(function () {
+  // Focus rings show for keyboard use only: a click or tap marks the page, a navigation key clears the mark.
+  if (!window.__cvModality) {
+    window.__cvModality = true;
+    var html = document.documentElement;
+    addEventListener("pointerdown", function () { html.classList.add("cv-pointer"); }, true);
+    addEventListener("keydown", function (e) {
+      if (e.key === "Tab" || e.key === "Escape" || /^Arrow/.test(e.key) || e.key === "Enter" || e.key === " ") html.classList.remove("cv-pointer");
+    }, true);
+  }
+})();
+</script>
+<script>
+(function () {
+  // Product cards' second image loads lazily: start it when a pointer reaches the card, and mark it ready once loaded
+  // so the hover only swaps to an image that is there.
+  if (window.__cvCardImg2) return;
+  window.__cvCardImg2 = true;
+  addEventListener("pointerover", function (e) {
+    var card = e.target.closest && e.target.closest(".cv-card");
+    var img = card && card.querySelector(".cv-card__img2:not(.is-ready)");
+    if (!img) return;
+    if (img.complete && img.naturalWidth) { img.classList.add("is-ready"); return; }
+    img.addEventListener("load", function () { img.classList.add("is-ready"); }, { once: true });
+    img.loading = "eager";
+  }, { passive: true });
+})();
+</script>
+{%- comment -%}partial:suggest-script{%- endcomment -%}
+{%- comment -%}/partial:suggest-script{%- endcomment -%}
+<script>
+(function () {
+  // The editor preview swaps the page body and runs this again: bind each new header once, and register
+  // page-wide listeners only on the first run (they look up the current header when they fire).
+  var root = document.querySelector("[data-cv-header]");
+  if (!root || root.__cvBound) return; root.__cvBound = true;
+  var once = !window.__cvHeader; window.__cvHeader = true;
+  function cur() { return document.querySelector("[data-cv-header]") || root; }
+  // The skip link moves to the very start of the page, so it is the first Tab stop (ahead of the announcement bar).
+  // A re-rendered header brings a fresh one; the old copy goes.
+  function liftSkip() {
+    var skip = cur().querySelector("[data-cv-skip]");
+    if (!skip || !document.body) return;
+    document.querySelectorAll("body > [data-cv-skip]").forEach(function (s) { s.remove(); });
+    document.body.insertBefore(skip, document.body.firstChild);
+  }
+  liftSkip();
+  // A refresh after a cart or wishlist action patches the header in place and brings its skip link back inside.
+  if (!window.__cvSkipLift) { window.__cvSkipLift = true; document.addEventListener("tf:section-rendered", liftSkip); }
+  function onDoc(type, fn, opts) { if (once) document.addEventListener(type, fn, opts); }
+  // Shared by every run, so a panel opened from one header copy closes with the right focus target in another.
+  var st = window.__cvHd || (window.__cvHd = { lastFocus: null, openId: null });
+  // An open search panel or menu sheet keeps Tab and Shift+Tab inside it.
+  onDoc("keydown", function (e) {
+    var el = e.key === "Tab" && st.openId && document.getElementById(st.openId);
+    if (!el || el.hidden) return;
+    var f = [].filter.call(el.querySelectorAll("a[href], button, input:not([type=hidden]), select, textarea, summary, [tabindex]:not([tabindex='-1'])"), function (x) { return !x.disabled && x.getClientRects().length; });
+    if (!f.length) return;
+    var a = document.activeElement;
+    if (!el.contains(a)) { e.preventDefault(); f[0].focus(); }
+    else if (e.shiftKey && a === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+  function open(id, trigger) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    st.lastFocus = trigger || document.activeElement;
+    clearTimeout(el.__cvClosing); st.openId = id;
+    el.hidden = false;
+    document.querySelectorAll('[aria-controls="' + id + '"]').forEach(function (b) { b.setAttribute("aria-expanded", "true"); });
+    if (el.hasAttribute("data-cv-drawer")) { document.documentElement.style.overflow = "hidden"; requestAnimationFrame(function () { el.classList.add("is-open"); }); }
+    var first = el.querySelector("input, a, button");
+    if (first) first.focus();
+  }
+  function close(id) {
+    var el = document.getElementById(id);
+    if (!el || el.hidden) return;
+    if (st.openId === id) st.openId = null;
+    document.querySelectorAll('[aria-controls="' + id + '"]').forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
+    if (el.hasAttribute("data-cv-drawer")) {
+      el.classList.remove("is-open"); document.documentElement.style.overflow = "";
+      clearTimeout(el.__cvClosing); el.__cvClosing = setTimeout(function () { if (!el.classList.contains("is-open")) el.hidden = true; }, 220);
+    } else { el.hidden = true; }
+    if (st.lastFocus && st.lastFocus.focus) st.lastFocus.focus();
+  }
+  root.addEventListener("click", function (e) {
+    var o = e.target.closest("[data-cv-open]");
+    if (o) { e.preventDefault(); open(o.getAttribute("data-cv-open"), o); return; }
+    var c = e.target.closest("[data-cv-close]");
+    if (c) { e.preventDefault(); close(c.getAttribute("data-cv-close")); }
+  });
+  // Editor: selecting the search block opens the search panel; selecting the menu block on a phone-width preview opens the menu sheet.
+  // Every Canvas header layout (header, header-split, header-mega) runs this script and names itself in data-cv-type.
+  function isHeader(type) { return !!type && type === cur().getAttribute("data-cv-type"); }
+  function editorPanel(d) {
+    if (!d || !isHeader(d.section_type)) return null;
+    if (d.type === "search") return "cv-search";
+    if (d.type === "menu" && (matchMedia("(max-width: 989px)").matches || cur().classList.contains("cv-hd--logo-minimal"))) return "cv-mnav";
+    return null;
+  }
+  onDoc("tf:block-selected", function (e) { var id = editorPanel(e.detail); if (id) open(id); });
+  onDoc("tf:block-deselected", function (e) { var id = editorPanel(e.detail); if (id) close(id); });
+  onDoc("tf:section-deselected", function (e) {
+    if (e.detail && isHeader(e.detail.type)) { close("cv-search"); close("cv-mnav"); }
+  });
+  onDoc("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    close("cv-search"); close("cv-mnav");
+    cur().querySelectorAll("details[data-cv-dd][open]").forEach(function (d) { d.open = false; });
+  });
+  // One desktop dropdown at a time; close on outside click.
+  root.querySelectorAll("details[data-cv-dd]").forEach(function (d) {
+    d.addEventListener("toggle", function () {
+      if (!d.open) return;
+      root.querySelectorAll("details[data-cv-dd][open]").forEach(function (o) { if (o !== d) o.open = false; });
+    });
+  });
+  onDoc("click", function (e) {
+    if (e.target.closest("details[data-cv-dd]")) return;
+    cur().querySelectorAll("details[data-cv-dd][open]").forEach(function (d) { d.open = false; });
+  });
+  // Available discounts open in the cart's side sheet; applying one closes it while the cart updates.
+  onDoc("click", function (e) {
+    var o = e.target.closest("[data-cv-offers-open]");
+    if (o) { var sh = o.parentElement.querySelector("[data-cv-offers-sheet]"); if (sh) sh.showModal(); return; }
+    var c = e.target.closest("[data-cv-offers-close]");
+    if (c) { c.closest("dialog").close(); return; }
+    if (e.target.matches("[data-cv-offers-sheet]")) e.target.close();
+  });
+  onDoc("submit", function (e) { var sh = e.target.closest("[data-cv-offers-sheet]"); if (sh && sh.open) sh.close(); });
+  // The cart note's Save shows once the note is edited.
+  onDoc("input", function (e) {
+    if (!e.target.matches || !e.target.matches("[data-cv-note-input]")) return;
+    var f = e.target.form; if (f) f.classList.toggle("is-edited", e.target.value !== e.target.defaultValue);
+  });
+  // Destructive buttons ask first, in the theme's own dialog: the question, Cancel, and the button's own label to go ahead.
+  function askConfirm(msg, yesLabel, then) {
+    var d = document.querySelector("[data-cv-confirm-dialog]");
+    if (!d) {
+      d = document.createElement("dialog"); d.setAttribute("data-cv-confirm-dialog", "");
+      d.innerHTML = '<p class="cv-confirm__msg"></p><div class="cv-confirm__acts"><button type="button" class="cv-btn cv-btn--outline cv-btn--sm" data-cv-confirm-no></button><button type="button" class="cv-btn cv-btn--sm" data-cv-confirm-yes></button></div>';
+      d.addEventListener("click", function (ev) { if (ev.target === d) d.close(); });
+      document.body.appendChild(d);
+    }
+    var scheme = (cur().getAttribute("data-notice-class") || "").match(/tf-scheme-\S+/);
+    d.className = "cv cv-confirm" + (scheme ? " " + scheme[0] : "");
+    d.querySelector(".cv-confirm__msg").textContent = msg;
+    var no = d.querySelector("[data-cv-confirm-no]"), yes = d.querySelector("[data-cv-confirm-yes]");
+    no.textContent = cur().getAttribute("data-cancel-label"); yes.textContent = yesLabel;
+    no.onclick = function () { d.close(); };
+    yes.onclick = function () { d.close(); then(); };
+    d.showModal(); no.focus();
+  }
+  onDoc("submit", function (e) {
+    var b = e.submitter, f = e.target, msg = b && b.getAttribute("data-cv-confirm");
+    if (!msg) return;
+    if (f.__cvConfirmed) { f.__cvConfirmed = false; return; }
+    e.preventDefault(); e.stopImmediatePropagation();
+    askConfirm(msg, (b.textContent || "").trim(), function () { f.__cvConfirmed = true; f.requestSubmit(b); });
+  }, true);
+  // Card option picker: choose a variant on the card, then add without leaving the grid. The inline
+  // picker (data-cv-pick-inline) stays in the card and fills the card's own quick-add form and price.
+  function pickState(pick) {
+    var inline = pick.hasAttribute("data-cv-pick-inline"), scope = inline ? (pick.closest(".cv-card") || pick) : pick;
+    var rows = []; try { rows = JSON.parse(pick.getAttribute("data-matrix") || "[]"); } catch (_) {}
+    var sel = {};
+    pick.querySelectorAll("[data-cv-pick-attr]").forEach(function (g) {
+      var on = g.querySelector('[aria-pressed="true"]'); if (on) sel[g.getAttribute("data-cv-pick-attr")] = on.getAttribute("data-cv-pick-val");
+    });
+    var groups = pick.querySelectorAll("[data-cv-pick-attr]");
+    groups.forEach(function (g) {
+      var attr = g.getAttribute("data-cv-pick-attr");
+      g.querySelectorAll("[data-cv-pick-val]").forEach(function (b) {
+        var val = b.getAttribute("data-cv-pick-val");
+        var ok = rows.some(function (r) {
+          if (!r.available_for_sale || !r.options || r.options[attr] !== val) return false;
+          for (var k in sel) { if (k !== attr && r.options[k] !== sel[k]) return false; }
+          return true;
+        });
+        b.classList.toggle("is-off", !ok);
+      });
+    });
+    var match = null;
+    if (Object.keys(sel).length === groups.length) {
+      match = rows.filter(function (r) { for (var k in sel) { if (!r.options || r.options[k] !== sel[k]) return false; } return true; })[0] || null;
+    }
+    var out = scope.querySelector("[data-cv-pick-variant]"); if (out) out.value = match ? match.id : "";
+    var btn = scope.querySelector("[data-cv-pick-submit]");
+    if (btn) btn.disabled = inline ? !!(match && !match.available_for_sale) : !(match && match.available_for_sale);
+    var px = match && pick.querySelector('[data-cv-pick-px="' + match.id + '"]');
+    var price = scope.querySelector("[data-cv-pick-price]");
+    if (price) price.textContent = match ? (match.available_for_sale ? (px ? px.textContent : match.price_str || "") : pick.getAttribute("data-unavailable")) : "";
+    if (inline) {
+      var base = scope.querySelector("[data-cv-pick-base]");
+      if (price) price.hidden = !match; if (base) base.hidden = !!match;
+      if (match) { pick.classList.remove("is-missing"); var hint = pick.querySelector("[data-cv-pick-hint]"); if (hint) hint.hidden = true; }
+    }
+  }
+  // Quick add from a card with an inline picker waits for a complete choice: it points to what is missing instead.
+  onDoc("submit", function (e) {
+    var f = e.target, v = f && f.querySelector && f.querySelector("[data-cv-pick-variant]");
+    var card = v && f.closest(".cv-card"), pick = card && card.querySelector("[data-cv-pick-inline]");
+    if (!pick || v.value) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    pick.classList.add("is-missing");
+    var hint = pick.querySelector("[data-cv-pick-hint]"); if (hint) hint.hidden = false;
+    var gap = [].filter.call(pick.querySelectorAll("[data-cv-pick-attr]"), function (g) { return !g.querySelector('[aria-pressed="true"]'); })[0];
+    var first = gap && gap.querySelector("[data-cv-pick-val]:not(.is-off)") || gap && gap.querySelector("[data-cv-pick-val]");
+    if (first) first.focus();
+  }, true);
+  function closePicks(except) {
+    document.querySelectorAll("[data-cv-pick]:not([hidden]):not([data-cv-pick-inline])").forEach(function (p) {
+      if (p === except) return; p.hidden = true;
+      var o = p.parentNode.querySelector("[data-cv-pick-open]"); if (o) o.setAttribute("aria-expanded", "false");
+    });
+  }
+  onDoc("click", function (e) {
+    var open = e.target.closest && e.target.closest("[data-cv-pick-open]");
+    if (open) {
+      var pick = open.parentNode.querySelector("[data-cv-pick]");
+      closePicks(pick);
+      pick.hidden = !pick.hidden; open.setAttribute("aria-expanded", pick.hidden ? "false" : "true");
+      if (!pick.hidden) {
+        pick.querySelectorAll("[data-cv-pick-attr]").forEach(function (g) {
+          var vals = g.querySelectorAll("[data-cv-pick-val]"); if (vals.length === 1) vals[0].setAttribute("aria-pressed", "true");
+        });
+        pickState(pick);
+      }
+      return;
+    }
+    if (e.target.closest && e.target.closest("[data-cv-pick-close]")) { closePicks(null); return; }
+    var val = e.target.closest && e.target.closest("[data-cv-pick-val]");
+    if (val) {
+      var g = val.closest("[data-cv-pick-attr]"), was = val.getAttribute("aria-pressed") === "true";
+      g.querySelectorAll("[data-cv-pick-val]").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+      if (!was) val.setAttribute("aria-pressed", "true");
+      pickState(val.closest("[data-cv-pick]"));
+      return;
+    }
+    if (!(e.target.closest && e.target.closest("[data-cv-pick]"))) closePicks(null);
+  });
+  onDoc("tf:action-done", function (e) {
+    var f = e.detail && e.detail.form; var pick = f && f.closest && f.closest("[data-cv-pick]");
+    if (pick) setTimeout(function () { closePicks(null); }, 900);
+  });
+  onDoc("keydown", function (e) { if (e.key === "Escape") closePicks(null); });
+  // Button feedback for hosted forms: spinner while sending, a short confirmation after.
+  var lastSubmit = null;
+  onDoc("click", function (e) {
+    var b = e.target.closest && e.target.closest("form [type=submit]");
+    if (b) lastSubmit = b;
+  }, true);
+  function buttonFor(form) {
+    if (lastSubmit && lastSubmit.form === form) return lastSubmit;
+    return form && form.querySelector("[type=submit]");
+  }
+  var busy = new WeakMap();
+  onDoc("tf:action-start", function (e) {
+    var form = e.detail && e.detail.form, b = buttonFor(form);
+    if (!b || !b.classList.contains("cv-btn")) return;
+    busy.set(form, b); b.classList.add("is-loading"); b.setAttribute("aria-busy", "true");
+  });
+  function finish(e, ok) {
+    var form = e.detail && e.detail.form, b = form && busy.get(form);
+    if (!b) return;
+    busy.delete(form); b.classList.remove("is-loading"); b.removeAttribute("aria-busy");
+    if (!ok || e.detail.action !== "cart_add" || !b.isConnected) return;
+    var label = [].slice.call(b.childNodes), ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg"), path = document.createElementNS(ns, "path");
+    svg.setAttribute("class", "cv-icon"); svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("aria-hidden", "true"); path.setAttribute("d", "m5 12 5 5L20 7"); svg.appendChild(path);
+    b.classList.add("is-done");
+    b.replaceChildren(svg, document.createTextNode(cur().getAttribute("data-added-label") || ""));
+    setTimeout(function () { if (b.isConnected) { b.replaceChildren.apply(b, label); b.classList.remove("is-done"); } }, 1600);
+  }
+  // Wishlist limit: the header carries the saved count and the store's maximum. When the wishlist
+  // is full, hearts that would add are marked and explain why instead of sending a save the platform
+  // refuses; a refusal the platform does send (its limit message included) shows at the button.
+  function wishState() {
+    var h = cur(), max = parseInt(h.getAttribute("data-cv-wish-max"), 10) || 0, n = parseInt(h.getAttribute("data-cv-wish-count"), 10) || 0;
+    return { full: max > 0 && n >= max };
+  }
+  function wishMark() {
+    var full = wishState().full;
+    document.querySelectorAll("[data-cv-wish]").forEach(function (b) {
+      var off = full && b.getAttribute("aria-pressed") !== "true";
+      b.classList.toggle("is-full", off);
+      if (off) b.setAttribute("aria-disabled", "true"); else b.removeAttribute("aria-disabled");
+    });
+  }
+  function wishSay(form, msg) {
+    if (!form || !msg) return;
+    var host = form.closest(".cv-card__media") || form, m = host.querySelector("[data-cv-wishmsg]");
+    if (!m) { m = document.createElement("p"); m.className = "cv-wishmsg"; m.setAttribute("data-cv-wishmsg", ""); m.setAttribute("role", "alert"); host.appendChild(m); }
+    m.textContent = msg; m.hidden = false;
+    clearTimeout(m.__cvT); m.__cvT = setTimeout(function () { m.hidden = true; }, 5000);
+  }
+  onDoc("submit", function (e) {
+    var f = e.target, b = f && f.querySelector && f.querySelector("[data-cv-wish]");
+    if (!b || b.getAttribute("aria-pressed") === "true" || !wishState().full) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    wishMark(); wishSay(f, cur().getAttribute("data-cv-wish-full"));
+  }, true);
+  onDoc("tf:action-error", function (e) {
+    var d = e.detail || {}, errs = d.result && d.result.user_errors;
+    if (!d.form || !/^wishlist_(toggle|add)$/.test(d.action || "") || !errs || !errs.length) return;
+    var msg = errs.map(function (u) { return u.message; }).filter(Boolean).join(" ");
+    if (!msg) return;
+    e.preventDefault(); wishSay(d.form, msg);
+  });
+  if (once) {
+    var wishT = 0;
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wishMark); else wishMark();
+    // Cards arrive later too (filters, more products, refreshed sections).
+    new MutationObserver(function () { cancelAnimationFrame(wishT); wishT = requestAnimationFrame(wishMark); }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+  // Wishlist toggles keep their section (the bridge does not re-render it), so
+  // the button reflects the saved state the action returns, and so does every other
+  // heart for the same product and variant (the product page's button and its sticky bar's).
+  function wishKey(f) {
+    var p = f && f.querySelector('[name="product_id"]'), v = f && f.querySelector('[name="variant_id"]');
+    return p ? p.value + ":" + (v ? v.value : "") : null;
+  }
+  onDoc("tf:action-success", function (e) {
+    var d = e.detail || {}, form = d.form;
+    if (!form || !/^wishlist_(toggle|add|remove)$/.test(d.action || "")) return;
+    var wl = d.result && d.result.wishlist;
+    if (wl && typeof wl.item_count === "number") { cur().setAttribute("data-cv-wish-count", String(wl.item_count)); requestAnimationFrame(wishMark); }
+    var state = d.result && d.result.product_session_state;
+    var s = state && (state.variant || state.product);
+    if (!s || !s.wishlist) return;
+    var saved = !!s.wishlist.direct_saved, key = wishKey(form);
+    document.querySelectorAll("[data-cv-wish]").forEach(function (b) {
+      var f = b.closest("form");
+      if (f !== form && (!key || wishKey(f) !== key)) return;
+      b.setAttribute("aria-pressed", saved ? "true" : "false");
+      var label = b.querySelector("[data-cv-wish-label]");
+      var text = b.getAttribute(saved ? "data-label-saved" : "data-label-add");
+      if (label && text) label.textContent = text;
+    });
+    if (saved && d.action !== "wishlist_remove") wishToast();
+  });
+  // The first save of a visit shows the theme's toast with a link to the wishlist (Theme settings ›
+  // Notifications); later saves only fill the heart.
+  function wishToast() {
+    var n = document.querySelector("[data-cv-wish-toast]"), text = n && n.querySelector("[data-cv-wish-toast-text]");
+    if (!text) return;
+    try { if (sessionStorage.getItem("cv-wish-toast")) return; sessionStorage.setItem("cv-wish-toast", "1"); } catch (err) {}
+    text.textContent = text.getAttribute("data-text");
+    n.hidden = false; toastLater(n, true);
+  }
+  // Forms in a [data-cv-notice-host] show the platform's own message inline, where a
+  // submission without JavaScript shows form_notice. A host the bridge re-renders
+  // (data-tf-refresh) gets the message after its refresh.
+  var inlineSkip = /^(cart_(?!notify_me$)|wishlist_|discount_code_|auth_code_send$|login$|register$|logout$|localization_set$|consent_)/;
+  var pendingNotice = new WeakMap();
+  function noticeIn(host, ok, msg) {
+    var n = host && host.querySelector("[data-cv-notice]");
+    if (!n || !msg) return false;
+    n.textContent = msg; n.hidden = false;
+    // A message inside a folded section (the cart line's Notify me) opens it, so it is seen.
+    var fold = n.closest("details"); if (fold) fold.open = true;
+    n.className = n.className.replace(/\bcv-notice--(ok|error)\b/g, "").replace(/\s+/g, " ").trim() + (ok ? " cv-notice--ok" : " cv-notice--error");
+    n.setAttribute("role", ok ? "status" : "alert");
+    if (n.classList.contains("cv-toast")) { toastLater(n, ok); return true; }
+    var r = n.getBoundingClientRect();
+    if (r.top < 0 || r.bottom > window.innerHeight) n.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    return true;
+  }
+  // A toast hides itself: a confirmation after 4 seconds, an error after 8.
+  function toastLater(n, ok) {
+    clearTimeout(n.__cvToast);
+    var ms = +cur().getAttribute("data-notice-ms") || 4000;
+    n.__cvToast = setTimeout(function () { n.hidden = true; }, ok ? ms : ms * 2);
+  }
+  // A toast the server rendered (a submission without the bridge) hides the same way.
+  document.querySelectorAll(".cv-toast:not([hidden])").forEach(function (n) { toastLater(n, !n.matches(".cv-notice--error")); });
+  onDoc("tf:action-success", function (e) {
+    var d = e.detail || {}, form = d.form, host = form && form.closest && form.closest("[data-cv-notice-host]");
+    if (!host || inlineSkip.test(d.action || "")) return;
+    var msg = d.result && d.result.response && d.result.response.message;
+    var refreshed = host.closest("[data-tf-refresh]");
+    pendingNotice.set(form, { refresh: refreshed && refreshed.getAttribute("data-tf-refresh"), host: host, key: host.getAttribute("data-cv-notice-host"), msg: msg, keep: /_update$/.test(d.action || "") });
+  });
+  onDoc("tf:action-done", function (e) {
+    var form = e.detail && e.detail.form, p = form && pendingNotice.get(form);
+    if (!p) return;
+    pendingNotice.delete(form);
+    var host = p.host.isConnected ? p.host : p.refresh && document.querySelector('[data-tf-refresh="' + p.refresh + '"]');
+    // After a refresh, the same form's host is found by its key (each cart
+    // line's Notify me has its own), not the section's first host.
+    if (host && !host.hasAttribute("data-cv-notice-host")) {
+      var keyed = p.key && host.querySelector('[data-cv-notice-host="' + (window.CSS && CSS.escape ? CSS.escape(p.key) : p.key) + '"]');
+      host = keyed || host.querySelector("[data-cv-notice-host]") || host;
+    }
+    noticeIn(host, true, p.msg);
+    if (form.isConnected && !p.keep) form.reset();
+  });
+  onDoc("tf:action-error", function (e) {
+    var d = e.detail || {}, form = d.form, host = form && form.closest && form.closest("[data-cv-notice-host]");
+    if (!host || inlineSkip.test(d.action || "")) return;
+    var errs = d.result && d.result.user_errors;
+    var msg = errs && errs.length ? errs.map(function (u) { return u.message; }).join(" ") : "";
+    if (noticeIn(host, false, msg)) e.preventDefault();
+  });
+  onDoc("tf:action-done", function (e) { finish(e, true); });
+  onDoc("tf:action-error", function (e) { finish(e, false); });
+  // Back-in-stock forms (partials/notify-me): Email or Text message shows, requires and sends only the chosen
+  // contact field; a sent form is reset back to Email; the phone goes as + and digits only.
+  function notifySync(form) {
+    var k = form.querySelector("[data-cv-notify-kind]:checked"); if (!k) return;
+    // A field is an input, or a phone field's wrapper whose number and sent value switch together.
+    form.querySelectorAll("[data-cv-notify-field]").forEach(function (f) {
+      var on = f.getAttribute("data-cv-notify-field") === k.value;
+      f.hidden = !on;
+      (f.matches("input") ? [f] : [].slice.call(f.querySelectorAll("[data-cv-phone-num], [data-cv-phone-out]"))).forEach(function (i) {
+        i.disabled = !on; if (i.type !== "hidden") i.required = on;
+      });
+    });
+  }
+  onDoc("change", function (e) { if (e.target.matches && e.target.matches("[data-cv-notify-kind]")) notifySync(e.target.form); });
+  onDoc("reset", function (e) { var f = e.target; if (f.querySelector && f.querySelector("[data-cv-notify-kind]")) setTimeout(function () { notifySync(f); }); }, true);
+  if (once) addEventListener("submit", function (e) {
+    var ph = e.target.querySelector && e.target.querySelector('[data-cv-notify-field="sms"] [name="phone"]:not(:disabled)');
+    if (ph) ph.value = ph.value.replace(/[^\d+]/g, "");
+  }, true);
+  // Sticky behaviour.
+  var mode = root.getAttribute("data-sticky");
+  window.addEventListener("scroll", function onScroll1() {
+    if (!root.isConnected) { window.removeEventListener("scroll", onScroll1); return; }
+    root.classList.toggle("is-scrolled", window.scrollY > 4); }, { passive: true });
+  if (mode === "always" || mode === "scroll-up") {
+    root.classList.add("is-sticky");
+    if (mode === "scroll-up") {
+      var lastY = window.scrollY;
+      window.addEventListener("scroll", function onScroll2() {
+        if (!root.isConnected) { window.removeEventListener("scroll", onScroll2); return; }
+        var y = window.scrollY;
+        // A search panel that is open (or an always-shown search field the shopper is typing in) keeps the header in view.
+        var sp = root.querySelector("[data-cv-search]");
+        var hide = y > lastY && y > root.offsetHeight * 2 && sp && (sp.hasAttribute("data-cv-search-inline") ? !sp.contains(document.activeElement) : sp.hidden !== false);
+        root.classList.toggle("is-hidden", !!hide);
+        lastY = y;
+      }, { passive: true });
+    }
+  }
+  // Predictive search (partials/suggest-script.html, shared with the search page).
+  window.cvSuggest(root.querySelector("[data-cv-suggest-input]"), root.querySelector("[data-cv-suggest]"));
+})();
+</script>
+{%- comment -%}partial:loc-script{%- endcomment -%}
+{%- comment -%}/partial:loc-script{%- endcomment -%}
+{%- comment -%}partial:pickup-sheet{%- endcomment -%}
+{%- comment -%}/partial:pickup-sheet{%- endcomment -%}

@@ -1,0 +1,13 @@
+  .cv-auth { display: grid; gap: 16px; }
+  .cv-auth__form { display: grid; gap: 14px; }
+  .cv-auth__panel { display: grid; gap: 14px; margin: 0; padding: 0; border: 0; min-width: 0; }
+  .cv-auth__panel[hidden] { display: none; }
+  .cv-auth__two { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+  .cv-auth__code { font-size: 22px; letter-spacing: 0.3em; text-align: center; }
+  .cv-auth__tabs { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .cv-auth__tab { padding: 12px; font: inherit; font-size: 15px; color: var(--text-muted); background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer; }
+  .cv-auth__tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--text); }
+  .cv-auth__hint { margin: -6px 0 0; font-size: 13px; }
+  .cv-auth__alt { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-top: 6px; font-size: 14px; }
+/* partial:phone */
+/* /partial:phone */

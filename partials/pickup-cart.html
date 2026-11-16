@@ -1,0 +1,13 @@
+{%- comment -%} Cart page and drawer, above the lines: in pickup mode, where the cart is collected (cart.pickup_location) and a way to change it.
+  Lines the location cannot supply say so in partials/cart-lines. Nothing renders while the store offers no pickup. {%- endcomment -%}
+{%- if shopping.pickup_available -%}
+  {%- if cart.mode == 'pickup' and cart.pickup_location -%}
+  <div class="cv-pk-cart">
+    <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20"/></svg>
+    <p class="cv-pk-cart__text"><strong>{{ 'pickup.picking_up_at' | t: store: cart.pickup_location.name }}</strong>{%- if cart.pickup_location.ready_in_label != blank -%}<span class="cv-muted"> · {{ cart.pickup_location.ready_in_label }}</span>{%- endif -%}</p>
+    <button class="cv-tbtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-pickup" data-cv-pk-open>{{ 'pickup.change' | t }}<span class="cv-sr">: {{ 'pickup.title' | t }}</span></button>
+  </div>
+  {%- endif -%}
+{%- elsif design_mode -%}
+  <p class="cv-editor-hint cv-pk-hint">{{ 'pickup.editor_off' | t }}</p>
+{%- endif -%}

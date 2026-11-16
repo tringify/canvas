@@ -1,0 +1,35 @@
+{
+  "name": "product-reviews",
+  "icon": "message-square",
+  "ctx_needs": [
+    "reviews",
+    "product",
+    "forms",
+    "customer.logged_in",
+    "form_notice",
+    "csrf_token",
+    "shop",
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.product_reviews.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ]
+}

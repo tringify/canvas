@@ -1,0 +1,79 @@
+      {%- comment -%} Delivery or pickup (Theme settings › Pickup), ahead of the blocks; it opens the sheet in partials/pickup-sheet. Nothing renders while the store offers no pickup. {%- endcomment -%}
+      {%- if shopping.pickup_available -%}
+        {%- if theme.settings.pickup_chip != false -%}
+        <button class="cv-pk-chip cv-pk-chip--{{ theme.settings.pickup_chip_style | default: 'text' }}{% if cv_menu.items.size > 0 %} cv-pk-chip--has-mnav{% endif %}" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-pickup" data-cv-pk-open>
+          <span class="cv-sr">{{ 'pickup.title' | t }}:</span>
+          {%- if shopping.pickup_location -%}
+          <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20"/></svg><span class="cv-pk-chip__text">{{ 'pickup.pickup' | t }} · <span dir="auto">{{ shopping.pickup_location.name }}</span></span>
+          {%- else -%}
+          <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 6.5h11v10h-11zM13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6.5" cy="17.5" r="1.75"/><circle cx="16.5" cy="17.5" r="1.75"/></svg><span class="cv-pk-chip__text">{{ 'pickup.delivery' | t }}</span>
+          {%- endif -%}
+          <svg class="cv-icon cv-pk-chip__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        {%- endif -%}
+      {%- elsif design_mode and theme.settings.pickup_chip != false -%}
+        <p class="cv-editor-hint cv-pk-hint" title="{{ 'pickup.editor_off' | t }}">{{ 'pickup.editor_off_short' | t }}</p>
+      {%- endif -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+        {%- case b.type -%}
+          {%- when 'search' -%}
+            {%- comment -%} header-mega shows search as a field of its own (cv_search_inline), not as an icon. {%- endcomment -%}
+            {%- if b.settings.show_search != false and cv_search_inline != true -%}
+            {{ b._editor_block_open }}
+            <button class="cv-hd__icon" type="button" data-cv-open="cv-search" aria-controls="cv-search" aria-expanded="false">
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <span class="cv-sr">{{ 'header.search' | t }}</span>
+            </button>
+            {{ b._editor_block_close }}
+            {%- endif -%}
+          {%- when 'account' -%}
+            {%- if b.settings.show_account != false -%}
+            {{ b._editor_block_open }}
+            {%- comment -%} Narrow phones with the wishlist heart in the bar keep the account in the menu sheet only (its foot lists it), so the logo stays centred. {%- endcomment -%}
+            <a class="cv-hd__icon{% if cv_wish_phone and cv_menu.items.size > 0 %} cv-hd__icon--in-menu{% endif %}" href="{% if customer.logged_in %}{{ routes.account_url }}{% else %}{{ routes.login_url }}{% endif %}">
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+              <span class="cv-sr">{% if customer.logged_in %}{{ 'header.account' | t }}{% else %}{{ 'header.sign_in' | t }}{% endif %}</span>
+            </a>
+            {{ b._editor_block_close }}
+            {%- endif -%}
+          {%- when 'wishlist' -%}
+            {%- if customer_settings.wishlist_enabled and b.settings.show_wishlist != false -%}
+            {{ b._editor_block_open }}
+            {%- comment -%} "Show on phones" keeps the heart and its count in the phone bar too (the menu sheet lists the wishlist either way). {%- endcomment -%}
+            <a class="cv-hd__icon{% if b.settings.show_on_phones == false %} cv-hd__icon--desk{% else %} cv-hd__icon--phone{% endif %} cv-hd__wish" href="{{ routes.wishlist_url }}">
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+              <span class="cv-sr">{{ 'header.wishlist' | t }}</span>
+              <span data-tf-refresh="{{ cv_refresh }}">{% if wishlist.item_count > 0 %}<span class="cv-hd__count" aria-hidden="true">{% if wishlist.item_count > 99 %}99+{% else %}{{ wishlist.item_count }}{% endif %}</span>{% endif %}</span>
+            </a>
+            {{ b._editor_block_close }}
+            {%- endif -%}
+          {%- when 'cart' -%}
+            {%- if b.settings.show == false -%}{%- continue -%}{%- endif -%}
+            {{ b._editor_block_open }}
+            <a class="cv-hd__icon cv-hd__cart" href="{{ routes.cart_url }}" data-cv-cart-link data-cart-type="{{ theme.settings.cart_type }}">
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+              <span class="cv-sr">{{ 'header.cart' | t }}</span>
+              <span data-tf-refresh="{{ cv_refresh }}">{% if cart.item_count > 0 %}<span class="cv-hd__count" aria-label="{{ 'header.cart_count' | t: count: cart.item_count }}">{% if cart.item_count > 99 %}99+{% else %}{{ cart.item_count }}{% endif %}</span>{% endif %}</span>
+            </a>
+            {{ b._editor_block_close }}
+          {%- when 'localization' -%}
+            {%- assign cv_loc_c = false -%}{%- assign cv_loc_l = false -%}
+            {%- if b.settings.show_country != false and localization.available_countries.size > 1 -%}{%- assign cv_loc_c = true -%}{%- endif -%}
+            {%- if b.settings.show_language != false and localization.available_languages.size > 1 -%}{%- assign cv_loc_l = true -%}{%- endif -%}
+            {%- if cv_loc_c or cv_loc_l -%}
+            {{ b._editor_block_open }}
+            <div class="cv-hd__loc cv-hd__icon--desk">
+              {%- assign cv_loc_id = 'hd-' | append: b.id -%}{%- assign cv_loc_pick = b.settings.picker_style | default: 'pill' -%}
+              {%- comment -%}partial:loc-picker{%- endcomment -%}{%- comment -%}/partial:loc-picker{%- endcomment -%}
+            </div>
+            {{ b._editor_block_close }}
+            {%- endif -%}
+          {%- when 'link' -%}
+            {%- if b.settings.label != blank and b.settings.link != blank or b.settings.label != blank and design_mode -%}
+            {{ b._editor_block_open }}
+            <a dir="auto" class="cv-hd__link cv-hd__icon--desk" data-tf-field="label"{% if b.settings.link != blank %} href="{{ b.settings.link }}"{% endif %}>{{ b.settings.label }}</a>
+            {{ b._editor_block_close }}
+            {%- endif -%}
+        {%- endcase -%}
+      {%- endfor -%}

@@ -1,0 +1,7 @@
+<main class="cv cv-gate tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-gate__box">
+    <p class="cv-gate__shop">{{ shop.name }}</p>
+    {%- if settings.heading != blank -%}<h1 dir="auto" data-tf-field="heading" class="cv-h2">{{ settings.heading }}</h1>{%- endif -%}
+    {%- if settings.text != blank -%}<p dir="auto" data-tf-field="text" class="cv-muted">{{ settings.text }}</p>{%- endif -%}
+  </div>
+</main>

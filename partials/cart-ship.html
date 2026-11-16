@@ -1,0 +1,12 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: progress to free shipping. Reads cart. A pickup cart is not shipped, so it shows none. {%- endcomment -%}
+{%- if cart.free_shipping and cart.free_shipping.threshold and cart.mode != 'pickup' -%}
+  <div class="cv-sum__ship">
+    {%- if cart.free_shipping.qualified -%}
+      <p class="cv-sum__ship-text">{{ 'cart.free_shipping_done' | t }}</p>
+    {%- else -%}
+      <p class="cv-sum__ship-text">{{ 'cart.free_shipping_left' | t }} <strong>{{ cart.free_shipping.remaining | money: isolate: true, trim_zeros: cv_tz }}</strong></p>
+    {%- endif -%}
+    <span class="cv-sum__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ cart.free_shipping.progress | default: 0 }}"><span style="width: {{ cart.free_shipping.progress | default: 0 }}%"></span></span>
+  </div>
+{%- endif -%}

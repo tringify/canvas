@@ -1,0 +1,46 @@
+  /* Product layouts for listings: grid, editorial (a large lead card every seven), list (rows). */
+  .cv-pl__grid--editorial { grid-auto-flow: row dense; }
+  @media (min-width: 750px) {
+    .cv-pl__grid--editorial { --cv-cols: 3 !important; }
+    .cv-pl__grid--editorial > .cv-card:nth-child(7n + 1) { grid-column: span 2; grid-row: span 2; }
+    .cv-pl__grid--editorial > .cv-card:nth-child(14n + 8) { grid-column: 2 / span 2; }
+    .cv-pl__grid--editorial > .cv-card:nth-child(7n + 1) .cv-card__media { flex: 1; aspect-ratio: auto; min-height: 420px; }
+    .cv-pl__grid--editorial > .cv-card:nth-child(7n + 1) .cv-card__title { font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); font-family: var(--tf-font-heading_font, inherit); letter-spacing: -0.02em; font-weight: 400; text-transform: none; }
+  }
+  @media (max-width: 749px) {
+    .cv-pl__grid--editorial > .cv-card:nth-child(5n + 1) { grid-column: 1 / -1; }
+    .cv-pl__grid--editorial > .cv-card:nth-child(5n + 1) .cv-card__media { aspect-ratio: 4 / 3; }
+  }
+  /* A last card that would sit alone (or leave a hole) stretches across the gap with its details beside the photo, so the grid always ends on a full row. */
+  @media (min-width: 750px) {
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) { grid-column: span 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); align-content: center; align-items: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) > * { grid-column: 2 / -1; grid-row: 1; align-self: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) > .cv-card__media { grid-column: 1; align-self: stretch; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) .cv-card__info { justify-items: start; text-align: start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) :is(.cv-card__price, .cv-card__extra) { justify-content: flex-start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) .cv-card__title { font-family: var(--tf-font-heading_font, inherit); font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); font-weight: 400; letter-spacing: -0.02em; text-transform: none; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) { grid-column: span 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); align-content: center; align-items: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) > * { grid-column: 2 / -1; grid-row: 1; align-self: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) > .cv-card__media { grid-column: 1; align-self: stretch; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) .cv-card__info { justify-items: start; text-align: start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) :is(.cv-card__price, .cv-card__extra) { justify-content: flex-start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) .cv-card__title { font-family: var(--tf-font-heading_font, inherit); font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); font-weight: 400; letter-spacing: -0.02em; text-transform: none; }
+  }
+  @media (max-width: 749px) {
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) { grid-column: span 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); align-content: center; align-items: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) > * { grid-column: 2 / -1; grid-row: 1; align-self: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) > .cv-card__media { grid-column: 1; align-self: stretch; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) .cv-card__info { justify-items: start; text-align: start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) :is(.cv-card__price, .cv-card__extra) { justify-content: flex-start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) .cv-card__title { font-family: var(--tf-font-heading_font, inherit); font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); font-weight: 400; letter-spacing: -0.02em; text-transform: none; }
+  }
+  .cv-pl__grid--list { grid-template-columns: minmax(0, 1fr) !important; gap: 0; }
+  .cv-pl__grid--list > .cv-card { display: grid; grid-template-columns: clamp(96px, 16vw, 200px) minmax(0, 1fr); align-items: center; gap: clamp(16px, 2.6vw, 36px);
+    padding-block: clamp(14px, 1.6vw, 22px); border-bottom: 1px solid var(--cv-line); }
+  .cv-pl__grid--list > .cv-card:first-child { border-top: 1px solid var(--cv-line); }
+  .cv-pl__grid--list .cv-card__info { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 24px; }
+  .cv-pl__grid--list .cv-card__vendor, .cv-pl__grid--list .cv-card__title, .cv-pl__grid--list .cv-card__extra { grid-column: 1; }
+  .cv-pl__grid--list .cv-card__price { grid-column: 2; grid-row: 1 / span 3; font-size: clamp(15px, 1.4vw, 18px); }
+  .cv-pl__grid--list .cv-card__title { font-size: clamp(16px, 1.6vw, 22px); letter-spacing: -0.02em; }
+  .cv-pl__grid--list .cv-card__wishform { inset-block-start: 6px; inset-inline-end: 6px; }
+  .cv-pl__grid--list .cv-card__wish { width: 30px; height: 30px; }

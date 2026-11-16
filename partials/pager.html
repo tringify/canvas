@@ -1,0 +1,64 @@
+{%- comment -%} Pages of a listing: numbered (Previous, Page X of Y, Next), a Load more button, or infinite scroll (the same button,
+pressed when it nears the screen). Load more and infinite scroll fetch the next page's section and append its items to the grid
+marked data-cv-pager-grid; without script the button is a plain link to the next page. Reads cv_pg (the pagination) and
+cv_paging (numbered, load_more or infinite). {%- endcomment -%}
+{%- if cv_pg.total_pages > 1 or cv_pg.has_next -%}
+  <nav class="cv-pager" aria-label="{{ 'general.pagination' | t }}" data-cv-pager="{{ cv_paging | default: 'numbered' }}">
+    {%- if cv_paging == 'load_more' or cv_paging == 'infinite' -%}
+      {%- if cv_pg.has_prev -%}<a class="cv-tbtn" href="{{ cv_pg.prev_url }}" rel="prev">{{ 'general.previous' | t }}</a>{%- endif -%}
+      {%- if cv_pg.has_next -%}<a class="cv-btn cv-btn--outline cv-pager__more" href="{{ cv_pg.next_url }}" rel="next" data-cv-more data-loading="{{ 'general.loading' | t }}">{{ 'general.load_more' | t }}</a>{%- endif -%}
+    {%- else -%}
+      {%- if cv_pg.has_prev -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ cv_pg.prev_url }}" rel="prev">{{ 'general.previous' | t }}</a>{%- endif -%}
+      <span class="cv-muted">{{ 'general.page_of' | t: page: cv_pg.current_page, pages: cv_pg.total_pages }}</span>
+      {%- if cv_pg.has_next -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ cv_pg.next_url }}" rel="next">{{ 'general.next' | t }}</a>{%- endif -%}
+    {%- endif -%}
+  </nav>
+  {%- if cv_paging == 'load_more' or cv_paging == 'infinite' -%}
+<script>
+(function () {
+  if (window.__cvPager) { window.__cvPager(); return; }
+  function more(a) {
+    if (a.__cvBusy) return;
+    var nav = a.closest("[data-cv-pager]"), sec = a.closest("[data-tf-soft-nav]");
+    var grid = sec && sec.querySelector("[data-cv-pager-grid]");
+    if (!nav || !grid) { location.href = a.href; return; }
+    a.__cvBusy = true; a.setAttribute("aria-busy", "true"); a.textContent = a.getAttribute("data-loading");
+    var type = sec.getAttribute("data-tf-soft-nav"), url = new URL(a.href, location.href);
+    url.searchParams.set("_sections", type);
+    fetch(url, { credentials: "same-origin", headers: { Accept: "application/json" } })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        var html = j && j.sections && j.sections[type];
+        if (!html) throw new Error("no section");
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var next = doc.querySelector("[data-cv-pager-grid]"), nextNav = doc.querySelector("[data-cv-pager]");
+        if (!next) throw new Error("no grid");
+        var first = null;
+        Array.prototype.slice.call(next.children).forEach(function (el) { var n = document.importNode(el, true); first = first || n; grid.appendChild(n); });
+        // Pages already on screen need no Previous link.
+        if (nextNav) { nextNav = document.importNode(nextNav, true); nextNav.querySelectorAll('a[rel="prev"]').forEach(function (p) { p.remove(); }); nav.replaceWith(nextNav); } else nav.remove();
+        // Keyboard and screen-reader users land on the first new item, not back at the top.
+        var focus = first && first.querySelector("a[href]");
+        if (focus && a === document.activeElement) focus.focus({ preventScroll: true });
+        watch();
+      })
+      .catch(function () { location.href = a.href; });
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("[data-cv-more]");
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    e.preventDefault(); more(a);
+  });
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { if (en.isIntersecting) { io.unobserve(en.target); more(en.target); } });
+  }, { rootMargin: "600px 0px" }) : null;
+  function watch() {
+    if (!io) return;
+    document.querySelectorAll('[data-cv-pager="infinite"] [data-cv-more]').forEach(function (a) { if (!a.__cvSeen) { a.__cvSeen = true; io.observe(a); } });
+  }
+  window.__cvPager = watch;
+  watch();
+})();
+</script>
+  {%- endif -%}
+{%- endif -%}

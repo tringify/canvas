@@ -1,0 +1,73 @@
+<script>
+// Optional services ([data-cv-osv], partials/optional-services): ticking or unticking a fee sends its cart_fee_select form at
+// once; the box shows the new choice while it is sent. A change made while one is in flight is sent when it ends. A refusal
+// (a fee the market no longer offers, more than ten chosen, a failed request) puts the box back as the cart has it, and the
+// platform shows its message. A refresh redraws the boxes from the cart. A fee's text ([data-cv-osv-text]) is sent when it
+// changes (on leaving the field); a newer text typed while one is in flight follows it. A refusal of the text itself
+// (too long: a user error on field text) shows under the field; others the platform shows.
+(function () {
+  if (window.__cvOsv) return; window.__cvOsv = true;
+  function box(f) { return f && f.querySelector && f.querySelector("input[data-cv-osv]"); }
+  function field(f) { return f && f.querySelector && f.querySelector("[data-cv-osv-text]"); }
+  function submit(f, b) {
+    f.__cvOsvBusy = true; f.setAttribute("aria-busy", "true");
+    if (f.requestSubmit) f.requestSubmit(); else f.querySelector(b).click();
+  }
+  function send(f) {
+    var i = box(f); if (!i) return;
+    if (f.__cvOsvBusy) { f.__cvOsvAgain = true; return; }
+    f.querySelector("[data-cv-osv-sel]").value = i.checked ? "true" : "false";
+    submit(f, ".cv-osv__go");
+  }
+  function sendText(f) {
+    if (f.__cvOsvBusy) { f.__cvOsvAgain = true; return; }
+    say(f, ""); f.__cvOsvSent = field(f).value;
+    submit(f, ".cv-osv__save");
+  }
+  function say(f, msg) {
+    var p = f.querySelector("[data-cv-osv-err]"), t = field(f);
+    if (p) { p.textContent = msg; p.hidden = !msg; }
+    if (msg) t.setAttribute("aria-invalid", "true"); else t.removeAttribute("aria-invalid");
+  }
+  function idle(f) { f.__cvOsvBusy = false; f.removeAttribute("aria-busy"); }
+  // A box no request is changing shows the cart's choice, which the server wrote as its checked attribute.
+  function sync() {
+    document.querySelectorAll("input[data-cv-osv]").forEach(function (i) { if (!i.form || !i.form.__cvOsvBusy) i.checked = i.defaultChecked; });
+  }
+  function isFee(d) { return d && d.action === "cart_fee_select" && box(d.form); }
+  function isText(d) { return d && d.action === "cart_fee_select" && field(d.form); }
+  document.addEventListener("change", function (e) {
+    var i = e.target; if (!i || !i.matches) return;
+    if (i.matches("input[data-cv-osv]")) send(i.form);
+    else if (i.matches("[data-cv-osv-text]")) sendText(i.form);
+  });
+  document.addEventListener("tf:action-done", function (e) {
+    var f = isFee(e.detail) ? e.detail.form : null;
+    if (f) {
+      idle(f);
+      var again = f.__cvOsvAgain; f.__cvOsvAgain = false;
+      if (again && box(f).checked !== box(f).defaultChecked) { send(f); }
+    }
+    var t = isText(e.detail) ? e.detail.form : null;
+    if (t) {
+      idle(t);
+      var more = t.__cvOsvAgain; t.__cvOsvAgain = false;
+      if (more && t.isConnected && field(t).value !== t.__cvOsvSent) { sendText(t); }
+    }
+    sync();
+  });
+  document.addEventListener("tf:action-error", function (e) {
+    if (isText(e.detail)) {
+      var t = e.detail.form, errs = (e.detail.result && e.detail.result.user_errors) || [];
+      idle(t); t.__cvOsvAgain = false;
+      var mine = errs.filter(function (u) { return (u.field || []).indexOf("text") >= 0; });
+      var msg = mine.map(function (u) { return u.message; }).filter(Boolean).join(" ");
+      if (msg && mine.length === errs.length) { e.preventDefault(); say(t, msg); }
+      return;
+    }
+    if (!isFee(e.detail)) return;
+    var f = e.detail.form; idle(f); f.__cvOsvAgain = false; box(f).checked = box(f).defaultChecked;
+  });
+  document.addEventListener("tf:section-rendered", sync);
+})();
+</script>

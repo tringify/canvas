@@ -1,0 +1,67 @@
+{%- comment -%} Dated milestones along a line. A milestone shows once it has a date, title or text (the section stays hidden until one does); its picture is the merchant's image, else the theme photo picked in Photo until you add your own. {%- endcomment -%}
+{%- assign cv_n = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled -%}{%- continue -%}{%- endif -%}{%- if b.settings.date != blank or b.settings.title != blank or b.settings.text != blank -%}{%- assign cv_n = cv_n | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_n > 0 or design_mode -%}
+<section class="cv cv-section cv-tl tf-scheme-{{ settings.color_scheme }} cv-tl--{{ settings.layout }} cv-pad--{{ settings.padding | default: 'default' }}">
+  {%- if design_mode and cv_n == 0 -%}<p class="cv-editor-hint">{{ 'sections.editor_add_content' | t }}</p>{%- endif -%}
+  <div class="cv-wrap">
+    {%- if settings.heading != blank or settings.text != blank -%}
+    <div class="cv-head{% if settings.layout == 'alternate' %} cv-head--center{% endif %}">
+      <div>
+        {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+        {%- if settings.text != blank -%}<p dir="auto" class="cv-muted" data-tf-field="text">{{ settings.text }}</p>{%- endif -%}
+      </div>
+    </div>
+    {%- endif -%}
+    <ol class="cv-tl__list" role="list">
+      {%- assign cv_tli = 0 -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+        {%- assign cv_has = false -%}{%- if b.settings.date != blank or b.settings.title != blank or b.settings.text != blank -%}{%- assign cv_has = true -%}{%- endif -%}
+        {%- unless cv_has -%}{%- continue -%}{%- endunless -%}
+        {%- assign cv_tli = cv_tli | plus: 1 -%}
+        {%- assign cv_photo = b.settings.fallback_photo -%}{%- assign cv_photo_i = cv_tli -%}{%- assign cv_photo_wide = true -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+        <li class="cv-tl__item cv-reveal">
+          {{ b._editor_block_open }}
+          <div class="cv-tl__card">
+            {%- if b.settings.date != blank -%}<p dir="auto" class="cv-tl__date" data-tf-field="date">{{ b.settings.date }}</p>{%- endif -%}
+            {%- if b.settings.title != blank -%}<h3 dir="auto" class="cv-h3 cv-tl__title" data-tf-field="title">{{ b.settings.title }}</h3>{%- endif -%}
+            {%- if b.settings.text != blank -%}<p dir="auto" class="cv-muted cv-tl__text" data-tf-field="text">{{ b.settings.text }}</p>{%- endif -%}
+            {%- if b.settings.image -%}<div class="cv-tl__img cv-media"><img src="{{ b.settings.image | image_url: width: 900 }}" srcset="{{ b.settings.image | image_srcset: max: 1400 }}" sizes="(min-width: 990px) 40vw, 90vw" alt="{{ b.settings.image.alt_text }}"{% if b.settings.image.width and b.settings.image.height %} width="{{ b.settings.image.width }}" height="{{ b.settings.image.height }}"{% endif %} loading="lazy" data-tf-field="image"></div>
+            {%- elsif cv_fb != blank -%}<div class="cv-tl__img cv-media"><img src="{{ cv_fb | asset_url }}" alt="" width="{{ cv_fbw }}" height="{{ cv_fbh }}" loading="lazy"></div>{%- endif -%}
+          </div>
+          {{ b._editor_block_close }}
+        </li>
+      {%- endfor -%}
+    </ol>
+  </div>
+</section>
+{%- endif -%}

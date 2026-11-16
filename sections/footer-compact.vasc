@@ -1,0 +1,1241 @@
+<style>
+  /* Canvas design system. Repeated in every section, because sections are standalone. */
+  :where(.cv) { --cv-pad-x: clamp(16px, 4vw, 56px); --cv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --cv-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+    --cv-soft: color-mix(in srgb, var(--text) 5%, var(--bg)); --cv-line: color-mix(in srgb, var(--text) 10%, transparent);
+    font-family: var(--tf-font-body_font, "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: 15px; line-height: 1.55; letter-spacing: -0.006em; color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01", "cv11"; }
+  :where(.cv *) { box-sizing: border-box; }
+  .cv[hidden], .cv [hidden] { display: none !important; }
+  :where(.cv img) { max-width: 100%; display: block; }
+  :where(.cv a) { color: inherit; }
+  :where(.cv-section) { padding-block: calc(var(--cv-gap-y, clamp(56px, 8vw, 112px)) * 0.58); }
+  :where(.cv-section--page) { padding-top: clamp(28px, 4vw, 56px); }
+  :where(.cv-page-title) { font-size: calc(clamp(32px, 4vw, 56px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-wrap) { width: 100%; max-width: var(--cv-width, 1440px); margin-inline: auto; padding-inline: var(--cv-pad-x); }
+  :where(.cv-app-blocks) { display: grid; gap: 16px; margin-top: 24px; }
+  .cv-app-blocks:empty { display: none; }
+  :where(.cv-h1, .cv-h2, .cv-h3, .cv-h4) { font-family: var(--tf-font-heading_font, inherit); font-weight: 500; line-height: 1.04;
+    letter-spacing: -0.035em; text-transform: var(--cv-heading-case, none); margin: 0; text-wrap: balance; }
+  :where(.cv-h1) { font-size: calc(clamp(40px, 6.4vw, 88px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h2) { font-size: calc(clamp(28px, 3.6vw, 48px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h3) { font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); letter-spacing: -0.02em; line-height: 1.2; }
+  :where(.cv-h4) { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+  :where(.cv-eyebrow) { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0; }
+  :where(.cv-muted) { color: var(--text-muted); }
+  :where(.cv-meta > * + *)::before { content: " · "; }
+  :where(.cv-rte) { line-height: 1.65; }
+  :where(.cv-rte > * + *) { margin-top: 0.9em; }
+  :where(.cv-rte a) { text-underline-offset: 3px; }
+  :where(.cv-rte ul, .cv-rte ol) { margin: 0; padding-inline-start: 1.25em; }
+  :where(.cv-rte li + li) { margin-top: 0.3em; }
+
+  :where(.cv-btn) { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 26px;
+    font: inherit; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+    background: var(--btn); color: var(--btn-text); border: 0; border-radius: var(--cv-btn-radius, 999px); -webkit-tap-highlight-color: transparent;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(0 0 0 / 0.08);
+    transition: transform 0.25s var(--cv-ease), background-color 0.25s var(--cv-ease), color 0.25s var(--cv-ease), box-shadow 0.25s var(--cv-ease); }
+  :where(.cv-btn:hover) { background: color-mix(in srgb, var(--btn) 86%, var(--bg)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 6px 18px -6px rgb(0 0 0 / 0.35); }
+  :where(.cv-btn:active) { transform: scale(0.97); }
+  :where(.cv-btn--outline, .cv-btn--soft) { background: var(--cv-soft); color: var(--text); box-shadow: none; }
+  :where(.cv-btn--outline:hover, .cv-btn--soft:hover) { background: color-mix(in srgb, var(--text) 10%, var(--bg)); box-shadow: none; }
+  :where(.cv-btn--ghost) { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--ghost:hover) { background: var(--cv-soft); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--link) { min-height: 0; padding: 0; gap: 6px; background: none; box-shadow: none; color: var(--text); font-weight: 500; text-decoration: none; }
+  :where(.cv-btn--link)::after { content: ""; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--cv-arrow) center / contain no-repeat; mask: var(--cv-arrow) center / contain no-repeat; transition: transform 0.25s var(--cv-ease); }
+  :where(.cv-btn--link:hover) { background: none; box-shadow: none; }
+  :where([dir="rtl"] .cv-btn--link)::after { transform: scaleX(-1); }
+  :where(.cv-btn--link:active) { transform: none; }
+  :where(.cv-btn--plain)::after { content: none; }
+  :where(.cv-btn--block) { width: 100%; }
+  :where(.cv-btn--sm) { min-height: 38px; padding: 0 16px; font-size: 14px; }
+  :where(.cv-btn--lg) { min-height: 56px; padding: 0 32px; font-size: 16px; }
+  :where(.cv-btn:disabled, .cv-btn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  :where(.cv-btn.is-loading, .cv-btn.is-done) { opacity: 1; cursor: progress; }
+  :where(.cv-btn.is-loading) > *, :where(.cv-btn.is-loading) { color: transparent; }
+  :where(.cv-btn.is-loading)::before { content: ""; position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+    border: 2px solid var(--btn-text); border-right-color: transparent; animation: cv-spin 0.7s linear infinite; }
+  :where(.cv-btn--outline.is-loading, .cv-btn--soft.is-loading, .cv-btn--ghost.is-loading)::before { border-color: var(--text); border-right-color: transparent; }
+  /* A link button (wishlist, share) keeps its icon and label while busy and only dims: a spinner on a borderless button reads as the control vanishing. */
+  .cv-btn--link.is-loading, .cv-btn--link.is-loading > * { color: inherit; }
+  .cv-btn--link.is-loading { opacity: 0.55; }
+  .cv-btn--link.is-loading::before { content: none; }
+  :where(.cv-btn.is-done) { animation: cv-pop 0.4s var(--cv-ease); }
+  /* Text buttons: actions set as words (Clear cart, Create account, Edit, Show more), on <button>, <a> or <summary>. No underline and
+     no arrow, at rest or on hover: muted at rest, ink on hover. A surface with other colours sets --cv-tbtn and --cv-tbtn-hover.
+     Links inside running prose keep the browser underline; .cv-btn--link (with its arrow) is for navigation such as "Continue shopping". */
+  :where(.cv-tbtn) { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 0; font: inherit; font-weight: 500; letter-spacing: inherit;
+    color: var(--cv-tbtn, var(--text-muted)); text-align: start; text-decoration: none; background: none; border: 0; border-radius: 4px; cursor: pointer;
+    list-style: none; -webkit-tap-highlight-color: transparent; transition: color 0.2s var(--cv-ease); }
+  :where(.cv-tbtn:hover) { color: var(--cv-tbtn-hover, var(--text)); text-decoration: none; }
+  :where(.cv-tbtn)::-webkit-details-marker { display: none; }
+  :where(.cv-tbtn:disabled, .cv-tbtn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; }
+  @keyframes cv-spin { to { transform: rotate(360deg); } }
+  @keyframes cv-pop { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+  :where(.cv-field) { display: grid; gap: 6px; }
+  :where(.cv-label) { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+  :where(.cv-input) { width: 100%; min-height: 50px; padding: 0 18px; font: inherit; font-size: 15px; color: var(--text); background: var(--cv-soft);
+    border: 1px solid transparent; border-radius: var(--cv-field-radius, 14px); outline: none; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
+  :where(.cv-input::placeholder) { color: color-mix(in srgb, var(--text) 45%, transparent); }
+  :where(.cv-input:hover) { background: color-mix(in srgb, var(--text) 7%, var(--bg)); }
+  :where(.cv-input:focus) { background: var(--bg); border-color: var(--text); box-shadow: none; }
+  :where(textarea.cv-input) { min-height: 132px; padding: 14px 18px; resize: vertical; }
+  :where(select.cv-input) { appearance: none; padding-inline-end: 44px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 18px center; }
+  /* Focus. Fields (text, email, phone, code, search, quantity, select, textarea) show it with their own border only, for mouse, touch and
+     keyboard alike. Everything else (buttons, links, swatches, cards, checks, tabs, dots, chips) gets one thin ring, for keyboard focus only.
+     A field drawn by its wrapper (newsletter pill, search bar, quantity stepper) puts .cv-shell on the wrapper, which takes the border.
+     Sections only move the ring (offset, colour) or draw it on a proxy with var(--cv-ring); they never add their own. */
+  :where(.cv) { --cv-ring: 2px solid var(--text); --cv-ring-offset: 2px; }
+  :where(.cv :focus-visible) { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }
+  :where(.cv [tabindex="-1"]:focus-visible) { outline: none; }
+  /* After a click or tap no ring shows, even where a script moved focus (a drawer focusing its close button). */
+  html.cv-pointer :where(.cv :focus-visible) { outline: none; }
+  :where(.cv) :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="submit"], [type="button"], [type="reset"], [type="image"], [type="color"]), select, textarea):focus { outline: none; }
+  .cv-shell:is(:focus, :has(input:focus, select:focus, textarea:focus)) { box-shadow: 0 0 0 1px var(--text); }
+  :where(.cv-check) { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+  :where(.cv-check input) { width: 18px; height: 18px; accent-color: var(--text); border-radius: 6px; }
+
+  :where(.cv-media) { position: relative; overflow: hidden; background: var(--surface); border-radius: var(--cv-radius, 16px); isolation: isolate; }
+  :where(.cv-media > img, .cv-media > svg, .cv-media > video, .cv-media > picture) { width: 100%; height: 100%; object-fit: cover; }
+  /* A real product (or post) without an image: a quiet tinted tile with its name, never a placeholder drawing. */
+  .cv-noimg { position: absolute; inset: 0; display: grid; place-items: center; padding: 12%; overflow: hidden; font-size: 13px; line-height: 1.35; text-align: center; color: var(--text-muted, currentColor);
+    background: color-mix(in srgb, var(--text) 6%, var(--bg)); overflow-wrap: anywhere; }
+  .cv-noimg--lg { font-family: var(--tf-font-heading_font, inherit); font-size: clamp(18px, 2vw, 26px); }
+  :where(.cv-price) { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
+  :where(.cv-price__sale) { color: var(--accent); }
+  :where(.cv-price__was) { color: var(--text-muted); text-decoration: line-through; font-size: 0.9em; }
+  :where(.cv-badge) { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+    border-radius: 999px; background: color-mix(in srgb, var(--bg) 92%, transparent); color: var(--text); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  :where(.cv-badge--sale) { background: var(--accent); color: var(--bg); }
+  :where(.cv-badge--sold) { background: color-mix(in srgb, var(--text) 82%, transparent); color: var(--bg); }
+  :where(.cv-notice) { padding: 14px 18px; font-size: 14px; background: var(--cv-soft); border-radius: 14px; }
+  :where(.cv-notice--ok) { background: color-mix(in srgb, var(--status-ok) 10%, var(--bg)); color: color-mix(in srgb, var(--status-ok) 80%, var(--text)); }
+  /* A notice marked cv-toast floats at the bottom of the window instead of pushing the page down. */
+  .cv-toast { position: fixed; z-index: 400; inset-inline: 16px; bottom: max(24px, env(safe-area-inset-bottom)); width: auto; max-width: 440px; margin: 0 auto;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 18px 44px -16px rgb(0 0 0 / 0.35); }
+  .cv-toast[hidden] { display: none; }
+  /* A confirmation toast wears the button colours of its scheme (Theme settings > Notifications); errors keep their warning colours. */
+  .cv-toast.cv-notice--ok { background: var(--btn); color: var(--btn-text); }
+  .cv-toast--top_center { top: max(20px, env(safe-area-inset-top)); bottom: auto; }
+  .cv-toast--bottom_end { inset-inline: auto 20px; margin: 0; }
+  /* The in-theme confirm dialog for destructive actions (data-cv-confirm). */
+  .cv-confirm { position: fixed; inset: 0; margin: auto; height: fit-content; max-height: calc(100dvh - 32px); border: 0; padding: 24px; width: min(420px, calc(100vw - 32px)); border-radius: var(--cv-field-radius, 14px); background: var(--bg); color: var(--text);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 24px 64px -20px rgb(0 0 0 / 0.4); }
+  .cv-confirm::backdrop { background: rgb(0 0 0 / 0.4); }
+  .cv-confirm__msg { margin: 0 0 20px; font-size: 1rem; line-height: 1.5; }
+  .cv-confirm__acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+  @media (prefers-reduced-motion: no-preference) { .cv-toast:not([hidden]) { animation: cv-toast-in 0.2s ease-out; } @keyframes cv-toast-in { from { opacity: 0; transform: translateY(8px); } } }
+  :where(.cv-notice--error) { background: color-mix(in srgb, var(--accent) 9%, var(--bg)); color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  :where(.cv-sr) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  :where(.cv-icon) { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  :where([dir="rtl"] .cv-icon--dir) { transform: scaleX(-1); }
+  :where(.cv-pk-ico) { width: 1.15em; height: 1.15em; vertical-align: -0.2em; stroke-width: 1.6; }
+  :where(.cv-grid) { display: grid; gap: var(--cv-grid-gap, clamp(28px, 3vw, 40px)) var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); grid-template-columns: repeat(var(--cv-cols-m, 2), minmax(0, 1fr)); }
+  @media (min-width: 750px) { :where(.cv-grid) { grid-template-columns: repeat(var(--cv-cols, 4), minmax(0, 1fr)); } }
+  :where(.cv-head) { display: flex; flex-wrap: wrap; align-items: last baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: clamp(24px, 3.4vw, 48px); }
+  :where(.cv-head--center) { flex-direction: column; align-items: center; text-align: center; }
+  /* Tile cards are panels: rows sit as close as columns, so the gutters read as one even grid. */
+  :where(.cv-grid:has(> .cv-card--tile)) { row-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); }
+  :where(.cv-head p) { margin: 10px 0 0; max-width: 56ch; }
+  :where(.cv-stars) { --cv-star: var(--text); display: inline-block; width: 72px; height: 13px;
+    background: linear-gradient(90deg, var(--cv-star) var(--cv-rating, 0%), color-mix(in srgb, var(--text) 16%, transparent) var(--cv-rating, 0%));
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x; }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      :where(.cv-reveal) { animation: cv-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+      @keyframes cv-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { :where(.cv, .cv *), :where(.cv, .cv *)::before, :where(.cv, .cv *)::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+  /* Section spacing (each section's "Space above and below"). */
+  .cv-section.cv-pad--compact { padding-block: calc(var(--cv-gap-y, 96px) * 0.4); }
+  .cv-section.cv-pad--relaxed { padding-block: calc(var(--cv-gap-y, 96px) * 0.9); }
+  .cv-section.cv-pad--none { padding-block: 0; }
+  .cv-section.cv-pad--top-none { padding-top: 0; }
+
+  /* Phones: link, small and text buttons get a 44px tap target; type and icon sizes stay the same. */
+  @media (max-width: 749px) {
+    :where(.cv-btn--link) { min-height: 44px; padding-block: 12px; }
+    :where(.cv-btn--sm) { min-height: 44px; padding-block: 12px; }
+    /* The padding gives a 44px target; the equal negative margin keeps the line where it was, also inside a sentence. */
+    :where(.cv-tbtn) { padding-block: 12px; margin-block: -12px; }
+  }
+  /* Wishlist limit: when the wishlist is full, hearts that would add are dimmed and explain at the button (on a card, across the foot of its image). */
+  :where([data-cv-wish].is-full) { opacity: 0.5; cursor: not-allowed; }
+  :where(.cv-wishmsg) { position: absolute; z-index: 6; inset-block-start: calc(100% + 8px); inset-inline-start: 0; width: max-content; max-width: min(280px, 80vw); margin: 0; padding: 9px 12px;
+    font-size: 13px; line-height: 1.4; text-align: start; color: var(--bg); background: var(--text); border-radius: 10px; box-shadow: 0 10px 28px -10px rgb(0 0 0 / 0.35); }
+  :where(.cv-wishmsg[hidden]) { display: none; }
+  :where(.cv-card__media > .cv-wishmsg) { inset: auto 8px 8px; width: auto; max-width: none; }
+  @media (prefers-reduced-motion: no-preference) { :where(.cv-wishmsg) { animation: cv-wishmsg-in 0.2s var(--cv-ease, ease-out); } @keyframes cv-wishmsg-in { from { opacity: 0; transform: translateY(4px); } } }
+
+/* Editor-only note on a section that shoppers can't see yet. */
+.cv-editor-hint { margin: 0 auto 16px; max-width: 640px; padding: 10px 14px; font-size: 13px; line-height: 1.45; text-align: center; color: var(--text-muted); border: 1px dashed var(--cv-line); border-radius: 12px; }
+
+/* Theme blocks (blocks/*.vasc): the content blocks sections, slides and tiles hold. Section's style ("auto") is the look the
+   section gives that part (a slide's headline, a tile's heading); sections style .cv-blk-*--auto where they hold blocks. */
+  :where(.cv-blk-eyebrow, .cv-blk-heading, .cv-blk-text) { margin: 0; }
+  :where(.cv-blk-heading) { max-width: 100%; overflow-wrap: break-word; }
+  :where(.cv-blk-text--small) { font-size: 14px; }
+  :where(.cv-blk-text--medium) { font-size: 17px; }
+  :where(.cv-blk-text--large) { font-size: calc(clamp(18px, 1.6vw, 22px)); }
+  :where(.cv-blk-buttons) { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  :where(.cv-blk-image) { width: var(--cv-blk-w, 100%); max-width: 100%; }
+  :where(.cv-blk-image img) { display: block; width: 100%; height: auto; }
+  :where(.cv-blk-image--square img) { aspect-ratio: 1 / 1; object-fit: cover; }
+  :where(.cv-blk-image--portrait img) { aspect-ratio: 4 / 5; object-fit: cover; }
+  :where(.cv-blk-image--landscape img) { aspect-ratio: 4 / 3; object-fit: cover; }
+  :where(.cv-blk-image__ph) { display: block; aspect-ratio: 4 / 3; background: var(--cv-soft); border-radius: var(--cv-radius, 16px); overflow: hidden; }
+  :where(.cv-blk-image__ph svg) { width: 100%; height: 100%; }
+  :where(.cv-blk-spacer) { height: var(--cv-blk-h, 32px); width: 100%; }
+  :where(.cv-blk-spacer--line) { display: flex; align-items: center; }
+  :where(.cv-blk-spacer--line)::before { content: ""; flex: 1; border-top: 1px solid var(--cv-line); }
+  .cv-blk-hint { margin: 0; }
+  :where(.cv-blk-heading__link) { color: inherit; text-decoration: none; }
+  :where(.cv-blk-heading__link:hover) { text-decoration: underline; text-underline-offset: 0.12em; text-decoration-thickness: 1px; }
+  /* An eyebrow that links (the product page's vendor): underlined on hover only. */
+  :where(.cv-eyebrow__link) { color: inherit; text-decoration: none; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  :where(.cv-eyebrow__link:hover) { text-decoration: underline; }
+/* A tile's own link (promo and split tiles, mega menu promotions): the pointer target over the whole tile. Its heading and button blocks carry the
+   same link for keyboards and screen readers; they sit above it, and the rest of the content lets clicks through to it. */
+  :where(.cv-tile-link) { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  :where(.cv-tile-over) { position: relative; z-index: 2; }
+  :where(.cv-tile-link ~ .cv-tile-over) { pointer-events: none; }
+  :where(.cv-tile-link ~ .cv-tile-over :is(a, button, input, select, textarea, video, [tabindex])) { pointer-events: auto; }
+  /* The platform metafield block (theme:metafield): the storefront writes its markup (tf-metafield); Canvas styles it. */
+  :where(.tf-metafield) { display: grid; gap: 4px; }
+  :where(.tf-metafield__label) { font-size: 13px; color: var(--text-muted); }
+  :where(.tf-metafield__value) { font-size: 15px; overflow-wrap: anywhere; }
+  :where(.tf-metafield__list) { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+  :where(.tf-metafield--list-product-reference, .tf-metafield--list-variant-reference) :where(.tf-metafield__reference) { display: inline-flex; padding: 6px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__image, .tf-metafield__video) { max-width: 100%; height: auto; border-radius: 12px; }
+  :where(.tf-metafield__file) { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 8px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__json) { margin: 0; font: inherit; white-space: pre-wrap; }
+  :where(.tf-metafield-notice) { font-size: 14px; }
+  :where(.cv-pl__block) { margin-block: 12px; }
+
+/* partial:footer-base */
+  /* Footer building blocks shared by the three footer layouts: the columns grid, the blocks a column holds, and the bottom bar. */
+  .cv-ft { margin-top: auto; font-size: 14.5px; }
+  .cv-ft--pad-compact { --cv-ft-pad: clamp(36px, 4.5vw, 56px); }
+  .cv-ft--pad-normal { --cv-ft-pad: clamp(56px, 7vw, 96px); }
+  .cv-ft--pad-relaxed { --cv-ft-pad: clamp(72px, 9vw, 136px); }
+  .cv-ft__cols { display: grid; gap: 40px 24px; grid-template-columns: repeat(var(--cv-ft-cols-m, 2), minmax(0, 1fr)); }
+  @media (min-width: 750px) { .cv-ft__cols { grid-template-columns: repeat(var(--cv-ft-cols-t, 2), minmax(0, 1fr)); } }
+  @media (min-width: 990px) { .cv-ft__cols { grid-template-columns: repeat(var(--cv-ft-cols, 4), minmax(0, 1fr)); } }
+  .cv-ft__cell { min-width: 0; }
+  .cv-ft__cell:not(:has(*)) { display: none; }
+  /* Wide cells (a two-column Column, the Newsletter block on its own) take two columns on desktop and a whole row below it. */
+  .cv-ft__cell--wfull { grid-column: 1 / -1; }
+  .cv-ft__cell--newsletter-form { max-width: 560px; }
+  @media (min-width: 990px) { .cv-ft__cell:is(.cv-ft__cell--w2, .cv-ft__cell--newsletter-form) { grid-column: span 2; } .cv-ft--one .cv-ft__cell { grid-column: 1 / -1; } }
+  @media (max-width: 989px) { .cv-ft__cell:is(.cv-ft__cell--w2, .cv-ft__cell--newsletter-form) { grid-column: 1 / -1; } }
+  .cv-ft--center .cv-ft__cols { text-align: center; }
+  .cv-ft--center :is(.cv-ftc, .cv-blk-news, .cv-blk-contact) { justify-items: center; margin-inline: auto; }
+  .cv-ft--center :is(.cv-blk-menu--inline, .cv-social, .cv-pay, .cv-blk-buttons) { justify-content: center; }
+  .cv-ft--center .cv-blk-image { margin-inline: auto; }
+
+  /* A column stacks its blocks; the footer gives its headings and text their look. */
+  .cv-ftc { display: grid; align-content: start; gap: 14px; min-width: 0; }
+  .cv-ft .cv-blk-heading--auto { margin: 0 0 2px; font-family: inherit; font-size: 13px; font-weight: 500; letter-spacing: 0; line-height: 1.4; text-transform: none; color: var(--text-muted); }
+  .cv-ft .cv-blk-text--auto { color: var(--text-muted); }
+  .cv-ft .cv-blk-eyebrow { color: var(--text-muted); }
+  .cv-ft .cv-blk-buttons--auto .cv-btn:not(.cv-btn--link) { min-height: 44px; padding-inline: 20px; font-size: 14px; }
+
+  .cv-blk-menu { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .cv-blk-menu--inline { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+  .cv-blk-menu a, .cv-blk-menu span { color: var(--text); text-decoration: none; transition: opacity 0.2s; }
+  .cv-blk-menu a:hover { opacity: 0.6; }
+
+  .cv-blk-news { display: grid; gap: 12px; min-width: 0; }
+  .cv-blk-news__title { margin: 0; font-family: var(--tf-font-heading_font, inherit); font-size: clamp(24px, 2.6vw, 36px); font-weight: 500; letter-spacing: -0.035em; line-height: 1.1; color: var(--text); }
+  .cv-blk-news__text { margin: 0 0 2px; color: var(--text-muted); }
+  .cv-blk-news__field { display: contents; }
+  .cv-ftc .cv-blk-news__title { font-size: clamp(20px, 1.8vw, 24px); }
+/* partial:footer-forms */
+  .cv-ft__news { position: relative; display: flex; align-items: center; gap: 6px; padding: 5px; background: var(--bg); border-radius: var(--cv-btn-radius, 999px);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 1px 2px rgb(0 0 0 / 0.04); transition: box-shadow 0.2s; }
+  .cv-ft__news .cv-input { flex: 1 1 auto; min-width: 0; min-height: 46px; padding: 0 8px 0 16px; background: transparent; border: 0; border-radius: inherit; }
+  .cv-ft__news .cv-input:hover, .cv-ft__news .cv-input:focus { background: transparent; }
+  .cv-ft__news .cv-btn { flex: none; min-height: 46px; padding: 0 22px; border-radius: calc(var(--cv-btn-radius, 999px) - 2px); }
+  .cv-hp { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; opacity: 0; }
+  .cv-blk-news__notice { margin: 12px 0 0; }
+/* /partial:footer-forms */
+
+  .cv-social { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 0 -10px; padding: 0; list-style: none; }
+  [dir="rtl"] .cv-social { margin: 0 -10px 0 0; }
+  .cv-social a { display: inline-flex; align-items: center; gap: 8px; padding: 10px; color: var(--text); text-decoration: none; border-radius: 999px; transition: opacity 0.2s; }
+  .cv-social a:hover { opacity: 0.6; }
+  .cv-social--names { gap: 2px 14px; }
+  .cv-social__name { font-size: 14px; }
+
+  .cv-blk-contact { display: grid; gap: 8px; font-style: normal; color: var(--text-muted); }
+  .cv-blk-contact p { margin: 0; }
+  .cv-blk-contact a { color: var(--text); text-decoration: none; text-underline-offset: 3px; }
+  .cv-blk-contact a:hover { text-decoration: underline; }
+
+  .cv-pay { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .cv-pay li { display: inline-flex; align-items: center; min-height: 26px; padding: 0 10px; font-size: 12px; font-weight: 500; letter-spacing: 0.01em;
+    color: var(--text); border-radius: 6px; box-shadow: inset 0 0 0 1px var(--cv-line); }
+
+  .cv-blk-logo { display: inline-flex; color: var(--text); text-decoration: none; }
+  .cv-blk-logo img { height: auto; max-width: 100%; }
+  .cv-blk-logo__name { font-family: var(--tf-font-heading_font, inherit); font-size: clamp(20px, 2vw, 26px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; }
+
+  .cv-ft__notice { margin: 0 0 24px; }
+
+  /* Bottom bar: the merchant's parts in one wrapping row. "Spread" sends the last part to the far end. */
+  .cv-ft__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; padding-top: 24px; font-size: 13px; color: var(--text-muted); }
+  .cv-ft__cols + .cv-ft__bar, .cv-ft__cols + .cv-ft__notice + .cv-ft__bar { margin-top: clamp(48px, 6vw, 80px); }
+  .cv-ft__bar--line { border-top: 1px solid var(--cv-line); }
+  .cv-ft__bar--spread > :last-child, .cv-ft__bar--spread > .tf-block:last-child > .cv-ft__part { margin-inline-start: auto; }
+  .cv-ft__bar--center { justify-content: center; text-align: center; }
+  .cv-ft__part { margin: 0; }
+  .cv-ft__part:not(:has(*)):is(div) { display: none; }
+  .cv-ft__bar .cv-editor-hint { max-width: 360px; margin: 0; }
+  .cv-ft__copy { color: var(--text-muted); }
+  .cv-ft__policies { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 0; list-style: none; }
+  .cv-ft__policies a, .cv-ft__powered { color: inherit; text-decoration: none; }
+  .cv-ft__policies a:hover, .cv-ft__powered:hover { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+  .cv-ft__consent { padding: 0; font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  .cv-ft__consent:hover { color: var(--text); }
+  .cv-ft__note { max-width: 60ch; }
+  .cv-ft__note > * { margin: 0; }
+  .cv-ft__bar .cv-social a { color: var(--text); }
+/* partial:loc-picker */
+  /* Country and language picker (partials/loc-picker.html). The trigger styles open a list dialog: under the pill (lined up with it, on the
+     page grid), centred (country codes with names), or a side sheet with search; a bottom sheet on phones, like the quick view and the filters.
+     The list sits on a raised surface (the scheme's background lifted towards white, so it reads in dark schemes too) with a hairline and a
+     shadow and scrim that deepen as the scheme darkens. Surfaces start 14px in and text 28px in, from the title to the last row. */
+  .cv-loc { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+  .cv-loc__form { display: inline-flex; }
+  .cv-loc__flag { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 26px; height: 18px; padding: 0 5px; border-radius: 5px; box-shadow: inset 0 0 0 1px var(--cv-line); background: var(--cv-soft); font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .cv-loc__select { min-height: 40px; max-width: 260px; padding: 0 38px 0 16px; font: inherit; font-size: 13.5px; color: var(--text); background-color: var(--bg);
+    border: 0; border-radius: 999px; box-shadow: 0 0 0 1px var(--cv-line); cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; }
+  [dir="rtl"] .cv-loc__select { padding: 0 16px 0 38px; background-position: left 14px center; }
+  .cv-loc__links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
+  .cv-loc__link { display: inline-flex; align-items: center; gap: 6px; padding: 0; font: inherit; font-size: 13.5px; color: var(--text-muted); background: none; border: 0; cursor: pointer;
+    transition: color 0.2s var(--cv-ease); }
+  .cv-loc__link:hover { color: var(--text); }
+  .cv-loc__link[aria-current="true"] { color: var(--text); font-weight: 600; }
+  .cv-loc abbr, .cv-loc-dlg abbr { text-decoration: none; }
+  .cv-loc__trigger { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; max-width: 100%; padding: 0 12px 0 14px; font: inherit; font-size: 13.5px; color: var(--text);
+    background: var(--bg); border: 0; border-radius: 999px; box-shadow: 0 0 0 1px var(--cv-line); cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.2s var(--cv-ease), box-shadow 0.2s var(--cv-ease); }
+  .cv-loc__trigger:hover { background: var(--cv-soft); }
+  .cv-loc__trigger--pill { min-height: 36px; padding: 0 10px 0 12px; gap: 6px; font-weight: 500; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; }
+  .cv-loc__tname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-loc__tmeta { color: var(--text-muted); white-space: nowrap; }
+  .cv-loc__sep { width: 1px; height: 14px; background: var(--cv-line); }
+  .cv-loc__chev { width: 14px; height: 14px; color: var(--text-muted); }
+
+  .cv-loc-dlg, .cv-loc__nojs-panel { --cv-loc-bg: color-mix(in srgb, var(--lift) 7%, var(--bg)); --cv-soft: color-mix(in srgb, var(--text) 7%, var(--cv-loc-bg));
+    --cv-loc-edge: color-mix(in srgb, var(--text) 16%, transparent); --cv-loc-shade: rgb(0 0 0 / 0.42); --cv-loc-scrim: rgb(0 0 0 / 0.4); }
+  @supports (color: rgb(from red r g b)) {
+    .cv-loc-dlg, .cv-loc__nojs-panel { --cv-loc-shade: rgb(from var(--bg) 0 0 0 / calc(0.66 - (r + g + b) / 2550));
+      --cv-loc-scrim: rgb(from var(--bg) 0 0 0 / calc(0.6 - (r + g + b) / 2550)); }
+  }
+  .cv-loc-dlg { box-sizing: border-box; flex-direction: column; width: min(560px, calc(100vw - 32px)); max-width: none; max-height: min(82vh, 720px); margin: auto; padding: 0;
+    overflow: hidden; color: var(--text); background: var(--cv-loc-bg); border: 0; border-radius: 22px;
+    box-shadow: 0 0 0 1px var(--cv-loc-edge), inset 0 1px 0 rgb(255 255 255 / 0.05), 0 30px 80px -24px var(--cv-loc-shade); }
+  .cv-loc-dlg[open] { display: flex; }
+  .cv-loc-dlg::backdrop { background: var(--cv-loc-scrim); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .cv-loc-dlg--sheet { width: min(440px, calc(100vw - 20px)); height: calc(100% - 20px); max-height: none; margin-block: 10px; margin-inline: auto 10px; }
+  .cv-loc-dlg--pill { position: fixed; inset: auto; inset-block: var(--cv-loc-y, 72px) var(--cv-loc-b, auto); inset-inline-start: var(--cv-loc-x, 16px);
+    width: var(--cv-loc-w, min(340px, calc(100vw - 32px))); max-height: min(440px, calc(100vh - 32px)); margin: 0; border-radius: 18px;
+    box-shadow: 0 0 0 1px var(--cv-loc-edge), inset 0 1px 0 rgb(255 255 255 / 0.05), 0 24px 60px -18px var(--cv-loc-shade); }
+  .cv-loc-dlg--pill::backdrop { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .cv-loc-dlg__handle { display: none; }
+  .cv-loc-dlg__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px 10px; padding-inline: 28px 12px; }
+  .cv-loc-dlg--pill .cv-loc-dlg__head { padding-block: 12px 4px; }
+  .cv-loc-dlg__title { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+  .cv-loc-dlg--pill .cv-loc-dlg__title { font-size: 15px; }
+  .cv-loc-dlg__close { display: grid; place-items: center; flex: none; width: 40px; height: 40px; padding: 0; color: var(--text); background: transparent; border: 0; border-radius: 50%; cursor: pointer; }
+  .cv-loc-dlg__close:hover { background: var(--cv-soft); }
+  .cv-loc-dlg__body { flex: 1; min-height: 0; display: grid; align-content: start; gap: 20px; padding: 4px 14px 18px; overflow-y: auto; overscroll-behavior: contain; }
+  .cv-loc-dlg__group { display: grid; gap: 8px; }
+  .cv-loc-dlg__sub { margin: 0; padding-inline: 14px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .cv-loc-dlg__search { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 10px; margin-bottom: 4px; padding-inline: 14px 8px;
+    background: var(--cv-soft); border-radius: var(--cv-field-radius, 14px); box-shadow: 0 -4px 0 var(--cv-loc-bg); }
+  .cv-loc-dlg__search.cv-shell:is(:focus, :has(input:focus)) { box-shadow: 0 -4px 0 var(--cv-loc-bg), 0 0 0 1px var(--text); }
+  .cv-loc-dlg__search .cv-icon { flex: none; color: var(--text-muted); }
+  .cv-loc-dlg__search .cv-input { min-height: 46px; padding-inline: 0; background: transparent; border: 0; }
+  .cv-loc-dlg__search .cv-input:hover, .cv-loc-dlg__search .cv-input:focus { background: transparent; }
+  .cv-loc-dlg__form { display: grid; }
+  .cv-loc-dlg__list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+  .cv-loc-dlg__list--modal { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 6px; }
+  .cv-loc-dlg--modal .cv-loc-dlg__list--langs { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
+  .cv-loc-dlg__list [hidden] { display: none; }
+  .cv-loc-dlg__opt { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 0 14px; font: inherit; font-size: 15px; color: var(--text); text-align: start;
+    text-decoration: none; background: transparent; border: 0; border-radius: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color 0.15s var(--cv-ease); }
+  .cv-loc-dlg__opt:hover { background: var(--cv-soft); }
+  .cv-loc-dlg__opt[aria-current="true"] { font-weight: 600; background: var(--cv-soft); }
+  .cv-loc-dlg__list--modal .cv-loc-dlg__opt { min-height: 52px; box-shadow: inset 0 0 0 1px var(--cv-line); }
+  .cv-loc-dlg__list--modal .cv-loc-dlg__opt[aria-current="true"] { background: transparent; box-shadow: inset 0 0 0 1.5px var(--text); }
+  .cv-loc-dlg__opt .cv-loc__flag { min-width: 30px; height: 20px; font-size: 11px; }
+  /* A name in another script runs in its own direction (<bdi>) but lines up with the others. */
+  .cv-loc-dlg__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-loc-dlg__meta { flex: none; font-size: 13.5px; font-weight: 400; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .cv-loc-dlg__tick { width: 18px; height: 18px; flex: none; }
+  .cv-loc-dlg__none { margin: 0; padding: 10px 14px; font-size: 14px; color: var(--text-muted); }
+  .cv-loc-dlg__langs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .cv-loc-dlg__chip { min-height: 40px; padding: 0 14px; font: inherit; font-size: 14px; color: var(--text); background: var(--cv-soft); border: 0; border-radius: 999px; cursor: pointer;
+    transition: background-color 0.15s var(--cv-ease), color 0.15s var(--cv-ease); }
+  .cv-loc-dlg__chip:hover { background: color-mix(in srgb, var(--text) 13%, var(--cv-loc-bg)); }
+  .cv-loc-dlg__chip[aria-current="true"] { color: var(--btn-text); background: var(--btn); }
+  /* Keyboard focus: a ring inside the row (the list scrolls, so an outer ring would be cut off). A list opened by a click or a tap moves
+     focus to the current choice without a ring (the script marks it is-pointer until a key is pressed). */
+  .cv-loc-dlg :is(.cv-loc-dlg__opt, .cv-loc-dlg__chip, .cv-loc-dlg__close):focus-visible, .cv-loc__nojs .cv-loc-dlg__opt:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+  .cv-loc-dlg.is-pointer :focus-visible, html.cv-pointer .cv-loc-dlg :focus-visible { outline: none; }
+  html:has(.cv-loc-dlg[open]:not(.cv-loc-dlg--pill)) { overflow: hidden; }
+  /* Without script: the trigger is a disclosure, with the choices in a panel under it (in the flow in the phone menu and the footer). */
+  .cv-loc__nojs { position: relative; display: inline-block; max-width: 100%; }
+  .cv-loc__nojs > summary { list-style: none; }
+  .cv-loc__nojs > summary::-webkit-details-marker { display: none; }
+  .cv-loc__nojs[open] .cv-loc__chev { transform: rotate(180deg); }
+  .cv-loc__nojs-panel { position: absolute; inset-inline-end: 0; top: calc(100% + 8px); z-index: 30; display: grid; gap: 12px; box-sizing: border-box; width: max-content;
+    min-width: 240px; max-width: min(340px, calc(100vw - 32px)); max-height: min(60vh, 440px); overflow-y: auto; overscroll-behavior: contain; padding: 8px 8px 10px;
+    color: var(--text); text-align: start; background: var(--cv-loc-bg); border-radius: 18px;
+    box-shadow: 0 0 0 1px var(--cv-loc-edge), inset 0 1px 0 rgb(255 255 255 / 0.05), 0 24px 60px -18px var(--cv-loc-shade); }
+  .cv-loc__nojs-panel .cv-loc-dlg__sub { padding: 8px 14px 4px; }
+  .cv-loc__nojs-form { display: grid; gap: 2px; }
+  .cv-mnav__loc .cv-loc__nojs, .cv-ft .cv-loc__nojs { display: block; }
+  .cv-mnav__loc .cv-loc__nojs-panel, .cv-ft .cv-loc__nojs-panel { position: static; width: auto; max-width: none; max-height: 50vh; margin-top: 8px; }
+  @media (max-width: 749px) {
+    .cv-loc-dlg, .cv-loc-dlg--sheet, .cv-loc-dlg--pill { position: fixed; inset: auto 0 0; width: 100%; height: auto; max-height: 88svh; margin: 0;
+      border-radius: calc(var(--cv-radius, 16px) * 1.5) calc(var(--cv-radius, 16px) * 1.5) 0 0;
+      box-shadow: 0 0 0 1px var(--cv-loc-edge), inset 0 1px 0 rgb(255 255 255 / 0.06), 0 -20px 60px -20px var(--cv-loc-shade); }
+    .cv-loc-dlg--pill::backdrop { background: var(--cv-loc-scrim); }
+    .cv-loc-dlg__handle { display: block; flex: none; width: 40px; height: 5px; margin: 9px auto 0; border-radius: 5px; background: color-mix(in srgb, var(--text) 26%, transparent); }
+    .cv-loc-dlg__head { padding-top: 8px; }
+    .cv-loc-dlg__body { padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+    .cv-loc-dlg__close { width: 44px; height: 44px; }
+    .cv-loc__link { min-height: 44px; }
+    .cv-loc__select { min-height: 44px; }
+    .cv-loc__trigger { min-height: 44px; }
+    .cv-loc-dlg__chip { min-height: 44px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .cv-loc-dlg[open] { animation: cv-loc-in 0.32s var(--cv-ease); }
+    .cv-loc-dlg--sheet[open] { animation-name: cv-loc-side; }
+    [dir="rtl"] .cv-loc-dlg--sheet[open] { animation-name: cv-loc-side-rtl; }
+    .cv-loc-dlg[open]::backdrop { animation: cv-loc-fade 0.3s ease-out; }
+    @keyframes cv-loc-in { from { opacity: 0; transform: translateY(10px) scale(0.985); } }
+    @keyframes cv-loc-side { from { transform: translateX(calc(100% + 12px)); } }
+    @keyframes cv-loc-side-rtl { from { transform: translateX(calc(-100% - 12px)); } }
+    @keyframes cv-loc-fade { from { opacity: 0; } }
+    @media (max-width: 749px) { .cv-loc-dlg[open], .cv-loc-dlg--sheet[open], [dir="rtl"] .cv-loc-dlg--sheet[open] { animation: cv-loc-up 0.42s var(--cv-ease); } @keyframes cv-loc-up { from { transform: translateY(105%); } } }
+  }
+/* /partial:loc-picker */
+
+  @media (max-width: 749px) {
+    .cv-blk-menu { gap: 0; }
+    .cv-blk-menu a, .cv-blk-menu span { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; padding: 12px 4px; margin-inline: -4px; }
+    .cv-blk-menu--inline a, .cv-blk-menu--inline span { margin-inline: 0; }
+    .cv-ft .cv-blk-heading--auto { margin-bottom: -6px; }
+    .cv-ft__policies a, .cv-ft__consent, .cv-ft__powered, .cv-blk-contact a { display: inline-flex; align-items: center; min-height: 44px; padding-block: 12px; }
+    .cv-ft__bar { gap: 4px 24px; }
+    .cv-ft__bar--spread > :last-child, .cv-ft__bar--spread > .tf-block:last-child > .cv-ft__part { margin-inline-start: 0; }
+  }
+
+  /* Folding columns (the section's "Fold columns on phones"): a column that starts with a heading opens and closes behind it. */
+  .cv-ftc__toggle { display: none; }
+  @media (max-width: 749px) {
+    .cv-ft--fold .cv-ftc.has-fold { gap: 0; padding-block: 2px; border-bottom: 1px solid var(--cv-line); }
+    .cv-ft--fold .cv-ftc.has-fold .cv-ftc__head { position: relative; }
+    .cv-ft--fold .cv-ftc__toggle { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; width: 100%; padding: 0; color: var(--text-muted);
+      background: none; border: 0; cursor: pointer; }
+    .cv-ft--fold .cv-ftc__toggle .cv-icon { transition: transform 0.25s var(--cv-ease); }
+    .cv-ft--fold .cv-ftc__toggle[aria-expanded="true"] .cv-icon { transform: rotate(180deg); }
+    .cv-ft--fold .cv-ftc.has-fold .cv-blk-heading--auto { margin: 0; padding-block: 14px; font-size: 15px; color: var(--text); }
+    .cv-ft--fold .cv-ftc.has-fold > :last-child { padding-bottom: 14px; }
+    .cv-ft--fold .cv-ftc.is-folded > :not(:first-child) { display: none; }
+    .cv-ft--fold .cv-ft__cols { gap: 0 24px; grid-template-columns: minmax(0, 1fr); }
+  }
+/* /partial:footer-base */
+  .cv-fc { padding-block: calc(var(--cv-ft-pad) * 0.36); font-size: 14px; }
+  .cv-fc--border { box-shadow: inset 0 1px 0 var(--cv-line); }
+  .cv-fc .cv-ft__notice { margin: 0 0 18px; }
+  /* One row: name, the merchant's blocks, then the bottom bar's parts gathered at the end. It wraps only when the line is full. */
+  .cv-fc__row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px clamp(20px, 3vw, 40px); }
+  .cv-fc--center .cv-fc__row, .cv-ft--center .cv-fc__row { justify-content: center; }
+  .cv-fc__name { font-family: var(--tf-font-heading_font, inherit); font-size: 17px; font-weight: 600; letter-spacing: -0.03em; color: var(--text); text-decoration: none; }
+  .cv-fc__item { min-width: 0; }
+  .cv-fc__item:not(:has(*)) { display: none; }
+  .cv-fc .cv-blk-menu--inline { gap: 4px 22px; }
+  .cv-fc .cv-blk-menu a { text-underline-offset: 4px; }
+  .cv-fc .cv-blk-menu a:hover { opacity: 1; text-decoration: underline; }
+  .cv-fc .cv-ft__bar { flex: 1 1 auto; justify-content: flex-end; gap: 8px 18px; padding: 0; margin: 0; border: 0; font-size: 12.5px; }
+  .cv-fc .cv-ft__bar > :last-child, .cv-fc .cv-ft__bar > .tf-block:last-child > .cv-ft__part { margin-inline-start: 0; }
+  .cv-ft--center .cv-fc__row .cv-ft__bar { flex: 0 1 auto; justify-content: center; }
+  .cv-fc .cv-social { margin-inline-start: 0; }
+  .cv-fc .cv-loc__select, .cv-fc .cv-loc__trigger { min-height: 36px; }
+  @media (max-width: 749px) { .cv-fc .cv-ft__bar { justify-content: flex-start; } }
+</style>
+{%- comment -%} Compact footer: one row with the store name, the merchant's blocks (menus in a row, text, social links, a logo) and the
+  bottom bar's parts at the end. It wraps only when the line is full. It shares its blocks, bottom bar, pickers and form notice with the
+  other footer layouts. {%- endcomment -%}
+<footer data-cv-notice-host class="cv cv-ft cv-fc tf-scheme-{{ settings.color_scheme }} cv-ft--{{ settings.align | default: 'start' }} cv-ft--pad-{{ settings.spacing | default: 'normal' }}{% if settings.show_top_border %} cv-fc--border{% endif %}">
+  <div class="cv-wrap">
+{%- comment -%}partial:footer-notice{%- endcomment -%}
+    <p class="cv-notice {% if form_notice.success %}cv-notice--ok{% else %}cv-notice--error{% endif %} cv-ft__notice" role="status" data-cv-notice{% if form_notice.message == blank or form_notice.code contains 'NEWSLETTER' %} hidden{% endif %}>{% unless form_notice.code contains 'NEWSLETTER' %}{{ form_notice.message }}{% endunless %}</p>
+{%- comment -%}/partial:footer-notice{%- endcomment -%}
+    <div class="cv-fc__row">
+      {%- if settings.show_store_name -%}
+      <a class="cv-fc__name" dir="auto" href="{{ routes.root_url }}" data-tf-field="show_store_name">{{ shop.name }}</a>
+      {%- endif -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.type contains ':' -%}<div class="cv-fc__item cv-fc__item--{{ b.type | remove: 'theme:' }}">{% blocks b %}</div>{%- endif -%}
+      {%- endfor -%}
+{%- comment -%}partial:footer-bar{%- endcomment -%}
+{%- comment -%} The footer's bottom bar: its own blocks (copyright, policy links, country and language, social links, payment methods,
+  a note, Powered by Tringify) in the merchant's order. Each can be hidden or removed; a part with nothing to show for shoppers explains
+  itself in the editor. {%- endcomment -%}
+{%- assign cv_bar_n = 0 -%}
+{%- for b in settings.blocks -%}{%- unless b.type contains ':' -%}{%- assign cv_bar_n = cv_bar_n | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+{%- if cv_bar_n > 0 -%}
+{%- assign cv_year = 'now' | date: '%Y' -%}
+<div class="cv-ft__bar cv-ft__bar--{{ settings.bar_align | default: 'spread' }}{% if settings.divider != false %} cv-ft__bar--line{% endif %}">
+  {%- for b in settings.blocks -%}
+    {%- if b.type contains ':' -%}{%- continue -%}{%- endif -%}
+    {%- case b.type -%}
+      {%- when 'copyright' -%}
+        {{ b._editor_block_open }}
+        <p class="cv-ft__part cv-ft__copy" dir="auto" data-tf-field="copyright">&copy; {% if b.settings.copyright != blank %}{{ b.settings.copyright | replace: '{year}', cv_year | replace: '{store}', shop.name }}{% else %}{{ shop.name }}{% endif %}</p>
+        {{ b._editor_block_close }}
+      {%- when 'policies' -%}
+        {%- assign cv_pol = false -%}{%- if b.settings.show_policies != false and policies.size > 0 -%}{%- assign cv_pol = true -%}{%- endif -%}
+        {%- assign cv_cons = false -%}{%- if b.settings.show_consent != false and consent.required -%}{%- assign cv_cons = true -%}{%- endif -%}
+        {%- assign cv_priv = false -%}{%- if b.settings.show_privacy_request != false and customer_settings.privacy_request_url != blank -%}{%- assign cv_priv = true -%}{%- endif -%}
+        {%- if cv_pol or cv_cons or cv_priv -%}
+        {{ b._editor_block_open }}
+        <ul class="cv-ft__part cv-ft__policies" role="list">
+          {%- if cv_pol -%}{%- for p in policies -%}<li><a dir="auto" href="{{ p.url }}">{{ p.title }}</a></li>{%- endfor -%}{%- endif -%}
+          {%- if cv_priv -%}<li><a dir="auto" href="{{ customer_settings.privacy_request_url }}">{{ 'footer.privacy_request' | t }}</a></li>{%- endif -%}
+          {%- if cv_cons -%}<li><button class="cv-ft__consent" type="button" data-cv-consent-open>{{ 'consent.preferences' | t }}</button></li>{%- endif -%}
+        </ul>
+        {{ b._editor_block_close }}
+        {%- elsif design_mode -%}
+        {{ b._editor_block_open }}<p class="cv-ft__part cv-editor-hint cv-blk-hint">{{ 'footer.policies_hint' | t }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'localization' -%}
+        {%- assign cv_loc_c = false -%}{%- assign cv_loc_l = false -%}
+        {%- if b.settings.show_localization != false -%}
+          {%- if localization.available_countries.size > 1 -%}{%- assign cv_loc_c = true -%}{%- endif -%}
+          {%- if localization.available_languages.size > 1 -%}{%- assign cv_loc_l = true -%}{%- endif -%}
+        {%- endif -%}
+        {%- if cv_loc_c or cv_loc_l -%}
+        {{ b._editor_block_open }}
+        <div class="cv-ft__part cv-ft__loc">
+          {%- assign cv_loc_id = 'ft-' | append: b.id -%}{%- assign cv_loc_pick = b.settings.picker_style -%}
+{%- comment -%}partial:loc-picker{%- endcomment -%}
+{%- comment -%} Country and language picker. Inputs: cv_loc_id (unique on the page), cv_loc_pick (the placement's style: "theme" for the theme
+  setting, or a style), cv_loc_c / cv_loc_l (offer the country / the language choice). Styles: dropdown (native selects), links (inline
+  text buttons), pill (country code and currency code; opens a short list beside it), modal (country codes with names in a centred dialog), sheet (a side
+  sheet with search; every list is a bottom sheet on phones). Theme settings choose flags, how currencies show and language names or codes.
+  Every choice posts localization_set; the list styles' dialog is a <dialog>, which keeps focus inside it and closes on Escape. Over ten
+  countries or languages, that list gets a search (the sheet always searches countries); up to ten languages show as chips, more as a list.
+  Without script the dialog cannot open, so the trigger becomes a disclosure with the same choices. {%- endcomment -%}
+{%- assign cv_loc_style = cv_loc_pick | default: 'theme' -%}
+{%- if cv_loc_style == 'theme' -%}{%- assign cv_loc_style = theme.settings.loc_style | default: 'dropdown' -%}{%- endif -%}
+{%- assign cv_loc_flags = true -%}{%- if theme.settings.loc_flags == false -%}{%- assign cv_loc_flags = false -%}{%- endif -%}
+{%- assign cv_loc_cur = theme.settings.loc_currency | default: 'code_symbol' -%}
+{%- assign cv_loc_lang = theme.settings.loc_language | default: 'name' -%}
+{%- comment -%} Currencies show only when choosing a country changes it. {%- endcomment -%}
+{%- assign cv_loc_cur0 = localization.available_countries.first.currency_code -%}
+{%- assign cv_loc_multi = false -%}
+{%- for c in localization.available_countries -%}{%- if c.currency_code != cv_loc_cur0 -%}{%- assign cv_loc_multi = true -%}{%- break -%}{%- endif -%}{%- endfor -%}
+{%- unless cv_loc_multi -%}{%- assign cv_loc_cur = 'none' -%}{%- endunless -%}
+{%- assign cv_loc_now = localization.country -%}
+{%- for c in localization.available_countries -%}{%- if c.selected -%}{%- assign cv_loc_now = c -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_loc_now_cur = '' -%}
+{%- case cv_loc_cur -%}
+  {%- when 'code' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_code -%}
+  {%- when 'symbol' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_symbol | default: cv_loc_now.currency_code -%}
+  {%- when 'code_symbol' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_code -%}{%- if cv_loc_now.currency_symbol != blank and cv_loc_now.currency_symbol != cv_loc_now.currency_code -%}{%- assign cv_loc_now_cur = cv_loc_now_cur | append: ' ' | append: cv_loc_now.currency_symbol -%}{%- endif -%}
+{%- endcase -%}
+{%- assign cv_loc_now_lang = '' -%}
+{%- for l in localization.available_languages -%}{%- if l.selected -%}{%- if cv_loc_lang == 'code' -%}{%- assign cv_loc_now_lang = l.iso_code | upcase -%}{%- else -%}{%- assign cv_loc_now_lang = l.native_name | default: l.name -%}{%- endif -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_loc_title = 'localization.title' | t -%}
+{%- unless cv_loc_l -%}{%- assign cv_loc_title = 'localization.country' | t -%}{%- endunless -%}
+{%- unless cv_loc_c -%}{%- assign cv_loc_title = 'localization.language' | t -%}{%- endunless -%}
+<div class="cv-loc cv-loc--{{ cv_loc_style }}">
+{%- case cv_loc_style -%}
+{%- when 'links' -%}
+  {%- if cv_loc_c -%}
+  {% form 'localization_set', class: 'cv-loc__links' %}
+    <span class="cv-sr">{{ 'localization.country' | t }}</span>
+    {%- for c in localization.available_countries -%}
+      <button class="cv-loc__link" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>{% if cv_loc_flags and c.iso_code != blank %}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{% endif %}<span dir="auto">{{ c.name }}</span></button>
+    {%- endfor -%}
+  {% endform %}
+  {%- endif -%}
+  {%- if cv_loc_l -%}
+  {% form 'localization_set', class: 'cv-loc__links' %}
+    <span class="cv-sr">{{ 'localization.language' | t }}</span>
+    {%- for l in localization.available_languages -%}
+      <button class="cv-loc__link" type="submit" name="locale" value="{{ l.iso_code }}" lang="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>{% if cv_loc_lang == 'code' %}<abbr title="{{ l.native_name | default: l.name }}">{{ l.iso_code | upcase }}</abbr>{% else %}{{ l.native_name | default: l.name }}{% endif %}</button>
+    {%- endfor -%}
+  {% endform %}
+  {%- endif -%}
+{%- when 'pill', 'modal', 'sheet' -%}
+  <button class="cv-loc__trigger cv-loc__trigger--{{ cv_loc_style }}" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-loc-{{ cv_loc_id }}" data-cv-loc-open="cv-loc-{{ cv_loc_id }}">
+    <span class="cv-sr">{{ cv_loc_title }}:</span>
+    {%- if cv_loc_c -%}
+      {%- if cv_loc_flags and cv_loc_now.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ cv_loc_now.iso_code }}</span>{%- endif -%}
+      {%- if cv_loc_style == 'pill' -%}
+        <span class="cv-sr">{{ cv_loc_now.name }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ cv_loc_now.currency_code | default: cv_loc_now.iso_code }}</span>
+      {%- else -%}
+        <span class="cv-loc__tname" dir="auto">{{ cv_loc_now.name }}</span>{%- if cv_loc_now_cur != blank -%}<span class="cv-loc__tmeta" dir="ltr">{{ cv_loc_now_cur }}</span>{%- endif -%}
+      {%- endif -%}
+    {%- endif -%}
+    {%- if cv_loc_l -%}
+      {%- if cv_loc_c -%}<span class="cv-loc__sep" aria-hidden="true"></span>{%- endif -%}
+      {%- if cv_loc_style == 'pill' -%}
+        {%- for l in localization.available_languages -%}{%- if l.selected -%}<span class="cv-sr">{{ l.native_name | default: l.name }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ l.iso_code | upcase }}</span>{%- endif -%}{%- endfor -%}
+      {%- else -%}
+        <span class="cv-loc__tname">{{ cv_loc_now_lang }}</span>
+      {%- endif -%}
+    {%- endif -%}
+    <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+  <dialog class="cv-loc-dlg cv-loc-dlg--{{ cv_loc_style }}" id="cv-loc-{{ cv_loc_id }}" aria-labelledby="cv-loc-{{ cv_loc_id }}-t" data-cv-loc-dlg>
+    <span class="cv-loc-dlg__handle" aria-hidden="true"></span>
+    <div class="cv-loc-dlg__head">
+      <h2 class="cv-loc-dlg__title" id="cv-loc-{{ cv_loc_id }}-t">{{ cv_loc_title }}</h2>
+      <button class="cv-loc-dlg__close" type="button" data-cv-loc-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+    </div>
+    <div class="cv-loc-dlg__body">
+      {%- if cv_loc_c -%}
+      <div class="cv-loc-dlg__group">
+        {%- if cv_loc_l -%}<h3 class="cv-loc-dlg__sub">{{ 'localization.country' | t }}</h3>{%- endif -%}
+        {%- if cv_loc_style == 'sheet' or localization.available_countries.size > 10 -%}
+        <label class="cv-loc-dlg__search cv-shell">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="cv-sr">{{ 'localization.search' | t }}</span>
+          <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.search' | t }}" aria-controls="cv-loc-{{ cv_loc_id }}-list" data-cv-loc-search>
+        </label>
+        {%- endif -%}
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__list cv-loc-dlg__list--{{ cv_loc_style }}" id="cv-loc-{{ cv_loc_id }}-list" role="list">
+            {%- for c in localization.available_countries -%}
+              {%- assign cv_loc_c_cur = '' -%}
+              {%- case cv_loc_cur -%}
+                {%- when 'code' -%}{%- assign cv_loc_c_cur = c.currency_code -%}
+                {%- when 'symbol' -%}{%- assign cv_loc_c_cur = c.currency_symbol | default: c.currency_code -%}
+                {%- when 'code_symbol' -%}{%- assign cv_loc_c_cur = c.currency_code -%}{%- if c.currency_symbol != blank and c.currency_symbol != c.currency_code -%}{%- assign cv_loc_c_cur = cv_loc_c_cur | append: ' ' | append: c.currency_symbol -%}{%- endif -%}
+              {%- endcase -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ c.name | downcase }} {{ c.iso_code | downcase }} {{ c.currency_code | downcase }} {{ c.currency_name | downcase }}">
+                <button class="cv-loc-dlg__opt" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>
+                  {%- if cv_loc_flags and c.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{%- endif -%}
+                  <span class="cv-loc-dlg__name"><bdi>{{ c.name }}</bdi></span>
+                  {%- if cv_loc_c_cur != blank -%}<span class="cv-loc-dlg__meta" dir="ltr">{{ cv_loc_c_cur }}</span>{%- endif -%}
+                  {%- if c.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.no_results' | t }}</p>
+        {% endform %}
+      </div>
+      {%- endif -%}
+      {%- if cv_loc_l -%}
+      <div class="cv-loc-dlg__group">
+        {%- if cv_loc_c -%}<h3 class="cv-loc-dlg__sub">{{ 'localization.language' | t }}</h3>{%- endif -%}
+        {%- if localization.available_languages.size > 10 -%}
+        <label class="cv-loc-dlg__search cv-shell">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="cv-sr">{{ 'localization.lang_search' | t }}</span>
+          <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.lang_search' | t }}" aria-controls="cv-loc-{{ cv_loc_id }}-langs" data-cv-loc-search>
+        </label>
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__list cv-loc-dlg__list--langs" id="cv-loc-{{ cv_loc_id }}-langs" role="list">
+            {%- for l in localization.available_languages -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ l.native_name | downcase }} {{ l.name | downcase }} {{ l.iso_code | downcase }}">
+                <button class="cv-loc-dlg__opt" type="submit" name="locale" value="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>
+                  <span class="cv-loc-dlg__name"><bdi lang="{{ l.iso_code }}">{{ l.native_name | default: l.name }}</bdi></span>
+                  {%- if cv_loc_lang == 'code' or l.name != l.native_name -%}<span class="cv-loc-dlg__meta">{% if cv_loc_lang == 'code' %}{{ l.iso_code | upcase }}{% else %}{{ l.name }}{% endif %}</span>{%- endif -%}
+                  {%- if l.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.lang_none' | t }}</p>
+        {% endform %}
+        {%- else -%}
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__langs" role="list">
+            {%- for l in localization.available_languages -%}
+              <li><button class="cv-loc-dlg__chip" type="submit" name="locale" value="{{ l.iso_code }}" lang="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>{% if cv_loc_lang == 'code' %}<abbr title="{{ l.native_name | default: l.name }}">{{ l.iso_code | upcase }}</abbr>{% else %}{{ l.native_name | default: l.name }}{% endif %}</button></li>
+            {%- endfor -%}
+          </ul>
+        {% endform %}
+        {%- endif -%}
+      </div>
+      {%- endif -%}
+    </div>
+  </dialog>
+  {%- comment -%} Without script: the same choices in a disclosure, which opens without it. {%- endcomment -%}
+  <noscript>
+    <style>.cv-loc > .cv-loc__trigger[data-cv-loc-open] { display: none; }</style>
+    <details class="cv-loc__nojs">
+      <summary class="cv-loc__trigger cv-loc__trigger--{{ cv_loc_style }}">
+        <span class="cv-sr">{{ cv_loc_title }}:</span>
+        {%- if cv_loc_c -%}{%- if cv_loc_flags and cv_loc_now.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ cv_loc_now.iso_code }}</span>{%- endif -%}<span class="cv-loc__tname" dir="auto">{% if cv_loc_style == 'pill' %}{{ cv_loc_now.currency_code | default: cv_loc_now.iso_code }}{% else %}{{ cv_loc_now.name }}{% endif %}</span>{%- endif -%}
+        {%- if cv_loc_l -%}{%- if cv_loc_c -%}<span class="cv-loc__sep" aria-hidden="true"></span>{%- endif -%}<span class="cv-loc__tname">{% if cv_loc_style == 'pill' %}{%- for l in localization.available_languages -%}{%- if l.selected -%}{{ l.iso_code | upcase }}{%- endif -%}{%- endfor -%}{% else %}{{ cv_loc_now_lang }}{% endif %}</span>{%- endif -%}
+        <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <div class="cv-loc__nojs-panel">
+        {%- if cv_loc_c -%}
+        {% form 'localization_set', class: 'cv-loc__nojs-form' %}
+          {%- if cv_loc_l -%}<p class="cv-loc-dlg__sub">{{ 'localization.country' | t }}</p>{%- endif -%}
+          {%- for c in localization.available_countries -%}
+          <button class="cv-loc-dlg__opt" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>{%- if cv_loc_flags and c.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{%- endif -%}<span class="cv-loc-dlg__name"><bdi>{{ c.name }}</bdi></span>{%- if cv_loc_cur != 'none' -%}<span class="cv-loc-dlg__meta" dir="ltr">{{ c.currency_code }}</span>{%- endif -%}</button>
+          {%- endfor -%}
+        {% endform %}
+        {%- endif -%}
+        {%- if cv_loc_l -%}
+        {% form 'localization_set', class: 'cv-loc__nojs-form' %}
+          {%- if cv_loc_c -%}<p class="cv-loc-dlg__sub">{{ 'localization.language' | t }}</p>{%- endif -%}
+          {%- for l in localization.available_languages -%}
+          <button class="cv-loc-dlg__opt" type="submit" name="locale" value="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}><span class="cv-loc-dlg__name"><bdi lang="{{ l.iso_code }}">{{ l.native_name | default: l.name }}</bdi></span></button>
+          {%- endfor -%}
+        {% endform %}
+        {%- endif -%}
+      </div>
+    </details>
+  </noscript>
+{%- else -%}
+  {%- if cv_loc_c -%}
+  {% form 'localization_set', class: 'cv-loc__form' %}
+    <label class="cv-sr" for="cv-loc-{{ cv_loc_id }}-c">{{ 'localization.country' | t }}</label>
+    <select class="cv-loc__select cv-shell" id="cv-loc-{{ cv_loc_id }}-c" name="country_code" data-cv-autosubmit>
+      {%- for c in localization.available_countries -%}
+        {%- assign cv_loc_c_cur = '' -%}
+        {%- case cv_loc_cur -%}
+          {%- when 'code' -%}{%- assign cv_loc_c_cur = c.currency_code -%}
+          {%- when 'symbol' -%}{%- assign cv_loc_c_cur = c.currency_symbol | default: c.currency_code -%}
+          {%- when 'code_symbol' -%}{%- assign cv_loc_c_cur = c.currency_code -%}{%- if c.currency_symbol != blank and c.currency_symbol != c.currency_code -%}{%- assign cv_loc_c_cur = cv_loc_c_cur | append: ' ' | append: c.currency_symbol -%}{%- endif -%}
+        {%- endcase -%}
+        <option value="{{ c.iso_code }}"{% if c.selected %} selected{% endif %}>{{ c.name }}{% if cv_loc_c_cur != blank %} ({{ cv_loc_c_cur }}){% endif %}</option>
+      {%- endfor -%}
+    </select>
+    <noscript><button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'general.update' | t }}</button></noscript>
+  {% endform %}
+  {%- endif -%}
+  {%- if cv_loc_l -%}
+  {% form 'localization_set', class: 'cv-loc__form' %}
+    <label class="cv-sr" for="cv-loc-{{ cv_loc_id }}-l">{{ 'localization.language' | t }}</label>
+    <select class="cv-loc__select cv-shell" id="cv-loc-{{ cv_loc_id }}-l" name="locale" data-cv-autosubmit>
+      {%- for l in localization.available_languages -%}
+        <option value="{{ l.iso_code }}"{% if l.selected %} selected{% endif %}>{% if cv_loc_lang == 'code' %}{{ l.iso_code | upcase }}{% else %}{{ l.native_name | default: l.name }}{% endif %}</option>
+      {%- endfor -%}
+    </select>
+    <noscript><button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'general.update' | t }}</button></noscript>
+  {% endform %}
+  {%- endif -%}
+{%- endcase -%}
+</div>
+{%- comment -%}/partial:loc-picker{%- endcomment -%}
+        </div>
+        {{ b._editor_block_close }}
+        {%- elsif design_mode -%}
+        {{ b._editor_block_open }}<p class="cv-ft__part cv-editor-hint cv-blk-hint">{{ 'footer.localization_hint' | t }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'social' -%}
+        {%- assign cv_soc_style = b.settings.style -%}
+        {%- if b.settings.show_social != false -%}
+        {{ b._editor_block_open }}
+        <div class="cv-ft__part cv-ft__social">
+{%- comment -%}partial:social-icons{%- endcomment -%}
+{%- comment -%} Social profiles from Theme settings > Social media (https addresses only). Input: cv_soc_style ("icons", or "names" for an
+  icon with the network's name). Output: cv_has_social. {%- endcomment -%}
+{%- assign cv_networks = 'instagram,facebook,x,youtube,tiktok,pinterest,linkedin' | split: ',' -%}
+{%- assign cv_has_social = false -%}
+{%- for cv_n in cv_networks -%}
+  {%- assign cv_key = 'social_' | append: cv_n -%}
+  {%- assign cv_url = theme.settings[cv_key] | strip -%}
+  {%- assign cv_scheme = cv_url | slice: 0, 8 -%}
+  {%- if cv_scheme == 'https://' -%}{%- assign cv_has_social = true -%}{%- endif -%}
+{%- endfor -%}
+{%- if cv_has_social -%}
+<ul class="cv-social cv-social--{{ cv_soc_style | default: 'icons' }}" role="list">
+  {%- for cv_n in cv_networks -%}
+    {%- assign cv_key = 'social_' | append: cv_n -%}
+    {%- assign cv_url = theme.settings[cv_key] | strip -%}
+    {%- assign cv_scheme = cv_url | slice: 0, 8 -%}
+    {%- if cv_scheme == 'https://' -%}
+    <li><a href="{{ cv_url }}" target="_blank" rel="noopener"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true">{%- case cv_n -%}
+{%- when 'instagram' -%}<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6"/>
+{%- when 'facebook' -%}<path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V9H7v3h2v9h3v-9h2.6l.4-3h-3V7a1 1 0 0 1 1-1h2z"/>
+{%- when 'x' -%}<path d="M4 4l16 16M20 4 4 20"/>
+{%- when 'youtube' -%}<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10 9 5 3-5 3z"/>
+{%- when 'tiktok' -%}<path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5M14 3c.5 2.5 2.5 4.5 5 4.5"/>
+{%- when 'pinterest' -%}<circle cx="12" cy="12" r="9"/><path d="m10.5 21 2.2-9.5M9.5 14c-1-3 .8-6 3.5-6 2.3 0 3.5 1.6 3.5 3.6 0 2.4-1.4 4.4-3.3 4.4"/>
+{%- when 'linkedin' -%}<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/>
+{%- endcase -%}</svg><span class="{% if cv_soc_style == 'names' %}cv-social__name{% else %}cv-sr{% endif %}">{{ 'social.' | append: cv_n | t }}</span></a></li>
+    {%- endif -%}
+  {%- endfor -%}
+</ul>
+{%- endif -%}
+{%- comment -%}/partial:social-icons{%- endcomment -%}
+        {%- if cv_has_social == false and design_mode -%}<p class="cv-editor-hint cv-blk-hint">{{ 'footer.social_hint' | t }}</p>{%- endif -%}
+        </div>
+        {{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'payment' -%}
+        {{ b._editor_block_open }}
+        <div class="cv-ft__part cv-ft__pay">
+        {%- assign cv_pay_list = b.settings.payment_methods -%}
+{%- comment -%}partial:payment-list{%- endcomment -%}
+{%- comment -%} Payment methods the merchant lists (comma-separated), as small labels. Input: cv_pay_list. {%- endcomment -%}
+{%- assign cv_pay = cv_pay_list | split: ',' -%}
+{%- assign cv_pay_n = 0 -%}
+{%- for p in cv_pay -%}{%- assign cv_p = p | strip -%}{%- if cv_p != blank -%}{%- assign cv_pay_n = cv_pay_n | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_pay_n > 0 -%}
+<ul class="cv-pay" role="list" aria-label="{{ 'footer.payment_methods' | t }}" data-tf-field="payment_methods">
+  {%- for p in cv_pay -%}{%- assign cv_p = p | strip -%}{%- if cv_p != blank -%}<li dir="auto">{{ cv_p }}</li>{%- endif -%}{%- endfor -%}
+</ul>
+{%- elsif design_mode -%}
+<p class="cv-editor-hint cv-blk-hint" data-tf-field="payment_methods">{{ 'footer.payment_hint' | t }}</p>
+{%- endif -%}
+{%- comment -%}/partial:payment-list{%- endcomment -%}
+        </div>
+        {{ b._editor_block_close }}
+      {%- when 'note' -%}
+        {%- if b.settings.text != blank -%}
+        {{ b._editor_block_open }}<div class="cv-ft__part cv-ft__note cv-rte" dir="auto" data-tf-field="text">{{ b.settings.text }}</div>{{ b._editor_block_close }}
+        {%- elsif design_mode -%}
+        {{ b._editor_block_open }}<p class="cv-ft__part cv-editor-hint cv-blk-hint">{{ 'sections.editor_empty_block' | t }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'powered_by' -%}
+        {%- if b.settings.show_powered_by != false -%}
+        {{ b._editor_block_open }}<a class="cv-ft__part cv-ft__powered" href="https://tringify.com" target="_blank" rel="noopener">{{ 'footer.powered_by' | t }}</a>{{ b._editor_block_close }}
+        {%- endif -%}
+    {%- endcase -%}
+  {%- endfor -%}
+</div>
+{%- endif -%}
+{%- comment -%}/partial:footer-bar{%- endcomment -%}
+    </div>
+    {%- if settings.blocks.size == 0 and settings.show_store_name == false and design_mode -%}<p class="cv-editor-hint">{{ 'sections.editor_add_content' | t }}</p>{%- endif -%}
+  </div>
+</footer>
+{%- comment -%}partial:loc-script{%- endcomment -%}
+<script>
+(function () {
+  if (window.__cvLoc) return; window.__cvLoc = true;
+  // Dropdown pickers submit on change.
+  if (!window.__cvAutosubmit) {
+    window.__cvAutosubmit = true;
+    document.addEventListener("change", function (e) {
+      var s = e.target.closest && e.target.closest("select[data-cv-autosubmit]");
+      if (s && s.form) s.form.requestSubmit ? s.form.requestSubmit() : s.form.submit();
+    });
+  }
+  // Focus rings follow the last input: a click or a tap opens a list with focus on the current choice but no ring (Safari otherwise rings
+  // focus moved by script after a tap); a key brings the ring back. Pages without the header (the gate pages) get the page-wide cv-pointer
+  // switch from here.
+  var kbd = false, html = document.documentElement;
+  addEventListener("pointerdown", function () { kbd = false; html.classList.add("cv-pointer"); }, true);
+  addEventListener("keydown", function (e) {
+    if (e.key !== "Tab" && e.key !== "Escape" && !/^Arrow/.test(e.key) && e.key !== "Enter" && e.key !== " ") return;
+    kbd = true; html.classList.remove("cv-pointer");
+    document.querySelectorAll("dialog[data-cv-loc-dlg].is-pointer").forEach(function (d) { d.classList.remove("is-pointer"); });
+  }, true);
+  // List pickers: the trigger opens its <dialog> (modal, so focus stays in it and Escape closes it). The pill's list sits under the pill on
+  // wider screens, lined up with it on the page grid; every list is a bottom sheet on phones.
+  var wide = window.matchMedia("(min-width: 750px)");
+  function place(d, t) {
+    if (!d.classList.contains("cv-loc-dlg--pill")) return;
+    if (!wide.matches) { ["--cv-loc-y", "--cv-loc-x", "--cv-loc-b", "--cv-loc-w"].forEach(function (p) { d.style.removeProperty(p); }); return; }
+    var r = t.getBoundingClientRect(), vw = html.clientWidth, vh = window.innerHeight;
+    // The grid: the content box of the row the trigger sits in (the header bar, the gate's top row), else 16px in from the window.
+    var g = t.closest(".cv-wrap, .cv-gate__top"), lo = 16, hi = vw - 16;
+    if (g) {
+      var gr = g.getBoundingClientRect(), gs = getComputedStyle(g);
+      lo = Math.max(lo, gr.left + parseFloat(gs.paddingLeft)); hi = Math.min(hi, gr.right - parseFloat(gs.paddingRight));
+    }
+    var w = Math.min(340, hi - lo);
+    // The list's edge meets the trigger's: the right edges when the trigger is in the right half of the row, else the left edges.
+    var left = (r.left + r.right) / 2 > (lo + hi) / 2 ? r.right - w : r.left;
+    left = Math.max(lo, Math.min(left, hi - w));
+    var rtl = getComputedStyle(d).direction === "rtl";
+    d.style.setProperty("--cv-loc-w", w + "px");
+    d.style.setProperty("--cv-loc-x", (rtl ? vw - left - w : left) + "px");
+    var below = vh - r.bottom, y = below > 280 || below > r.top ? r.bottom + 8 : null;
+    if (y === null) { d.style.setProperty("--cv-loc-y", "auto"); d.style.setProperty("--cv-loc-b", (vh - r.top + 8) + "px"); }
+    else { d.style.setProperty("--cv-loc-y", y + "px"); d.style.removeProperty("--cv-loc-b"); }
+  }
+  function open(t) {
+    var d = document.getElementById(t.getAttribute("data-cv-loc-open"));
+    if (!d || d.open || !d.showModal) return;
+    place(d, t);
+    d.classList.toggle("is-pointer", !kbd);
+    d.showModal();
+    t.setAttribute("aria-expanded", "true");
+    d.__cvTrigger = t;
+    // Wider screens start in the first list's search, if it has one; otherwise (and on phones, where it would raise the keyboard) on the
+    // current choice.
+    var search = wide.matches && d.querySelector(".cv-loc-dlg__group:first-child [data-cv-loc-search]");
+    var cur = d.querySelector('.cv-loc-dlg__opt[aria-current="true"], .cv-loc-dlg__chip[aria-current="true"]');
+    var focus = search || cur;
+    if (focus) focus.focus({ preventScroll: true, focusVisible: kbd });
+    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
+  }
+  function norm(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function filter(input) {
+    // Each list (countries, languages) has its own search.
+    var d = input.closest(".cv-loc-dlg__group") || input.closest("dialog"), q = norm(input.value.trim()), shown = 0;
+    d.querySelectorAll("[data-cv-loc-item]").forEach(function (li) {
+      var hit = !q || norm(li.getAttribute("data-cv-loc-q")).indexOf(q) !== -1 || norm(li.textContent).indexOf(q) !== -1;
+      li.hidden = !hit; if (hit) shown++;
+    });
+    var none = d.querySelector("[data-cv-loc-none]"); if (none) none.hidden = shown > 0;
+  }
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest) return;
+    var t = e.target.closest("[data-cv-loc-open]");
+    if (t) { open(t); return; }
+    var x = e.target.closest("[data-cv-loc-close]");
+    if (x) { x.closest("dialog").close(); return; }
+    // A click on the backdrop (the dialog element itself, outside its content) closes it.
+    if (e.target.matches && e.target.matches("dialog[data-cv-loc-dlg]")) {
+      var r = e.target.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
+    }
+  });
+  document.addEventListener("input", function (e) { if (e.target.matches && e.target.matches("[data-cv-loc-search]")) filter(e.target); });
+  document.addEventListener("close", function (e) {
+    var d = e.target;
+    if (!d.matches || !d.matches("dialog[data-cv-loc-dlg]")) return;
+    if (d.__cvTrigger) d.__cvTrigger.setAttribute("aria-expanded", "false");
+    d.querySelectorAll("[data-cv-loc-search]").forEach(function (s) { if (s.value) { s.value = ""; filter(s); } });
+  }, true);
+  window.addEventListener("resize", function () {
+    document.querySelectorAll("dialog[data-cv-loc-dlg][open]").forEach(function (d) { if (d.__cvTrigger) place(d, d.__cvTrigger); });
+  });
+})();
+</script>
+{%- comment -%}/partial:loc-script{%- endcomment -%}
+{% schema %}
+{
+  "name": "footer-compact",
+  "kind": "layout",
+  "target": "global_body_end",
+  "icon": "panel-bottom",
+  "preview_image": "assets/canvas-layout-footer-compact.png",
+  "ctx_needs": [
+    "shop",
+    "customer_settings.privacy_request_url",
+    "routes",
+    "localization",
+    "policies",
+    "form_notice",
+    "csrf_token",
+    "consent",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "show_store_name",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "show_store_name",
+        "group": "content"
+      }
+    },
+    {
+      "id": "show_top_border",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "show_top_border",
+        "group": "design"
+      }
+    },
+    {
+      "id": "align",
+      "type": "select",
+      "default": "start",
+      "options": [
+        {
+          "value": "start",
+          "label": "opt_start"
+        },
+        {
+          "value": "center",
+          "label": "opt_center"
+        }
+      ],
+      "editor": {
+        "label": "alignment",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "spacing",
+      "type": "select",
+      "default": "normal",
+      "options": [
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "normal",
+          "label": "opt_normal"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "light",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "menu-links",
+      "text",
+      "social-links",
+      "logo",
+      "custom-vascula"
+    ],
+    "max": 16,
+    "default": [
+      "copyright",
+      "policies",
+      "localization",
+      "social",
+      "powered_by"
+    ],
+    "types": [
+      {
+        "type": "copyright",
+        "editor": {
+          "label": "ft_copyright"
+        },
+        "settings": [
+          {
+            "id": "copyright",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "copyright",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "policies",
+        "editor": {
+          "label": "ft_policies"
+        },
+        "settings": [
+          {
+            "id": "show_policies",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_policies",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_consent",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_consent",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_privacy_request",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_privacy_request",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "localization",
+        "editor": {
+          "label": "ft_localization"
+        },
+        "settings": [
+          {
+            "id": "show_localization",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_localization",
+              "group": "content"
+            }
+          },
+          {
+            "id": "picker_style",
+            "type": "select",
+            "default": "theme",
+            "options": [
+              {
+                "value": "theme",
+                "label": "opt_loc_theme"
+              },
+              {
+                "value": "dropdown",
+                "label": "opt_loc_dropdown"
+              },
+              {
+                "value": "pill",
+                "label": "opt_loc_pill"
+              },
+              {
+                "value": "modal",
+                "label": "opt_loc_modal"
+              },
+              {
+                "value": "sheet",
+                "label": "opt_loc_sheet"
+              },
+              {
+                "value": "links",
+                "label": "opt_loc_links"
+              }
+            ],
+            "editor": {
+              "label": "picker_style",
+              "group": "design"
+            }
+          }
+        ]
+      },
+      {
+        "type": "social",
+        "editor": {
+          "label": "ft_social"
+        },
+        "settings": [
+          {
+            "id": "show_social",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_social",
+              "group": "content"
+            }
+          },
+          {
+            "id": "style",
+            "type": "select",
+            "default": "icons",
+            "options": [
+              {
+                "value": "icons",
+                "label": "opt_icons"
+              },
+              {
+                "value": "names",
+                "label": "opt_icons_names"
+              }
+            ],
+            "editor": {
+              "label": "style",
+              "group": "design"
+            }
+          }
+        ]
+      },
+      {
+        "type": "payment",
+        "editor": {
+          "label": "ft_payment"
+        },
+        "settings": [
+          {
+            "id": "payment_methods",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "payment_methods",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "note",
+        "editor": {
+          "label": "ft_note"
+        },
+        "settings": [
+          {
+            "id": "text",
+            "type": "richtext",
+            "default": "",
+            "editor": {
+              "label": "text",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "powered_by",
+        "editor": {
+          "label": "ft_powered"
+        },
+        "settings": [
+          {
+            "id": "show_powered_by",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_powered_by",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "id": "menu-to-menu-links",
+      "op": "rename_block",
+      "from_type": "menu",
+      "to_type": "theme:menu-links",
+      "source_defaults": {
+        "menu": "footer",
+        "layout": "inline"
+      }
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,78 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%}
+  Video with the merchant's content blocks (eyebrow, heading, text, buttons…). Wide (16:9 with the text above), vertical (a 9:16 clip beside the text) or split (16:9 beside the text).
+  The video waits behind its poster and a play button, then plays with sound; with "Play automatically" it loops muted while on screen instead
+  (never with reduced motion or Save-Data). Products picked for it sit beside or under the video. Without a video the section shows only in the editor.
+{%- endcomment -%}
+{%- comment -%} Sample videos are for the editor only: on the live store (and the Theme Store preview of a bare store) a card or section without the merchant's video is left out. {%- endcomment -%}
+{%- assign cv_demo = false -%}{%- if design_mode -%}{%- assign cv_demo = true -%}{%- endif -%}
+{%- if settings.video != blank or cv_demo -%}
+{%- assign cv_layout = settings.layout | default: 'wide' -%}
+{%- assign cv_src = settings.video -%}
+{%- comment -%} The play button is named after the first heading block. {%- endcomment -%}
+{%- assign cv_vh = '' -%}{%- assign cv_nb = 0 -%}
+{%- for b in settings.blocks -%}{%- unless b.disabled -%}{%- assign cv_nb = cv_nb | plus: 1 -%}{%- if cv_vh == blank and b.type == 'theme:heading' -%}{%- assign cv_vh = b.settings.heading -%}{%- endif -%}{%- endunless -%}{%- endfor -%}
+{%- if cv_src == blank -%}{%- capture cv_src -%}{{ 'reel-2' | placeholder_video }}{%- endcapture -%}{%- endif -%}
+<section class="cv cv-section cv-video cv-video--{{ cv_layout }}{% if settings.media_position == 'right' %} cv-video--right{% endif %}{% if theme.settings.card_style == 'editorial' %} cv-video--lines{% endif %} tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}" data-cv-video>
+  <div class="cv-wrap{% if settings.full_width and cv_layout == 'wide' %} cv-video--full{% endif %}">
+    <div class="cv-video__grid">
+      <div dir="auto" class="cv-video__frame cv-media" data-tf-field="video">
+        {%- if settings.video == blank and settings.poster == blank -%}<span class="cv-video__ph"><img src="{{ 'canvas-hero.webp' | asset_url }}" alt="" loading="lazy" width="1600" height="900"></span>{%- endif -%}
+        <video data-cv-vplayer data-src="{{ cv_src }}" playsinline preload="none"{% if settings.autoplay %} muted loop data-auto{% endif %}{% if settings.poster %} poster="{{ settings.poster | image_url: width: 1600 }}"{% endif %}></video>
+        <button class="cv-video__play" type="button" data-cv-vplay>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <span class="cv-sr">{{ 'reels.play' | t }}{% if cv_vh != blank %}: {{ cv_vh }}{% endif %}</span>
+        </button>
+      </div>
+      {%- if cv_nb > 0 or settings.caption != blank or settings.products.size > 0 -%}
+      <div class="cv-video__text">
+        {% blocks %}
+        {%- if settings.products.size > 0 -%}
+          <ul class="cv-video__products" role="list">
+            {%- for cv_p in settings.products limit: 4 -%}
+              {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+              <li><a class="cv-video__product" href="{{ cv_p.url }}">
+                <span class="cv-video__pimg cv-media">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 200 }}" alt="" loading="lazy">{%- endif -%}</span>
+                <span class="cv-video__pname">{{ cv_p.title }}</span>
+                <span class="cv-video__pprice">{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span>
+                <svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a></li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+        {%- if settings.caption != blank -%}<p dir="auto" data-tf-field="caption" class="cv-muted cv-video__caption">{{ settings.caption }}</p>{%- endif -%}
+      </div>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+{%- endif -%}
+<script>
+(function () {
+  // Later runs (another instance, or the editor re-running scripts after a re-render) only wire what is new.
+  if (window.__cvVideo) { window.__cvVideo(); return; }
+  var conn = navigator.connection || {};
+  function calm() { return matchMedia("(prefers-reduced-motion: reduce)").matches || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ""); }
+  function load(v) { if (!v.getAttribute("src")) v.src = v.getAttribute("data-src"); }
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      var v = e.target, auto = v.hasAttribute("data-auto") && !v.hasAttribute("data-user");
+      if (!e.isIntersecting) { v.pause(); return; }
+      if (auto && !calm()) { load(v); var p = v.play(); if (p && p.then) p.then(function () { v.closest("[data-cv-video]").classList.add("is-playing"); }, function () {}); }
+    });
+  }, { threshold: 0.35 }) : null;
+  var watched = [];
+  function sweep() { watched = watched.filter(function (v) { if (v.isConnected) return true; if (io) io.unobserve(v); return false; }); }
+  function wire(root) { (root || document).querySelectorAll("[data-cv-vplayer]").forEach(function (v) { if (!v.__cv && io) { v.__cv = true; io.observe(v); watched.push(v); } }); }
+  window.__cvVideo = function () { sweep(); wire(document); };
+  wire(); document.addEventListener("tf:section:load", function (e) { wire(e.target); });
+  // Play with sound on click; the native controls take over from there.
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-cv-vplay]"); if (!b) return;
+    var v = b.parentNode.querySelector("[data-cv-vplayer]");
+    load(v); v.setAttribute("data-user", ""); v.muted = false; v.loop = false; v.controls = true;
+    b.hidden = true; v.closest("[data-cv-video]").classList.add("is-playing");
+    var p = v.play(); if (p && p.catch) p.catch(function () { v.muted = true; v.play(); });
+  });
+})();
+</script>

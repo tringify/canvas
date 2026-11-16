@@ -1,0 +1,150 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart lines. Reads cart; cv_ls is the Line items block's settings. {%- endcomment -%}
+<ul class="cv-lines" role="list">
+  {%- assign cv_group_on = true -%}{%- if cv_ls.group_customizations == false -%}{%- assign cv_group_on = false -%}{%- endif -%}
+  {%- for head in cart.items -%}
+    {%- assign cv_head_series = false -%}
+    {%- assign cv_sc = head.series.count | default: 0 -%}{%- assign cv_sx = head.series.index | default: 1 -%}
+    {%- if cv_group_on and head.series and cv_sc > 1 -%}{%- assign cv_head_series = true -%}{%- endif -%}
+    {%- if cv_head_series and cv_sx > 1 -%}{%- continue -%}{%- endif -%}
+    {%- if cv_head_series -%}
+    {%- assign cv_gm = head.series.media | default: head.variant.media | default: head.product.media -%}
+    <li class="cv-group">
+      <div class="cv-group__head">
+        <a class="cv-line__media cv-media" href="{{ head.product.url }}" tabindex="-1" aria-hidden="true">
+          {%- if cv_gm.url and cv_gm.is_image != false -%}<img src="{{ cv_gm.url | image_url: width: 160 }}" srcset="{{ cv_gm.url | image_srcset: max: 320 }}" sizes="96px" alt="" loading="lazy">{%- else -%}{%- if design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}{%- endif -%}
+        </a>
+        <div class="cv-line__info">
+          <a dir="auto" class="cv-line__title" href="{{ head.product.url }}">{{ head.product.title }}</a>
+          {%- if head.variant.options.size > 0 -%}<p class="cv-line__meta">{%- for o in head.variant.options -%}{{ o.name }}: {{ o.value }}{% unless forloop.last %} · {% endunless %}{%- endfor -%}</p>{%- endif -%}
+          <p class="cv-line__meta">{{ 'cart.group_count' | t: count: head.series.count, quantity: head.series.quantity }}</p>
+        </div>
+        {%- if head.series.subtotal -%}<p class="cv-line__total">{{ head.series.subtotal | money: isolate: true, trim_zeros: cv_tz }}</p>{%- endif -%}
+      </div>
+      <ul class="cv-lines cv-group__lines" role="list">
+    {%- endif -%}
+    {%- for line in cart.items -%}
+      {%- if cv_head_series -%}
+        {%- if line.series.key != head.series.key -%}{%- continue -%}{%- endif -%}
+      {%- elsif line.line_id != head.line_id -%}{%- continue -%}{%- endif -%}
+      {%- assign cv_grouped = cv_head_series -%}
+      {%- assign cv_m = line.variant.media | default: line.product.media -%}
+        <li class="cv-line{% if cv_grouped %} cv-line--member{% endif %}{% if line.available_for_sale == false %} is-unavailable{% endif %}">
+          <a class="cv-line__media cv-media" href="{{ line.product.url }}" tabindex="-1" aria-hidden="true">
+            {%- if line.thumbnail and cv_ls.line_image != 'product' -%}<img class="cv-line__custom" src="{{ line.thumbnail }}" alt="" loading="lazy">
+            {%- elsif cv_m.url and cv_m.is_image != false -%}<img src="{{ cv_m.url | image_url: width: 160 }}" srcset="{{ cv_m.url | image_srcset: max: 320 }}" sizes="96px" alt="" loading="lazy">
+            {%- else -%}{%- if design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}{%- endif -%}
+          </a>
+          <div class="cv-line__body">
+            <div class="cv-line__top">
+              <div class="cv-line__info">
+                {%- if cv_grouped -%}<p dir="auto" class="cv-line__title">{{ 'cart.group_item' | t: index: line.series.index, count: line.series.count }}</p>{%- else -%}<a dir="auto" class="cv-line__title" href="{{ line.product.url }}">{{ line.product.title }}</a>{%- endif -%}
+                {%- if line.is_free_gift -%}<span class="cv-badge">{{ 'cart.free_gift' | t }}</span>{%- endif -%}
+                {%- if line.variant.options.size > 0 and cv_grouped != true -%}
+                  <p class="cv-line__meta">{%- for o in line.variant.options -%}{{ o.name }}: {{ o.value }}{% unless forloop.last %} · {% endunless %}{%- endfor -%}</p>
+                {%- endif -%}
+                {%- if cv_ls.show_line_properties != false -%}{%- for prop in line.property_list -%}{%- if prop.value contains 'https://' -%}{%- continue -%}{%- endif -%}<p class="cv-line__meta">{{ prop.name }}: {{ prop.display_value }}</p>{%- endfor -%}{%- endif -%}
+                {%- if line.gift_card_recipient -%}
+                  {%- comment -%} The whole recipient, each part that is present: who (the name, else the email, else the phone), the email
+                    and phone not already shown as who, the message (two lines at most; the full text stays in the line and in its title)
+                    and when it sends. {%- endcomment -%}
+                  {%- assign cv_gr = line.gift_card_recipient -%}
+                  {%- assign cv_to = cv_gr.name -%}{%- assign cv_to_is = 'name' -%}
+                  {%- if cv_to == blank and cv_gr.email != blank -%}{%- assign cv_to = cv_gr.email -%}{%- assign cv_to_is = 'email' -%}
+                  {%- elsif cv_to == blank -%}{%- assign cv_to = cv_gr.phone_display -%}{%- assign cv_to_is = 'phone' -%}{%- endif -%}
+                  <p class="cv-line__meta cv-line__gift">
+                    <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-1.5-3-5-3.5-5-1.2C7 7 9.5 7 12 7Zm0 0c1.5-3 5-3.5 5-1.2C17 7 14.5 7 12 7Z"/></svg>
+                    <span class="cv-line__gift-text"><span dir="auto">{{ 'cart.gift_for' | t: name: cv_to }}</span>
+                    {%- if cv_gr.email != blank and cv_to_is != 'email' -%}{%- assign cv_rp = cv_gr.email | split: '@' -%}<span><bdi dir="ltr">{{ cv_rp.first }}@<wbr>{{ cv_rp.last }}</bdi></span>{%- endif -%}
+                    {%- if cv_gr.phone_display != blank and cv_to_is != 'phone' -%}<span><bdi dir="ltr">{{ cv_gr.phone_display }}</bdi></span>{%- endif -%}
+                    {%- if cv_gr.message != blank -%}<span class="cv-line__gift-msg" dir="auto" title="{{ cv_gr.message }}">{{ 'cart.gift_message' | t: message: cv_gr.message }}</span>{%- endif -%}
+                    {%- if cv_gr.deliver_at_display != blank -%}<span><time datetime="{{ cv_gr.deliver_at }}">{{ 'cart.gift_send_on' | t: date: cv_gr.deliver_at_display }}</time></span>{%- endif -%}</span>
+                  </p>
+                {%- endif -%}
+                <p class="cv-line__unit cv-price">
+                  {%- if line.on_sale -%}<span class="cv-price__sale">{{ line.unit_price | money: isolate: true, trim_zeros: cv_tz }}</span><s class="cv-price__was">{{ line.regular_unit_price | money: isolate: true, trim_zeros: cv_tz }}</s>
+                  {%- else -%}<span>{{ line.unit_price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}
+                </p>
+              </div>
+              <p class="cv-line__total">{{ line.total | money: isolate: true, trim_zeros: cv_tz }}</p>
+              {%- if cv_grouped -%}{%- assign cv_rm_name = 'cart.group_item' | t: index: line.series.index, count: line.series.count | prepend: ' – ' | prepend: line.product.title -%}{%- else -%}{%- assign cv_rm_name = line.product.title -%}{%- endif -%}
+              {% form 'cart_remove', class: 'cv-line__remove' %}
+                <input type="hidden" name="product_id" value="{{ line.product_id }}">
+                {%- if line.variant_id -%}<input type="hidden" name="variant_id" value="{{ line.variant_id }}">{%- endif -%}
+                <input type="hidden" name="line_id" value="{{ line.line_id }}">
+                <button class="cv-line__rm" type="submit" aria-label="{{ 'cart.remove_item' | t: title: cv_rm_name | escape }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
+              {% endform %}
+            </div>
+            {%- comment -%} Pickup mode: a line the pickup location cannot supply offers another store (the sheet) or delivery. {%- endcomment -%}
+            {%- assign cv_qa = line.quantity_available | default: 0 -%}
+            {%- if line.available_for_sale == false and cart.mode == 'pickup' and line.availability_reason == 'not_at_pickup_location' or line.available_for_sale == false and cart.mode == 'pickup' and line.availability_reason == 'insufficient_stock' -%}
+              <div class="cv-pk-lwarn">
+                <p class="cv-line__warn">{{ line.availability_reason_label }}</p>
+                <div class="cv-pk-acts">
+                  <button class="cv-tbtn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-pickup" data-cv-pk-open>{{ 'pickup.switch_store' | t }}</button>
+                  {% form 'shopping_mode_set' %}<input type="hidden" name="mode" value="delivery"><button class="cv-tbtn" type="submit">{{ 'pickup.deliver_instead' | t }}</button>{% endform %}
+                </div>
+              </div>
+            {%- elsif line.available_for_sale == false and line.availability_reason == 'insufficient_stock' and cv_qa > 0 -%}
+              {%- comment -%} Short of stock: how many are left (unless the merchant hides stock levels) and a one-tap change to that quantity. {%- endcomment -%}
+              <div class="cv-line__fix">
+                <p class="cv-line__warn">{%- if theme.settings.cart_show_stock_left != false -%}{{ 'cart.only_left' | t: count: line.quantity_available }}{%- else -%}{{ line.availability_reason_label }}{%- endif -%}</p>
+                {% form 'cart_update' %}
+                  <input type="hidden" name="product_id" value="{{ line.product_id }}">
+                  {%- if line.variant_id -%}<input type="hidden" name="variant_id" value="{{ line.variant_id }}">{%- endif -%}
+                  <input type="hidden" name="line_id" value="{{ line.line_id }}">
+                  <button class="cv-tbtn" type="submit" name="quantity" value="{{ line.quantity_available }}">{{ 'cart.change_to' | t: count: line.quantity_available }}</button>
+                {% endform %}
+              </div>
+            {%- elsif line.available_for_sale == false and line.availability_reason != blank -%}
+              {%- comment -%} Anything else checkout cannot take (sold out, no longer for sale): the reason and a removal. {%- endcomment -%}
+              <div class="cv-line__fix">
+                <p class="cv-line__warn">{{ line.availability_reason_label }}</p>
+                {% form 'cart_update' %}
+                  <input type="hidden" name="product_id" value="{{ line.product_id }}">
+                  {%- if line.variant_id -%}<input type="hidden" name="variant_id" value="{{ line.variant_id }}">{%- endif -%}
+                  <input type="hidden" name="line_id" value="{{ line.line_id }}">
+                  <button class="cv-tbtn" type="submit" name="quantity" value="0">{{ 'cart.remove' | t }}</button>
+                {% endform %}
+              </div>
+            {%- endif -%}
+            {%- if line.available_for_sale == false and line.notify_me_eligible and restock_notifications.enabled -%}
+              {%- comment -%} A sold-out line can ask to hear when it is back, folded under one link so the cart stays short. {%- endcomment -%}
+              <details class="cv-line__notify">
+                <summary class="cv-tbtn">{{ 'products.notify_title_short' | t }}</summary>
+                {%- assign cv_nf_pid = line.product_id -%}{%- assign cv_nf_vid = line.variant_id -%}{%- assign cv_nf_id = 'cv-notify-line-' | append: line.line_id -%}{%- assign cv_nf_head = false -%}
+                {%- comment -%}partial:notify-me{%- endcomment -%}
+                {%- comment -%}/partial:notify-me{%- endcomment -%}
+              </details>
+            {%- endif -%}
+            {%- assign cv_ld = line.line_discount.amount | default: 0 | plus: 0 -%}
+            {%- assign cv_fu = line.free_units | default: 0 -%}
+            {%- if cv_fu > 0 -%}<p class="cv-line__disc">{{ 'cart.n_free' | t: count: cv_fu }}</p>{%- endif -%}
+            {%- if cv_ld > 0 -%}<p class="cv-line__disc">{{ 'cart.line_saving' | t }} {{ line.line_discount | money: isolate: true, trim_zeros: cv_tz }}</p>{%- endif -%}
+            <div class="cv-line__actions">
+              {%- if line.is_free_gift != true -%}
+              {%- comment -%} The typed quantity goes through the hidden first button, so Enter never submits the − button. The platform caps a line at its quantity plus quantity_can_add (nil: no cap). {%- endcomment -%}
+              {%- assign cv_qmax = nil -%}{%- if line.quantity_can_add != nil -%}{%- assign cv_qadd = line.quantity_can_add | default: 0 -%}{%- assign cv_qmax = line.quantity | plus: cv_qadd -%}{%- endif -%}
+              {%- if line.quantity_at_limit -%}{%- assign cv_qmax = line.quantity -%}{%- endif -%}
+              {% form 'cart_update', class: 'cv-line__qty cv-shell' %}
+                <input type="hidden" name="product_id" value="{{ line.product_id }}">
+                {%- if line.variant_id -%}<input type="hidden" name="variant_id" value="{{ line.variant_id }}">{%- endif -%}
+                <input type="hidden" name="line_id" value="{{ line.line_id }}">
+                <button type="submit" name="quantity" value="{{ line.quantity }}" hidden tabindex="-1" data-cv-qty-set></button>
+                <button class="cv-qty__btn" type="submit" name="quantity" value="{{ line.quantity | minus: 1 }}"><svg class="cv-icon cv-qty__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg><span class="cv-sr">{{ 'products.decrease' | t }}</span></button>
+                <label class="cv-line__qlabel"><span class="cv-sr">{{ 'products.quantity' | t }}</span><input class="cv-qty__input cv-line__q" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="{{ line.quantity }}" data-cv-qty data-cv-qty-line="{{ line.line_id }}" data-min="0"{% if cv_qmax != nil %} data-max="{{ cv_qmax }}" data-max-msg="{{ 'products.quantity_max' | t: max: cv_qmax }}"{% endif %}></label>
+                <button class="cv-qty__btn" type="submit" name="quantity" value="{{ line.quantity | plus: 1 }}"{% if line.quantity_at_limit or line.quantity_can_add == 0 %} disabled{% endif %}><svg class="cv-icon cv-qty__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-sr">{{ 'products.increase' | t }}</span></button>
+              {% endform %}
+              {%- else -%}
+              <span class="cv-muted cv-line__q">× {{ line.quantity }}</span>
+              {%- endif -%}
+            </div>
+          </div>
+        </li>
+    {%- endfor -%}
+    {%- if cv_head_series -%}
+      </ul>
+    </li>
+    {%- endif -%}
+  {%- endfor -%}
+</ul>

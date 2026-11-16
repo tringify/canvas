@@ -1,0 +1,14 @@
+{
+  "page_type": "search",
+  "sections": [
+    {
+      "type": "main-search",
+      "settings": {
+        "filter_layout": "drawer",
+        "product_layout": "editorial",
+        "columns": 3
+      },
+      "position": 1
+    }
+  ]
+}
