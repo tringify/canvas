@@ -2,9 +2,9 @@
 
 All notable changes to Canvas are listed here. Canvas follows [semantic versioning](https://semver.org/).
 
-## 1.0.0 (2026-11-17)
+## 1.20.0 (2026-11-17)
 
-First public release.
+First public release. Canvas's version numbers continue from its Theme Store listing.
 
 - 70 sections covering every storefront page: home-page sections, product, listings, search, cart and cart drawer, account, sign-in, blog, gift cards, wishlist, the gate pages (coming soon, password, maintenance) and the overlays (cookie banner, age gate, country prompt, popups).
 - 20 theme blocks for section content and footer columns.
