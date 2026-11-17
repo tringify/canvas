@@ -1149,7 +1149,7 @@
   var phone = matchMedia("(max-width: 767px)"), narrow = matchMedia("(max-width: 989px)");
   var lastBtn = null, wasOpen = false, byEditor = false;
   function panel() { return document.querySelector("[data-cv-fx]"); }
-  // The panel is a modal (drawer or sheet) on phones, below 990px for every layout, and always for the drawer layout.
+  // The panel is a modal below 990px for every layout (a sheet on phones), and always for the drawer layout.
   function modal() { var p = panel(); return !!p && (narrow.matches || p.getAttribute("data-layout") === "drawer"); }
   function setOpen(open, focus) {
     var p = panel(); if (!p) return;

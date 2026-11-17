@@ -434,7 +434,7 @@
 </style>
 {%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
 {%- comment -%}
-  Hero. Five compositions (Style): room — a full-bleed photo with the headline split across it and the products in the picture pinned as cards;
+  Hero. Six compositions (Style): room — a full-bleed photo with the headline split across it and the products in the picture pinned as cards;
   overlay — text over the photo; text — the headline on the colour scheme, no photo; split — photo beside the text; stacked — a huge headline above a wide photo; video — a full-screen muted film behind the text.
   Products pinned with Product hotspot blocks show as cards on the photo (room, overlay, stacked) or as a list beside the text (split); a phone shows them in a row under the photo.
   Without the merchant's photo the section uses the default photo chosen in Photo until you add your own (or none: the headline on the colour scheme); a video plays muted only while visible, never with reduced motion or Save-Data, and shows its poster instead.

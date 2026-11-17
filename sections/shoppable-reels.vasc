@@ -349,7 +349,7 @@
 {%- comment -%}
   Shoppable reels: vertical videos the merchant uploads (an Instagram reel, a TikTok), each tagged with up to three products.
   The row plays muted only while on screen (never with reduced motion or Save-Data: the poster shows). A tap opens the story viewer:
-  progress bars, swipe or arrows between videos, sound, and the tagged products with their options and Add to bag, without leaving the page.
+  progress bars, swipe or arrows between videos, sound, and the tagged products with their options and Add to cart, without leaving the page.
   Videos load only when their card or story is shown. On the live store a reel without a video is skipped, and the section hides with none; the editor shows the platform's sample videos over its placeholder picture.
 {%- endcomment -%}
 {%- assign cv_live = 0 -%}

@@ -94,6 +94,7 @@ Section copy lives in theme blocks (`blocks/<name>.vasc`), not in fixed settings
 - **Content blocks**: `eyebrow`, `heading` (optional link), `text` (rich text), `buttons` (up to two), `image` and `spacer` (optional divider). Their "Section's style" size takes the look the section gives that part (`.cv-blk-*--auto`, styled in each section's CSS); the other sizes use the theme's scale.
 - **Containers** hold content blocks: `slide` (slideshow), `promo-tile` (promo grid), `split-tile` (split promo), `column` (multicolumn) and `mega-promo` (header mega menu promotions). Rich text, image with text, newsletter, contact form and video take content blocks directly.
 - **Footer blocks**: `footer-column`, `menu-links`, `newsletter-form`, `social-links`, `contact-details`, `payment-methods` and `logo`.
+- **Other blocks**: `cart-recommendations` (Recently viewed, for the cart page and the cart drawer) and `discount-code` (a code with Reveal and Copy, for popups).
 
 Each slot names the blocks it accepts in `blocks.theme_blocks`, so a slideshow offers only slides and a slide only content blocks. A container keeps what its layout owns (image, theme photo, link of the whole tile). The section works out the theme photo for a container's place and passes it as `--cv-fb`. A linked tile is a pointer target over the whole tile (`.cv-tile-link`); its heading and button blocks carry the same link for keyboards and screen readers.
 
@@ -170,7 +171,7 @@ While the store offers pickup (`shopping.pickup_available`), the header shows a 
 
 - **Gate pages** (`main-coming-soon`, `main-password`, `main-maintenance`; shared parts in `partials/gate-*`) render without the header and footer, so they bring their own top row and footer. Every form is a plain POST without JavaScript. The maintenance page checks every 30 seconds whether the store is back.
 - **Age gate**: rendered only while `ctx.age_gate.show` is true. The platform's runtime handles focus, remembering the answer and declining.
-- **Cookie banner**, **country prompt** and **popups**: several layouts each. The platform decides when the banner and the prompt show. Popups remember they were seen in local storage, never in a cookie, and wait for the other overlays.
+- **Cookie banner**, **country prompt** and **popups**: several layouts each. The platform decides when the banner and the prompt show. Popups remember they were seen in the browser's local or session storage, never in a cookie, and wait for the other overlays.
 
 ## Documentation
 
