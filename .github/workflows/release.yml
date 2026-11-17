@@ -1,0 +1,66 @@
+# Publishes this theme to its Tringify theme listing when a tag such as v1.6.0
+# is pushed on a commit on main:
+#   git tag -a v1.6.0 -m "What changed"   # the tag message becomes the release notes
+#   git push origin v1.6.0
+# Trusted publishing (GitHub Actions OIDC): no Tringify token or secret is
+# stored anywhere. The listing's Trusted publishing section in the Developer
+# Portal must name this repository, workflow file release.yml and environment
+# "release"; until it does, the publish step stops with "no trusted publisher
+# matches" and nothing is published.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: theme-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ${{ fromJSON(vars.TRINGIFY_LINUX_RUNNER) }}
+    timeout-minutes: 20
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require a release tag on main
+        run: |
+          set -euo pipefail
+          printf '%s' "$GITHUB_REF_NAME" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' || {
+            echo "$GITHUB_REF_NAME is not a release tag like v1.2.3" >&2
+            exit 1
+          }
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+            echo "$GITHUB_REF_NAME must point to a commit on main" >&2
+            exit 1
+          }
+
+      - name: Install the Tringify CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/tringify/cli/main/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Theme check (upload rules)
+        run: tringify theme check --mode sealed
+
+      - name: Release notes from the tag message
+        run: |
+          git tag -l --format='%(contents)' "$GITHUB_REF_NAME" > "$RUNNER_TEMP/notes.md"
+
+      - name: Publish the version
+        run: tringify theme publish --version "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/notes.md" --yes
+
+      - name: Publish the docs
+        if: hashFiles('docs/*.md') != ''
+        run: tringify theme docs
