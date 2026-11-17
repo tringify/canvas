@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   release:
-    runs-on: ${{ fromJSON(vars.TRINGIFY_LINUX_RUNNER) }}
+    runs-on: ubuntu-24.04  # public repo: GitHub's free runner (org runner variables are private-only)
     timeout-minutes: 20
     environment: release
     permissions:
