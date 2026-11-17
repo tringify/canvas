@@ -294,7 +294,7 @@
 </style>
 {%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
 {%- comment -%} Shop the look: the merchant's photo with its products pinned (the hero's room, once more down the page).
-  Pins: numbered dots that open a product card; Beside a list: the photo with the same numbered products listed next to it, each with Add to bag.
+  Pins: numbered dots that open a product card; Beside a list: the photo with the same numbered products listed next to it, each with Add to cart.
   Without the merchant's photo it uses the theme photo picked in Photo until you add your own; with No photo the products show as a list without a picture. Without product picks it shows only in the editor. {%- endcomment -%}
 {%- assign cv_hs_picks = 0 -%}
 {%- for b in settings.blocks -%}{%- if b.disabled != true and b.settings.product -%}{%- assign cv_hs_picks = cv_hs_picks | plus: 1 -%}{%- endif -%}{%- endfor -%}
