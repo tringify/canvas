@@ -1,7 +1,7 @@
 <section class="cv cv-section cv-section--page cv-bl tf-scheme-{{ settings.color_scheme }}" data-tf-soft-nav="main-blog">
   <div class="cv-wrap">
     <header class="cv-bl__head">
-      <h1 dir="auto" data-tf-field="title" class="cv-h2 cv-page-title">{%- if blog_category -%}{{ blog_category.name }}{%- elsif blog.tag != blank -%}#{{ blog.tag }}{%- else -%}{{ settings.title }}{%- endif -%}</h1>
+      <h1 dir="auto" data-tf-field="title" class="cv-h2 cv-page-title">{%- if blog_category -%}{{ blog_category.name }}{%- else -%}{{ settings.title }}{%- endif -%}</h1>
       {%- if blog_category.description != blank -%}<p class="cv-muted">{{ blog_category.description }}</p>{%- endif -%}
       {%- if blog.search -%}
         <form class="cv-bl__search" method="get" role="search"><label class="cv-sr" for="cv-bl-q">{{ 'blog.search' | t }}</label>

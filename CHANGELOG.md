@@ -2,6 +2,10 @@
 
 All notable changes to Canvas are listed here. Canvas follows [semantic versioning](https://semver.org/).
 
+## 1.20.2 (2026-11-22)
+
+- The blog list heading shows the category name on category pages and the section title everywhere else. It no longer reads the old tag field, which stores no longer provide, so the theme installs and updates again.
+
 ## 1.20.1 (2026-11-22)
 
 - The sort menu on listing and search pages shows the sorts the store offers, in its order and under its names, in the shopper's language. The theme's own sort names are gone.
