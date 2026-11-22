@@ -19,7 +19,7 @@
         <summary class="cv-fx__gname"><span>{{ 'filters.sort_by' | t }}</span></summary>
         <div class="cv-fx__pop">
           <ul class="cv-fx__sortlist" role="list">
-            {%- for o in products.sort.options -%}<li><a class="cv-fx__radio{% if o.selected %} is-selected{% endif %}" href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}><span class="cv-fx__dot" aria-hidden="true"></span>{{ 'sort.' | append: o.key | t }}</a></li>{%- endfor -%}
+            {%- for o in products.sort.options -%}<li><a class="cv-fx__radio{% if o.selected %} is-selected{% endif %}" href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}><span class="cv-fx__dot" aria-hidden="true"></span>{{ o.label }}</a></li>{%- endfor -%}
           </ul>
         </div>
       </details>
@@ -192,10 +192,10 @@
     <p class="cv-fx-bar__count">{{ 'filters.product_count' | t: count: products.pagination.total_count }}</p>
     {%- if cv_show_sort and products.sort.options.size > 1 -%}
       <details class="cv-fx-sort" data-cv-fx-pop>
-        <summary class="cv-fx-sort__btn">{{ 'filters.sort_by' | t }} <strong>{{ 'sort.' | append: products.sort.current | t }}</strong>
+        <summary class="cv-fx-sort__btn">{{ 'filters.sort_by' | t }} <strong>{%- assign cv_sort_now = '' -%}{%- for o in products.sort.options -%}{%- if o.selected -%}{%- assign cv_sort_now = o.label -%}{%- endif -%}{%- endfor -%}{{ cv_sort_now }}</strong>
           <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
         <ul class="cv-fx-sort__list" role="list">
-          {%- for o in products.sort.options -%}<li><a href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}>{{ 'sort.' | append: o.key | t }}</a></li>{%- endfor -%}
+          {%- for o in products.sort.options -%}<li><a href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}>{{ o.label }}</a></li>{%- endfor -%}
         </ul>
       </details>
     {%- endif -%}

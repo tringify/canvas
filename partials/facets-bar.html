@@ -32,10 +32,10 @@
   {%- endif -%}
   {%- if cv_has_sort -%}
     <details class="cv-fx-sort" data-cv-fx-pop>
-      <summary class="cv-fx-sort__btn">{{ 'filters.sort_by' | t }} <strong>{{ 'sort.' | append: products.sort.current | t }}</strong>
+      <summary class="cv-fx-sort__btn">{{ 'filters.sort_by' | t }} <strong>{%- assign cv_sort_now = '' -%}{%- for o in products.sort.options -%}{%- if o.selected -%}{%- assign cv_sort_now = o.label -%}{%- endif -%}{%- endfor -%}{{ cv_sort_now }}</strong>
         <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
       <ul class="cv-fx-sort__list" role="list">
-        {%- for o in products.sort.options -%}<li><a href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}>{{ 'sort.' | append: o.key | t }}</a></li>{%- endfor -%}
+        {%- for o in products.sort.options -%}<li><a href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}>{{ o.label }}</a></li>{%- endfor -%}
       </ul>
     </details>
   {%- endif -%}
