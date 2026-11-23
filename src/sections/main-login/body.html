@@ -1,0 +1,477 @@
+{%- assign cv_auth_page = 'login' -%}
+<section class="cv cv-section cv-acc tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-wrap cv-acc__narrow">
+    <h1 class="cv-h2">{{ 'auth.sign_in_title' | t }}</h1>
+    <p class="cv-muted">{{ 'auth.sign_in_intro' | t }}</p>
+    {%- if 'login' == 'register' and customer_settings.registration_enabled != true -%}
+      <p class="cv-notice">{{ 'auth.registration_closed' | t }}</p>
+    {%- else -%}
+{%- comment -%}partial:auth{%- endcomment -%}
+{%- comment -%} Sign-in / registration by one-time code. Input: cv_auth_page ('login' or 'register'). {%- endcomment -%}
+{%- assign cv_af = auth_form -%}
+{%- assign cv_step = cv_af.otp_step | default: 'identify' -%}
+{%- assign cv_purpose = cv_af.purpose | default: cv_auth_page -%}
+{%- assign cv_email_on = customer_settings.email_login_available -%}
+{%- assign cv_phone_on = customer_settings.phone_login_available -%}
+{%- if cv_auth_page == 'register' -%}{%- assign cv_phone_on = customer_settings.phone_registration_available -%}{%- endif -%}
+{%- assign cv_tab = cv_af.provider | default: customer_settings.preferred_auth_method -%}
+{%- if cv_email_on != true -%}{%- assign cv_tab = 'phone' -%}{%- endif -%}
+{%- if cv_phone_on != true -%}{%- assign cv_tab = 'email' -%}{%- endif -%}
+<div class="cv-auth" data-cv-auth>
+  <p class="cv-notice cv-notice--ok" role="status" data-cv-auth-notice{% if auth_notice.message == blank %} hidden{% endif %}>{{ auth_notice.message }}</p>
+  {%- if form_error and form_error.message != blank -%}<p class="cv-notice cv-notice--error" role="alert">{{ form_error.message }}</p>{%- endif -%}
+
+  {%- comment -%} Both steps are always in the page: without JavaScript the server renders the
+  verify step after a code is sent; with it, the bridge reports the send and the script below
+  moves to the verify step with the identity, mode and message the platform returned. {%- endcomment -%}
+  {%- assign cv_to = cv_af.email | default: cv_af.phone_number -%}
+  <span hidden data-cv-auth-sent-template>{{ 'auth.code_sent_to' | t: to: '__TO__' }}</span>
+  <div data-cv-auth-step="verify"{% if cv_step != 'verify' %} hidden{% endif %}>
+    <p class="cv-muted" data-cv-auth-sent>{%- if cv_step == 'verify' -%}{{ 'auth.code_sent_to' | t: to: cv_to }}{%- endif -%}</p>
+    <div data-cv-auth-mode="register"{% if cv_purpose != 'register' %} hidden{% endif %}>
+      {% form 'register', class: 'cv-auth__form' %}
+        <input type="hidden" name="provider" value="{{ cv_af.provider }}" data-cv-auth-provider>
+        <input type="hidden" name="email" value="{{ cv_af.email }}" data-cv-auth-email{% if cv_af.provider == 'phone' %} disabled{% endif %}>
+        <input type="hidden" name="phone_number" value="{{ cv_af.phone_number }}" data-cv-auth-phone{% if cv_af.provider != 'phone' %} disabled{% endif %}>
+        <label class="cv-field"><span class="cv-label">{{ 'auth.code' | t }}</span>
+          <input class="cv-input cv-auth__code" name="code" required inputmode="numeric" autocomplete="one-time-code" maxlength="8"></label>
+        {%- assign cv_first_shown = true -%}{%- assign cv_first_req = false -%}{%- assign cv_last_shown = true -%}{%- assign cv_last_req = false -%}
+        {%- for f in customer_settings.registration_fields -%}
+          {%- if f.field == 'first_name' -%}{%- assign cv_first_shown = f.shown -%}{%- assign cv_first_req = f.required -%}{%- endif -%}
+          {%- if f.field == 'last_name' -%}{%- assign cv_last_shown = f.shown -%}{%- assign cv_last_req = f.required -%}{%- endif -%}
+        {%- endfor -%}
+        <div class="cv-auth__two">
+          {%- if cv_first_shown -%}<label class="cv-field"><span class="cv-label">{{ 'forms.first_name' | t }}</span><input class="cv-input" name="first_name" autocomplete="given-name" maxlength="100"{% if cv_first_req %} required{% endif %}></label>{%- endif -%}
+          {%- if cv_last_shown -%}<label class="cv-field"><span class="cv-label">{{ 'forms.last_name' | t }}</span><input class="cv-input" name="last_name" autocomplete="family-name" maxlength="100"{% if cv_last_req %} required{% endif %}></label>{%- endif -%}
+        </div>
+        {%- if customer_settings.collect_marketing_consent -%}
+          <label class="cv-check"><input type="checkbox" name="accepts_marketing" value="1"> {{ 'auth.marketing' | t }}</label>
+        {%- endif -%}
+        <button class="cv-btn cv-btn--block" type="submit">{{ 'auth.create_account' | t }}</button>
+      {% endform %}
+    </div>
+    <div data-cv-auth-mode="login"{% if cv_purpose == 'register' %} hidden{% endif %}>
+      {% form 'login', class: 'cv-auth__form' %}
+        <input type="hidden" name="provider" value="{{ cv_af.provider }}" data-cv-auth-provider>
+        <input type="hidden" name="email" value="{{ cv_af.email }}" data-cv-auth-email{% if cv_af.provider == 'phone' %} disabled{% endif %}>
+        <input type="hidden" name="phone_number" value="{{ cv_af.phone_number }}" data-cv-auth-phone{% if cv_af.provider != 'phone' %} disabled{% endif %}>
+        <label class="cv-field"><span class="cv-label">{{ 'auth.code' | t }}</span>
+          <input class="cv-input cv-auth__code" name="code" required inputmode="numeric" autocomplete="one-time-code" maxlength="8"></label>
+        <button class="cv-btn cv-btn--block" type="submit">{{ 'auth.sign_in' | t }}</button>
+      {% endform %}
+    </div>
+    <div class="cv-auth__alt">
+      {% form 'auth_code_send', class: 'cv-auth__resend' %}
+        <input type="hidden" name="provider" value="{{ cv_af.provider }}" data-cv-auth-provider>
+        <input type="hidden" name="email" value="{{ cv_af.email }}" data-cv-auth-email{% if cv_af.provider == 'phone' %} disabled{% endif %}>
+        <input type="hidden" name="phone_number" value="{{ cv_af.phone_number }}" data-cv-auth-phone{% if cv_af.provider != 'phone' %} disabled{% endif %}>
+        <button class="cv-tbtn" type="submit">{{ 'auth.resend' | t }}</button>
+      {% endform %}
+      <a class="cv-tbtn" href="{% if cv_auth_page == 'register' %}{{ customer_settings.register_url }}{% else %}{{ customer_settings.login_url }}{% endif %}" data-cv-auth-restart>{{ 'auth.use_different' | t }}</a>
+    </div>
+  </div>
+  <div data-cv-auth-step="identify"{% if cv_step == 'verify' %} hidden{% endif %}>
+    {%- if cv_email_on and cv_phone_on -%}
+      <div class="cv-auth__tabs" role="tablist">
+        <button type="button" role="tab" class="cv-auth__tab" data-cv-auth-tab="email" aria-selected="{% if cv_tab == 'email' %}true{% else %}false{% endif %}">{{ 'forms.email' | t }}</button>
+        <button type="button" role="tab" class="cv-auth__tab" data-cv-auth-tab="phone" aria-selected="{% if cv_tab == 'phone' %}true{% else %}false{% endif %}">{{ 'forms.phone' | t }}</button>
+      </div>
+    {%- endif -%}
+    {%- if cv_email_on -%}
+      {% form 'auth_code_send', class: 'cv-auth__form' %}
+        <fieldset class="cv-auth__panel" data-cv-auth-panel="email"{% if cv_tab != 'email' %} hidden{% endif %}>
+          <input type="hidden" name="provider" value="email">
+          <label class="cv-field"><span class="cv-label">{{ 'forms.email' | t }}</span>
+            <input class="cv-input" type="email" name="email" required autocomplete="email" value="{{ cv_af.email }}"></label>
+          <button class="cv-btn cv-btn--block" type="submit">{{ 'auth.continue' | t }}</button>
+        </fieldset>
+      {% endform %}
+    {%- endif -%}
+    {%- if cv_phone_on -%}
+      {%- assign cv_dial = '' -%}
+      {%- for pc in phone_countries -%}{%- if pc.iso_code == customer_settings.default_phone_country -%}{%- assign cv_dial = pc.dial_code -%}{%- endif -%}{%- endfor -%}
+      {% form 'auth_code_send', class: 'cv-auth__form' %}
+        <fieldset class="cv-auth__panel" data-cv-auth-panel="phone"{% if cv_tab != 'phone' %} hidden{% endif %}>
+          <input type="hidden" name="provider" value="phone">
+          {%- assign cv_ph_id = 'cv-auth-phone-' | append: cv_auth_page -%}{%- assign cv_ph_name = 'phone_number' -%}{%- assign cv_ph_value = cv_af.phone_number | default: cv_dial -%}
+          {%- assign cv_ph_label = 'forms.phone' | t -%}{%- assign cv_ph_required = true -%}{%- assign cv_ph_country = '' -%}
+          {%- assign cv_ph_disabled = false -%}{%- assign cv_ph_describedby = '' -%}{%- assign cv_ph_auto = '' -%}
+{%- comment -%}partial:phone-field{%- endcomment -%}
+{%- comment -%} Phone field with a searchable country picker (country code, name and dial code from ctx.phone_countries; the section needs
+phone_countries and customer_settings in ctx_needs). Set every input before each use, since assigns carry over:
+cv_ph_id (unique id), cv_ph_name (the field the action takes), cv_ph_value (saved number, E.164), cv_ph_label,
+cv_ph_required and cv_ph_disabled (true/false), cv_ph_country (ISO code to start from when it is a phone country; then the store's
+default_phone_country, then the first country), cv_ph_describedby (extra hint id or blank), cv_ph_auto (autocomplete, blank: tel).
+The script sends one E.164 number (+ and digits) under cv_ph_name. Without it, the number field itself is sent and asks for a
++ number; the hint shows the starting country's example in international form. {%- endcomment -%}
+{%- assign cv_ph_start = phone_countries.first -%}
+{%- for pc in phone_countries -%}{%- if pc.iso_code == customer_settings.default_phone_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}
+{%- if cv_ph_country != blank -%}{%- for pc in phone_countries -%}{%- if pc.iso_code == cv_ph_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- assign cv_ph_ex = '' -%}{%- if cv_ph_start.example != blank -%}{%- assign cv_ph_ex = cv_ph_start.dial_code | append: ' ' | append: cv_ph_start.example -%}{%- endif -%}
+{%- assign cv_ph_desc = cv_ph_id | append: '-hint' -%}{%- if cv_ph_describedby != blank -%}{%- assign cv_ph_desc = cv_ph_desc | append: ' ' | append: cv_ph_describedby -%}{%- endif -%}
+{%- assign cv_ph_ac = cv_ph_auto | default: 'tel' -%}
+<div class="cv-field cv-phone" data-cv-phone data-default="{{ cv_ph_start.iso_code }}" data-countries="{{ phone_countries | json | escape }}"
+     data-label-selected="{{ 'phone.selected' | t: country: '__C__' }}" data-label-example="{{ 'phone.example' | t: example: '__EX__' }}">
+  <label class="cv-label" for="{{ cv_ph_id }}">{{ cv_ph_label }}</label>
+  <div class="cv-phone__row" data-cv-phone-row>
+    <button class="cv-phone__cc" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="{{ cv_ph_id }}-pop" hidden data-cv-phone-cc>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <svg class="cv-phone__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </button>
+    <span class="cv-phone__cc cv-phone__cc--fixed" id="{{ cv_ph_id }}-cc" hidden data-cv-phone-fixed>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </span>
+    <input class="cv-input cv-phone__num" id="{{ cv_ph_id }}" type="tel" name="{{ cv_ph_name }}" value="{{ cv_ph_value }}" autocomplete="{{ cv_ph_ac }}" inputmode="tel" dir="ltr" maxlength="24"
+      pattern="[+][1-9][\d \(\)\-\.]{5,22}" title="{{ 'products.gift_phone_plus' | t }}"{% if cv_ph_ex != blank %} placeholder="{{ cv_ph_ex }}"{% endif %} aria-describedby="{{ cv_ph_desc }}"{% if cv_ph_required %} required{% endif %}{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-num>
+    <input type="hidden" value="{{ cv_ph_value }}" data-name="{{ cv_ph_name }}"{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-out>
+  </div>
+  <p class="cv-sr cv-phone__hint" id="{{ cv_ph_id }}-hint" data-cv-phone-hint{% if cv_ph_ex == blank %} hidden{% endif %}>{%- if cv_ph_ex != blank -%}{{ 'phone.example' | t: example: cv_ph_ex }}{%- endif -%}</p>
+  <div class="cv-phone__pop" id="{{ cv_ph_id }}-pop" hidden data-cv-phone-pop>
+    <input class="cv-input cv-phone__search" type="search" role="combobox" aria-expanded="true" aria-controls="{{ cv_ph_id }}-list" aria-autocomplete="list"
+           autocomplete="off" spellcheck="false" placeholder="{{ 'phone.search' | t }}" aria-label="{{ 'phone.search' | t }}" data-cv-phone-q>
+    <ul class="cv-phone__list" id="{{ cv_ph_id }}-list" role="listbox" aria-label="{{ 'phone.country' | t }}" data-cv-phone-list></ul>
+    <p class="cv-muted cv-phone__none" role="status" data-cv-phone-none></p>
+    <span hidden data-cv-phone-none-text>{{ 'phone.no_results' | t }}</span>
+  </div>
+</div>
+{%- comment -%}/partial:phone-field{%- endcomment -%}
+          <button class="cv-btn cv-btn--block" type="submit">{{ 'auth.continue' | t }}</button>
+        </fieldset>
+      {% endform %}
+    {%- endif -%}
+    {%- if cv_email_on != true and cv_phone_on != true -%}<p class="cv-muted">{{ 'auth.unavailable' | t }}</p>{%- endif -%}
+  </div>
+</div>
+<script>
+(function () {
+  if (window.__cvAuthSteps) return; window.__cvAuthSteps = true;
+  // A sent code moves this form to its verify step: same identity, the mode the
+  // platform derived (sign in or create account), and the platform's message.
+  document.addEventListener("tf:action-success", function (e) {
+    var d = e.detail || {}, form = d.form, root = form && form.closest && form.closest("[data-cv-auth]");
+    if (!root || d.action !== "auth_code_send") return;
+    var provider = (form.querySelector("[name=provider]") || {}).value || "email";
+    var field = form.querySelector(provider === "phone" ? "[name=phone_number]" : "[name=email]");
+    var identity = field ? field.value.trim() : "";
+    var mode = d.result && d.result.mode === "register" ? "register" : "login";
+    root.querySelectorAll("[data-cv-auth-provider]").forEach(function (i) { i.value = provider; });
+    root.querySelectorAll("[data-cv-auth-email]").forEach(function (i) { i.value = provider === "phone" ? "" : identity; i.disabled = provider === "phone"; });
+    root.querySelectorAll("[data-cv-auth-phone]").forEach(function (i) { i.value = provider === "phone" ? identity : ""; i.disabled = provider !== "phone"; });
+    root.querySelectorAll("[data-cv-auth-mode]").forEach(function (m) { m.hidden = m.getAttribute("data-cv-auth-mode") !== mode; });
+    var tpl = root.querySelector("[data-cv-auth-sent-template]"), sent = root.querySelector("[data-cv-auth-sent]");
+    if (tpl && sent) sent.textContent = tpl.textContent.replace("__TO__", identity);
+    var notice = root.querySelector("[data-cv-auth-notice]"), msg = d.result && d.result.response && d.result.response.message;
+    if (notice) { notice.textContent = msg || ""; notice.hidden = !msg; }
+    root.querySelectorAll("[data-cv-auth-step]").forEach(function (s) { s.hidden = s.getAttribute("data-cv-auth-step") !== "verify"; });
+    var code = root.querySelector("[data-cv-auth-mode=" + mode + "] [name=code]");
+    if (code) { code.value = ""; code.focus(); }
+  });
+})();
+</script>
+{%- comment -%}partial:phone-script{%- endcomment -%}
+<script>
+(function () {
+  // Phone fields ([data-cv-phone]): a country button (country code and dial code) opens a searchable list of the
+  // store's phone countries. The visible field then takes the national number, and a hidden field sends
+  // one E.164 number (+ and digits) under the original name. A number typed or pasted with + or 00 moves
+  // to its country. Without the script, or without country data, the field takes an international number.
+  if (window.__cvPhone) return; window.__cvPhone = true;
+  // Countries sharing a dial code: a number is shown under the code's main country unless the current or default country shares it.
+  var MAIN = { "1": "US", "7": "RU", "39": "IT", "44": "GB", "47": "NO", "61": "AU", "212": "MA", "262": "RE", "290": "SH", "358": "FI", "590": "GP", "599": "CW" };
+  // National trunk prefixes that the international number drops: [prefix, national length after it (0: any)].
+  // Most countries use a single 0; these keep their leading 0 (it is part of the number) or use another prefix.
+  var TRUNK = { IT: null, SM: null, VA: null, CI: null, CG: null, GA: null, HU: ["06", 0], RU: ["8", 10], KZ: ["8", 10], BY: ["80", 9], LT: ["8", 8], TM: ["8", 8], TJ: ["8", 9] };
+  var TOP = typeof HTMLElement !== "undefined" && typeof HTMLElement.prototype.showPopover === "function";
+  var lists = {};
+  function digits(s) { return String(s || "").replace(/\D/g, ""); }
+  function fold(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+  // The country's ISO code in a small badge: emoji flags render as two letters on Windows anyway.
+  function flagOf(c) {
+    var iso = String(c.iso_code || "").toUpperCase();
+    return /^[A-Z]{2}$/.test(iso) ? iso : "";
+  }
+  // Fields on one page share the same list; it is parsed and sorted once.
+  function countries(root) {
+    var raw = root.getAttribute("data-countries") || "[]";
+    if (lists[raw]) return lists[raw];
+    var list = []; try { list = JSON.parse(raw); } catch (_) {}
+    list = (list || []).filter(function (c) { return c && c.iso_code && c.name && /^\+[0-9]+$/.test(c.dial_code || ""); });
+    var coll = window.Intl && Intl.Collator ? new Intl.Collator(document.documentElement.lang || undefined, { sensitivity: "base" }) : null;
+    list.sort(function (a, b) { return coll ? coll.compare(a.name, b.name) : (a.name < b.name ? -1 : 1); });
+    return (lists[raw] = list);
+  }
+  // "+44 (0)7700 900123" or "0044 7700 900123" -> { c: GB, rest: "7700900123" }. While the code is still being
+  // typed (a longer dial code could match, or nothing follows it) it waits unless final.
+  function detect(st, s, final) {
+    var compact = String(s || "").replace(/\(0\)/g, "").replace(/[^0-9+]/g, "");
+    var intl = compact.charAt(0) === "+" ? compact.slice(1) : /^00/.test(compact) ? compact.slice(2) : null;
+    if (intl === null) return null;
+    var d = digits(intl), best = null, bl = 0;
+    if (!final && st.list.some(function (c) { var dc = digits(c.dial_code); return dc.length > d.length && dc.indexOf(d) === 0; })) return null;
+    st.list.forEach(function (c) {
+      var dc = digits(c.dial_code);
+      if (!dc || d.indexOf(dc) !== 0 || dc.length < bl) return;
+      if (dc.length > bl) { best = c; bl = dc.length; return; }
+      var rank = function (x) { return x === st.cur ? 3 : x === st.def ? 2 : MAIN[dc] === x.iso_code ? 1 : 0; };
+      if (rank(c) > rank(best)) best = c;
+    });
+    if (!best) return null;
+    var rest = d.slice(bl);
+    if (!final && !rest) return null;
+    return { c: best, rest: rest };
+  }
+  function national(c, d) {
+    var t = TRUNK.hasOwnProperty(c.iso_code) ? TRUNK[c.iso_code] : digits(c.dial_code) === "1" ? ["1", 10] : ["0", 0];
+    if (t && d.indexOf(t[0]) === 0 && (!t[1] || d.length === t[0].length + t[1])) return d.slice(t[0].length);
+    return d;
+  }
+  // The typed national number, cut to the country's longest number (a leading trunk prefix such as 0 is extra).
+  function cap(c, d) {
+    var max = +c.max_digits || 0;
+    if (!max) return d.slice(0, 15);
+    var extra = d.length - national(c, d).length;
+    return d.slice(0, extra + max);
+  }
+  // Groups digits like the country's sample number ("081 234 5678"); the sample's trunk prefix is
+  // left out when the shopper did not type one. Digits beyond the sample follow after a space.
+  function group(c, d) {
+    var ex = String(c.example || ""), exd = digits(ex);
+    if (!d || !exd) return d;
+    var lead = exd.length - national(c, exd).length;
+    if (lead && d.slice(0, lead) !== exd.slice(0, lead)) {
+      var seen = 0, i = 0;
+      while (i < ex.length && seen < lead) { if (/\d/.test(ex.charAt(i))) seen++; i++; }
+      ex = ex.slice(i).replace(/^[^\d(]+/, "");
+    }
+    var out = "", k = 0;
+    for (var j = 0; j < ex.length && k < d.length; j++) out += /\d/.test(ex.charAt(j)) ? d.charAt(k++) : ex.charAt(j);
+    return k < d.length ? out + " " + d.slice(k) : out;
+  }
+  // A national number as typed: digits only, within the country's length, grouped. The caret keeps
+  // its place among the digits, so editing in the middle of the number works.
+  function shape(st) {
+    var el = st.num, v = String(el.value || "");
+    if (/^\s*(\+|00)/.test(v)) { if (v.length > 20) el.value = v.slice(0, 20); return; }
+    var at = el.selectionStart == null ? v.length : el.selectionStart;
+    var before = digits(v.slice(0, at)).length, d = cap(st.cur, digits(v)), next = group(st.cur, d);
+    if (next === v) return;
+    el.value = next;
+    var pos = 0, n = 0;
+    while (pos < next.length && n < Math.min(before, d.length)) { if (/\d/.test(next.charAt(pos))) n++; pos++; }
+    if (document.activeElement === el) el.setSelectionRange(pos, pos);
+  }
+  function value(st) {
+    var s = String(st.num.value || "").trim(), compact = s.replace(/\(0\)/g, "").replace(/[^0-9+]/g, ""), d = digits(compact);
+    if (!d) return "";
+    if (compact.charAt(0) === "+") return "+" + d;
+    if (/^00/.test(compact)) return "+" + d.slice(2);
+    return st.cur.dial_code + national(st.cur, d);
+  }
+  function sync(st) { st.out.value = value(st); }
+  function load(st, s) {
+    var hit = detect(st, s, true);
+    if (hit) { st.cur = hit.c; st.num.value = group(hit.c, cap(hit.c, hit.rest)); } else st.num.value = String(s || "").trim();
+  }
+  function setup(root) {
+    if (root.__cvPh !== undefined) return root.__cvPh;
+    root.__cvPh = null;
+    var list = countries(root);
+    if (!list.length) return null;
+    var st = {
+      root: root, list: list, num: root.querySelector("[data-cv-phone-num]"), out: root.querySelector("[data-cv-phone-out]"),
+      btn: root.querySelector("[data-cv-phone-cc]"), pop: root.querySelector("[data-cv-phone-pop]"), q: root.querySelector("[data-cv-phone-q]"),
+      ul: root.querySelector("[data-cv-phone-list]"), row: root.querySelector("[data-cv-phone-row]"), cur: null, shown: [], one: list.length === 1
+    };
+    var want = String(root.getAttribute("data-default") || "").toUpperCase();
+    st.def = list.filter(function (c) { return c.iso_code === want; })[0] || list[0];
+    // Setting a hidden input's value rewrites its default, so the saved number is kept for a form reset.
+    st.cur = st.def; st.saved = st.out.getAttribute("value") || st.num.getAttribute("value") || "";
+    load(st, st.saved);
+    // From here the visible field holds the national number and the hidden one is sent.
+    st.out.name = st.out.getAttribute("data-name"); st.num.removeAttribute("name");
+    st.num.removeAttribute("pattern"); st.num.removeAttribute("title");
+    if (st.num.getAttribute("autocomplete") === "tel") st.num.setAttribute("autocomplete", "tel-national");
+    if (st.one) {
+      // A single country is a fixed prefix, read with the number.
+      var fx = root.querySelector("[data-cv-phone-fixed]");
+      fx.hidden = false; st.btn.remove(); st.btn = null;
+      st.num.setAttribute("aria-describedby", (fx.id + " " + (st.num.getAttribute("aria-describedby") || "")).trim());
+    } else {
+      st.btn.hidden = false;
+      if (TOP) { st.pop.setAttribute("popover", "manual"); st.pop.hidden = false; }
+    }
+    root.classList.add("is-enhanced");
+    root.__cvPh = st;
+    choose(st, st.cur, false);
+    return st;
+  }
+  function choose(st, c, focus) {
+    st.cur = c;
+    var root = st.root, label = (root.getAttribute("data-label-selected") || "").replace("__C__", c.name + " (" + c.dial_code + ")");
+    root.querySelectorAll("[data-cv-phone-flag]").forEach(function (el) { el.textContent = flagOf(c); });
+    root.querySelectorAll("[data-cv-phone-dial]").forEach(function (el) { el.textContent = c.dial_code; });
+    root.querySelectorAll("[data-cv-phone-cc-label]").forEach(function (el) { el.textContent = label; });
+    var hint = root.querySelector("[data-cv-phone-hint]");
+    if (hint) { hint.textContent = c.example ? (root.getAttribute("data-label-example") || "").replace("__EX__", c.example) : ""; hint.hidden = !c.example; }
+    if (c.example) st.num.setAttribute("placeholder", c.example); else st.num.removeAttribute("placeholder");
+    shape(st);
+    sync(st);
+    if (focus) st.num.focus();
+  }
+  function render(st) {
+    var raw = st.q.value.trim(), q = fold(raw), qd = digits(raw);
+    // Names that start with the search come first, then names with a word starting with it, then the rest.
+    function rank(c) {
+      var n = fold(c.name);
+      if (c.iso_code.toLowerCase() === q || n.indexOf(q) === 0) return 0;
+      if (new RegExp("[\\s(\\-]" + q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).test(n)) return 1;
+      return 2;
+    }
+    st.shown = st.list.filter(function (c) {
+      return !raw || fold(c.name).indexOf(q) !== -1 || c.iso_code.toLowerCase() === q || (qd && digits(c.dial_code).indexOf(qd) === 0);
+    });
+    if (q && !qd) st.shown = st.shown.map(function (c, i) { return [rank(c), i, c]; }).sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }).map(function (x) { return x[2]; });
+    var frag = document.createDocumentFragment();
+    st.shown.forEach(function (c) {
+      var li = document.createElement("li");
+      li.id = st.ul.id + "-" + c.iso_code; li.className = "cv-phone__opt" + (c === st.cur ? " is-current" : "");
+      li.setAttribute("role", "option"); li.setAttribute("aria-selected", "false"); li.setAttribute("data-iso", c.iso_code);
+      var f = document.createElement("span"); f.className = "cv-phone__oflag"; f.setAttribute("aria-hidden", "true"); f.textContent = flagOf(c);
+      var n = document.createElement("span"); n.className = "cv-phone__oname"; n.textContent = c.name;
+      var dl = document.createElement("bdi"); dl.className = "cv-phone__odial"; dl.setAttribute("dir", "ltr"); dl.textContent = c.dial_code;
+      li.appendChild(f); li.appendChild(n); li.appendChild(dl); frag.appendChild(li);
+    });
+    st.ul.replaceChildren(frag);
+    st.root.querySelector("[data-cv-phone-none]").textContent = st.shown.length ? "" : st.root.querySelector("[data-cv-phone-none-text]").textContent;
+    var at = raw ? 0 : st.shown.indexOf(st.cur);
+    active(st, st.shown.length ? Math.max(0, at) : -1);
+  }
+  function active(st, i) {
+    var opts = st.ul.children;
+    st.at = i;
+    for (var k = 0; k < opts.length; k++) { opts[k].setAttribute("aria-selected", k === i ? "true" : "false"); opts[k].classList.toggle("is-active", k === i); }
+    if (i >= 0 && opts[i]) { st.q.setAttribute("aria-activedescendant", opts[i].id); opts[i].scrollIntoView({ block: "nearest" }); }
+    else st.q.removeAttribute("aria-activedescendant");
+  }
+  // In the top layer the list is never clipped by a drawer or panel; it sits under the field, or above it when there is more room there.
+  function place(st) {
+    if (!TOP) return;
+    var r = st.row.getBoundingClientRect(), vh = window.innerHeight, below = vh - r.bottom - 12, above = r.top - 12, up = below < 240 && above > below;
+    // At least 300px wide in a narrow row (a cart line), kept inside the window and aligned to the field's start edge.
+    var vw = document.documentElement.clientWidth, w = Math.min(Math.max(r.width, 300), vw - 16);
+    var x = getComputedStyle(st.root).direction === "rtl" ? r.right - w : r.left, s = st.pop.style;
+    s.left = Math.min(Math.max(8, x), vw - 8 - w) + "px"; s.width = w + "px";
+    if (up) { s.top = "auto"; s.bottom = (vh - r.top + 6) + "px"; } else { s.bottom = "auto"; s.top = (r.bottom + 6) + "px"; }
+    s.setProperty("--cv-phone-room", Math.max(140, (up ? above : below) - 80) + "px");
+  }
+  function isOpen(st) { return !!st && (TOP ? st.pop.matches(":popover-open") : !st.pop.hidden); }
+  var openSt = null;
+  function open(st) {
+    if (openSt && openSt !== st) close(openSt, false);
+    openSt = st; st.btn.setAttribute("aria-expanded", "true");
+    if (TOP) { st.pop.showPopover(); place(st); } else st.pop.hidden = false;
+    st.q.value = ""; render(st); st.q.focus();
+  }
+  function close(st, back) {
+    if (!isOpen(st)) return;
+    if (TOP) st.pop.hidePopover(); else st.pop.hidden = true;
+    st.btn.setAttribute("aria-expanded", "false");
+    if (openSt === st) openSt = null;
+    if (back) st.btn.focus();
+  }
+  function stOf(el) { var root = el && el.closest && el.closest("[data-cv-phone]"); return root ? setup(root) : null; }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-cv-phone-cc]");
+    if (b) { var st = stOf(b); if (st) { if (isOpen(st)) close(st, true); else open(st); } return; }
+    var o = e.target.closest && e.target.closest(".cv-phone__opt");
+    if (o) {
+      var s2 = stOf(o), c = s2 && s2.list.filter(function (x) { return x.iso_code === o.getAttribute("data-iso"); })[0];
+      if (c) { close(s2, false); choose(s2, c, true); }
+      return;
+    }
+    if (openSt && !openSt.root.contains(e.target)) close(openSt, false);
+  });
+  document.addEventListener("input", function (e) {
+    if (e.target.matches && e.target.matches("[data-cv-phone-q]")) { var st = stOf(e.target); if (st) render(st); return; }
+    if (e.target.matches && e.target.matches("[data-cv-phone-num]")) {
+      var s2 = stOf(e.target); if (!s2) return;
+      var hit = detect(s2, s2.num.value, false);
+      if (hit && !s2.one) { s2.num.value = hit.rest; choose(s2, hit.c, false); } else { shape(s2); sync(s2); }
+    }
+  });
+  document.addEventListener("focusout", function (e) {
+    if (!(e.target.matches && e.target.matches("[data-cv-phone-num]"))) return;
+    var st = stOf(e.target), hit = st && !st.one && detect(st, st.num.value, true);
+    if (hit) { st.num.value = hit.rest; choose(st, hit.c, false); }
+  });
+  // Only digits and the usual separators can be typed; a letter never reaches the field.
+  document.addEventListener("beforeinput", function (e) {
+    if (!(e.target.matches && e.target.matches("[data-cv-phone-num]")) || !e.data || !/^insert/.test(e.inputType)) return;
+    if (/[^\d\s+()\-.]/.test(e.data) && !/\d/.test(e.data)) e.preventDefault();
+  });
+  // Escape closes only the list: caught on the window before a drawer or dialog sees it.
+  addEventListener("keydown", function (e) {
+    if (e.key !== "Escape" || !openSt || !openSt.root.contains(e.target)) return;
+    e.preventDefault(); e.stopPropagation(); close(openSt, true);
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    if (!(e.target.matches && e.target.matches("[data-cv-phone-q]"))) return;
+    var st = stOf(e.target); if (!st) return;
+    var n = st.shown.length;
+    if (e.key === "ArrowDown") { e.preventDefault(); if (n) active(st, (st.at + 1) % n); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); if (n) active(st, (st.at - 1 + n) % n); }
+    else if (e.key === "Home" && n) { e.preventDefault(); active(st, 0); }
+    else if (e.key === "End" && n) { e.preventDefault(); active(st, n - 1); }
+    else if (e.key === "Enter") { e.preventDefault(); if (st.at >= 0 && st.shown[st.at]) { var c = st.shown[st.at]; close(st, false); choose(st, c, true); } }
+    else if (e.key === "Tab") close(st, false);
+  });
+  addEventListener("resize", function () { if (openSt) place(openSt); });
+  addEventListener("scroll", function () { if (openSt) place(openSt); }, { capture: true, passive: true });
+  // The sent value is current at submit, whatever changed the number (autofill included).
+  document.addEventListener("submit", function (e) {
+    var f = e.target; if (!f || !f.querySelectorAll) return;
+    f.querySelectorAll("[data-cv-phone]").forEach(function (root) { var st = setup(root); if (st) sync(st); });
+  }, true);
+  // A reset form goes back to its saved number (or none), under that number's country.
+  document.addEventListener("reset", function (e) {
+    var f = e.target; if (!f || !f.querySelectorAll) return;
+    setTimeout(function () {
+      f.querySelectorAll("[data-cv-phone]").forEach(function (root) {
+        var st = setup(root); if (!st) return;
+        st.cur = st.def; load(st, st.saved); choose(st, st.cur, false);
+      });
+    });
+  }, true);
+  // In an address form, the address country picks the phone country while the number is still empty.
+  document.addEventListener("change", function (e) {
+    var sel = e.target.matches && e.target.matches("select[data-cv-country]") ? e.target : null;
+    var root = sel && sel.form && sel.form.querySelector("[data-cv-phone]"), st = root && setup(root);
+    if (!st || String(st.num.value || "").trim()) return;
+    var c = st.list.filter(function (x) { return x.iso_code === sel.value; })[0];
+    if (c) choose(st, c, false);
+  });
+  function all() { document.querySelectorAll("[data-cv-phone]").forEach(setup); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", all); else all();
+  var t = 0;
+  new MutationObserver(function () { cancelAnimationFrame(t); t = requestAnimationFrame(all); }).observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+{%- comment -%}/partial:phone-script{%- endcomment -%}
+{%- comment -%}/partial:auth{%- endcomment -%}
+    {%- endif -%}
+    {%- if customer_settings.registration_enabled -%}<p class="cv-muted cv-acc__switch">{{ 'auth.no_account' | t }} <a class="cv-tbtn" href="{{ customer_settings.register_url }}">{{ 'auth.create_account' | t }}</a></p>{%- endif -%}
+  </div>
+</section>
+<script>
+(function () {
+  if (window.__cvAuthTabs) return; window.__cvAuthTabs = true;
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-cv-auth-tab]"); if (!t) return;
+    var k = t.getAttribute("data-cv-auth-tab"), root = t.closest(".cv-auth");
+    root.querySelectorAll("[data-cv-auth-tab]").forEach(function (b) { b.setAttribute("aria-selected", b === t ? "true" : "false"); });
+    root.querySelectorAll("[data-cv-auth-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-cv-auth-panel") !== k; });
+  });
+})();
+</script>

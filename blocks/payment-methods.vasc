@@ -1,0 +1,37 @@
+{%- comment -%} Payment methods: the merchant's own list (the platform does not publish a store's payment methods to themes), shown as
+  small labels. {%- endcomment -%}
+{%- assign cv_pay_list = settings.payment_methods -%}
+{%- comment -%}partial:payment-list{%- endcomment -%}
+{%- comment -%} Payment methods the merchant lists (comma-separated), as small labels. Input: cv_pay_list. {%- endcomment -%}
+{%- assign cv_pay = cv_pay_list | split: ',' -%}
+{%- assign cv_pay_n = 0 -%}
+{%- for p in cv_pay -%}{%- assign cv_p = p | strip -%}{%- if cv_p != blank -%}{%- assign cv_pay_n = cv_pay_n | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_pay_n > 0 -%}
+<ul class="cv-pay" role="list" aria-label="{{ 'footer.payment_methods' | t }}" data-tf-field="payment_methods">
+  {%- for p in cv_pay -%}{%- assign cv_p = p | strip -%}{%- if cv_p != blank -%}<li dir="auto">{{ cv_p }}</li>{%- endif -%}{%- endfor -%}
+</ul>
+{%- elsif design_mode -%}
+<p class="cv-editor-hint cv-blk-hint" data-tf-field="payment_methods">{{ 'footer.payment_hint' | t }}</p>
+{%- endif -%}
+{%- comment -%}/partial:payment-list{%- endcomment -%}
+{% schema %}
+{
+  "name": "payment-methods",
+  "kind": "block",
+  "icon": "credit-card",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "payment_methods",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "payment_methods",
+        "group": "content"
+      }
+    }
+  ]
+}
+{% endschema %}

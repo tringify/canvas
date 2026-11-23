@@ -1,0 +1,136 @@
+{
+  "name": "slideshow",
+  "icon": "gallery-horizontal",
+  "ctx_needs": [
+    "theme_preview"
+  ],
+  "settings": [
+    {
+      "id": "height",
+      "type": "select",
+      "default": "medium",
+      "options": [
+        {
+          "value": "small",
+          "label": "opt_small"
+        },
+        {
+          "value": "medium",
+          "label": "opt_medium"
+        },
+        {
+          "value": "large",
+          "label": "opt_large"
+        }
+      ],
+      "editor": {
+        "label": "height",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "autoplay",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "autoplay",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "speed",
+      "type": "range",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 6,
+      "editor": {
+        "label": "rotate_every",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "inverse",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "slide"
+    ],
+    "max": 6
+  },
+  "presets": [
+    {
+      "name": "slideshow",
+      "category": "image",
+      "blocks": [
+        {
+          "type": "theme:slide",
+          "settings": {
+            "blocks": [
+              {
+                "type": "theme:heading",
+                "settings": {
+                  "heading": "@t:sections.slideshow.slide.heading"
+                }
+              },
+              {
+                "type": "theme:text",
+                "settings": {
+                  "text": "@t:sections.slideshow.slide.text"
+                }
+              },
+              {
+                "type": "theme:buttons",
+                "settings": {
+                  "button_label": "@t:sections.slideshow.slide.button_label"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "theme:slide",
+          "settings": {
+            "blocks": [
+              {
+                "type": "theme:heading",
+                "settings": {
+                  "heading": "@t:sections.slideshow.slide.heading"
+                }
+              },
+              {
+                "type": "theme:text",
+                "settings": {
+                  "text": "@t:sections.slideshow.slide.text"
+                }
+              },
+              {
+                "type": "theme:buttons",
+                "settings": {
+                  "button_label": "@t:sections.slideshow.slide.button_label"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "migrations": [
+    {
+      "id": "slide-to-theme-block",
+      "op": "rename_block",
+      "from_type": "slide",
+      "to_type": "theme:slide"
+    }
+  ]
+}

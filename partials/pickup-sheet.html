@@ -1,0 +1,266 @@
+{%- comment -%} Delivery or pickup (ctx.shopping, shop.pickup_locations). Every header renders this after its script: the sheet the header chip,
+  the menu sheet's row, the product page and the cart open (any [data-cv-pk-open]), and the styles and script every pickup surface uses.
+  It renders only while the store offers pickup to this shopper (shopping.pickup_available), so a store without pickup gets nothing; in the
+  editor it brings the style of the hints that say where pickup turns on. Choosing posts shopping_mode_set (a plain form without script);
+  with the bridge the page reloads, since every stock figure on it changes with the mode. The sheet is a modal <dialog>: focus stays in it,
+  Escape closes it, and both keys stop here so a cart drawer or quick view under it stays open. {%- endcomment -%}
+{%- comment -%} The platform's word on the pickup choice: shopping.notice when it reset a pickup store the shopper's market no longer offers to
+  delivery, or a refused shopping_mode_set (form_notice after a plain post; the script fills it after a bridge call). {%- endcomment -%}
+{%- assign cv_pk_msg = shopping.notice -%}
+{%- if cv_pk_msg == blank and form_notice.success == false -%}{%- if form_notice.code contains 'SHOPPING_MODE' or form_notice.code contains 'PICKUP_LOCATION' -%}{%- assign cv_pk_msg = form_notice.message -%}{%- endif -%}{%- endif -%}
+{%- if shopping.pickup_available or cv_pk_msg != blank -%}
+<style>
+  .cv-pk-toast { position: fixed; z-index: 90; inset-inline: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: flex-start; gap: 10px;
+    max-width: 440px; margin-inline: auto; padding: 12px 12px 12px 16px; font-size: 14px; line-height: 1.45; color: var(--text); background: var(--bg); border-radius: 14px;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 18px 50px -18px rgb(0 0 0 / 0.4); }
+  .cv-pk-toast[hidden] { display: none; }
+  .cv-pk-toast p { flex: 1; min-width: 0; margin: 0; }
+  .cv-pk-toast button { flex: none; width: 28px; height: 28px; padding: 0; font: inherit; font-size: 18px; line-height: 1; color: var(--text-muted); background: none; border: 0; border-radius: 50%; cursor: pointer; }
+  .cv-pk-toast button:hover { background: var(--cv-soft); }
+</style>
+<div class="cv-pk-toast" role="status" data-cv-pk-toast{% if cv_pk_msg == blank %} hidden{% endif %}><p dir="auto" data-cv-pk-toast-text>{{ cv_pk_msg }}</p><button type="button" aria-label="{{ 'general.close' | t | escape }}" onclick="this.parentNode.hidden=true">×</button></div>
+{%- endif -%}
+{%- if shopping.pickup_available -%}
+{%- assign cv_pk_here = shopping.pickup_location -%}
+<style>
+  /* Header chip: flat in the bar like the country picker. */
+  /* Listing pages: the store the catalog shows, above the grid. */
+  .cv-pk-cat { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; margin: 0 0 16px; padding: 10px 14px; font-size: 14px; background: var(--cv-soft); border-radius: 12px; }
+  .cv-pk-cat .cv-pk-ico { width: 16px; height: 16px; }
+  .cv-pk-chip { display: inline-flex; align-items: center; gap: 7px; min-width: 0; max-width: 240px; height: 36px; padding: 0 10px 0 12px; font: inherit; font-size: 13.5px; font-weight: 500;
+    color: inherit; background: transparent; border: 0; border-radius: 999px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color 0.2s var(--cv-ease); }
+  .cv-pk-chip:hover { background: var(--cv-soft); }
+  .cv-pk-chip .cv-pk-ico { width: 16px; height: 16px; }
+  .cv-pk-chip__text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-pk-chip__chev { flex: none; width: 14px; height: 14px; opacity: 0.6; }
+  @media (max-width: 749px) {
+    .cv-pk-chip { max-width: 44vw; height: 44px; }
+    /* Phones: the menu sheet carries the choice; "Icon only" keeps a compact chip in the bar as well. */
+    .cv-pk-chip--text.cv-pk-chip--has-mnav { display: none; }
+    .cv-pk-chip--icon { width: 44px; padding: 0; justify-content: center; }
+    .cv-pk-chip--icon :is(.cv-pk-chip__text, .cv-pk-chip__chev) { display: none; }
+  }
+  .cv-mnav__pk { display: flex; align-items: center; gap: 12px; width: calc(100% - 28px); margin: 6px 14px 0; padding: 12px 14px; font: inherit; font-size: 15px; color: var(--text); text-align: start;
+    background: var(--cv-soft); border: 0; border-radius: 14px; cursor: pointer; }
+  .cv-mnav__pk .cv-pk-ico { width: 20px; height: 20px; }
+  .cv-mnav__pk-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+  .cv-mnav__pk-text small { font-size: 12.5px; color: var(--text-muted); }
+  .cv-mnav__pk .cv-icon { width: 18px; height: 18px; flex: none; color: var(--text-muted); }
+  [dir="rtl"] .cv-mnav__pk .cv-icon { transform: scaleX(-1); }
+  /* The sheet: a side panel from the end edge; a bottom sheet on phones (like the filters and the country picker). */
+  .cv-pk-dlg { box-sizing: border-box; flex-direction: column; width: min(440px, calc(100vw - 20px)); max-width: none; height: calc(100% - 20px); max-height: none;
+    margin-block: 10px; margin-inline: auto 10px; padding: 0; overflow: hidden; color: var(--text); background: var(--bg); border: 0; border-radius: 22px;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 30px 80px -24px rgb(0 0 0 / 0.45); }
+  .cv-pk-dlg[open] { display: flex; }
+  .cv-pk-dlg::backdrop { background: rgb(0 0 0 / 0.28); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .cv-pk-dlg__handle { display: none; }
+  .cv-pk-dlg__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px 6px; padding-inline: 22px 16px; }
+  .cv-pk-dlg__title { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+  .cv-pk-dlg__close { display: grid; place-items: center; flex: none; width: 40px; height: 40px; padding: 0; color: var(--text); background: transparent; border: 0; border-radius: 50%; cursor: pointer; }
+  .cv-pk-dlg__close:hover { background: var(--cv-soft); }
+  .cv-pk-dlg__body { flex: 1; min-height: 0; display: grid; align-content: start; gap: 10px; padding: 8px 14px 18px; overflow-y: auto; overscroll-behavior: contain; }
+  .cv-pk-dlg__form { display: grid; gap: 8px; margin: 0; }
+  .cv-pk-dlg__sub { margin: 10px 0 0; padding-inline: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .cv-pk-dlg__search { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 10px; padding-inline: 16px 8px; background: var(--cv-soft); border-radius: var(--cv-field-radius, 14px); }
+  .cv-pk-dlg__search .cv-icon { flex: none; color: var(--text-muted); }
+  .cv-pk-dlg__search .cv-input { min-height: 46px; padding-inline: 0; background: transparent; border: 0; }
+  .cv-pk-dlg__search .cv-input:is(:hover, :focus) { background: transparent; }
+  .cv-pk-dlg__list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .cv-pk-dlg__list [hidden] { display: none; }
+  .cv-pk-dlg__none { margin: 0; padding: 10px 14px; font-size: 14px; color: var(--text-muted); }
+  .cv-pk-opt { position: relative; display: flex; align-items: flex-start; gap: 14px; width: 100%; padding: 14px 16px; font: inherit; font-size: 14px; line-height: 1.45; color: var(--text);
+    text-align: start; background: var(--bg); border: 0; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--cv-line); cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: box-shadow 0.15s var(--cv-ease), background-color 0.15s var(--cv-ease); }
+  .cv-pk-opt:hover { background: var(--cv-soft); }
+  .cv-pk-opt[aria-current="true"] { box-shadow: inset 0 0 0 2px var(--text); }
+  .cv-pk-opt[aria-busy="true"] { opacity: 0.6; cursor: progress; }
+  .cv-pk-opt > .cv-pk-ico { flex: none; width: 22px; height: 22px; margin-top: 1px; }
+  .cv-pk-opt__main { flex: 1; min-width: 0; display: grid; gap: 3px; }
+  .cv-pk-opt__name { font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; }
+  .cv-pk-opt__line { display: block; color: var(--text-muted); }
+  .cv-pk-opt__ready { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-weight: 500; color: var(--text); }
+  .cv-pk-opt__ready::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--status-ready); }
+  .cv-pk-opt__note { display: block; margin-top: 4px; font-size: 13px; color: var(--text-muted); }
+  .cv-pk-opt__tick { flex: none; width: 20px; height: 20px; }
+  /* Product page and cart. */
+  .cv-pk-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 14px 0 0; font-size: 14px; line-height: 1.5; }
+  .cv-pk-line .cv-pk-ico { width: 17px; height: 17px; }
+  .cv-pk-line__text { min-width: 0; }
+  .cv-pk-line__ready { color: var(--text-muted); }
+  .cv-pk-link { padding: 0; font: inherit; color: inherit; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; background: none; border: 0; cursor: pointer; }
+  .cv-pk-link:hover { text-decoration-thickness: 2px; }
+  .cv-pk-box { display: grid; gap: 10px; margin-top: 14px; padding: 14px 16px; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--cv-line); }
+  .cv-pk-box .cv-pk-line { margin: 0; }
+  .cv-pk-off { font-weight: 600; }
+  .cv-pk-sub { margin: 0; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .cv-pk-avail { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+  .cv-pk-avail li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 44px; }
+  .cv-pk-avail__name { flex: 1; min-width: 0; font-size: 14px; font-weight: 500; }
+  .cv-pk-avail__stock { font-size: 13px; color: var(--text-muted); }
+  .cv-pk-avail__stock::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-inline-end: 6px; border-radius: 50%; background: var(--status-ready); vertical-align: 1px; }
+  .cv-pk-avail__stock--low::before { background: var(--status-low); }
+  .cv-pk-avail form, .cv-pk-acts form { display: contents; }
+  .cv-pk-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+  .cv-pk-cart { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 12px 16px; font-size: 14px; line-height: 1.45; background: var(--cv-soft); border-radius: 16px; }
+  .cv-pk-cart .cv-pk-ico { flex: none; width: 20px; height: 20px; }
+  .cv-pk-cart__text { flex: 1; min-width: 0; }
+  .cv-pk-cart__text strong { font-weight: 600; }
+  .cv-pk-cart .cv-tbtn { flex: none; }
+  .cv-pk-lwarn { display: grid; gap: 4px; }
+  .cv-pk-lwarn .cv-line__warn { margin: 0; }
+  @media (max-width: 749px) {
+    .cv-pk-dlg { position: fixed; inset: auto 0 0; width: 100%; height: auto; max-height: 88svh; margin: 0;
+      border-radius: calc(var(--cv-radius, 16px) * 1.5) calc(var(--cv-radius, 16px) * 1.5) 0 0; box-shadow: 0 -20px 60px -20px rgb(0 0 0 / 0.35); }
+    .cv-pk-dlg__handle { display: block; width: 40px; height: 5px; margin: 9px auto 0; border-radius: 5px; background: color-mix(in srgb, var(--text) 22%, transparent); }
+    .cv-pk-dlg__head { padding-top: 8px; }
+    .cv-pk-dlg__body { padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+    .cv-pk-dlg__close { width: 44px; height: 44px; }
+    .cv-pk-avail .cv-tbtn, .cv-pk-acts .cv-tbtn, .cv-pk-cart .cv-tbtn, .cv-pk-lwarn .cv-tbtn { min-height: 44px; }
+  }
+  html:has(.cv-pk-dlg[open]) { overflow: hidden; }
+  @media (prefers-reduced-motion: no-preference) {
+    .cv-pk-dlg[open] { animation: cv-pk-side 0.36s var(--cv-ease); }
+    [dir="rtl"] .cv-pk-dlg[open] { animation-name: cv-pk-side-rtl; }
+    .cv-pk-dlg[open]::backdrop { animation: cv-pk-fade 0.3s ease-out; }
+    @keyframes cv-pk-side { from { transform: translateX(calc(100% + 12px)); } }
+    @keyframes cv-pk-side-rtl { from { transform: translateX(calc(-100% - 12px)); } }
+    @keyframes cv-pk-fade { from { opacity: 0; } }
+    @media (max-width: 749px) { .cv-pk-dlg[open], [dir="rtl"] .cv-pk-dlg[open] { animation: cv-pk-up 0.42s var(--cv-ease); } @keyframes cv-pk-up { from { transform: translateY(105%); } } }
+  }
+</style>
+<dialog class="cv cv-pk-dlg tf-scheme-{{ settings.color_scheme }}" id="cv-pickup" aria-labelledby="cv-pickup-t" data-cv-pk-dlg>
+  <span class="cv-pk-dlg__handle" aria-hidden="true"></span>
+  <div class="cv-pk-dlg__head">
+    <h2 class="cv-pk-dlg__title" id="cv-pickup-t">{{ 'pickup.title' | t }}</h2>
+    <button class="cv-pk-dlg__close" type="button" data-cv-pk-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+  </div>
+  <div class="cv-pk-dlg__body">
+    {% form 'shopping_mode_set', class: 'cv-pk-dlg__form' %}
+      <button class="cv-pk-opt" type="submit" name="mode" value="delivery"{% if cv_pk_here == nil %} aria-current="true"{% endif %}>
+        <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 6.5h11v10h-11zM13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6.5" cy="17.5" r="1.75"/><circle cx="16.5" cy="17.5" r="1.75"/></svg>
+        <span class="cv-pk-opt__main"><span class="cv-pk-opt__name">{{ 'pickup.delivery' | t }}</span><span class="cv-pk-opt__line">{{ 'pickup.delivery_note' | t }}</span></span>
+        {%- if cv_pk_here == nil -%}<svg class="cv-icon cv-pk-opt__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+      </button>
+    {% endform %}
+    <h3 class="cv-pk-dlg__sub">{{ 'pickup.pick_up_in_store' | t }}</h3>
+    {%- if shop.pickup_locations.size > 6 -%}
+    <label class="cv-pk-dlg__search cv-shell">
+      <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span class="cv-sr">{{ 'pickup.search' | t }}</span>
+      <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'pickup.search' | t }}" aria-controls="cv-pickup-list" data-cv-pk-search>
+    </label>
+    {%- endif -%}
+    {% form 'shopping_mode_set', class: 'cv-pk-dlg__form' %}
+      <input type="hidden" name="mode" value="pickup">
+      <ul class="cv-pk-dlg__list" id="cv-pickup-list" role="list">
+        {%- for l in shop.pickup_locations -%}
+        <li data-cv-pk-item data-cv-pk-q="{{ l.name | downcase }} {{ l.city | downcase }} {{ l.address_lines | join: ' ' | downcase }}">
+          <button class="cv-pk-opt" type="submit" name="location_id" value="{{ l.id }}"{% if l.selected %} aria-current="true"{% endif %}>
+            <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20"/></svg>
+            <span class="cv-pk-opt__main">
+              <span class="cv-pk-opt__name" dir="auto">{{ l.name }}</span>
+              <span class="cv-pk-opt__line" dir="auto">{{ l.address_lines | join: ', ' }}</span>
+              {%- if l.ready_in_label != blank -%}<span class="cv-pk-opt__ready">{{ l.ready_in_label }}</span>{%- endif -%}
+              {%- if l.hours != blank -%}<span class="cv-pk-opt__note" dir="auto">{{ l.hours }}</span>{%- endif -%}
+              {%- if l.instructions != blank -%}<span class="cv-pk-opt__note" dir="auto">{{ l.instructions }}</span>{%- endif -%}
+            </span>
+            {%- if l.selected -%}<svg class="cv-icon cv-pk-opt__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cv-sr">{{ 'pickup.selected' | t }}</span>{%- endif -%}
+          </button>
+        </li>
+        {%- endfor -%}
+      </ul>
+      <p class="cv-pk-dlg__none" role="status" data-cv-pk-none hidden>{{ 'pickup.no_results' | t }}</p>
+    {% endform %}
+  </div>
+</dialog>
+<script>
+(function () {
+  if (window.__cvPk) return; window.__cvPk = true;
+  function dlg() { return document.getElementById("cv-pickup"); }
+  function focusables(d) { return [].filter.call(d.querySelectorAll("a[href], button, input:not([type=hidden]), select, textarea, [tabindex]:not([tabindex='-1'])"), function (x) { return !x.disabled && x.getClientRects().length; }); }
+  function open(t) {
+    var d = dlg(); if (!d || d.open || !d.showModal) return;
+    // From the menu sheet: close it first; focus then returns to the menu button.
+    var back = t;
+    var sheet = t.closest("#cv-mnav");
+    if (sheet) { var x = sheet.querySelector('[data-cv-close="cv-mnav"]'); if (x) x.click(); back = document.querySelector('[aria-controls="cv-mnav"]') || t; }
+    d.__cvBack = back;
+    document.querySelectorAll("[data-cv-pk-open]").forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
+    d.showModal();
+    if (t.isConnected) t.setAttribute("aria-expanded", "true");
+    var focus = d.querySelector('.cv-pk-opt[aria-current="true"]') || d.querySelector(".cv-pk-opt");
+    if (focus) { focus.focus({ preventScroll: true }); if (focus.scrollIntoView) focus.scrollIntoView({ block: "nearest" }); }
+  }
+  function norm(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function filter(input) {
+    var d = input.closest("dialog"), q = norm(input.value.trim()), shown = 0;
+    d.querySelectorAll("[data-cv-pk-item]").forEach(function (li) {
+      var hit = !q || norm(li.getAttribute("data-cv-pk-q")).indexOf(q) !== -1 || norm(li.textContent).indexOf(q) !== -1;
+      li.hidden = !hit; if (hit) shown++;
+    });
+    var none = d.querySelector("[data-cv-pk-none]"); if (none) none.hidden = shown > 0;
+  }
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest) return;
+    var t = e.target.closest("[data-cv-pk-open]");
+    if (t) { e.preventDefault(); open(t); return; }
+    if (e.target.closest("[data-cv-pk-close]")) { dlg().close(); return; }
+    // A click on the backdrop (the dialog itself, outside its box) closes it.
+    if (e.target.matches("dialog[data-cv-pk-dlg]")) {
+      var r = e.target.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
+    }
+  });
+  document.addEventListener("input", function (e) { if (e.target.matches && e.target.matches("[data-cv-pk-search]")) filter(e.target); });
+  // Inside the sheet, Tab cycles through it and Escape closes only the sheet: the keys stop here, before the
+  // document-level handlers of a cart drawer, quick view or menu sheet underneath.
+  document.addEventListener("keydown", function (e) {
+    var d = dlg();
+    if (!d || !d.open || !d.contains(e.target)) return;
+    if (e.key === "Escape") {
+      // A typed search clears first; otherwise the sheet closes (done here, the same in every browser).
+      e.stopPropagation(); e.preventDefault();
+      var s = e.target.matches("[data-cv-pk-search]") && e.target;
+      if (s && s.value) { s.value = ""; filter(s); } else d.close();
+      return;
+    }
+    if (e.key !== "Tab") return;
+    e.stopPropagation();
+    var f = focusables(d); if (!f.length) return;
+    var a = document.activeElement;
+    if (e.shiftKey && a === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  }, true);
+  document.addEventListener("close", function (e) {
+    var d = e.target;
+    if (!d.matches || !d.matches("dialog[data-cv-pk-dlg]")) return;
+    document.querySelectorAll("[data-cv-pk-open]").forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
+    var s = d.querySelector("[data-cv-pk-search]"); if (s && s.value) { s.value = ""; filter(s); }
+    var back = d.__cvBack; d.__cvBack = null;
+    if (back && back.isConnected && back.focus) back.focus({ preventScroll: true });
+  }, true);
+  // Every stock figure on the page follows the mode, so a change reloads it. A refusal keeps the page and shows the platform's message.
+  function isMode(e) { return e.detail && e.detail.action === "shopping_mode_set"; }
+  document.addEventListener("tf:action-start", function (e) {
+    if (!isMode(e) || !e.detail.form) return;
+    var b = e.detail.form.querySelector("button[type=submit]:focus") || document.activeElement;
+    if (b && b.closest && b.closest("form") === e.detail.form) b.setAttribute("aria-busy", "true");
+  });
+  document.addEventListener("tf:action-success", function (e) { if (isMode(e)) window.location.reload(); });
+  document.addEventListener("tf:action-error", function (e) {
+    if (!isMode(e) || !e.detail.form) return;
+    e.detail.form.querySelectorAll('[aria-busy="true"]').forEach(function (b) { b.removeAttribute("aria-busy"); });
+    var errs = e.detail.result && e.detail.result.user_errors, m = errs && errs[0] && errs[0].message, box = document.querySelector("[data-cv-pk-toast]");
+    if (m && box) { box.querySelector("[data-cv-pk-toast-text]").textContent = m; box.hidden = false; }
+  });
+})();
+</script>
+{%- elsif design_mode -%}
+<style>
+  /* Editor only: where the pickup choice would be while the store offers no pickup. */
+  .cv-pk-hint { margin: 14px 0 0; max-width: none; text-align: start; }
+  .cv-hd__actions .cv-pk-hint { max-width: 300px; margin: 0 6px; padding: 6px 10px; overflow: hidden; font-size: 12px; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-mnav .cv-pk-hint { margin: 6px 14px 0; }
+  .cv-cart .cv-pk-hint, .cv-drawer .cv-pk-hint { margin: 0 0 16px; }
+</style>
+{%- endif -%}

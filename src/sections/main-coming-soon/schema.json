@@ -1,0 +1,131 @@
+{
+  "name": "main-coming-soon",
+  "icon": "clock",
+  "ctx_needs": [
+    "shop",
+    "form_notice",
+    "form_error",
+    "csrf_token",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "title",
+      "type": "text",
+      "default": "@t:sections.main_coming_soon.heading",
+      "editor": {
+        "label": "title",
+        "group": "content"
+      }
+    },
+    {
+      "id": "message",
+      "type": "text",
+      "default": "@t:sections.main_coming_soon.text",
+      "editor": {
+        "label": "message",
+        "group": "content"
+      }
+    },
+    {
+      "id": "collect_emails",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "collect_emails",
+        "group": "email_signup"
+      }
+    },
+    {
+      "id": "button_label",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "button_label_platform",
+        "group": "email_signup"
+      }
+    },
+    {
+      "id": "consent_label",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "consent_label_platform",
+        "group": "email_signup"
+      }
+    },
+    {
+      "id": "email_placeholder",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "email_placeholder_platform",
+        "group": "email_signup"
+      }
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "gate_picture",
+        "group": "image"
+      }
+    },
+    {
+      "id": "logo",
+      "type": "image",
+      "editor": {
+        "label": "logo",
+        "group": "logo"
+      }
+    },
+    {
+      "id": "logo_height",
+      "type": "range",
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "unit": "px",
+      "default": 32,
+      "editor": {
+        "label": "logo_height",
+        "group": "logo"
+      },
+      "visible_if": {
+        "setting": "logo",
+        "set": true
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "migrations": [
+    {
+      "id": "heading-to-title",
+      "op": "rename_setting",
+      "from": {
+        "setting": "heading"
+      },
+      "to": {
+        "setting": "title"
+      }
+    },
+    {
+      "id": "text-to-message",
+      "op": "rename_setting",
+      "from": {
+        "setting": "text"
+      },
+      "to": {
+        "setting": "message"
+      }
+    }
+  ]
+}

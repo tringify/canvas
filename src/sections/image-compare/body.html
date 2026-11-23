@@ -1,0 +1,58 @@
+{%- comment -%} Before and after: a picture the merchant has not added is the theme photo picked in Photo until you add your own (before in black and white, after in colour). With No photo the section waits for both images. {%- endcomment -%}
+{%- assign cv_photo = settings.fallback_photo -%}{%- assign cv_photo_i = 1 -%}{%- assign cv_photo_wide = true -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+{%- assign cv_both = true -%}
+{%- if settings.before == blank and cv_fb == blank -%}{%- assign cv_both = false -%}{%- endif -%}
+{%- if settings.after == blank and cv_fb == blank -%}{%- assign cv_both = false -%}{%- endif -%}
+{%- if cv_both or design_mode -%}
+<section class="cv cv-section cv-cmp tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}">
+  {%- if design_mode and cv_both != true -%}<p class="cv-editor-hint">{{ 'sections.editor_compare_needs' | t }}</p>{%- endif -%}
+  <div class="cv-wrap">
+    {%- if settings.heading != blank -%}<div class="cv-head"><h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2></div>{%- endif -%}
+    <div class="cv-cmp__stage cv-media" style="aspect-ratio: {{ settings.ratio }}; --cv-cmp: 50%" data-cv-compare>
+      <div dir="auto" class="cv-cmp__after" data-tf-field="after">{%- if settings.after -%}<img data-tf-field="after_label" src="{{ settings.after | image_url: width: 1600 }}" alt="{{ settings.after_label }}" loading="lazy">{%- else -%}<img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}">{%- endif -%}</div>
+      <div dir="auto" class="cv-cmp__before" data-tf-field="before">{%- if settings.before -%}<img data-tf-field="before_label" src="{{ settings.before | image_url: width: 1600 }}" alt="{{ settings.before_label }}" loading="lazy">{%- else -%}<img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}" style="filter: grayscale(1) contrast(0.9)">{%- endif -%}</div>
+      {%- if settings.before_label != blank -%}<span class="cv-cmp__label cv-cmp__label--before">{{ settings.before_label }}</span>{%- endif -%}
+      {%- if settings.after_label != blank -%}<span class="cv-cmp__label cv-cmp__label--after">{{ settings.after_label }}</span>{%- endif -%}
+      <span class="cv-cmp__handle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m9 7-5 5 5 5M15 7l5 5-5 5"/></svg></span>
+      <input class="cv-cmp__range" type="range" min="0" max="100" value="50" aria-label="{{ settings.before_label }} / {{ settings.after_label }}">
+    </div>
+  </div>
+</section>
+{%- endif -%}
+<script>
+(function () {
+  if (window.__cvCompare) return; window.__cvCompare = true;
+  document.addEventListener("input", function (e) {
+    var r = e.target.matches && e.target.matches(".cv-cmp__range") ? e.target : null;
+    if (r) r.closest("[data-cv-compare]").style.setProperty("--cv-cmp", r.value + "%");
+  });
+})();
+</script>

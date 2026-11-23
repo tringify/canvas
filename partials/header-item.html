@@ -1,0 +1,26 @@
+          <li class="cv-hd__item">
+            {% if item.children.size > 0 %}
+              <details class="cv-hd__dd" data-cv-dd>
+                <summary class="cv-hd__link">{{ item.title }}<svg class="cv-icon cv-hd__caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+                <div class="cv-hd__panel tf-scheme-{{ settings.color_scheme }}">
+                  <ul class="cv-hd__sub" role="list">
+                    {% if item.url != blank %}<li><a class="cv-hd__sublink cv-hd__sublink--all" href="{{ item.url }}"{% if item.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ item.title }}</a></li>{% endif %}
+                    {% for child in item.children %}
+                      <li>
+                        {% if child.url != blank %}<a class="cv-hd__sublink" href="{{ child.url }}"{% if child.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ child.title }}</a>{% else %}<span class="cv-hd__sublink">{{ child.title }}</span>{% endif %}
+                        {% if child.children.size > 0 %}
+                          <ul class="cv-hd__sub3" role="list">
+                            {% for grand in child.children %}
+                              <li>{% if grand.url != blank %}<a href="{{ grand.url }}"{% if grand.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ grand.title }}</a>{% else %}<span>{{ grand.title }}</span>{% endif %}</li>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </details>
+            {% else %}
+              {% if item.url != blank %}<a class="cv-hd__link" href="{{ item.url }}"{% if item.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ item.title }}</a>{% else %}<span class="cv-hd__link">{{ item.title }}</span>{% endif %}
+            {% endif %}
+          </li>

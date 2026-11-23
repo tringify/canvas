@@ -1,0 +1,114 @@
+{%- comment -%} Recently viewed, for the cart page and the cart drawer: the shopper's recently viewed products (ctx recently_viewed, visibility-gated
+  by the platform) that are not in the cart, as a compact row with Add for a product with one choice. Shown with items and with an empty cart.
+  The cart sections style it (.cv-crec in partials/cart.css); the rec-click partial reports a followed product. {%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- assign cv_in_cart = ',' -%}
+{%- for line in cart.items -%}{%- assign cv_in_cart = cv_in_cart | append: line.product_id | append: ',' -%}{%- endfor -%}
+{%- assign cv_shown = 0 -%}
+{%- for cv_p in recently_viewed.items -%}
+  {%- assign cv_key = ',' | append: cv_p.id | append: ',' -%}
+  {%- unless cv_in_cart contains cv_key -%}{%- assign cv_shown = cv_shown | plus: 1 -%}{%- endunless -%}
+{%- endfor -%}
+{%- if cv_shown > 0 -%}
+<div class="cv-crec" data-cv-rec="recently_viewed" data-csrf="{{ csrf_token }}">
+  {%- if settings.heading != blank -%}<p dir="auto" class="cv-crec__title" data-tf-field="heading">{{ settings.heading }}</p>{%- endif -%}
+  <ul class="cv-crec__list" role="list">
+    {%- assign cv_n = 0 -%}
+    {%- for cv_p in recently_viewed.items -%}
+      {%- assign cv_key = ',' | append: cv_p.id | append: ',' -%}
+      {%- if cv_in_cart contains cv_key -%}{%- continue -%}{%- endif -%}
+      {%- if cv_n >= settings.limit -%}{%- break -%}{%- endif -%}
+      {%- assign cv_n = cv_n | plus: 1 -%}
+      {%- assign cv_td = cv_p.price.tax_display.current -%}
+      {%- assign cv_cur = cv_p.price.current -%}
+      {%- if cv_td and cv_td.status != 'unavailable' and cv_td.status != 'not_applicable' -%}{%- assign cv_cur = cv_td.primary -%}{%- endif -%}
+      {%- assign cv_img = cv_p.featured_image | default: cv_p.media -%}
+      {%- if cv_img.media_type and cv_img.media_type != 'image' -%}{%- assign cv_img = cv_img.preview_image -%}{%- endif -%}
+      <li class="cv-crec__item" data-product-id="{{ cv_p.id }}">
+        <a class="cv-crec__media cv-media" href="{{ cv_p.url }}" tabindex="-1" aria-hidden="true">
+          {%- if cv_img.url -%}<img src="{{ cv_img.url | image_url: width: 160 }}" srcset="{{ cv_img.url | image_srcset: max: 320 }}" sizes="64px" alt="" loading="lazy">{%- else -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}
+        </a>
+        <div class="cv-crec__info">
+          <a dir="auto" class="cv-crec__name" href="{{ cv_p.url }}">{{ cv_p.title }}</a>
+          {%- if cv_cur -%}<p class="cv-crec__price">{%- if cv_p.price_range.has_range -%}{{ 'products.from' | t }} {% endif -%}{{ cv_cur | money: isolate: true, trim_zeros: cv_tz }}</p>{%- endif -%}
+        </div>
+        {%- if cv_p.available_for_sale and cv_p.is_gift_card != true -%}
+          {%- if cv_p.variant_matrix.size == 1 or cv_p.options.size == 0 -%}
+            {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+            {% form 'cart_add', class: 'cv-crec__add' %}
+              <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+              {%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}
+              <input type="hidden" name="quantity" value="1">
+              <button class="cv-btn cv-btn--outline cv-crec__btn" type="submit" aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">{{ 'cart.add' | t }}</button>
+            {% endform %}
+          {%- endif -%}
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+  </ul>
+</div>
+{%- comment -%}partial:rec-click{%- endcomment -%}
+<script>
+(function () {
+  // Recommendation clicks: following a card (any [data-product-id] item) in a [data-cv-rec] rail sends the platform's rec_click
+  // event (POST /events/rec-click: placement, product_id, and variant_id when the card links one, with
+  // the page's CSRF token). A beacon never holds up the navigation, and a refused one changes nothing.
+  if (window.__cvRecClick) return; window.__cvRecClick = true;
+  function send(e) {
+    if (e.type === "auxclick" && e.button !== 1) return;
+    var a = e.target.closest && e.target.closest("[data-cv-rec] [data-product-id] a[href]");
+    var sec = a && a.closest("[data-cv-rec]"), card = a && a.closest("[data-product-id]");
+    var pid = card && card.getAttribute("data-product-id"), vid = card && card.getAttribute("data-variant-id");
+    if (!sec || !/^[1-9][0-9]*$/.test(pid || "")) return;
+    var fd = new FormData();
+    fd.append("_csrf", sec.getAttribute("data-csrf") || "");
+    fd.append("placement", sec.getAttribute("data-cv-rec"));
+    fd.append("product_id", pid);
+    if (/^[1-9][0-9]*$/.test(vid || "")) fd.append("variant_id", vid);
+    try { if (navigator.sendBeacon && navigator.sendBeacon("/events/rec-click", fd)) return; } catch (_) {}
+    try { fetch("/events/rec-click", { method: "POST", body: fd, credentials: "same-origin", keepalive: true }).catch(function () {}); } catch (_) {}
+  }
+  document.addEventListener("click", send, true);
+  document.addEventListener("auxclick", send, true);
+})();
+</script>
+{%- comment -%}/partial:rec-click{%- endcomment -%}
+{%- elsif design_mode -%}
+<p class="cv-editor-hint cv-crec-hint">{{ 'sections.editor_recently_viewed' | t }}</p>
+{%- endif -%}
+{% schema %}
+{
+  "name": "cart-recommendations",
+  "kind": "block",
+  "icon": "history",
+  "ctx_needs": [
+    "cart",
+    "recently_viewed",
+    "csrf_token",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.recently_viewed.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "limit",
+      "type": "range",
+      "min": 1,
+      "max": 8,
+      "step": 1,
+      "default": 3,
+      "editor": {
+        "label": "products_to_show",
+        "group": "content"
+      }
+    }
+  ]
+}
+{% endschema %}

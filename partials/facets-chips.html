@@ -1,0 +1,52 @@
+{%- comment -%} Active filters as removable chips, on every layout: "Brand: Kiln & Co."; a yes/no filter by its name alone ("On sale"); a range as
+  "From 12", "Up to 1,250.50" or "12 – 1,250.50". Other ranges print their plain bounds through format_number (the shopper's digits and grouping), whole when the filter is `integer`; the price prints its applied bounds as money.
+  Input: cv_fa. {%- endcomment -%}
+{%- if cv_fa > 0 -%}
+  {%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+  {%- assign cv_nr = filters.items.size | default: 0 -%}
+  <div class="cv-fx-chips" role="list" aria-label="{{ 'filters.title' | t }}">
+    {%- for f in filters.items -%}
+      {%- for v in f.values -%}{%- if v.selected -%}
+        {%- assign cv_yes = false -%}
+        {%- if f.filter_type == 'boolean' -%}{%- if v.key == 'true' or v.key == 'yes' or v.key == '1' -%}{%- assign cv_yes = true -%}{%- endif -%}{%- endif -%}
+        <a class="cv-fx-chip" role="listitem" href="{{ v.url }}" rel="nofollow">{%- if cv_yes -%}{{ f.label }}{%- else -%}<span class="cv-fx-chip__k">{{ 'filters.chip_name' | t: name: f.label }}</span> {{ v.label }}{%- endif -%}<svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg><span class="cv-sr">{{ 'filters.remove' | t }}</span></a>
+      {%- endif -%}{%- endfor -%}
+    {%- endfor -%}
+    {%- comment -%} Range filters, then the price (one pass: the slot after the last filter is the price). {%- endcomment -%}
+    {%- for cv_i in (0..cv_nr) -%}
+      {%- assign cv_r = nil -%}{%- assign cv_rp = false -%}
+      {%- if cv_i == cv_nr -%}
+        {%- if filters.price -%}{%- assign cv_r = filters.price -%}{%- assign cv_rp = true -%}
+          {%- if filters.price.label != blank -%}{%- assign cv_rk = filters.price.label -%}{%- else -%}{%- assign cv_rk = 'filters.price' | t -%}{%- endif -%}
+        {%- endif -%}
+      {%- else -%}
+        {%- for cv_f in filters.items offset: cv_i limit: 1 -%}
+          {%- if cv_f.range and cv_f.range.action != blank -%}{%- unless cv_f.key == 'price' and filters.price -%}{%- assign cv_r = cv_f.range -%}{%- assign cv_rk = cv_f.label -%}{%- endunless -%}{%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {%- if cv_r -%}{%- if cv_r.applied_min != blank or cv_r.applied_max != blank -%}
+        {%- assign cv_whole = false -%}{%- if cv_r.integer -%}{%- assign cv_whole = true -%}{%- endif -%}
+        {%- assign cv_lo = '' -%}{%- assign cv_hi = '' -%}
+        {%- if cv_r.applied_min != blank -%}
+          {%- assign cv_rw = cv_whole -%}{%- if cv_rp and cv_tz -%}{%- assign cv_frac = cv_r.applied_min | modulo: 1 -%}{%- if cv_frac == 0 -%}{%- assign cv_rw = true -%}{%- endif -%}{%- endif -%}
+          {%- if cv_rw -%}{%- assign cv_lo = cv_r.applied_min | round | format_number -%}{%- else -%}{%- assign cv_lo = cv_r.applied_min | format_number -%}{%- endif -%}
+        {%- endif -%}
+        {%- if cv_r.applied_max != blank -%}
+          {%- assign cv_rw = cv_whole -%}{%- if cv_rp and cv_tz -%}{%- assign cv_frac = cv_r.applied_max | modulo: 1 -%}{%- if cv_frac == 0 -%}{%- assign cv_rw = true -%}{%- endif -%}{%- endif -%}
+          {%- if cv_rw -%}{%- assign cv_hi = cv_r.applied_max | round | format_number -%}{%- else -%}{%- assign cv_hi = cv_r.applied_max | format_number -%}{%- endif -%}
+        {%- endif -%}
+        {%- comment -%} The price prints as money from the platform's applied bounds. {%- endcomment -%}
+        {%- if cv_rp -%}
+          {%- if filters.price.applied_min_money -%}{%- assign cv_lo = filters.price.applied_min_money | money: isolate: true, trim_zeros: cv_tz -%}{%- endif -%}
+          {%- if filters.price.applied_max_money -%}{%- assign cv_hi = filters.price.applied_max_money | money: isolate: true, trim_zeros: cv_tz -%}{%- endif -%}
+        {%- endif -%}
+        <a class="cv-fx-chip" role="listitem" href="{{ cv_r.clear_url }}" rel="nofollow"><span class="cv-fx-chip__k">{{ 'filters.chip_name' | t: name: cv_rk }}</span> <bdi>
+          {%- if cv_lo != blank and cv_hi != blank -%}{{ 'filters.range_between' | t: min: cv_lo, max: cv_hi }}
+          {%- elsif cv_lo != blank -%}{{ 'filters.range_from' | t: min: cv_lo }}
+          {%- else -%}{{ 'filters.range_up_to' | t: max: cv_hi }}{%- endif -%}
+        </bdi><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg><span class="cv-sr">{{ 'filters.remove' | t }}</span></a>
+      {%- endif -%}{%- endif -%}
+    {%- endfor -%}
+    <a class="cv-tbtn cv-fx-chips__clear" href="{{ filters.clear_url }}" rel="nofollow">{{ 'filters.clear_all' | t }}</a>
+  </div>
+{%- endif -%}

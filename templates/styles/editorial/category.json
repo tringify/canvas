@@ -1,0 +1,34 @@
+{
+  "page_type": "category",
+  "sections": [
+    {
+      "type": "main-collection",
+      "settings": {
+        "filter_layout": "drawer",
+        "product_layout": "editorial",
+        "columns": 3,
+        "columns_mobile": "2",
+        "blocks": [
+          {
+            "id": "canvas-editorial-category__breadcrumbs",
+            "type": "breadcrumbs",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-category__banner",
+            "type": "banner",
+            "settings": {
+              "show_image": true
+            }
+          },
+          {
+            "id": "canvas-editorial-category__toolbar",
+            "type": "toolbar",
+            "settings": {}
+          }
+        ]
+      },
+      "position": 1
+    }
+  ]
+}

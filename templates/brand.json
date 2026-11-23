@@ -1,0 +1,28 @@
+{
+  "page_type": "brand",
+  "sections": [
+    {
+      "type": "main-collection",
+      "position": 1,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-brand__breadcrumbs",
+            "type": "breadcrumbs",
+            "settings": {}
+          },
+          {
+            "id": "canvas-brand__banner",
+            "type": "banner",
+            "settings": {}
+          },
+          {
+            "id": "canvas-brand__toolbar",
+            "type": "toolbar",
+            "settings": {}
+          }
+        ]
+      }
+    }
+  ]
+}

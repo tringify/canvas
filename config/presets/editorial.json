@@ -1,0 +1,60 @@
+{
+  "name": "Editorial",
+  "settings": {
+    "schemes": [
+      {
+        "id": "default",
+        "label": "Paper",
+        "colors": {
+          "bg": "#f7f5f0",
+          "text": "#1a1917",
+          "text-muted": "#6b675f",
+          "border": "#e2ded5",
+          "surface": "#ece8df",
+          "btn": "#1a1917",
+          "btn-text": "#f7f5f0",
+          "accent": "#a4402a"
+        }
+      },
+      {
+        "id": "light",
+        "label": "Stone",
+        "colors": {
+          "bg": "#ece8df",
+          "text": "#1a1917",
+          "text-muted": "#6b675f",
+          "border": "#d8d3c8",
+          "surface": "#f7f5f0",
+          "btn": "#1a1917",
+          "btn-text": "#f7f5f0",
+          "accent": "#a4402a"
+        }
+      },
+      {
+        "id": "inverse",
+        "label": "Ink",
+        "colors": {
+          "bg": "#1a1917",
+          "text": "#f7f5f0",
+          "text-muted": "#b3ada2",
+          "border": "#34322e",
+          "surface": "#24221f",
+          "btn": "#f7f5f0",
+          "btn-text": "#1a1917",
+          "accent": "#e07a5f"
+        }
+      }
+    ],
+    "heading_font": "playfair-display",
+    "body_font": "inter",
+    "corner_radius": "0px",
+    "button_radius": "0px",
+    "card_image_ratio": "3 / 4",
+    "heading_scale": "115",
+    "heading_case": "none",
+    "card_style": "editorial",
+    "section_spacing": "relaxed",
+    "page_width": "1440px",
+    "card_quick_add": false
+  }
+}

@@ -1,0 +1,23 @@
+{%- comment -%} A logo shows its image, else its name set as a wordmark; a logo with neither is left out, and the section hides until one has. {%- endcomment -%}
+{%- assign cv_logos = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled -%}{%- continue -%}{%- endif -%}{%- if b.settings.image or b.settings.name != blank -%}{%- assign cv_logos = cv_logos | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_logos > 0 or design_mode -%}
+<section class="cv cv-section cv-logos tf-scheme-{{ settings.color_scheme }}{% if settings.grayscale != false %} cv-logos--mono{% endif %} cv-pad--{{ settings.padding | default: 'default' }}" style="--cv-logo-h: {{ settings.logo_height }}px">
+  {%- if design_mode and cv_logos == 0 -%}<p class="cv-editor-hint">{{ 'sections.editor_add_content' | t }}</p>{%- endif -%}
+  <div class="cv-wrap">
+    {%- if settings.heading != blank -%}<p dir="auto" class="cv-eyebrow cv-logos__head" data-tf-field="heading">{{ settings.heading }}</p>{%- endif -%}
+    <ul class="cv-logos__list" role="list">
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}{%- if b.settings.image == blank and b.settings.name == blank -%}{%- continue -%}{%- endif -%}
+        {{ b._editor_block_open }}
+        <li class="cv-logos__item">
+          {%- if b.settings.link != blank -%}<a dir="auto" href="{{ b.settings.link }}" data-tf-field="image">{%- else -%}<span dir="auto" data-tf-field="image">{%- endif -%}
+          {%- if b.settings.image -%}<img data-tf-field="name" src="{{ b.settings.image | image_url: width: 320 }}" alt="{{ b.settings.name }}" loading="lazy">{%- else -%}<span class="cv-logos__ph">{{ b.settings.name }}</span>{%- endif -%}
+          {%- if b.settings.link != blank -%}</a>{%- else -%}</span>{%- endif -%}
+        </li>
+        {{ b._editor_block_close }}
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+{%- endif -%}

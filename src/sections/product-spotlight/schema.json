@@ -1,0 +1,105 @@
+{
+  "name": "product-spotlight",
+  "icon": "shopping-bag",
+  "ctx_needs": [
+    "forms",
+    "routes",
+    "csrf_token",
+    "design_mode",
+    "phone_countries",
+    "customer_settings",
+    "localization"
+  ],
+  "settings": [
+    {
+      "id": "product",
+      "type": "product",
+      "editor": {
+        "label": "product",
+        "group": "content"
+      }
+    },
+    {
+      "id": "eyebrow",
+      "type": "text",
+      "editor": {
+        "label": "eyebrow",
+        "group": "content"
+      },
+      "default": "@t:sections.product_spotlight.eyebrow"
+    },
+    {
+      "id": "text",
+      "type": "richtext",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      },
+      "default": ""
+    },
+    {
+      "id": "media_position",
+      "type": "select",
+      "editor": {
+        "label": "media_position",
+        "group": "layout"
+      },
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "opt_left"
+        },
+        {
+          "value": "right",
+          "label": "opt_right"
+        }
+      ]
+    },
+    {
+      "id": "show_buy",
+      "type": "checkbox",
+      "editor": {
+        "label": "show_buy_now",
+        "group": "content"
+      },
+      "default": true
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ]
+}

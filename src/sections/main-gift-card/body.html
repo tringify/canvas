@@ -1,0 +1,61 @@
+{%- comment -%} The platform owns this page: it looks a card up (gift_card_lookup, with its own proof-of-work script) or opens one from the
+delivery email's view link. gift_card is null until a lookup succeeds; code is set only on the view link. Print the platform's labels and
+its error message as given. {%- endcomment -%}
+<section data-cv-notice-host class="cv cv-section cv-gc tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-wrap cv-gc__wrap">
+    <h1 class="cv-h2">{{ 'gift_card.title' | t }}</h1>
+    {%- if form_error and form_error.message != blank -%}<p class="cv-notice cv-notice--error" role="alert">{{ form_error.message }}</p>{%- endif -%}
+    {%- if gift_card -%}
+      {%- assign gc = gift_card -%}
+      <article class="cv-gc__card" aria-labelledby="cv-gc-balance">
+        <div class="cv-gc__top">
+          <p class="cv-gc__code">
+            {%- if gc.code != blank -%}
+              <span class="cv-label">{{ 'gift_card.code' | t }}</span>
+              <bdi dir="ltr" class="cv-gc__full" data-cv-gc-code>{{ gc.code }}</bdi>
+              <button class="cv-btn cv-btn--outline cv-btn--sm" type="button" data-cv-gc-copy data-label-done="{{ 'gift_card.copied' | t }}" hidden>{{ 'gift_card.copy' | t }}</button>
+            {%- else -%}
+              <bdi dir="ltr" class="cv-muted">{{ gc.code_masked }}</bdi>
+            {%- endif -%}
+          </p>
+          <span class="cv-badge cv-gc__status cv-gc__status--{{ gc.status }}">{{ gc.status_label }}</span>
+        </div>
+        <p class="cv-gc__balance"><span class="cv-label" id="cv-gc-balance">{{ 'gift_card.balance' | t }}</span><strong>{{ gc.balance.formatted }}</strong></p>
+        <dl class="cv-gc__facts">
+          <div><dt class="cv-muted">{{ 'gift_card.initial_value' | t }}</dt><dd>{{ gc.initial_value.formatted }}</dd></div>
+          {%- if gc.expires_at_label != blank -%}<div><dt class="cv-muted">{{ 'gift_card.expiry' | t }}</dt><dd>{{ gc.expires_at_label }}</dd></div>{%- endif -%}
+        </dl>
+        {%- if gc.message != blank -%}<blockquote class="cv-gc__message">{{ gc.message }}</blockquote>{%- endif -%}
+        {%- if gc.status == 'active' -%}<a class="cv-btn" href="{{ gc.shop_url }}">{{ 'gift_card.shop' | t }}</a>{%- endif -%}
+      </article>
+    {%- endif -%}
+    {%- if gift_card -%}
+    <details class="cv-gc__lookup cv-gc__another"{% if form_error %} open{% endif %}>
+      <summary class="cv-btn cv-btn--outline">{{ 'gift_card.check_another' | t }}</summary>
+    {%- else -%}
+    <div class="cv-gc__lookup">
+    {%- endif -%}
+      <h2 class="cv-h4">{{ 'gift_card.check_title' | t }}</h2>
+      <p class="cv-muted">{{ 'gift_card.intro' | t }}</p>
+      {% form 'gift_card_lookup', class: 'cv-gc__form' %}
+        <label class="cv-field"><span class="cv-label">{{ 'gift_card.code' | t }}</span>
+          <input class="cv-input" name="code" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="{{ forms.gift_card.code.max_length }}"{% if forms.gift_card.code.required %} required{% endif %}></label>
+        <button class="cv-btn" type="submit">{{ 'gift_card.check' | t }}</button>
+      {% endform %}
+    {%- if gift_card -%}</details>{%- else -%}</div>{%- endif -%}
+  </div>
+</section>
+<script>
+(function () {
+  document.querySelectorAll("[data-cv-gc-copy]").forEach(function (b) {
+    if (!navigator.clipboard) return;
+    var code = b.parentNode.querySelector("[data-cv-gc-code]"); if (!code) return;
+    var label = b.textContent; b.hidden = false;
+    b.addEventListener("click", function () {
+      navigator.clipboard.writeText(code.textContent.trim()).then(function () {
+        b.textContent = b.getAttribute("data-label-done"); setTimeout(function () { b.textContent = label; }, 2000);
+      });
+    });
+  });
+})();
+</script>

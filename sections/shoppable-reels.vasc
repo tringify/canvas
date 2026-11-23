@@ -1,0 +1,948 @@
+<style>
+  /* Canvas design system. Repeated in every section, because sections are standalone. */
+  :where(.cv) { --cv-pad-x: clamp(16px, 4vw, 56px); --cv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --cv-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+    --cv-soft: color-mix(in srgb, var(--text) 5%, var(--bg)); --cv-line: color-mix(in srgb, var(--text) 10%, transparent);
+    font-family: var(--tf-font-body_font, "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: 15px; line-height: 1.55; letter-spacing: -0.006em; color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01", "cv11"; }
+  :where(.cv *) { box-sizing: border-box; }
+  .cv[hidden], .cv [hidden] { display: none !important; }
+  :where(.cv img) { max-width: 100%; display: block; }
+  :where(.cv a) { color: inherit; }
+  :where(.cv-section) { padding-block: calc(var(--cv-gap-y, clamp(56px, 8vw, 112px)) * 0.58); }
+  :where(.cv-section--page) { padding-top: clamp(28px, 4vw, 56px); }
+  :where(.cv-page-title) { font-size: calc(clamp(32px, 4vw, 56px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-wrap) { width: 100%; max-width: var(--cv-width, 1440px); margin-inline: auto; padding-inline: var(--cv-pad-x); }
+  :where(.cv-app-blocks) { display: grid; gap: 16px; margin-top: 24px; }
+  .cv-app-blocks:empty { display: none; }
+  :where(.cv-h1, .cv-h2, .cv-h3, .cv-h4) { font-family: var(--tf-font-heading_font, inherit); font-weight: 500; line-height: 1.04;
+    letter-spacing: -0.035em; text-transform: var(--cv-heading-case, none); margin: 0; text-wrap: balance; }
+  :where(.cv-h1) { font-size: calc(clamp(40px, 6.4vw, 88px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h2) { font-size: calc(clamp(28px, 3.6vw, 48px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h3) { font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); letter-spacing: -0.02em; line-height: 1.2; }
+  :where(.cv-h4) { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+  :where(.cv-eyebrow) { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0; }
+  :where(.cv-muted) { color: var(--text-muted); }
+  :where(.cv-meta > * + *)::before { content: " · "; }
+  :where(.cv-rte) { line-height: 1.65; }
+  :where(.cv-rte > * + *) { margin-top: 0.9em; }
+  :where(.cv-rte a) { text-underline-offset: 3px; }
+  :where(.cv-rte ul, .cv-rte ol) { margin: 0; padding-inline-start: 1.25em; }
+  :where(.cv-rte li + li) { margin-top: 0.3em; }
+
+  :where(.cv-btn) { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 26px;
+    font: inherit; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+    background: var(--btn); color: var(--btn-text); border: 0; border-radius: var(--cv-btn-radius, 999px); -webkit-tap-highlight-color: transparent;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(0 0 0 / 0.08);
+    transition: transform 0.25s var(--cv-ease), background-color 0.25s var(--cv-ease), color 0.25s var(--cv-ease), box-shadow 0.25s var(--cv-ease); }
+  :where(.cv-btn:hover) { background: color-mix(in srgb, var(--btn) 86%, var(--bg)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 6px 18px -6px rgb(0 0 0 / 0.35); }
+  :where(.cv-btn:active) { transform: scale(0.97); }
+  :where(.cv-btn--outline, .cv-btn--soft) { background: var(--cv-soft); color: var(--text); box-shadow: none; }
+  :where(.cv-btn--outline:hover, .cv-btn--soft:hover) { background: color-mix(in srgb, var(--text) 10%, var(--bg)); box-shadow: none; }
+  :where(.cv-btn--ghost) { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--ghost:hover) { background: var(--cv-soft); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--link) { min-height: 0; padding: 0; gap: 6px; background: none; box-shadow: none; color: var(--text); font-weight: 500; text-decoration: none; }
+  :where(.cv-btn--link)::after { content: ""; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--cv-arrow) center / contain no-repeat; mask: var(--cv-arrow) center / contain no-repeat; transition: transform 0.25s var(--cv-ease); }
+  :where(.cv-btn--link:hover) { background: none; box-shadow: none; }
+  :where([dir="rtl"] .cv-btn--link)::after { transform: scaleX(-1); }
+  :where(.cv-btn--link:active) { transform: none; }
+  :where(.cv-btn--plain)::after { content: none; }
+  :where(.cv-btn--block) { width: 100%; }
+  :where(.cv-btn--sm) { min-height: 38px; padding: 0 16px; font-size: 14px; }
+  :where(.cv-btn--lg) { min-height: 56px; padding: 0 32px; font-size: 16px; }
+  :where(.cv-btn:disabled, .cv-btn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  :where(.cv-btn.is-loading, .cv-btn.is-done) { opacity: 1; cursor: progress; }
+  :where(.cv-btn.is-loading) > *, :where(.cv-btn.is-loading) { color: transparent; }
+  :where(.cv-btn.is-loading)::before { content: ""; position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+    border: 2px solid var(--btn-text); border-right-color: transparent; animation: cv-spin 0.7s linear infinite; }
+  :where(.cv-btn--outline.is-loading, .cv-btn--soft.is-loading, .cv-btn--ghost.is-loading)::before { border-color: var(--text); border-right-color: transparent; }
+  /* A link button (wishlist, share) keeps its icon and label while busy and only dims: a spinner on a borderless button reads as the control vanishing. */
+  .cv-btn--link.is-loading, .cv-btn--link.is-loading > * { color: inherit; }
+  .cv-btn--link.is-loading { opacity: 0.55; }
+  .cv-btn--link.is-loading::before { content: none; }
+  :where(.cv-btn.is-done) { animation: cv-pop 0.4s var(--cv-ease); }
+  /* Text buttons: actions set as words (Clear cart, Create account, Edit, Show more), on <button>, <a> or <summary>. No underline and
+     no arrow, at rest or on hover: muted at rest, ink on hover. A surface with other colours sets --cv-tbtn and --cv-tbtn-hover.
+     Links inside running prose keep the browser underline; .cv-btn--link (with its arrow) is for navigation such as "Continue shopping". */
+  :where(.cv-tbtn) { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 0; font: inherit; font-weight: 500; letter-spacing: inherit;
+    color: var(--cv-tbtn, var(--text-muted)); text-align: start; text-decoration: none; background: none; border: 0; border-radius: 4px; cursor: pointer;
+    list-style: none; -webkit-tap-highlight-color: transparent; transition: color 0.2s var(--cv-ease); }
+  :where(.cv-tbtn:hover) { color: var(--cv-tbtn-hover, var(--text)); text-decoration: none; }
+  :where(.cv-tbtn)::-webkit-details-marker { display: none; }
+  :where(.cv-tbtn:disabled, .cv-tbtn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; }
+  @keyframes cv-spin { to { transform: rotate(360deg); } }
+  @keyframes cv-pop { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+  :where(.cv-field) { display: grid; gap: 6px; }
+  :where(.cv-label) { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+  :where(.cv-input) { width: 100%; min-height: 50px; padding: 0 18px; font: inherit; font-size: 15px; color: var(--text); background: var(--cv-soft);
+    border: 1px solid transparent; border-radius: var(--cv-field-radius, 14px); outline: none; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
+  :where(.cv-input::placeholder) { color: color-mix(in srgb, var(--text) 45%, transparent); }
+  :where(.cv-input:hover) { background: color-mix(in srgb, var(--text) 7%, var(--bg)); }
+  :where(.cv-input:focus) { background: var(--bg); border-color: var(--text); box-shadow: none; }
+  :where(textarea.cv-input) { min-height: 132px; padding: 14px 18px; resize: vertical; }
+  :where(select.cv-input) { appearance: none; padding-inline-end: 44px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 18px center; }
+  /* Focus. Fields (text, email, phone, code, search, quantity, select, textarea) show it with their own border only, for mouse, touch and
+     keyboard alike. Everything else (buttons, links, swatches, cards, checks, tabs, dots, chips) gets one thin ring, for keyboard focus only.
+     A field drawn by its wrapper (newsletter pill, search bar, quantity stepper) puts .cv-shell on the wrapper, which takes the border.
+     Sections only move the ring (offset, colour) or draw it on a proxy with var(--cv-ring); they never add their own. */
+  :where(.cv) { --cv-ring: 2px solid var(--text); --cv-ring-offset: 2px; }
+  :where(.cv :focus-visible) { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }
+  :where(.cv [tabindex="-1"]:focus-visible) { outline: none; }
+  /* After a click or tap no ring shows, even where a script moved focus (a drawer focusing its close button). */
+  html.cv-pointer :where(.cv :focus-visible) { outline: none; }
+  :where(.cv) :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="submit"], [type="button"], [type="reset"], [type="image"], [type="color"]), select, textarea):focus { outline: none; }
+  .cv-shell:is(:focus, :has(input:focus, select:focus, textarea:focus)) { box-shadow: 0 0 0 1px var(--text); }
+  :where(.cv-check) { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+  :where(.cv-check input) { width: 18px; height: 18px; accent-color: var(--text); border-radius: 6px; }
+
+  :where(.cv-media) { position: relative; overflow: hidden; background: var(--surface); border-radius: var(--cv-radius, 16px); isolation: isolate; }
+  :where(.cv-media > img, .cv-media > svg, .cv-media > video, .cv-media > picture) { width: 100%; height: 100%; object-fit: cover; }
+  /* A real product (or post) without an image: a quiet tinted tile with its name, never a placeholder drawing. */
+  .cv-noimg { position: absolute; inset: 0; display: grid; place-items: center; padding: 12%; overflow: hidden; font-size: 13px; line-height: 1.35; text-align: center; color: var(--text-muted, currentColor);
+    background: color-mix(in srgb, var(--text) 6%, var(--bg)); overflow-wrap: anywhere; }
+  .cv-noimg--lg { font-family: var(--tf-font-heading_font, inherit); font-size: clamp(18px, 2vw, 26px); }
+  :where(.cv-price) { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
+  :where(.cv-price__sale) { color: var(--accent); }
+  :where(.cv-price__was) { color: var(--text-muted); text-decoration: line-through; font-size: 0.9em; }
+  :where(.cv-badge) { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+    border-radius: 999px; background: color-mix(in srgb, var(--bg) 92%, transparent); color: var(--text); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  :where(.cv-badge--sale) { background: var(--accent); color: var(--bg); }
+  :where(.cv-badge--sold) { background: color-mix(in srgb, var(--text) 82%, transparent); color: var(--bg); }
+  :where(.cv-notice) { padding: 14px 18px; font-size: 14px; background: var(--cv-soft); border-radius: 14px; }
+  :where(.cv-notice--ok) { background: color-mix(in srgb, var(--status-ok) 10%, var(--bg)); color: color-mix(in srgb, var(--status-ok) 80%, var(--text)); }
+  /* A notice marked cv-toast floats at the bottom of the window instead of pushing the page down. */
+  .cv-toast { position: fixed; z-index: 400; inset-inline: 16px; bottom: max(24px, env(safe-area-inset-bottom)); width: auto; max-width: 440px; margin: 0 auto;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 18px 44px -16px rgb(0 0 0 / 0.35); }
+  .cv-toast[hidden] { display: none; }
+  /* A confirmation toast wears the button colours of its scheme (Theme settings > Notifications); errors keep their warning colours. */
+  .cv-toast.cv-notice--ok { background: var(--btn); color: var(--btn-text); }
+  .cv-toast--top_center { top: max(20px, env(safe-area-inset-top)); bottom: auto; }
+  .cv-toast--bottom_end { inset-inline: auto 20px; margin: 0; }
+  /* The in-theme confirm dialog for destructive actions (data-cv-confirm). */
+  .cv-confirm { position: fixed; inset: 0; margin: auto; height: fit-content; max-height: calc(100dvh - 32px); border: 0; padding: 24px; width: min(420px, calc(100vw - 32px)); border-radius: var(--cv-field-radius, 14px); background: var(--bg); color: var(--text);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 24px 64px -20px rgb(0 0 0 / 0.4); }
+  .cv-confirm::backdrop { background: rgb(0 0 0 / 0.4); }
+  .cv-confirm__msg { margin: 0 0 20px; font-size: 1rem; line-height: 1.5; }
+  .cv-confirm__acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+  @media (prefers-reduced-motion: no-preference) { .cv-toast:not([hidden]) { animation: cv-toast-in 0.2s ease-out; } @keyframes cv-toast-in { from { opacity: 0; transform: translateY(8px); } } }
+  :where(.cv-notice--error) { background: color-mix(in srgb, var(--accent) 9%, var(--bg)); color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  :where(.cv-sr) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  :where(.cv-icon) { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  :where([dir="rtl"] .cv-icon--dir) { transform: scaleX(-1); }
+  :where(.cv-pk-ico) { width: 1.15em; height: 1.15em; vertical-align: -0.2em; stroke-width: 1.6; }
+  :where(.cv-grid) { display: grid; gap: var(--cv-grid-gap, clamp(28px, 3vw, 40px)) var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); grid-template-columns: repeat(var(--cv-cols-m, 2), minmax(0, 1fr)); }
+  @media (min-width: 750px) { :where(.cv-grid) { grid-template-columns: repeat(var(--cv-cols, 4), minmax(0, 1fr)); } }
+  :where(.cv-head) { display: flex; flex-wrap: wrap; align-items: last baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: clamp(24px, 3.4vw, 48px); }
+  :where(.cv-head--center) { flex-direction: column; align-items: center; text-align: center; }
+  /* Tile cards are panels: rows sit as close as columns, so the gutters read as one even grid. */
+  :where(.cv-grid:has(> .cv-card--tile)) { row-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); }
+  :where(.cv-head p) { margin: 10px 0 0; max-width: 56ch; }
+  :where(.cv-stars) { --cv-star: var(--text); display: inline-block; width: 72px; height: 13px;
+    background: linear-gradient(90deg, var(--cv-star) var(--cv-rating, 0%), color-mix(in srgb, var(--text) 16%, transparent) var(--cv-rating, 0%));
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x; }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      :where(.cv-reveal) { animation: cv-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+      @keyframes cv-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { :where(.cv, .cv *), :where(.cv, .cv *)::before, :where(.cv, .cv *)::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+  /* Section spacing (each section's "Space above and below"). */
+  .cv-section.cv-pad--compact { padding-block: calc(var(--cv-gap-y, 96px) * 0.4); }
+  .cv-section.cv-pad--relaxed { padding-block: calc(var(--cv-gap-y, 96px) * 0.9); }
+  .cv-section.cv-pad--none { padding-block: 0; }
+  .cv-section.cv-pad--top-none { padding-top: 0; }
+
+  /* Phones: link, small and text buttons get a 44px tap target; type and icon sizes stay the same. */
+  @media (max-width: 749px) {
+    :where(.cv-btn--link) { min-height: 44px; padding-block: 12px; }
+    :where(.cv-btn--sm) { min-height: 44px; padding-block: 12px; }
+    /* The padding gives a 44px target; the equal negative margin keeps the line where it was, also inside a sentence. */
+    :where(.cv-tbtn) { padding-block: 12px; margin-block: -12px; }
+  }
+  /* Wishlist limit: when the wishlist is full, hearts that would add are dimmed and explain at the button (on a card, across the foot of its image). */
+  :where([data-cv-wish].is-full) { opacity: 0.5; cursor: not-allowed; }
+  :where(.cv-wishmsg) { position: absolute; z-index: 6; inset-block-start: calc(100% + 8px); inset-inline-start: 0; width: max-content; max-width: min(280px, 80vw); margin: 0; padding: 9px 12px;
+    font-size: 13px; line-height: 1.4; text-align: start; color: var(--bg); background: var(--text); border-radius: 10px; box-shadow: 0 10px 28px -10px rgb(0 0 0 / 0.35); }
+  :where(.cv-wishmsg[hidden]) { display: none; }
+  :where(.cv-card__media > .cv-wishmsg) { inset: auto 8px 8px; width: auto; max-width: none; }
+  @media (prefers-reduced-motion: no-preference) { :where(.cv-wishmsg) { animation: cv-wishmsg-in 0.2s var(--cv-ease, ease-out); } @keyframes cv-wishmsg-in { from { opacity: 0; transform: translateY(4px); } } }
+
+/* Editor-only note on a section that shoppers can't see yet. */
+.cv-editor-hint { margin: 0 auto 16px; max-width: 640px; padding: 10px 14px; font-size: 13px; line-height: 1.45; text-align: center; color: var(--text-muted); border: 1px dashed var(--cv-line); border-radius: 12px; }
+
+/* Theme blocks (blocks/*.vasc): the content blocks sections, slides and tiles hold. Section's style ("auto") is the look the
+   section gives that part (a slide's headline, a tile's heading); sections style .cv-blk-*--auto where they hold blocks. */
+  :where(.cv-blk-eyebrow, .cv-blk-heading, .cv-blk-text) { margin: 0; }
+  :where(.cv-blk-heading) { max-width: 100%; overflow-wrap: break-word; }
+  :where(.cv-blk-text--small) { font-size: 14px; }
+  :where(.cv-blk-text--medium) { font-size: 17px; }
+  :where(.cv-blk-text--large) { font-size: calc(clamp(18px, 1.6vw, 22px)); }
+  :where(.cv-blk-buttons) { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  :where(.cv-blk-image) { width: var(--cv-blk-w, 100%); max-width: 100%; }
+  :where(.cv-blk-image img) { display: block; width: 100%; height: auto; }
+  :where(.cv-blk-image--square img) { aspect-ratio: 1 / 1; object-fit: cover; }
+  :where(.cv-blk-image--portrait img) { aspect-ratio: 4 / 5; object-fit: cover; }
+  :where(.cv-blk-image--landscape img) { aspect-ratio: 4 / 3; object-fit: cover; }
+  :where(.cv-blk-image__ph) { display: block; aspect-ratio: 4 / 3; background: var(--cv-soft); border-radius: var(--cv-radius, 16px); overflow: hidden; }
+  :where(.cv-blk-image__ph svg) { width: 100%; height: 100%; }
+  :where(.cv-blk-spacer) { height: var(--cv-blk-h, 32px); width: 100%; }
+  :where(.cv-blk-spacer--line) { display: flex; align-items: center; }
+  :where(.cv-blk-spacer--line)::before { content: ""; flex: 1; border-top: 1px solid var(--cv-line); }
+  .cv-blk-hint { margin: 0; }
+  :where(.cv-blk-heading__link) { color: inherit; text-decoration: none; }
+  :where(.cv-blk-heading__link:hover) { text-decoration: underline; text-underline-offset: 0.12em; text-decoration-thickness: 1px; }
+  /* An eyebrow that links (the product page's vendor): underlined on hover only. */
+  :where(.cv-eyebrow__link) { color: inherit; text-decoration: none; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  :where(.cv-eyebrow__link:hover) { text-decoration: underline; }
+/* A tile's own link (promo and split tiles, mega menu promotions): the pointer target over the whole tile. Its heading and button blocks carry the
+   same link for keyboards and screen readers; they sit above it, and the rest of the content lets clicks through to it. */
+  :where(.cv-tile-link) { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  :where(.cv-tile-over) { position: relative; z-index: 2; }
+  :where(.cv-tile-link ~ .cv-tile-over) { pointer-events: none; }
+  :where(.cv-tile-link ~ .cv-tile-over :is(a, button, input, select, textarea, video, [tabindex])) { pointer-events: auto; }
+  /* The platform metafield block (theme:metafield): the storefront writes its markup (tf-metafield); Canvas styles it. */
+  :where(.tf-metafield) { display: grid; gap: 4px; }
+  :where(.tf-metafield__label) { font-size: 13px; color: var(--text-muted); }
+  :where(.tf-metafield__value) { font-size: 15px; overflow-wrap: anywhere; }
+  :where(.tf-metafield__list) { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+  :where(.tf-metafield--list-product-reference, .tf-metafield--list-variant-reference) :where(.tf-metafield__reference) { display: inline-flex; padding: 6px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__image, .tf-metafield__video) { max-width: 100%; height: auto; border-radius: 12px; }
+  :where(.tf-metafield__file) { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 8px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__json) { margin: 0; font: inherit; white-space: pre-wrap; }
+  :where(.tf-metafield-notice) { font-size: 14px; }
+  :where(.cv-pl__block) { margin-block: 12px; }
+
+.cv-reels__head { align-items: end; }
+  .cv-reels { --cv-reel-w: clamp(180px, 22vw, 260px); }
+  .cv-reels--small { --cv-reel-w: clamp(150px, 17vw, 200px); }
+  .cv-reels--large { --cv-reel-w: clamp(220px, 28vw, 340px); }
+  .cv-reels__track { display: flex; gap: clamp(10px, 1.2vw, 18px); margin: 0; padding: 4px max(var(--cv-pad-x), calc((100vw - var(--cv-width, 1440px)) / 2 + var(--cv-pad-x))) 8px; overflow-x: auto;
+    scroll-snap-type: x mandatory; scroll-padding-inline: var(--cv-pad-x); scrollbar-width: none; list-style: none; }
+  .cv-reels__track::-webkit-scrollbar { display: none; }
+  .cv-reels--grid .cv-reels__track { display: grid; grid-template-columns: repeat(auto-fit, minmax(var(--cv-reel-w), 1fr)); max-width: var(--cv-width, 1440px); margin-inline: auto; padding-inline: var(--cv-pad-x); overflow: visible; }
+  .cv-reels--grid .cv-reel { max-width: 340px; }
+  .cv-reel { position: relative; flex: 0 0 var(--cv-reel-w); scroll-snap-align: start; }
+  /* Phones: every layout becomes one swipeable row of story-sized cards (a card and a half in view), wide enough for the product chip to name its product. */
+  @media (max-width: 749px) {
+    .cv-reels { --cv-reel-w: 62vw; }
+    .cv-reels--small { --cv-reel-w: 52vw; }
+    .cv-reels--grid .cv-reels__track { display: flex; overflow-x: auto; max-width: none; }
+    .cv-reels--grid .cv-reel { max-width: none; }
+  }
+  .cv-reel__open { position: relative; display: block; width: 100%; aspect-ratio: 9 / 16; padding: 0; overflow: hidden; color: var(--media-ink-light); text-align: start; cursor: pointer; background: var(--surface);
+    border: 0; border-radius: calc(var(--cv-radius, 16px) * 1.25); isolation: isolate; }
+  .cv-reel__media, .cv-reel__poster, .cv-reel__video, .cv-reel__shade { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .cv-reel__poster, .cv-reel__video { object-fit: cover; transition: transform 0.8s var(--cv-ease); }
+  .cv-reel__open:hover .cv-reel__video, .cv-reel__open:hover .cv-reel__poster { transform: scale(1.04); }
+  .cv-reel__shade { background: linear-gradient(to top, rgb(0 0 0 / 0.66), rgb(0 0 0 / 0) 46%), linear-gradient(to bottom, rgb(0 0 0 / 0.22), rgb(0 0 0 / 0) 22%); }
+  .cv-reel__play { position: absolute; top: 12px; inset-inline-end: 12px; width: 30px; height: 30px; padding: 8px; fill: var(--media-ink-light); background: rgb(255 255 255 / 0.18); border-radius: 50%;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .cv-reel__meta { position: absolute; inset-inline: 14px; bottom: 14px; display: grid; gap: 3px; }
+  .cv-reel:has(.cv-reel__chip) .cv-reel__meta { bottom: 72px; }
+  .cv-reel__handle { font-size: 12px; font-weight: 600; letter-spacing: 0.01em; opacity: 0.9; }
+  .cv-reel__caption { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 14px; font-weight: 500; line-height: 1.3; }
+  .cv-reel__chip { position: absolute; inset-inline: 8px; bottom: 8px; z-index: 2; display: flex; align-items: center; gap: 10px; padding: 6px 10px 6px 6px; color: var(--media-ink-dark); text-decoration: none;
+    background: rgb(255 255 255 / 0.92); border-radius: calc(var(--cv-radius, 16px) * 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: transform 0.3s var(--cv-ease); }
+  .cv-reel__chip:hover { transform: translateY(-2px); }
+  .cv-reel__chipimg { flex: none; width: 44px; height: 44px; overflow: hidden; border-radius: calc(var(--cv-radius, 16px) * 0.5); background: var(--media-placeholder); }
+  .cv-reel__chipimg img { width: 100%; height: 100%; object-fit: cover; }
+  .cv-reel__chiptext { display: grid; min-width: 0; flex: 1; }
+  .cv-reel__chipname { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; font-weight: 500; }
+  .cv-reel__chipprice { font-size: 12px; color: var(--media-ink-muted); font-variant-numeric: tabular-nums; }
+  .cv-reel__chipmore { flex: none; padding: 3px 7px; font-size: 11px; font-weight: 600; color: var(--media-ink-light); background: var(--media-ink-dark); border-radius: 999px; }
+
+  /* Story viewer */
+  :root.cv-story-lock { overflow: hidden; }
+  .cv-story { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; color: var(--media-ink-light); opacity: 0; transition: opacity 0.25s var(--cv-ease); }
+  .cv-story.is-open { opacity: 1; }
+  .cv-story__backdrop { position: absolute; inset: 0; background: rgb(0 0 0 / 0.86); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .cv-story__stage { position: relative; display: grid; width: 100%; height: 100%; place-items: center; }
+  .cv-story__slide { position: relative; display: grid; grid-template-columns: auto 340px; align-items: center; gap: 28px; }
+  .cv-story__slide:not(:has(.cv-story__products)) { grid-template-columns: auto; }
+  .cv-story__slide[hidden] { display: none; }
+  .cv-story__film { position: relative; height: min(88svh, 860px); aspect-ratio: 9 / 16; overflow: hidden; background: var(--media-backdrop); border-radius: calc(var(--cv-radius, 16px) * 1.3); cursor: pointer;
+    animation: cv-story-in 0.4s var(--cv-ease); }
+  @keyframes cv-story-in { from { transform: scale(0.96); opacity: 0.6; } }
+  .cv-story__film video { width: 100%; height: 100%; object-fit: cover; }
+  .cv-story__cap { position: absolute; inset-inline: 0; bottom: 0; padding: 60px 20px 20px; background: linear-gradient(to top, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0)); pointer-events: none; }
+  .cv-story__cap p { margin: 0; }
+  .cv-story__handle { font-size: 13px; font-weight: 600; opacity: 0.9; }
+  .cv-story__caption { margin-top: 4px !important; font-size: 15px; line-height: 1.4; }
+  .cv-story__playbtn { position: absolute; top: 50%; left: 50%; width: 72px; height: 72px; margin: -36px 0 0 -36px; padding: 22px; background: rgb(255 255 255 / 0.2); border: 0; border-radius: 50%; cursor: pointer;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .cv-story__playbtn svg { width: 100%; height: 100%; fill: var(--media-ink-light); }
+  .cv-story__playbtn[hidden] { display: none; }
+  .cv-story__bars { position: absolute; z-index: 3; top: 12px; inset-inline: 12px; display: flex; gap: 4px; pointer-events: none; }
+  .cv-story__bar { flex: 1; height: 3px; overflow: hidden; background: rgb(255 255 255 / 0.32); border-radius: 3px; }
+  .cv-story__bar > span { display: block; height: 100%; background: var(--media-ink-light); transform: scaleX(0); transform-origin: left; }
+  [dir="rtl"] .cv-story__bar > span { transform-origin: right; }
+  .cv-story__tools { position: absolute; z-index: 3; top: 18px; inset-inline-end: 18px; display: flex; gap: 8px; }
+  .cv-story__tool, .cv-story__nav { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; color: var(--media-ink-light); background: rgb(255 255 255 / 0.14); border: 0; border-radius: 50%; cursor: pointer;
+    transition: background-color 0.2s; }
+  .cv-story__tool:hover, .cv-story__nav:hover { background: rgb(255 255 255 / 0.26); }
+  .cv-story__tool .cv-story__sound, .cv-story__tool[aria-pressed="true"] .cv-story__muted { display: none; }
+  .cv-story__tool[aria-pressed="true"] .cv-story__sound { display: block; }
+  .cv-story__nav { position: absolute; z-index: 3; top: 50%; width: 52px; height: 52px; margin-top: -26px; }
+  .cv-story__nav--prev { inset-inline-start: clamp(12px, 4vw, 56px); }
+  .cv-story__nav--next { inset-inline-end: clamp(12px, 4vw, 56px); }
+  .cv-story__nav:disabled { opacity: 0.25; cursor: default; }
+  .cv-story__products { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .cv-story__product { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 14px; padding: 10px; color: var(--media-ink-dark); background: var(--media-ink-light); border-radius: calc(var(--cv-radius, 16px) * 1.1);
+    animation: cv-story-in 0.5s 0.1s var(--cv-ease) both; }
+  .cv-story__product:nth-child(2) { animation-delay: 0.18s; }
+  .cv-story__product:nth-child(3) { animation-delay: 0.26s; }
+  .cv-story__pimg { display: block; aspect-ratio: 1; overflow: hidden; background: var(--media-placeholder); border-radius: calc(var(--cv-radius, 16px) * 0.7); }
+  .cv-story__pimg img { width: 100%; height: 100%; object-fit: cover; }
+  .cv-story__pinfo { display: grid; align-content: start; gap: 6px; min-width: 0; }
+  .cv-story__pname { font-size: 14px; font-weight: 500; line-height: 1.3; color: inherit; text-decoration: none; }
+  .cv-story__pprice { margin: 0; font-size: 14px; --text-muted: var(--media-ink-muted); }
+  .cv-story__form { margin: 4px 0 0; }
+  .cv-story__add.cv-btn { --btn: var(--media-ink-dark); --btn-text: var(--media-ink-light); width: 100%; gap: 6px; }
+  .cv-story__vprice:not(:empty)::before { content: "·"; margin-inline-end: 6px; opacity: 0.6; }
+  .cv-story__pick { display: grid; gap: 6px; }
+  .cv-story__opt { display: flex; flex-wrap: wrap; gap: 5px; }
+  .cv-story__val { min-width: 32px; min-height: 30px; padding: 0 9px; font: inherit; font-size: 12px; color: var(--media-ink-dark); background: var(--media-placeholder); border: 0; border-radius: 999px; cursor: pointer; }
+  .cv-story__val[aria-pressed="true"] { color: var(--media-ink-light); background: var(--media-ink-dark); }
+  .cv-story__val.is-off { color: var(--media-ink-off); text-decoration: line-through; }
+  .cv-story__val--sw { width: 26px; min-width: 0; height: 26px; min-height: 0; padding: 0; background: var(--cv-sw); box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12); }
+  .cv-story__val--sw[aria-pressed="true"] { background: var(--cv-sw); box-shadow: 0 0 0 2px var(--media-ink-light), 0 0 0 3.5px var(--media-ink-dark); }
+  .cv-story__sold { margin: 0; font-size: 13px; color: var(--media-ink-muted); }
+  .cv-story__tool .cv-story__pauseico, .cv-story__tool.is-playing .cv-story__playico { display: none; }
+  .cv-story__tool.is-playing .cv-story__pauseico { display: block; }
+  .cv-story__playico { fill: currentColor; stroke: none; }
+  .cv-story__added { position: absolute; z-index: 4; bottom: 24px; left: 50%; display: flex; gap: 12px; align-items: center; padding: 10px 16px; font-size: 14px; color: var(--media-ink-dark); white-space: nowrap;
+    background: var(--media-ink-light); border-radius: 999px; box-shadow: 0 10px 30px rgb(0 0 0 / 0.25); opacity: 0; pointer-events: none; transform: translate(-50%, 8px); transition: opacity 0.25s var(--cv-ease), transform 0.25s var(--cv-ease); }
+  .cv-story__added.is-on { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+  .cv-story__added:empty { padding: 0; }
+  .cv-story__added { --cv-tbtn: color-mix(in srgb, var(--media-ink-dark) 62%, transparent); --cv-tbtn-hover: var(--media-ink-dark); }
+  .cv-story__added .cv-tbtn { font-weight: 600; }
+  @media (max-width: 989px) {
+    .cv-story__slide { grid-template-columns: 1fr; width: 100%; height: 100%; gap: 0; }
+    .cv-story__film { position: absolute; inset: 0; height: 100%; width: 100%; aspect-ratio: auto; border-radius: 0; }
+    .cv-story__bars { top: max(10px, env(safe-area-inset-top)); }
+    .cv-story__tools { top: max(24px, calc(env(safe-area-inset-top) + 14px)); inset-inline-end: 12px; }
+    .cv-story__nav { display: none; }
+    .cv-story__added { top: max(76px, calc(env(safe-area-inset-top) + 66px)); bottom: auto; }
+    .cv-story__cap { bottom: auto; top: 0; padding: 72px 64px 40px 18px; background: linear-gradient(to bottom, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0)); }
+    .cv-story__products { position: absolute; inset-inline: 0; bottom: 0; z-index: 2; display: flex; gap: 10px; padding: 16px 14px calc(16px + env(safe-area-inset-bottom)); overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 14px;
+      background: linear-gradient(to top, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0)); scrollbar-width: none; }
+    .cv-story__product { flex: 0 0 min(86%, 340px); grid-template-columns: 64px minmax(0, 1fr); scroll-snap-align: start; background: rgb(255 255 255 / 0.95); }
+  }
+
+  .cv-story :is(button, a):focus-visible { outline-color: currentColor; }
+  @media (max-width: 749px) {
+    .cv-story__pname { min-height: 44px; padding-block: 12px; }
+    .cv-story__val { min-width: 44px; min-height: 44px; padding: 6px 9px; }
+  }
+  /* Editor only: the platform placeholder fills a card that has no video yet, under the sample clip. */
+  .cv-reel__ph { position: absolute; inset: 0; display: block; }
+  .cv-reel__ph img { width: 100%; height: 100%; display: block; object-fit: cover; }
+</style>
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%}
+  Shoppable reels: vertical videos the merchant uploads (an Instagram reel, a TikTok), each tagged with up to three products.
+  The row plays muted only while on screen (never with reduced motion or Save-Data: the poster shows). A tap opens the story viewer:
+  progress bars, swipe or arrows between videos, sound, and the tagged products with their options and Add to cart, without leaving the page.
+  Videos load only when their card or story is shown. On the live store a reel without a video is skipped, and the section hides with none; the editor shows the platform's sample videos over its placeholder picture.
+{%- endcomment -%}
+{%- assign cv_live = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled != true and b.settings.video != blank -%}{%- assign cv_live = cv_live | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- comment -%} Sample videos are for the editor only: on the live store (and the Theme Store preview of a bare store) a card or section without the merchant's video is left out. {%- endcomment -%}
+{%- assign cv_demo = false -%}{%- if design_mode -%}{%- assign cv_demo = true -%}{%- endif -%}
+{%- assign cv_blocks = 0 -%}{%- for b in settings.blocks -%}{%- unless b.disabled -%}{%- assign cv_blocks = cv_blocks | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+{%- if cv_live > 0 or cv_demo and cv_blocks > 0 or design_mode -%}
+<section class="cv cv-section cv-reels cv-reels--{{ settings.layout | default: 'row' }} cv-reels--{{ settings.card_size | default: 'medium' }} tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}" data-cv-reels>
+  <div class="cv-wrap">
+    {%- if settings.eyebrow != blank or settings.heading != blank or settings.text != blank or settings.profile_label != blank -%}
+    <div class="cv-head cv-reels__head">
+      <div>
+        {%- if settings.eyebrow != blank -%}<p dir="auto" class="cv-eyebrow" data-tf-field="eyebrow">{{ settings.eyebrow }}</p>{%- endif -%}
+        {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+        {%- if settings.text != blank -%}<p dir="auto" class="cv-muted" data-tf-field="text">{{ settings.text }}</p>{%- endif -%}
+      </div>
+      {%- if settings.profile_label != blank and settings.profile_link != blank -%}<a dir="auto" class="cv-btn cv-btn--link" href="{{ settings.profile_link }}" target="_blank" rel="noopener" data-tf-field="profile_label">{{ settings.profile_label }}</a>{%- endif -%}
+    </div>
+    {%- endif -%}
+  </div>
+  <div class="cv-reels__track" role="list">
+    {%- assign cv_i = 0 -%}
+    {%- for b in settings.blocks -%}
+      {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+      {%- if b.settings.video == blank and cv_demo != true -%}{%- continue -%}{%- endif -%}
+      {%- assign cv_first = b.settings.products | first -%}
+      {{ b._editor_block_open }}
+      <div class="cv-reel" role="listitem">
+        <button class="cv-reel__open" type="button" data-cv-reel-open="{{ cv_i }}" aria-haspopup="dialog">
+          <span class="cv-reel__media">
+            {%- if b.settings.poster -%}<img class="cv-reel__poster" src="{{ b.settings.poster | image_url: width: 540 }}" alt="" loading="lazy">{%- endif -%}
+            {%- if b.settings.video != blank -%}
+              <video class="cv-reel__video" data-cv-reel-video data-src="{{ b.settings.video }}" muted loop playsinline preload="none" aria-hidden="true"{% if b.settings.poster %} poster="{{ b.settings.poster | image_url: width: 540 }}"{% endif %}></video>
+            {%- else -%}
+              {%- assign cv_ph = cv_i | modulo: 4 | plus: 1 -%}{%- capture cv_phn -%}reel-{{ cv_ph }}{%- endcapture -%}
+              {%- unless b.settings.poster -%}{%- assign cv_photo = 'auto' -%}{%- assign cv_photo_i = cv_i | plus: 1 -%}{%- assign cv_photo_wide = false -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+              <span class="cv-reel__ph"><img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}"></span>{%- endunless -%}
+              <video class="cv-reel__video" data-cv-reel-video data-src="{{ cv_phn | placeholder_video }}" muted loop playsinline preload="none" aria-hidden="true"></video>
+            {%- endif -%}
+          </span>
+          <span class="cv-reel__shade" aria-hidden="true"></span>
+          <svg class="cv-reel__play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <span class="cv-reel__meta">
+            {%- if b.settings.handle != blank -%}<span dir="auto" class="cv-reel__handle">{{ b.settings.handle }}</span>{%- endif -%}
+            {%- if b.settings.caption != blank -%}<span dir="auto" class="cv-reel__caption">{{ b.settings.caption }}</span>{%- endif -%}
+            <span class="cv-sr">{{ 'reels.open' | t }}</span>
+          </span>
+        </button>
+        {%- if cv_first -%}
+          {%- assign cv_pimg = cv_first.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+          <a class="cv-reel__chip" href="{{ cv_first.url }}">
+            <span class="cv-reel__chipimg">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 120 }}" alt="" loading="lazy">{%- endif -%}</span>
+            <span class="cv-reel__chiptext"><span class="cv-reel__chipname">{{ cv_first.title }}</span><span class="cv-reel__chipprice">{{ cv_first.price.current | money: isolate: true, trim_zeros: cv_tz }}</span></span>
+            {%- assign cv_more = b.settings.products.size | minus: 1 -%}{%- if cv_more > 0 -%}<span class="cv-reel__chipmore">+{{ cv_more }}</span>{%- endif -%}
+          </a>
+        {%- endif -%}
+      </div>
+      {{ b._editor_block_close }}
+      {%- assign cv_i = cv_i | plus: 1 -%}
+    {%- endfor -%}
+  </div>
+
+  <div class="cv-story" role="dialog" aria-modal="true" aria-label="{% if settings.heading != blank %}{{ settings.heading }}{% else %}{{ 'reels.viewer' | t }}{% endif %}" data-cv-story hidden>
+    <div class="cv-story__backdrop" data-cv-story-close></div>
+    <div class="cv-story__stage">
+      <div class="cv-story__bars" aria-hidden="true">
+        {%- for i in (1..cv_i) -%}<span class="cv-story__bar"><span></span></span>{%- endfor -%}
+      </div>
+      <div class="cv-story__tools">
+        <button class="cv-story__tool" type="button" data-cv-story-pause data-label-play="{{ 'reels.play' | t }}" data-label-pause="{{ 'reels.pause' | t }}">
+          <svg class="cv-icon cv-story__pauseico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>
+          <svg class="cv-icon cv-story__playico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <span class="cv-sr" data-cv-story-pause-label>{{ 'reels.play' | t }}</span>
+        </button>
+        <button class="cv-story__tool" type="button" data-cv-story-sound aria-pressed="false">
+          <svg class="cv-icon cv-story__muted" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4zM22 9l-6 6M16 9l6 6"/></svg>
+          <svg class="cv-icon cv-story__sound" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+          <span class="cv-sr">{{ 'reels.sound' | t }}</span>
+        </button>
+        <button class="cv-story__tool" type="button" data-cv-story-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+      </div>
+      <button class="cv-story__nav cv-story__nav--prev" type="button" data-cv-story-step="-1"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg><span class="cv-sr">{{ 'general.previous' | t }}</span></button>
+      <button class="cv-story__nav cv-story__nav--next" type="button" data-cv-story-step="1"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span class="cv-sr">{{ 'general.next' | t }}</span></button>
+      <div class="cv-story__added" data-cv-story-added role="status" aria-live="polite" data-label="{{ 'cart.added' | t }}" data-view="{{ 'cart.view_cart' | t }}" data-cart="{{ routes.cart_url }}"></div>
+      {%- assign cv_j = 0 -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+        {%- if b.settings.video == blank and cv_demo != true -%}{%- continue -%}{%- endif -%}
+        {%- assign cv_j1 = cv_j | plus: 1 -%}
+        <article class="cv-story__slide" data-cv-story-slide="{{ cv_j }}" aria-roledescription="{{ 'slideshow.slide' | t }}" aria-label="{{ cv_j1 }} / {{ cv_i }}" hidden>
+          <div class="cv-story__film">
+            {%- if b.settings.video != blank -%}
+              <video data-cv-story-video data-src="{{ b.settings.video }}" playsinline preload="none"{% if b.settings.poster %} poster="{{ b.settings.poster | image_url: width: 1080 }}"{% endif %}></video>
+            {%- else -%}
+              {%- assign cv_ph = cv_j | modulo: 4 | plus: 1 -%}{%- capture cv_phn -%}reel-{{ cv_ph }}{%- endcapture -%}
+              <video data-cv-story-video data-src="{{ cv_phn | placeholder_video }}" playsinline preload="none"></video>
+            {%- endif -%}
+            <button class="cv-story__playbtn" type="button" data-cv-story-play hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><span class="cv-sr">{{ 'reels.play' | t }}</span></button>
+            <div class="cv-story__cap">
+              {%- if b.settings.handle != blank -%}<p dir="auto" class="cv-story__handle">{{ b.settings.handle }}</p>{%- endif -%}
+              {%- if b.settings.caption != blank -%}<p dir="auto" class="cv-story__caption">{{ b.settings.caption }}</p>{%- endif -%}
+            </div>
+          </div>
+          {%- if b.settings.products.size > 0 -%}
+          <ul class="cv-story__products" role="list" aria-label="{{ 'reels.in_this_video' | t }}">
+            {%- for cv_p in b.settings.products limit: 3 -%}
+              {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+              <li class="cv-story__product">
+                <a class="cv-story__pimg" href="{{ cv_p.url }}">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 240 }}" alt="" loading="lazy">{%- endif -%}</a>
+                <div class="cv-story__pinfo">
+                  <a class="cv-story__pname" href="{{ cv_p.url }}">{{ cv_p.title }}</a>
+                  <p class="cv-story__pprice cv-price">
+                    {%- if cv_p.price.on_sale -%}<span class="cv-price__sale">{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span> <s class="cv-price__was">{{ cv_p.price.regular | money: isolate: true, trim_zeros: cv_tz }}</s>
+                    {%- else -%}{%- if cv_p.price_range.has_range -%}<span class="cv-muted">{{ 'products.from' | t }}</span> {% endif -%}{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}{%- endif -%}
+                  </p>
+                  {%- if cv_p.available_for_sale -%}
+                    {%- if cv_p.options.size == 0 or cv_p.variant_matrix.size == 1 -%}
+                      {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+                      {% form 'cart_add', class: 'cv-story__form' %}
+                        <input type="hidden" name="product_id" value="{{ cv_p.id }}">{%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}<input type="hidden" name="quantity" value="1">
+                        <button class="cv-btn cv-btn--sm cv-story__add" type="submit">{{ 'products.add_to_cart' | t }}</button>
+                      {% endform %}
+                    {%- else -%}
+                      <div class="cv-story__pick" data-cv-vpick data-matrix="{{ cv_p.variant_matrix | json | escape }}" data-unavailable="{%- if shopping.mode == 'pickup' -%}{{ 'pickup.not_at_store' | t }}{%- else -%}{{ 'products.sold_out' | t }}{%- endif -%}">
+                        {%- for cv_r in cv_p.variant_matrix -%}{%- if cv_r.price -%}<span hidden data-cv-vpick-px="{{ cv_r.id }}">{{ cv_r.price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}{%- endfor -%}
+                        {%- for cv_opt in cv_p.options -%}
+                          <div class="cv-story__opt" data-cv-vpick-attr="{{ cv_opt.attribute_slug }}" role="group" aria-label="{{ cv_opt.attribute_name }}">
+                            {%- for cv_v in cv_opt.values -%}<button type="button" class="cv-story__val{% if cv_v.color != blank %} cv-story__val--sw{% endif %}" data-cv-vpick-val="{{ cv_v.value }}" aria-pressed="{% if cv_opt.values.size == 1 %}true{% else %}false{% endif %}"{% if cv_v.color != blank %} style="--cv-sw: {{ cv_v.color }}" title="{{ cv_v.label }}"{% endif %}>{% if cv_v.color != blank %}<span class="cv-sr">{{ cv_v.label }}</span>{% else %}{{ cv_v.label }}{% endif %}</button>{%- endfor -%}
+                          </div>
+                        {%- endfor -%}
+                        {% form 'cart_add', class: 'cv-story__form' %}
+                          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+                          <input type="hidden" name="variant_id" value="" data-cv-vpick-variant>
+                          <input type="hidden" name="quantity" value="1">
+                          <button class="cv-btn cv-btn--sm cv-story__add" type="submit" disabled data-cv-vpick-submit>{{ 'products.add_to_cart' | t }}<span class="cv-story__vprice" data-cv-vpick-price></span></button>
+                        {% endform %}
+                      </div>
+                    {%- endif -%}
+                  {%- else -%}
+                    <p class="cv-story__sold">{%- if cv_p.availability_reason != blank -%}{{ cv_p.availability_reason_label }}{%- else -%}{{ 'products.sold_out' | t }}{%- endif -%}</p>
+                  {%- endif -%}
+                </div>
+              </li>
+            {%- endfor -%}
+          </ul>
+          {%- endif -%}
+        </article>
+        {%- assign cv_j = cv_j | plus: 1 -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+{%- endif -%}
+<script>
+(function () {
+  // Later runs (another instance, or the editor re-running scripts after a re-render) only wire what is new.
+  if (window.__cvReels) { window.__cvReels(); return; }
+  var conn = navigator.connection || {};
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  function calm() { return reduced.matches || conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ""); }
+  function load(v) { if (!v.getAttribute("src") && v.getAttribute("data-src")) v.src = v.getAttribute("data-src"); }
+  // Feed: each card plays muted only while it is on screen.
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      var v = e.target;
+      if (e.isIntersecting && !calm()) { load(v); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+      else v.pause();
+    });
+  }, { threshold: 0.5 }) : null;
+  var watched = [];
+  function sweep() { watched = watched.filter(function (v) { if (v.isConnected) return true; if (io) io.unobserve(v); return false; }); }
+  function wire(root) {
+    (root || document).querySelectorAll("[data-cv-reel-video]").forEach(function (v) { if (!v.__cv && io) { v.__cv = true; io.observe(v); watched.push(v); } });
+  }
+  window.__cvReels = function () { sweep(); wire(document); document.querySelectorAll("[data-cv-vpick]").forEach(pickState); };
+  wire();
+  document.addEventListener("tf:section:load", function (e) { wire(e.target); });
+
+  // Story viewer
+  var cur = null; // { dlg, i, lastFocus, muted }
+  function slides(d) { return d.querySelectorAll("[data-cv-story-slide]"); }
+  function bars(d) { return d.querySelectorAll(".cv-story__bar"); }
+  function curVideo() { var s = cur && slides(cur.dlg)[cur.i]; return s && s.querySelector("[data-cv-story-video]"); }
+  // The pause button in the toolbar and the big play button follow the video's real state.
+  function sync() {
+    if (!cur) return;
+    var v = curVideo(), playing = !!(v && v.getAttribute("src") && !v.paused);
+    var pb = cur.dlg.querySelector("[data-cv-story-pause]");
+    pb.classList.toggle("is-playing", playing);
+    pb.querySelector("[data-cv-story-pause-label]").textContent = pb.getAttribute(playing ? "data-label-pause" : "data-label-play");
+    var big = v && v.parentNode.querySelector("[data-cv-story-play]"); if (big) big.hidden = playing;
+  }
+  function play(v) { load(v); var p = v.play(); if (p && p.catch) p.catch(sync); }
+  function show(i) {
+    var d = cur.dlg, ss = slides(d), bs = bars(d), old = ss[cur.i];
+    var hadFocus = old && old.contains(document.activeElement);
+    i = Math.max(0, Math.min(ss.length - 1, i)); cur.i = i;
+    ss.forEach(function (s, k) {
+      var v = s.querySelector("[data-cv-story-video]");
+      s.hidden = k !== i;
+      if (k !== i && v) { v.pause(); try { v.currentTime = 0; } catch (_) {} }
+    });
+    bs.forEach(function (b, k) { b.classList.toggle("is-done", k < i); b.classList.remove("is-on"); b.firstChild.style.transform = k < i ? "scaleX(1)" : "scaleX(0)"; });
+    if (bs[i]) bs[i].classList.add("is-on");
+    d.querySelector('[data-cv-story-step="-1"]').disabled = i === 0;
+    d.querySelector('[data-cv-story-step="1"]').disabled = i === ss.length - 1;
+    var film = ss[i].querySelector(".cv-story__film"), barsEl = d.querySelector(".cv-story__bars");
+    if (film && barsEl && barsEl.parentNode !== film) film.appendChild(barsEl);
+    // Focus was on a product or button of the slide that just left: keep it in the new one.
+    if (hadFocus) { var t = ss[i].querySelector("[data-cv-story-play]:not([hidden]), .cv-story__products a, .cv-story__products button:not([disabled])") || d.querySelector("[data-cv-story-pause]"); t.focus({ preventScroll: true }); }
+    var v = ss[i].querySelector("[data-cv-story-video]");
+    if (!v) return;
+    v.muted = cur.muted;
+    // Reduced motion or Save-Data: nothing loads until the shopper presses play.
+    if (calm()) { sync(); return; }
+    play(v); sync();
+  }
+  function open(dlg, i, from) {
+    clearTimeout(dlg.__cvClosing);
+    cur = { dlg: dlg, i: 0, lastFocus: from, muted: true };
+    dlg.hidden = false; document.documentElement.classList.add("cv-story-lock");
+    dlg.querySelector("[data-cv-story-sound]").setAttribute("aria-pressed", "false");
+    var added = dlg.querySelector("[data-cv-story-added]"); if (added) { added.textContent = ""; added.classList.remove("is-on"); }
+    requestAnimationFrame(function () { if (cur && cur.dlg === dlg) dlg.classList.add("is-open"); });
+    document.querySelectorAll("[data-cv-reel-video]").forEach(function (v) { v.pause(); });
+    show(i);
+    dlg.querySelector("[data-cv-story-close].cv-story__tool").focus({ preventScroll: true });
+  }
+  function close() {
+    if (!cur) return;
+    var d = cur.dlg, f = cur.lastFocus;
+    slides(d).forEach(function (s) { var v = s.querySelector("video"); if (v) v.pause(); });
+    d.classList.remove("is-open"); document.documentElement.classList.remove("cv-story-lock");
+    clearTimeout(d.__cvClosing);
+    d.__cvClosing = setTimeout(function () { if (!cur || cur.dlg !== d) d.hidden = true; }, 250);
+    cur = null; if (f && f.focus && f.isConnected) f.focus({ preventScroll: true });
+  }
+  function toggle() { var v = curVideo(); if (!v) return; if (v.paused || !v.getAttribute("src")) play(v); else v.pause(); }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target : null; if (!t) return;
+    var o = t.closest("[data-cv-reel-open]");
+    if (o) { var sec = o.closest("[data-cv-reels]"); open(sec.querySelector("[data-cv-story]"), Number(o.getAttribute("data-cv-reel-open")), o); return; }
+    if (!cur) return;
+    // "View cart" from the confirmation: the viewer closes first, then the cart opens as it does elsewhere.
+    if (t.closest("[data-cv-story-bag]")) {
+      e.preventDefault(); close();
+      var link = document.querySelector("[data-cv-cart-link]");
+      if (link) link.click(); else window.location.assign(t.closest("[data-cv-story-bag]").getAttribute("href"));
+      return;
+    }
+    if (t.closest("[data-cv-story-close]")) { close(); return; }
+    var st = t.closest("[data-cv-story-step]"); if (st) { show(cur.i + Number(st.getAttribute("data-cv-story-step"))); return; }
+    if (t.closest("[data-cv-story-sound]")) {
+      cur.muted = !cur.muted; t.closest("[data-cv-story-sound]").setAttribute("aria-pressed", cur.muted ? "false" : "true");
+      slides(cur.dlg).forEach(function (s) { var v = s.querySelector("video"); if (v) v.muted = cur.muted; }); return;
+    }
+    if (t.closest("[data-cv-story-pause], [data-cv-story-play]")) { toggle(); return; }
+    if (t.closest(".cv-story__film") && !t.closest("button, a")) toggle();
+  });
+  document.addEventListener("play", function (e) { if (cur && e.target.matches && e.target.matches("[data-cv-story-video]")) sync(); }, true);
+  document.addEventListener("pause", function (e) { if (cur && e.target.matches && e.target.matches("[data-cv-story-video]")) sync(); }, true);
+  // Adding from the viewer keeps the shopper here: the cart does not open behind the dialog (the cart
+  // drawer skips adds made in [data-cv-story]); a confirmation with a "View cart" link shows instead.
+  document.addEventListener("tf:action-done", function (e) {
+    var f = e.detail && e.detail.form;
+    if (!cur || e.detail.action !== "cart_add" || !f || !cur.dlg.contains(f)) return;
+    var n = cur.dlg.querySelector("[data-cv-story-added]"); if (!n) return;
+    n.textContent = "";
+    var msg = document.createElement("span"); msg.textContent = n.getAttribute("data-label");
+    var a = document.createElement("a"); a.className = "cv-tbtn"; a.href = n.getAttribute("data-cart"); a.setAttribute("data-cv-story-bag", ""); a.textContent = n.getAttribute("data-view");
+    n.appendChild(msg); n.appendChild(document.createTextNode(" ")); n.appendChild(a); n.classList.add("is-on");
+    clearTimeout(n.__cvT); n.__cvT = setTimeout(function hide() { if (n.contains(document.activeElement)) { n.__cvT = setTimeout(hide, 2000); return; } n.classList.remove("is-on"); n.textContent = ""; }, 6000);
+  });
+  document.addEventListener("keydown", function (e) {
+    if (!cur) return;
+    if (e.key === "Escape") { e.preventDefault(); close(); }
+    else if (e.key === "ArrowRight" && !e.target.closest(".cv-story__pick")) show(cur.i + 1);
+    else if (e.key === "ArrowLeft" && !e.target.closest(".cv-story__pick")) show(cur.i - 1);
+    else if (e.key === "Tab") {
+      var f = [].filter.call(cur.dlg.querySelectorAll("button, a[href], input:not([type=hidden]), [tabindex]"), function (x) { return !x.disabled && x.offsetParent !== null; });
+      if (!f.length) return;
+      // Focus outside the visible controls (behind the dialog, or on a slide that just hid) comes back to the first one.
+      if (f.indexOf(document.activeElement) < 0) { e.preventDefault(); (e.shiftKey ? f[f.length - 1] : f[0]).focus(); }
+      else if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+    }
+  });
+  // Progress and auto-advance.
+  document.addEventListener("timeupdate", function (e) {
+    if (!cur || !e.target.matches || !e.target.matches("[data-cv-story-video]")) return;
+    var v = e.target, b = bars(cur.dlg)[cur.i]; if (!b || !v.duration) return;
+    b.firstChild.style.transform = "scaleX(" + (v.currentTime / v.duration) + ")";
+  }, true);
+  document.addEventListener("ended", function (e) {
+    if (!cur || !e.target.matches || !e.target.matches("[data-cv-story-video]")) return;
+    if (cur.i < slides(cur.dlg).length - 1) show(cur.i + 1); else e.target.currentTime = 0;
+  }, true);
+  // Swipe between stories; swipe down to close.
+  var sx = null, sy = null;
+  document.addEventListener("touchstart", function (e) { if (cur && e.target.closest(".cv-story__film")) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, { passive: true });
+  document.addEventListener("touchend", function (e) {
+    if (!cur || sx === null) return;
+    var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = sy = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(cur.i + (dx < 0 ? 1 : -1) * (document.dir === "rtl" ? -1 : 1));
+    else if (dy > 90) close();
+  });
+  // Option picker on the tagged products.
+  function pickState(pick) {
+    var rows = []; try { rows = JSON.parse(pick.getAttribute("data-matrix") || "[]"); } catch (_) {}
+    var sel = {}, groups = pick.querySelectorAll("[data-cv-vpick-attr]");
+    groups.forEach(function (g) { var on = g.querySelector('[aria-pressed="true"]'); if (on) sel[g.getAttribute("data-cv-vpick-attr")] = on.getAttribute("data-cv-vpick-val"); });
+    groups.forEach(function (g) {
+      var attr = g.getAttribute("data-cv-vpick-attr");
+      g.querySelectorAll("[data-cv-vpick-val]").forEach(function (b) {
+        var val = b.getAttribute("data-cv-vpick-val");
+        b.classList.toggle("is-off", !rows.some(function (r) {
+          if (!r.available_for_sale || !r.options || r.options[attr] !== val) return false;
+          for (var k in sel) { if (k !== attr && r.options[k] !== sel[k]) return false; } return true;
+        }));
+      });
+    });
+    var match = null;
+    if (Object.keys(sel).length === groups.length) match = rows.filter(function (r) { for (var k in sel) { if (!r.options || r.options[k] !== sel[k]) return false; } return true; })[0] || null;
+    pick.querySelector("[data-cv-vpick-variant]").value = match ? match.id : "";
+    pick.querySelector("[data-cv-vpick-submit]").disabled = !(match && match.available_for_sale);
+    var px = match && pick.querySelector('[data-cv-vpick-px="' + match.id + '"]');
+    pick.querySelector("[data-cv-vpick-price]").textContent = match ? (match.available_for_sale ? (px ? px.textContent : match.price_str || "") : pick.getAttribute("data-unavailable")) : "";
+  }
+  document.querySelectorAll("[data-cv-vpick]").forEach(pickState);
+  document.addEventListener("click", function (e) {
+    var val = e.target.closest && e.target.closest("[data-cv-vpick-val]"); if (!val) return;
+    var g = val.closest("[data-cv-vpick-attr]"), was = val.getAttribute("aria-pressed") === "true";
+    g.querySelectorAll("[data-cv-vpick-val]").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+    if (!was) val.setAttribute("aria-pressed", "true");
+    pickState(val.closest("[data-cv-vpick]"));
+  });
+  // Editor: selecting a reel opens its story; deselecting the section closes the viewer.
+  document.addEventListener("tf:block-selected", function (e) {
+    var el = e.detail && e.detail.element, o = el && el.querySelector && el.querySelector("[data-cv-reel-open]");
+    if (!o) return;
+    var dlg = o.closest("[data-cv-reels]").querySelector("[data-cv-story]"), i = Number(o.getAttribute("data-cv-reel-open"));
+    if (cur && cur.dlg === dlg) { show(i); return; }
+    if (cur) close();
+    open(dlg, i, null);
+  });
+  document.addEventListener("tf:block-deselected", function (e) { if (cur && e.detail && e.detail.section_type === "shoppable-reels") close(); });
+  document.addEventListener("tf:section-deselected", function (e) { if (cur && e.detail && e.detail.type === "shoppable-reels") close(); });
+})();
+</script>
+{% schema %}
+{
+  "name": "shoppable-reels",
+  "icon": "video",
+  "ctx_needs": [
+    "routes",
+    "csrf_token",
+    "design_mode",
+    "shopping"
+  ],
+  "settings": [
+    {
+      "id": "eyebrow",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "eyebrow",
+        "group": "content"
+      }
+    },
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.reels.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "text",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      }
+    },
+    {
+      "id": "profile_label",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "profile_label",
+        "group": "content"
+      }
+    },
+    {
+      "id": "profile_link",
+      "type": "url",
+      "editor": {
+        "label": "profile_link",
+        "group": "content"
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "row",
+      "options": [
+        {
+          "value": "row",
+          "label": "opt_reels_row"
+        },
+        {
+          "value": "grid",
+          "label": "opt_grid"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "card_size",
+      "type": "select",
+      "default": "medium",
+      "options": [
+        {
+          "value": "small",
+          "label": "opt_small"
+        },
+        {
+          "value": "medium",
+          "label": "opt_medium"
+        },
+        {
+          "value": "large",
+          "label": "opt_large"
+        }
+      ],
+      "editor": {
+        "label": "card_size",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 12,
+    "default": [
+      "reel",
+      "reel",
+      "reel",
+      "reel"
+    ],
+    "types": [
+      {
+        "type": "reel",
+        "editor": {
+          "label": "reel"
+        },
+        "settings": [
+          {
+            "id": "video",
+            "type": "video",
+            "editor": {
+              "label": "reel_video",
+              "group": "content"
+            }
+          },
+          {
+            "id": "poster",
+            "type": "image",
+            "editor": {
+              "label": "reel_poster",
+              "group": "content"
+            }
+          },
+          {
+            "id": "caption",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "caption",
+              "group": "content"
+            }
+          },
+          {
+            "id": "handle",
+            "type": "text",
+            "default": "",
+            "editor": {
+              "label": "reel_handle",
+              "group": "content"
+            }
+          },
+          {
+            "id": "products",
+            "type": "product_list",
+            "max": 3,
+            "editor": {
+              "label": "reel_products",
+              "group": "products"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "shoppable-reels",
+      "category": "video",
+      "blocks": [
+        {
+          "type": "reel"
+        },
+        {
+          "type": "reel"
+        },
+        {
+          "type": "reel"
+        },
+        {
+          "type": "reel"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

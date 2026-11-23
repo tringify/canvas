@@ -1,0 +1,45 @@
+  .cv-video__grid { display: grid; gap: clamp(24px, 4vw, 64px); align-items: center; }
+  .cv-video--wide .cv-video__grid { grid-template-columns: 1fr; }
+  .cv-video--wide .cv-video__text { order: -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 48px; align-items: end; }
+  .cv-video--wide .cv-video__text > .cv-video__products { grid-column: 1 / -1; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .cv-video__frame { position: relative; aspect-ratio: 16 / 9; border-radius: calc(var(--cv-radius, 16px) * 1.25); background: var(--media-backdrop); }
+  .cv-video__frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cv-video--full { max-width: none; padding-inline: 0; }
+  .cv-video--full .cv-video__frame { border-radius: 0; }
+  .cv-video--full .cv-video__text { padding-inline: var(--cv-pad-x); }
+  .cv-video__play { position: absolute; top: 50%; left: 50%; z-index: 2; display: grid; place-items: center; width: clamp(64px, 7vw, 96px); height: clamp(64px, 7vw, 96px); padding: 0; margin: 0;
+    transform: translate(-50%, -50%); color: var(--media-ink-dark); background: rgb(255 255 255 / 0.92); border: 0; border-radius: 50%; cursor: pointer;
+    box-shadow: 0 20px 50px -14px rgb(0 0 0 / 0.5); transition: transform 0.35s var(--cv-ease); }
+  .cv-video__play svg { width: 34%; height: 34%; margin-inline-start: 6%; fill: currentColor; }
+  .cv-video__play:hover { transform: translate(-50%, -50%) scale(1.08); }
+  .cv-video__play[hidden], .cv-video.is-playing .cv-video__play:not([data-user]) { display: none; }
+  .cv-video__text { display: grid; gap: 14px; align-content: center; }
+  .cv-video__text .cv-blk-text--auto { max-width: 52ch; color: var(--text-muted); }
+  .cv-video__caption { margin: 0; font-size: 14px; }
+  .cv-video__products { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+  .cv-video__product { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto auto; align-items: center; gap: 14px; padding: 8px 14px 8px 8px; color: var(--text); text-decoration: none;
+    background: var(--cv-soft); border-radius: calc(var(--cv-radius, 16px) * 0.9); transition: background-color 0.2s; }
+  .cv-video__product:hover { background: color-mix(in srgb, var(--text) 9%, var(--bg)); }
+  .cv-video__pimg { width: 56px; height: 56px; border-radius: calc(var(--cv-radius, 16px) * 0.6); }
+  .cv-video__pname { font-weight: 500; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .cv-video__pprice { font-size: 14px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .cv-video__product .cv-icon { width: 18px; height: 18px; }
+  /* The editorial card style lists the products as hairline rows, like the split hero's list, instead of filled bars. */
+  .cv-video--lines .cv-video__products { gap: 0; border-top: 1px solid var(--cv-line); }
+  .cv-video--lines .cv-video__product { padding: 12px 4px 12px 0; background: none; border-radius: 0; border-bottom: 1px solid var(--cv-line); }
+  .cv-video--lines .cv-video__product:hover { background: none; }
+  .cv-video--lines .cv-video__product:hover .cv-video__pname { opacity: 0.65; }
+  .cv-video--lines .cv-video__pimg { border-radius: 0; }
+  @media (min-width: 750px) {
+    .cv-video--vertical .cv-video__grid { grid-template-columns: auto minmax(0, 1fr); }
+    .cv-video--vertical .cv-video__frame { aspect-ratio: 9 / 16; height: min(78vh, 760px); }
+    .cv-video--split .cv-video__grid { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+    .cv-video--right .cv-video__frame { order: 2; }
+  }
+  @media (max-width: 749px) {
+    .cv-video--wide .cv-video__text { grid-template-columns: 1fr; }
+    .cv-video--vertical .cv-video__frame { aspect-ratio: 9 / 16; max-height: 80svh; margin-inline: auto; width: 100%; }
+  }
+  /* Editor only: the platform placeholder fills a card that has no video yet, under the sample clip. */
+  .cv-video__ph { position: absolute; inset: 0; display: block; }
+  .cv-video__ph img { width: 100%; height: 100%; display: block; object-fit: cover; }

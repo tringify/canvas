@@ -1,0 +1,34 @@
+{
+  "page_type": "collection",
+  "sections": [
+    {
+      "type": "main-collection",
+      "settings": {
+        "filter_layout": "horizontal",
+        "product_layout": "grid",
+        "columns": 4,
+        "columns_mobile": "2",
+        "blocks": [
+          {
+            "id": "canvas-night-collection__breadcrumbs",
+            "type": "breadcrumbs",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-collection__banner",
+            "type": "banner",
+            "settings": {
+              "show_image": false
+            }
+          },
+          {
+            "id": "canvas-night-collection__toolbar",
+            "type": "toolbar",
+            "settings": {}
+          }
+        ]
+      },
+      "position": 1
+    }
+  ]
+}

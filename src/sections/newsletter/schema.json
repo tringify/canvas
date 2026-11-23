@@ -1,0 +1,86 @@
+{
+  "name": "newsletter",
+  "icon": "mail",
+  "ctx_needs": [
+    "forms",
+    "form_notice",
+    "csrf_token"
+  ],
+  "settings": [
+    {
+      "id": "button_label",
+      "type": "text",
+      "default": "@t:sections.newsletter.button_label",
+      "editor": {
+        "label": "button_label",
+        "group": "content"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "light",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "newsletter",
+      "category": "marketing",
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "@t:sections.newsletter.heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "@t:sections.newsletter.text"
+          }
+        }
+      ]
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "custom-vascula"
+    ],
+    "max": 8
+  },
+  "migrations": [
+    {
+      "id": "newsletter-copy-to-blocks",
+      "op": "settings_to_blocks",
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "text"
+          }
+        }
+      ],
+      "source_defaults": {
+        "heading": "@t:sections.newsletter.heading",
+        "text": "@t:sections.newsletter.text"
+      }
+    }
+  ]
+}

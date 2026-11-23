@@ -1,0 +1,113 @@
+{
+  "name": "consent-banner",
+  "kind": "embed",
+  "target": "global_overlay",
+  "icon": "cookie",
+  "ctx_needs": [
+    "consent",
+    "policies",
+    "csrf_token",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.consent_banner.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "text",
+      "type": "textarea",
+      "default": "@t:sections.consent_banner.text",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "corner",
+      "options": [
+        {
+          "value": "corner",
+          "label": "opt_corner_card"
+        },
+        {
+          "value": "bar",
+          "label": "opt_bottom_bar"
+        },
+        {
+          "value": "modal",
+          "label": "opt_centered_dialog"
+        },
+        {
+          "value": "side",
+          "label": "opt_side_panel"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "design"
+      }
+    },
+    {
+      "id": "position",
+      "type": "select",
+      "default": "start",
+      "options": [
+        {
+          "value": "start",
+          "label": "opt_start"
+        },
+        {
+          "value": "end",
+          "label": "opt_end"
+        }
+      ],
+      "editor": {
+        "label": "position",
+        "group": "design"
+      },
+      "visible_if": {
+        "setting": "layout",
+        "values": [
+          "corner",
+          "side"
+        ]
+      }
+    },
+    {
+      "id": "categories",
+      "type": "select",
+      "default": "compact",
+      "options": [
+        {
+          "value": "compact",
+          "label": "opt_categories_compact"
+        },
+        {
+          "value": "detailed",
+          "label": "opt_categories_detailed"
+        }
+      ],
+      "editor": {
+        "label": "cookie_categories",
+        "group": "content"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "Everyday",
+  "settings": {
+    "schemes": [
+      {
+        "id": "default",
+        "label": "White",
+        "colors": {
+          "bg": "#ffffff",
+          "text": "#121212",
+          "text-muted": "#5e5e5e",
+          "border": "#e5e5e5",
+          "surface": "#f4f4f4",
+          "btn": "#121212",
+          "btn-text": "#ffffff",
+          "accent": "#c4302b"
+        }
+      },
+      {
+        "id": "light",
+        "label": "Light grey",
+        "colors": {
+          "bg": "#f4f4f4",
+          "text": "#121212",
+          "text-muted": "#5e5e5e",
+          "border": "#dcdcdc",
+          "surface": "#ffffff",
+          "btn": "#121212",
+          "btn-text": "#ffffff",
+          "accent": "#c4302b"
+        }
+      },
+      {
+        "id": "inverse",
+        "label": "Black",
+        "colors": {
+          "bg": "#121212",
+          "text": "#ffffff",
+          "text-muted": "#b3b3b3",
+          "border": "#333333",
+          "surface": "#1e1e1e",
+          "btn": "#ffffff",
+          "btn-text": "#121212",
+          "accent": "#ff6b61"
+        }
+      }
+    ],
+    "heading_font": "fraunces",
+    "body_font": "inter",
+    "corner_radius": "16px",
+    "button_radius": "999px",
+    "card_image_ratio": "4 / 5",
+    "heading_scale": "100",
+    "heading_case": "none",
+    "card_style": "soft",
+    "section_spacing": "normal",
+    "page_width": "1440px"
+  }
+}

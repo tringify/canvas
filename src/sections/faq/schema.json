@@ -1,0 +1,144 @@
+{
+  "name": "faq",
+  "icon": "circle-help",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.faq.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "text",
+      "type": "richtext",
+      "default": "",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      }
+    },
+    {
+      "id": "open_first",
+      "type": "checkbox",
+      "default": false,
+      "editor": {
+        "label": "open_first",
+        "group": "content"
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "stacked",
+      "options": [
+        {
+          "value": "stacked",
+          "label": "opt_stacked"
+        },
+        {
+          "value": "split",
+          "label": "opt_side_by_side"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 20,
+    "default": [
+      "question",
+      "question",
+      "question"
+    ],
+    "types": [
+      {
+        "type": "question",
+        "editor": {
+          "label": "question"
+        },
+        "settings": [
+          {
+            "id": "question",
+            "type": "text",
+            "default": "@t:sections.faq.question.question",
+            "editor": {
+              "label": "question",
+              "group": "content"
+            }
+          },
+          {
+            "id": "answer",
+            "type": "richtext",
+            "default": "",
+            "editor": {
+              "label": "answer",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "faq",
+      "category": "text",
+      "blocks": [
+        {
+          "type": "question"
+        },
+        {
+          "type": "question"
+        },
+        {
+          "type": "question"
+        }
+      ]
+    }
+  ]
+}

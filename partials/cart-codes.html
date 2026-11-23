@@ -1,0 +1,81 @@
+{%- comment -%} Cart summary block: discount codes. Reads cart; cv_show_offers lists the store's advertised codes. {%- endcomment -%}
+<div class="cv-sum__codes">
+  {%- if cart.coupon_codes.size > 0 -%}
+    <ul class="cv-sum__applied" role="list">
+      {%- for code in cart.coupon_codes -%}
+        {%- assign cv_code_note = nil -%}
+        {%- assign cv_code_key = code | upcase -%}
+        {%- for ic in cart.inactive_coupons -%}{%- assign cv_ic_key = ic.code | upcase -%}{%- if cv_ic_key == cv_code_key -%}{%- assign cv_code_note = ic.reason | default: ' ' -%}{%- endif -%}{%- endfor -%}
+        <li>
+          {% form 'discount_code_remove', class: 'cv-sum__chipform' %}
+            <input type="hidden" name="code" value="{{ code }}">
+            <span class="cv-sum__chip{% if cv_code_note %} is-inactive{% endif %}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>{{ code }}
+              <button type="submit"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'cart.remove_code' | t: code: code }}</span></button></span>
+          {% endform %}
+          {%- if cv_code_note and cv_code_note != ' ' -%}<p class="cv-sum__codenote cv-muted">{{ cv_code_note }}</p>{%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+  {%- if cart.discount_stacking.at_capacity and cart.discount_stacking.capacity_reason != blank -%}
+  <p class="cv-sum__cap cv-muted">{{ cart.discount_stacking.capacity_reason }}</p>
+  {%- endif -%}
+  {%- unless cart.discount_stacking.at_capacity -%}
+  <details class="cv-sum__codeform"{% if cart.coupon_codes.size > 0 %} open{% endif %}>
+    <summary>{{ 'cart.discount_code' | t }}</summary>
+    {% form 'discount_code_apply', class: 'cv-sum__apply' %}
+      <label class="cv-sr" for="cv-code-{{ cv_where }}">{{ 'cart.discount_code' | t }}</label>
+      <input class="cv-input" id="cv-code-{{ cv_where }}" name="code" required autocomplete="off" autocapitalize="characters" placeholder="{{ 'cart.discount_code' | t }}">
+      <button class="cv-btn cv-btn--outline" type="submit">{{ 'cart.apply' | t }}</button>
+    {% endform %}
+  </details>
+  {%- endunless -%}
+  {%- if cv_show_offers -%}
+  {%- assign cv_offer_n = 0 -%}
+  {%- for c in cart.advertised_coupons -%}{%- unless cart.coupon_codes contains c.code -%}{%- assign cv_offer_n = cv_offer_n | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+  {%- if cv_offer_n > 0 -%}
+  <button type="button" class="cv-offers" data-cv-offers-open aria-haspopup="dialog">
+    <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+    <span>{{ 'cart.view_available_discounts' | t }}</span><span class="cv-offers__count">{{ cv_offer_n }}</span>
+    <svg class="cv-icon cv-offers__caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+  </button>
+  {%- comment -%} The offers open in a side sheet (a bottom sheet on phones); without script they list in place. {%- endcomment -%}
+  <dialog class="cv-offers-sheet" data-cv-offers-sheet aria-labelledby="cv-offers-title-{{ cv_where }}">
+    <div class="cv-offers-sheet__head">
+      <h2 id="cv-offers-title-{{ cv_where }}">{{ 'cart.available_discounts' | t }}</h2>
+      <button type="button" class="cv-offers-sheet__close" data-cv-offers-close aria-label="{{ 'general.close' | t }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <ul class="cv-offers__list" role="list">
+      {%- for c in cart.advertised_coupons -%}
+        {%- if cart.coupon_codes contains c.code -%}{%- continue -%}{%- endif -%}
+        <li class="cv-offer{% unless c.eligible %} is-locked{% endunless %}">
+          <p class="cv-offer__stub">{{ c.savings_text }}</p>
+          <div class="cv-offer__body">
+            <p class="cv-offer__code">{{ c.code }}</p>
+            {%- if c.name != blank and c.name != c.code -%}<p class="cv-offer__name">{{ c.name }}</p>{%- endif -%}
+            {%- if c.formatted_threshold_shortfall -%}
+              <p class="cv-offer__unlock">{{ 'cart.offer_add_more' | t: amount: c.formatted_threshold_shortfall }}</p>
+            {%- elsif c.eligible != true and c.reason != blank -%}
+              <p class="cv-offer__note">{{ c.reason }}</p>
+            {%- elsif c.has_potential_savings -%}
+              <p class="cv-offer__save">{{ 'cart.offer_save' | t }} {{ c.formatted_potential_amount }}</p>
+            {%- endif -%}
+            {%- if c.formatted_min_subtotal or c.ends_at -%}
+              <p class="cv-offer__note">
+                {%- if c.formatted_min_subtotal -%}{{ 'cart.offer_min_order' | t: amount: c.formatted_min_subtotal }}{%- endif -%}
+                {%- if c.formatted_min_subtotal and c.ends_at %} · {% endif -%}
+                {%- if c.ends_at -%}{%- assign cv_end = c.ends_at | date: 'medium' -%}{{ 'cart.offer_valid_till' | t: date: cv_end }}{%- endif -%}
+              </p>
+            {%- endif -%}
+          </div>
+          {% form 'discount_code_apply', class: 'cv-offer__form' %}
+            <input type="hidden" name="code" value="{{ c.code }}">
+            <button class="cv-btn cv-btn--sm" type="submit"{% unless c.eligible %} disabled{% endunless %}>{{ 'cart.apply' | t }}</button>
+          {% endform %}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </dialog>
+  {%- endif -%}
+  {%- endif -%}
+</div>

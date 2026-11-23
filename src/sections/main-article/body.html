@@ -1,0 +1,62 @@
+{%- assign post = blog_post -%}
+<article data-cv-notice-host class="cv cv-section cv-ar tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-wrap cv-ar__wrap">
+    <header class="cv-ar__head">
+      {%- if post.categories.size > 0 -%}<p class="cv-eyebrow">{%- for c in post.categories -%}<a href="{{ c.url }}">{{ c.name }}</a>{% unless forloop.last %}, {% endunless %}{%- endfor -%}</p>{%- endif -%}
+      <h1 class="cv-h1">{{ post.title }}</h1>
+      <p class="cv-muted cv-meta">{% if post.published_at_iso != blank %}<span>{{ post.published_at_iso | date: 'long' }}</span>{% endif %}{% if post.author_name != blank %}<span>{{ post.author_name }}</span>{% endif %}</p>
+    </header>
+    {%- if post.featured_image.url and settings.show_image -%}
+      <div class="cv-ar__image cv-media"><img src="{{ post.featured_image.url | image_url: width: 1440 }}" srcset="{{ post.featured_image.url | image_srcset: max: 2048 }}" sizes="(min-width: 990px) 900px, 100vw" alt="" {{ post.featured_image.url | image_loading }}></div>
+    {%- endif -%}
+    <div dir="auto" class="cv-rte cv-ar__body">{{ post.content }}</div>
+    {%- comment -%} App blocks and the platform metafield block (the post's own fields), after the post. {%- endcomment -%}
+    <div class="cv-ar__blocks">{%- blocks -%}</div>
+    {%- if post.tags.size > 0 -%}<p class="cv-ar__tags">{%- for t in post.tags -%}<a class="cv-ar__tag" href="{{ t.url }}">#{{ t.name }}</a>{%- endfor -%}</p>{%- endif -%}
+    {%- if post.author.bio != blank -%}
+      <aside class="cv-ar__author">{%- if post.author.avatar_url != blank -%}<img src="{{ post.author.avatar_url | image_url: width: 160 }}" alt="" width="56" height="56" loading="lazy">{%- endif -%}
+        <div><p class="cv-ar__aname">{%- if post.author.url != blank -%}<a href="{{ post.author.url }}">{{ post.author.name | default: post.author_name }}</a>{%- else -%}{{ post.author.name | default: post.author_name }}{%- endif -%}</p><p class="cv-muted">{{ post.author.bio }}</p></div></aside>
+    {%- endif -%}
+    {%- if post.related_posts.size > 0 -%}
+      <section class="cv-ar__related"><h2 class="cv-h3">{{ 'blog.related' | t }}</h2>
+        {%- for item in post.related_posts -%}<p><a href="{{ item.url }}">{{ item.title }}</a></p>{%- endfor -%}
+      </section>
+    {%- endif -%}
+
+    {%- if post.comments_enabled -%}
+    <section class="cv-ar__comments" id="comments">
+      <h2 class="cv-h3">{{ 'blog.comments_count' | t: count: post.comments_total }}</h2>
+      {%- for cm in post.comments -%}
+        <div class="cv-ar__comment"><p class="cv-ar__cby">{{ cm.author_name }} <span class="cv-muted">· {% if cm.created_at_iso != blank %}{{ cm.created_at_iso | date: 'medium' }}{% endif %}</span></p><p>{{ cm.content }}</p></div>
+      {%- endfor -%}
+      {%- if post.comments_pagination.total_pages > 1 -%}
+      <nav class="cv-pager" aria-label="{{ 'general.pagination' | t }}">
+        {%- if post.comments_pagination.has_prev -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ post.comments_pagination.prev_url }}" rel="prev">{{ 'general.previous' | t }}</a>{%- endif -%}
+        <span>{{ post.comments_pagination.current_page }} / {{ post.comments_pagination.total_pages }}</span>
+        {%- if post.comments_pagination.has_next -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ post.comments_pagination.next_url }}" rel="next">{{ 'general.next' | t }}</a>{%- endif -%}
+      </nav>
+      {%- endif -%}
+      <p class="cv-notice {% if form_notice.success %}cv-notice--ok{% else %}cv-notice--error{% endif %}" role="status" data-cv-notice{% if form_notice.message == blank %} hidden{% endif %}>{{ form_notice.message }}</p>
+      {%- if post.comments_login_required and customer.logged_in != true -%}
+        <p class="cv-muted">{{ 'blog.comment_login' | t }} <a class="cv-tbtn" href="{{ routes.login_url }}">{{ 'header.sign_in' | t }}</a></p>
+      {%- else -%}
+        {% form 'comment_submit', class: 'cv-ar__cform' %}
+          <input type="hidden" name="post_slug" value="{{ post.slug }}">
+          <input type="hidden" name="client_mutation_id" value="{{ post.comment_submission_id }}">
+          <div class="cv-ar__two">
+            {%- if post.comments_name_required -%}
+              <label class="cv-field"><span class="cv-label">{{ 'forms.name' | t }}</span><input class="cv-input" name="author_name" required maxlength="{{ forms.comment.author_name.max_length | default: 255 }}" autocomplete="name"></label>
+            {%- endif -%}
+            {%- unless customer.logged_in -%}
+              <label class="cv-field"><span class="cv-label">{{ 'forms.email' | t }}</span><input class="cv-input" type="email" name="author_email" required maxlength="{{ forms.comment.author_email.max_length | default: 255 }}" autocomplete="email"></label>
+            {%- endunless -%}
+          </div>
+          <label class="cv-field"><span class="cv-label">{{ 'blog.comment' | t }}</span><textarea class="cv-input" name="content" required rows="4" maxlength="{{ forms.comment.content.max_length | default: 5000 }}"></textarea></label>
+          <input class="cv-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button class="cv-btn" type="submit">{{ 'blog.post_comment' | t }}</button>
+        {% endform %}
+      {%- endif -%}
+    </section>
+    {%- endif -%}
+  </div>
+</article>

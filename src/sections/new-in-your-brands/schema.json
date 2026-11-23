@@ -1,0 +1,71 @@
+{
+  "name": "new-in-your-brands",
+  "icon": "sparkles",
+  "ctx_needs": [
+    "new_in_your_brands",
+    "routes",
+    "csrf_token",
+    "customer_settings",
+    "design_mode",
+    "shopping"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.new_in_your_brands.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "fallback_heading",
+      "type": "text",
+      "default": "@t:sections.new_in_your_brands.fallback_heading",
+      "editor": {
+        "label": "fallback_heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "limit",
+      "type": "range",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4,
+      "editor": {
+        "label": "products_to_show",
+        "group": "content"
+      }
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4,
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "new-in-your-brands",
+      "category": "products"
+    }
+  ]
+}

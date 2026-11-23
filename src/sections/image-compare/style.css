@@ -1,0 +1,11 @@
+  .cv-cmp__stage { position: relative; direction: ltr; user-select: none; }
+  .cv-cmp__after, .cv-cmp__before { position: absolute; inset: 0; }
+  .cv-cmp__after > *, .cv-cmp__before > * { width: 100%; height: 100%; object-fit: cover; }
+  .cv-cmp__before { clip-path: inset(0 calc(100% - var(--cv-cmp, 50%)) 0 0); }
+  .cv-cmp__label { position: absolute; top: 14px; z-index: 2; padding: 6px 12px; font-size: 12px; font-weight: 500; color: var(--media-ink-dark); background: rgb(255 255 255 / 0.85); border-radius: 999px; backdrop-filter: blur(8px); }
+  .cv-cmp__label--before { left: 14px; }
+  .cv-cmp__label--after { right: 14px; }
+  .cv-cmp__handle { position: absolute; top: 0; bottom: 0; left: var(--cv-cmp, 50%); z-index: 2; width: 2px; background: var(--media-ink-light); transform: translateX(-1px); pointer-events: none; }
+  .cv-cmp__handle svg { position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; padding: 10px; color: var(--media-ink-dark); background: var(--media-ink-light); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 4px 16px rgb(0 0 0 / 0.25);
+    fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .cv-cmp__range { position: absolute; inset: 0; z-index: 3; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }

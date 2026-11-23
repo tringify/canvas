@@ -1,0 +1,37 @@
+  .cv-ctbl__scroll { position: relative; overflow-x: auto; margin-inline: calc(var(--cv-pad-x) * -1); padding-inline: var(--cv-pad-x); overscroll-behavior-x: contain; scrollbar-width: thin; }
+  .cv-ctbl__scroll:focus-visible { outline-offset: -2px; }
+  .cv-ctbl__table { --cv-ctbl-label: minmax(130px, 1.1fr); min-width: calc(150px + var(--cv-ctbl-cols, 2) * 150px); max-width: calc(320px + var(--cv-ctbl-cols, 2) * 300px); margin-inline: auto; font-size: 15px; }
+  .cv-ctbl__row { display: grid; grid-template-columns: var(--cv-ctbl-label) repeat(var(--cv-ctbl-cols, 2), minmax(0, 1fr)); }
+  .cv-ctbl__row + .cv-ctbl__row, .cv-ctbl__table > * + * .cv-ctbl__row { border-top: 1px solid var(--cv-line); }
+  .cv-ctbl__label, .cv-ctbl__cell { display: flex; align-items: center; min-height: 56px; padding: 14px 16px; line-height: 1.4; overflow-wrap: anywhere; }
+  .cv-ctbl__label { padding-inline-start: 0; font-weight: 500; }
+  .cv-ctbl__cell { justify-content: center; text-align: center; color: var(--text-muted); }
+  .cv-ctbl__row--head { align-items: stretch; }
+  .cv-ctbl__corner { min-width: 0; }
+  .cv-ctbl__col { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 20px 16px; text-align: center; }
+  .cv-ctbl__col p { margin: 0; }
+  .cv-ctbl__img { width: min(140px, 100%); aspect-ratio: 1 / 1; margin-bottom: 6px; border-radius: calc(var(--cv-radius, 16px) * 0.75); }
+  .cv-ctbl__name { font-family: var(--tf-font-heading_font, inherit); font-size: calc(clamp(17px, 1.5vw, 20px) * var(--cv-heading-scale, 1)); font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; }
+  .cv-ctbl__name a { text-decoration: none; }
+  .cv-ctbl__name a { transition: opacity 0.2s var(--cv-ease); }
+  .cv-ctbl__name a:hover { opacity: 0.65; }
+  .cv-ctbl__sub { font-size: 14px; color: var(--text-muted); }
+  .cv-ctbl__btn { margin-top: auto; }
+  .cv-ctbl__col .cv-ctbl__sub + .cv-ctbl__btn, .cv-ctbl__col .cv-ctbl__name + .cv-ctbl__btn { margin-top: 8px; }
+  .cv-ctbl__yes { width: 22px; height: 22px; color: var(--text); stroke-width: 2; }
+  .cv-ctbl__no { display: block; width: 14px; height: 1.5px; background: color-mix(in srgb, var(--text) 35%, transparent); }
+  /* The highlighted column sits on a soft panel from its heading to the last row. */
+  .is-highlight { background: var(--cv-soft); }
+  .cv-ctbl__col.is-highlight { border-start-start-radius: var(--cv-radius, 16px); border-start-end-radius: var(--cv-radius, 16px); }
+  .cv-ctbl__table > :last-child .is-highlight, .cv-ctbl__table > .cv-ctbl__row:last-child.is-highlight { border-end-start-radius: var(--cv-radius, 16px); border-end-end-radius: var(--cv-radius, 16px); }
+  .cv-ctbl__cell.is-highlight { color: var(--text); }
+  /* Phones: the row names stay in view while the columns scroll sideways. */
+  @media (max-width: 749px) {
+    .cv-ctbl__scroll { margin-inline: 0; padding-inline: 0; }
+    .cv-ctbl__table { --cv-ctbl-label: 112px; min-width: calc(112px + var(--cv-ctbl-cols, 2) * 132px); font-size: 14px; }
+    .cv-ctbl__label, .cv-ctbl__corner { position: sticky; inset-inline-start: 0; z-index: 1; background: var(--bg); box-shadow: 1px 0 0 var(--cv-line); }
+    [dir="rtl"] .cv-ctbl__label, [dir="rtl"] .cv-ctbl__corner { box-shadow: -1px 0 0 var(--cv-line); }
+    .cv-ctbl__label, .cv-ctbl__cell { padding: 12px 10px; }
+    .cv-ctbl__label { padding-inline-start: 0; }
+    .cv-ctbl__col { padding: 16px 10px; }
+  }

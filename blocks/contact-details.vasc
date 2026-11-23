@@ -1,0 +1,61 @@
+{%- comment -%} Contact details: the address, phone, email and opening hours the merchant enters (the platform does not publish them
+  to themes). Phone and email are links. {%- endcomment -%}
+{%- assign cv_tel = settings.phone | remove: ' ' | remove: '(' | remove: ')' | remove: '-' | remove: '.' -%}
+{%- if settings.address != blank or settings.phone != blank or settings.email != blank or settings.hours != blank -%}
+<address class="cv-blk-contact">
+  {%- if settings.address != blank -%}<p dir="auto" class="cv-blk-contact__address" data-tf-field="address">{{ settings.address | newline_to_br }}</p>{%- endif -%}
+  {%- if settings.phone != blank -%}<p dir="ltr" data-tf-field="phone"><a href="tel:{{ cv_tel }}">{{ settings.phone }}</a></p>{%- endif -%}
+  {%- if settings.email != blank -%}<p data-tf-field="email"><a href="mailto:{{ settings.email | strip }}">{{ settings.email | strip }}</a></p>{%- endif -%}
+  {%- if settings.hours != blank -%}<p dir="auto" class="cv-blk-contact__hours" data-tf-field="hours">{{ settings.hours | newline_to_br }}</p>{%- endif -%}
+</address>
+{%- elsif design_mode -%}
+<p class="cv-editor-hint cv-blk-hint">{{ 'sections.editor_empty_block' | t }}</p>
+{%- endif -%}
+{% schema %}
+{
+  "name": "contact-details",
+  "kind": "block",
+  "icon": "contact",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "address",
+      "type": "textarea",
+      "default": "",
+      "editor": {
+        "label": "address",
+        "group": "content"
+      }
+    },
+    {
+      "id": "phone",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "phone",
+        "group": "content"
+      }
+    },
+    {
+      "id": "email",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "email",
+        "group": "content"
+      }
+    },
+    {
+      "id": "hours",
+      "type": "textarea",
+      "default": "",
+      "editor": {
+        "label": "opening_hours",
+        "group": "content"
+      }
+    }
+  ]
+}
+{% endschema %}

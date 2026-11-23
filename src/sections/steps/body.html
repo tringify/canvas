@@ -1,0 +1,91 @@
+{%- comment -%} Numbered steps, each with a small image, else its icon, else (icon None) the theme photo picked in Photo until you add your own. A step shows once it has a title or text. {%- endcomment -%}
+{%- assign cv_n = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled -%}{%- continue -%}{%- endif -%}{%- if b.settings.title != blank or b.settings.text != blank -%}{%- assign cv_n = cv_n | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_n > 0 or design_mode -%}
+{%- assign cv_cols = cv_n -%}{%- if cv_n > 4 -%}{%- assign cv_cols = 3 -%}{%- endif -%}
+{%- assign cv_cols_t = cv_cols -%}{%- if cv_cols > 2 -%}{%- assign cv_cols_t = 2 -%}{%- endif -%}
+<section class="cv cv-section cv-steps tf-scheme-{{ settings.color_scheme }} cv-steps--{{ settings.style }} cv-steps--{{ settings.align }} cv-pad--{{ settings.padding | default: 'default' }}" style="--cv-steps-cols: {{ cv_cols }}; --cv-steps-cols-t: {{ cv_cols_t }}">
+  {%- if design_mode and cv_n == 0 -%}<p class="cv-editor-hint">{{ 'sections.editor_add_content' | t }}</p>{%- endif -%}
+  <div class="cv-wrap">
+    {%- if settings.heading != blank or settings.text != blank -%}
+    <div class="cv-head{% if settings.align == 'center' %} cv-head--center{% endif %}">
+      <div>
+        {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+        {%- if settings.text != blank -%}<p dir="auto" class="cv-muted" data-tf-field="text">{{ settings.text }}</p>{%- endif -%}
+      </div>
+    </div>
+    {%- endif -%}
+    <ol class="cv-steps__list" role="list">
+      {%- assign cv_i = 0 -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+        {%- unless b.settings.title != blank or b.settings.text != blank -%}{%- continue -%}{%- endunless -%}
+        {%- assign cv_i = cv_i | plus: 1 -%}
+        {%- assign cv_photo = b.settings.fallback_photo -%}{%- assign cv_photo_i = cv_i -%}{%- assign cv_photo_wide = false -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+        <li class="cv-steps__item cv-reveal">
+          {{ b._editor_block_open }}
+          <div class="cv-steps__top">
+            {%- if b.settings.image -%}
+              <span class="cv-steps__img cv-media"><img src="{{ b.settings.image | image_url: width: 240 }}" srcset="{{ b.settings.image | image_srcset: max: 480 }}" sizes="120px" alt="" loading="lazy" data-tf-field="image"></span>
+            {%- elsif b.settings.icon != blank and b.settings.icon != 'none' -%}
+              <span class="cv-steps__icon" aria-hidden="true"><svg class="cv-icon" viewBox="0 0 24 24">
+                {%- case b.settings.icon -%}
+                  {%- when 'bag' -%}<path d="M5.5 8h13l-1 12h-11z"/><path d="M9 8V7a3 3 0 0 1 6 0v1"/>
+                  {%- when 'card' -%}<rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.5h18M7 15h3"/>
+                  {%- when 'box' -%}<path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/>
+                  {%- when 'truck' -%}<path d="M3 6h11v10H3z"/><path d="M14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>
+                  {%- when 'return' -%}<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>
+                  {%- when 'lock' -%}<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>
+                  {%- when 'chat' -%}<path d="M4 5h16v11H9l-5 4z"/>
+                  {%- when 'gift' -%}<rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8c-2-4-6-3-5 0M12 8c2-4 6-3 5 0"/>
+                  {%- when 'leaf' -%}<path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19 13 11"/>
+                  {%- when 'star' -%}<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>
+                  {%- when 'heart' -%}<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>
+                  {%- when 'check' -%}<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>
+                  {%- when 'pin' -%}<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>
+                  {%- when 'clock' -%}<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>
+                {%- endcase -%}
+              </svg></span>
+            {%- elsif cv_fb != blank -%}
+              <span class="cv-steps__img cv-media"><img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}"></span>
+            {%- endif -%}
+            {%- if settings.show_numbers -%}<span class="cv-steps__num" aria-hidden="true">{% if cv_i < 10 %}0{% endif %}{{ cv_i }}</span>{%- endif -%}
+          </div>
+          {%- if settings.show_numbers -%}<span class="cv-sr">{{ 'sections.steps.step_n' | t: n: cv_i }}</span>{%- endif -%}
+          {%- if b.settings.title != blank -%}<h3 dir="auto" class="cv-h3 cv-steps__title" data-tf-field="title">{{ b.settings.title }}</h3>{%- endif -%}
+          {%- if b.settings.text != blank -%}<p dir="auto" class="cv-muted cv-steps__text" data-tf-field="text">{{ b.settings.text }}</p>{%- endif -%}
+          {{ b._editor_block_close }}
+        </li>
+      {%- endfor -%}
+    </ol>
+  </div>
+</section>
+{%- endif -%}

@@ -1,0 +1,169 @@
+{
+  "name": "age-gate",
+  "kind": "embed",
+  "target": "global_overlay",
+  "icon": "shield",
+  "ctx_needs": [
+    "age_gate",
+    "shop",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "card",
+      "options": [
+        {
+          "value": "card",
+          "label": "opt_age_card"
+        },
+        {
+          "value": "fullscreen",
+          "label": "opt_age_fullscreen"
+        },
+        {
+          "value": "split",
+          "label": "opt_age_split"
+        },
+        {
+          "value": "minimal",
+          "label": "opt_age_minimal"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "design"
+      }
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "image"
+      },
+      "visible_if": {
+        "setting": "layout",
+        "values": [
+          "fullscreen",
+          "split"
+        ]
+      }
+    },
+    {
+      "id": "image_focus",
+      "type": "point",
+      "image": "image",
+      "default": {
+        "x": 50,
+        "y": 50
+      },
+      "editor": {
+        "label": "focal_point",
+        "group": "image"
+      },
+      "visible_if": {
+        "setting": "image",
+        "set": true
+      }
+    },
+    {
+      "id": "logo",
+      "type": "image",
+      "editor": {
+        "label": "logo",
+        "group": "content"
+      }
+    },
+    {
+      "id": "logo_width",
+      "type": "range",
+      "min": 40,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 120,
+      "editor": {
+        "label": "logo_width",
+        "group": "content"
+      },
+      "visible_if": {
+        "setting": "logo",
+        "set": true
+      }
+    },
+    {
+      "id": "show_store_name",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "age_gate_show_store_name",
+        "group": "content"
+      },
+      "visible_if": {
+        "setting": "logo",
+        "set": false
+      }
+    },
+    {
+      "id": "show_min_age",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "age_gate_show_min_age",
+        "group": "content"
+      }
+    },
+    {
+      "id": "backdrop",
+      "type": "select",
+      "default": "dim",
+      "options": [
+        {
+          "value": "dim",
+          "label": "opt_backdrop_dim"
+        },
+        {
+          "value": "blur",
+          "label": "opt_backdrop_blur"
+        },
+        {
+          "value": "solid",
+          "label": "opt_backdrop_solid"
+        }
+      ],
+      "editor": {
+        "label": "age_gate_backdrop",
+        "group": "design"
+      },
+      "visible_if": {
+        "setting": "layout",
+        "values": [
+          "card",
+          "minimal"
+        ]
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "image",
+      "spacer"
+    ],
+    "max": 4
+  }
+}

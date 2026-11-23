@@ -1,0 +1,8 @@
+{%- assign cv_doc = page | default: policy -%}
+<section class="cv cv-section cv-section--page cv-pg tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-wrap cv-pg__wrap" style="max-width: min(var(--cv-width, 1400px), {{ settings.width }}px)">
+    {%- if settings.show_title -%}<h1 class="cv-h2 cv-page-title">{{ cv_doc.title }}</h1>{%- endif -%}
+    <div dir="auto" class="cv-rte cv-pg__body">{{ cv_doc.content }}</div>
+    <div class="cv-app-blocks">{%- blocks -%}</div>
+  </div>
+</section>

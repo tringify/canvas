@@ -1,0 +1,7 @@
+  .cv-ft__news { position: relative; display: flex; align-items: center; gap: 6px; padding: 5px; background: var(--bg); border-radius: var(--cv-btn-radius, 999px);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 1px 2px rgb(0 0 0 / 0.04); transition: box-shadow 0.2s; }
+  .cv-ft__news .cv-input { flex: 1 1 auto; min-width: 0; min-height: 46px; padding: 0 8px 0 16px; background: transparent; border: 0; border-radius: inherit; }
+  .cv-ft__news .cv-input:hover, .cv-ft__news .cv-input:focus { background: transparent; }
+  .cv-ft__news .cv-btn { flex: none; min-height: 46px; padding: 0 22px; border-radius: calc(var(--cv-btn-radius, 999px) - 2px); }
+  .cv-hp { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; opacity: 0; }
+  .cv-blk-news__notice { margin: 12px 0 0; }

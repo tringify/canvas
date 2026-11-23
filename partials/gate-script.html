@@ -1,0 +1,224 @@
+{%- comment -%} Gate pages' script. Every form works without it as a plain POST; with it, the page stays put:
+  - wordmark: the fewest lines (breaking at spaces only) whose longest line, set to the width, reads as a name;
+  - coming soon: checks the address and consent first, then posts to /notify and reads the outcome (notify_state) from the page the
+    platform sends back; only "ok" shows the thank-you, anything else (no state included) is an error;
+  - password: Show/Hide; posts to /password; the page coming back as the password page means it failed (its message is shown);
+    anything else means the store opened (the outline fills in, then the browser follows);
+  - maintenance: every 30 seconds fetches this address again. The store is back when a storefront page comes back without this page's
+    marker, whatever the status code (the platform answers maintenance with 503). Never reloads by itself. {%- endcomment -%}
+<script>
+(function () {
+  var root = document.currentScript && document.currentScript.closest(".cv-gate");
+  if (!root || root.__cvGate) return; root.__cvGate = true;
+  var kind = root.getAttribute("data-cv-gate"), editor = root.hasAttribute("data-cv-gate-editor");
+  var still = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function q(s) { return root.querySelector(s); }
+
+  // Wordmark
+  var mark = q("[data-cv-gate-fit]"), words = (mark.getAttribute("data-name") || "").trim().split(/\s+/), probe;
+  function width(s) { probe.textContent = s; return probe.getBoundingClientRect().width; }
+  function split(n) { // balanced: the split whose widest line is narrowest
+    var best = null;
+    (function go(i, k, acc) {
+      if (k === 1) { var l = acc.concat([words.slice(i).join(" ")]), m = Math.max.apply(null, l.map(width)); if (!best || m < best.m) best = { l: l, m: m }; return; }
+      for (var j = i + 1; j <= words.length - k + 1; j++) go(j, k - 1, acc.concat([words.slice(i, j).join(" ")]));
+    })(0, n, []);
+    return best;
+  }
+  function fit() {
+    var band = mark.parentNode, cs = getComputedStyle(band), room = band.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    if (room <= 0 || !words[0]) return;
+    probe = document.createElement("span");
+    probe.className = "cv-gate__mark"; probe.style.cssText = "position:absolute;visibility:hidden;font-size:100px;width:auto;margin:0";
+    band.appendChild(probe);
+    var phone = innerWidth < 750, maxH = innerHeight * (phone ? 0.24 : 0.33), minS = Math.min(room * (phone ? 0.11 : 0.075), 120), pick = null;
+    for (var n = 1; n <= Math.min(words.length, phone ? 4 : 3); n++) {
+      var b = split(n), s = 100 * room / b.m, h = n * s * 0.86;
+      if (n === 1 && h > maxH) { s = maxH / 0.86; h = maxH; }
+      if (h > maxH && pick) break;
+      pick = { l: b.l, s: s };
+      if (s >= minS) break;
+    }
+    probe.remove();
+    var key = pick.l.join("\n") + "|" + pick.s.toFixed(1);
+    if (mark.__cvKey === key) return; mark.__cvKey = key;
+    mark.style.fontSize = pick.s.toFixed(2) + "px";
+    mark.textContent = "";
+    pick.l.forEach(function (text, i) {
+      var line = document.createElement("span"), ink = document.createElement("span"), o = document.createElement("span");
+      line.className = "cv-gate__line"; ink.className = "cv-gate__ink"; o.className = "cv-gate__o";
+      ink.style.setProperty("--i", i); ink.setAttribute("data-t", text); o.textContent = text;
+      ink.appendChild(o); line.appendChild(ink); mark.appendChild(line);
+    });
+    var dil = root.querySelector("#cv-gate-dilate"); if (dil) dil.setAttribute("radius", Math.max(1, pick.s * 0.0065).toFixed(2));
+  }
+  fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  var rz; addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(fit, 100); });
+  setTimeout(function () { root.classList.remove("is-arriving"); }, 2200);
+
+  // Posts a form the way the browser would, follows the redirect, and hands back the page that came back.
+  function send(form) {
+    return fetch(form.action, { method: "POST", body: new URLSearchParams(new FormData(form)), credentials: "same-origin", redirect: "follow",
+      headers: { Accept: "text/html" } }).then(function (r) {
+      return r.text().then(function (html) { return { url: r.url, doc: new DOMParser().parseFromString(html, "text/html") }; });
+    });
+  }
+  function fresh(form, doc) { // a new form nonce, if the page that came back has one
+    var a = form.querySelector('input[name="_csrf"]'), b = doc.querySelector('.cv-gate input[name="_csrf"]');
+    if (a && b && b.value) a.value = b.value;
+  }
+  function say(el, text) { el.querySelector("span").textContent = text; el.hidden = false; }
+  function busy(form, btn, input, on) {
+    btn.classList.toggle("is-loading", on); input.readOnly = on;
+    if (on) { btn.setAttribute("aria-disabled", "true"); form.setAttribute("aria-busy", "true"); }
+    else { btn.removeAttribute("aria-disabled"); form.removeAttribute("aria-busy"); }
+  }
+
+  // Coming soon
+  var nf = q('[data-cv-gate-form="notify"]');
+  if (nf && !editor) {
+    nf.noValidate = true;
+    var email = nf.querySelector('input[type="email"]'), box = nf.querySelector('input[type="checkbox"]'), field = email.closest(".cv-gate__field"),
+        msg = q("#cv-gate-msg"), cmsg = q("#cv-gate-cmsg"), nbtn = nf.querySelector('[type="submit"]'), done = q("[data-cv-gate-done]");
+    var clear = function () {
+      field.classList.remove("is-invalid"); email.removeAttribute("aria-invalid"); msg.hidden = true;
+      if (box) { box.closest(".cv-gate__consent").classList.remove("is-invalid"); box.removeAttribute("aria-invalid"); cmsg.hidden = true; }
+    };
+    email.addEventListener("input", function () { if (field.classList.contains("is-invalid")) clear(); });
+    if (box) box.addEventListener("change", function () { if (box.checked) { box.closest(".cv-gate__consent").classList.remove("is-invalid"); box.removeAttribute("aria-invalid"); cmsg.hidden = true; } });
+    nf.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (nbtn.classList.contains("is-loading")) return;
+      clear();
+      if (!email.value.trim() || !email.checkValidity() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())) {
+        field.classList.add("is-invalid"); email.setAttribute("aria-invalid", "true"); say(msg, msg.getAttribute("data-invalid")); email.focus(); return;
+      }
+      if (box && !box.checked) {
+        box.closest(".cv-gate__consent").classList.add("is-invalid"); box.setAttribute("aria-invalid", "true"); say(cmsg, cmsg.getAttribute("data-required")); box.focus(); return;
+      }
+      busy(nf, nbtn, email, true);
+      send(nf).then(function (res) {
+        busy(nf, nbtn, email, false);
+        var page = res.doc.querySelector('[data-cv-gate="coming_soon"]');
+        if (!page) { location.assign(res.url); return; } // the store opened meanwhile
+        fresh(nf, res.doc);
+        // The platform's outcome is notify_state on the form that came back; only "ok" is success. Anything else, a page
+        // without a state included, is an error: the platform's wording when it sent one, ours otherwise.
+        var came = page.querySelector("[data-cv-gate-state]"), state = came ? came.getAttribute("data-cv-gate-state") : "",
+            ok = page.querySelector('[data-cv-gate-result="ok"]'), bad = page.querySelector('[data-cv-gate-result="error"]');
+        if (state === "ok") {
+          if (ok) done.querySelector("[data-cv-gate-done-text]").textContent = ok.textContent.trim();
+          nf.classList.add("is-gone"); done.hidden = false; done.focus();
+          return;
+        }
+        var text = bad && bad.textContent.trim();
+        if (state === "consent_required" && box) {
+          box.closest(".cv-gate__consent").classList.add("is-invalid"); box.setAttribute("aria-invalid", "true");
+          say(cmsg, text || cmsg.getAttribute("data-required")); box.focus(); return;
+        }
+        if (state === "invalid_email") { field.classList.add("is-invalid"); email.setAttribute("aria-invalid", "true"); }
+        say(msg, text || msg.getAttribute(state === "invalid_email" ? "data-invalid" : "data-failed")); email.focus();
+      }, function () { busy(nf, nbtn, email, false); nf.submit(); });
+    });
+  }
+  var again = q("[data-cv-gate-again]");
+  if (again && nf && !editor) again.addEventListener("click", function (e) {
+    e.preventDefault();
+    var done = q("[data-cv-gate-done]"); done.hidden = true; nf.classList.remove("is-gone");
+    var email = nf.querySelector('input[type="email"]'); email.value = ""; email.focus();
+  });
+
+  // Password
+  var pf = q('[data-cv-gate-form="password"]');
+  if (pf && !editor) {
+    pf.noValidate = true;
+    var pw = pf.querySelector('input[name="password"]'), pfield = pw.closest(".cv-gate__field"), peek = q("[data-cv-gate-peek]"),
+        pbtn = pf.querySelector('[type="submit"]'), pmsg = q("#cv-gate-msg"), live = q("[data-cv-gate-live]");
+    if (peek) {
+      peek.hidden = false;
+      peek.addEventListener("click", function () {
+        var on = pw.type === "password"; pw.type = on ? "text" : "password";
+        peek.textContent = peek.getAttribute(on ? "data-hide" : "data-show");
+        peek.setAttribute("aria-label", peek.getAttribute(on ? "data-hide-label" : "data-show-label"));
+        peek.setAttribute("aria-pressed", String(on)); pw.focus();
+      });
+    }
+    var shake = function () { pfield.classList.remove("is-shake"); void pfield.offsetWidth; pfield.classList.add("is-shake"); };
+    if (pfield.classList.contains("is-invalid")) { shake(); pw.focus(); pw.select(); }
+    pw.addEventListener("input", function () { pfield.classList.remove("is-invalid"); pw.removeAttribute("aria-invalid"); pmsg.hidden = true; });
+    pf.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (pbtn.classList.contains("is-loading")) return;
+      if (!pw.value) { pw.focus(); return; }
+      busy(pf, pbtn, pw, true); pmsg.hidden = true;
+      send(pf).then(function (res) {
+        var page = res.doc.querySelector('[data-cv-gate="password"]');
+        if (page) {
+          busy(pf, pbtn, pw, false); fresh(pf, res.doc);
+          var err = page.querySelector("[data-cv-gate-result]");
+          pfield.classList.add("is-invalid"); pw.setAttribute("aria-invalid", "true");
+          say(pmsg, err ? err.textContent.trim() : pmsg.getAttribute("data-fallback"));
+          shake(); pw.focus(); pw.select();
+          return;
+        }
+        // Open: the outline fills in, then the store.
+        root.classList.add("is-open"); live.textContent = live.getAttribute("data-opening");
+        setTimeout(function () { location.assign(res.url); }, still.matches ? 0 : 1100);
+      }, function () { busy(pf, pbtn, pw, false); pf.submit(); });
+    });
+  }
+
+  // Maintenance
+  var watch = q("[data-cv-gate-watch]");
+  if (watch && !editor) {
+    var every = 30, left = every, line = watch.querySelector("[data-cv-gate-next]"), label = line.querySelector("span"), ring = line.querySelector(".fg"),
+        next = line.getAttribute("data-next"), checking = line.getAttribute("data-checking"), timer;
+    watch.hidden = false;
+    var nojs = q("[data-cv-gate-recheck]"); if (nojs) nojs.hidden = true;
+    var paint = function () { label.textContent = next.replace("#", left); ring.style.setProperty("--cv-left", (44 * (1 - left / every)).toFixed(1)); };
+    var back = function (url) {
+      clearInterval(timer);
+      root.classList.add("is-back");
+      var st = q("[data-cv-gate-status]"), h = q("[data-cv-gate-title]"), m = q("[data-cv-gate-message]"), b = q("[data-cv-gate-back]");
+      st.textContent = b.getAttribute("data-status");
+      if (h) h.textContent = b.getAttribute("data-heading");
+      if (m) m.hidden = true;
+      watch.hidden = true; b.hidden = false;
+      var go = b.querySelector("a"); if (go) go.href = url;
+      q("[data-cv-gate-live]").textContent = b.getAttribute("data-heading");
+      document.title = "● " + b.getAttribute("data-status") + " — " + (mark.getAttribute("data-name") || "");
+    };
+    var check = function () {
+      line.classList.add("is-checking"); label.textContent = checking;
+      fetch(location.href, { cache: "no-store", credentials: "same-origin", headers: { Accept: "text/html" } }).then(function (r) {
+        var type = r.headers.get("content-type") || "";
+        return r.text().then(function (html) {
+          if (type.indexOf("html") === -1) return false;
+          var doc = new DOMParser().parseFromString(html, "text/html");
+          if (doc.querySelector('[data-cv-gate="maintenance"]')) return false;
+          // A storefront page (the platform's page script, or this theme's markup), not a proxy's error page.
+          return !!(doc.getElementById("tf-events-bootstrap") || doc.querySelector("main.cv, .cv[class*='tf-scheme-']")) && r.url;
+        });
+      }).catch(function () { return false; }).then(function (url) {
+        line.classList.remove("is-checking");
+        if (url) { back(url); return; }
+        left = every; paint();
+      });
+    };
+    paint();
+    timer = setInterval(function () {
+      if (line.classList.contains("is-checking")) return;
+      left -= 1;
+      if (left <= 0) { left = 0; check(); return; }
+      paint();
+    }, 1000);
+  }
+
+  // Languages: a choice closes the list as it leaves.
+  root.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest(".cv-loc-dlg__opt");
+    if (a) { var d = a.closest("dialog"); if (d && d.open) d.close(); }
+  });
+})();
+</script>

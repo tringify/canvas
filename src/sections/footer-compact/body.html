@@ -1,0 +1,446 @@
+{%- comment -%} Compact footer: one row with the store name, the merchant's blocks (menus in a row, text, social links, a logo) and the
+  bottom bar's parts at the end. It wraps only when the line is full. It shares its blocks, bottom bar, pickers and form notice with the
+  other footer layouts. {%- endcomment -%}
+<footer data-cv-notice-host class="cv cv-ft cv-fc tf-scheme-{{ settings.color_scheme }} cv-ft--{{ settings.align | default: 'start' }} cv-ft--pad-{{ settings.spacing | default: 'normal' }}{% if settings.show_top_border %} cv-fc--border{% endif %}">
+  <div class="cv-wrap">
+{%- comment -%}partial:footer-notice{%- endcomment -%}
+    <p class="cv-notice {% if form_notice.success %}cv-notice--ok{% else %}cv-notice--error{% endif %} cv-ft__notice" role="status" data-cv-notice{% if form_notice.message == blank or form_notice.code contains 'NEWSLETTER' %} hidden{% endif %}>{% unless form_notice.code contains 'NEWSLETTER' %}{{ form_notice.message }}{% endunless %}</p>
+{%- comment -%}/partial:footer-notice{%- endcomment -%}
+    <div class="cv-fc__row">
+      {%- if settings.show_store_name -%}
+      <a class="cv-fc__name" dir="auto" href="{{ routes.root_url }}" data-tf-field="show_store_name">{{ shop.name }}</a>
+      {%- endif -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.type contains ':' -%}<div class="cv-fc__item cv-fc__item--{{ b.type | remove: 'theme:' }}">{% blocks b %}</div>{%- endif -%}
+      {%- endfor -%}
+{%- comment -%}partial:footer-bar{%- endcomment -%}
+{%- comment -%} The footer's bottom bar: its own blocks (copyright, policy links, country and language, social links, payment methods,
+  a note, Powered by Tringify) in the merchant's order. Each can be hidden or removed; a part with nothing to show for shoppers explains
+  itself in the editor. {%- endcomment -%}
+{%- assign cv_bar_n = 0 -%}
+{%- for b in settings.blocks -%}{%- unless b.type contains ':' -%}{%- assign cv_bar_n = cv_bar_n | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+{%- if cv_bar_n > 0 -%}
+{%- assign cv_year = 'now' | date: '%Y' -%}
+<div class="cv-ft__bar cv-ft__bar--{{ settings.bar_align | default: 'spread' }}{% if settings.divider != false %} cv-ft__bar--line{% endif %}">
+  {%- for b in settings.blocks -%}
+    {%- if b.type contains ':' -%}{%- continue -%}{%- endif -%}
+    {%- case b.type -%}
+      {%- when 'copyright' -%}
+        {{ b._editor_block_open }}
+        <p class="cv-ft__part cv-ft__copy" dir="auto" data-tf-field="copyright">&copy; {% if b.settings.copyright != blank %}{{ b.settings.copyright | replace: '{year}', cv_year | replace: '{store}', shop.name }}{% else %}{{ shop.name }}{% endif %}</p>
+        {{ b._editor_block_close }}
+      {%- when 'policies' -%}
+        {%- assign cv_pol = false -%}{%- if b.settings.show_policies != false and policies.size > 0 -%}{%- assign cv_pol = true -%}{%- endif -%}
+        {%- assign cv_cons = false -%}{%- if b.settings.show_consent != false and consent.required -%}{%- assign cv_cons = true -%}{%- endif -%}
+        {%- assign cv_priv = false -%}{%- if b.settings.show_privacy_request != false and customer_settings.privacy_request_url != blank -%}{%- assign cv_priv = true -%}{%- endif -%}
+        {%- if cv_pol or cv_cons or cv_priv -%}
+        {{ b._editor_block_open }}
+        <ul class="cv-ft__part cv-ft__policies" role="list">
+          {%- if cv_pol -%}{%- for p in policies -%}<li><a dir="auto" href="{{ p.url }}">{{ p.title }}</a></li>{%- endfor -%}{%- endif -%}
+          {%- if cv_priv -%}<li><a dir="auto" href="{{ customer_settings.privacy_request_url }}">{{ 'footer.privacy_request' | t }}</a></li>{%- endif -%}
+          {%- if cv_cons -%}<li><button class="cv-ft__consent" type="button" data-cv-consent-open>{{ 'consent.preferences' | t }}</button></li>{%- endif -%}
+        </ul>
+        {{ b._editor_block_close }}
+        {%- elsif design_mode -%}
+        {{ b._editor_block_open }}<p class="cv-ft__part cv-editor-hint cv-blk-hint">{{ 'footer.policies_hint' | t }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'localization' -%}
+        {%- assign cv_loc_c = false -%}{%- assign cv_loc_l = false -%}
+        {%- if b.settings.show_localization != false -%}
+          {%- if localization.available_countries.size > 1 -%}{%- assign cv_loc_c = true -%}{%- endif -%}
+          {%- if localization.available_languages.size > 1 -%}{%- assign cv_loc_l = true -%}{%- endif -%}
+        {%- endif -%}
+        {%- if cv_loc_c or cv_loc_l -%}
+        {{ b._editor_block_open }}
+        <div class="cv-ft__part cv-ft__loc">
+          {%- assign cv_loc_id = 'ft-' | append: b.id -%}{%- assign cv_loc_pick = b.settings.picker_style -%}
+{%- comment -%}partial:loc-picker{%- endcomment -%}
+{%- comment -%} Country and language picker. Inputs: cv_loc_id (unique on the page), cv_loc_pick (the placement's style: "theme" for the theme
+  setting, or a style), cv_loc_c / cv_loc_l (offer the country / the language choice). Styles: dropdown (native selects), links (inline
+  text buttons), pill (country code and currency code; opens a short list beside it), modal (country codes with names in a centred dialog), sheet (a side
+  sheet with search; every list is a bottom sheet on phones). Theme settings choose flags, how currencies show and language names or codes.
+  Every choice posts localization_set; the list styles' dialog is a <dialog>, which keeps focus inside it and closes on Escape. Over ten
+  countries or languages, that list gets a search (the sheet always searches countries); up to ten languages show as chips, more as a list.
+  Without script the dialog cannot open, so the trigger becomes a disclosure with the same choices. {%- endcomment -%}
+{%- assign cv_loc_style = cv_loc_pick | default: 'theme' -%}
+{%- if cv_loc_style == 'theme' -%}{%- assign cv_loc_style = theme.settings.loc_style | default: 'dropdown' -%}{%- endif -%}
+{%- assign cv_loc_flags = true -%}{%- if theme.settings.loc_flags == false -%}{%- assign cv_loc_flags = false -%}{%- endif -%}
+{%- assign cv_loc_cur = theme.settings.loc_currency | default: 'code_symbol' -%}
+{%- assign cv_loc_lang = theme.settings.loc_language | default: 'name' -%}
+{%- comment -%} Currencies show only when choosing a country changes it. {%- endcomment -%}
+{%- assign cv_loc_cur0 = localization.available_countries.first.currency_code -%}
+{%- assign cv_loc_multi = false -%}
+{%- for c in localization.available_countries -%}{%- if c.currency_code != cv_loc_cur0 -%}{%- assign cv_loc_multi = true -%}{%- break -%}{%- endif -%}{%- endfor -%}
+{%- unless cv_loc_multi -%}{%- assign cv_loc_cur = 'none' -%}{%- endunless -%}
+{%- assign cv_loc_now = localization.country -%}
+{%- for c in localization.available_countries -%}{%- if c.selected -%}{%- assign cv_loc_now = c -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_loc_now_cur = '' -%}
+{%- case cv_loc_cur -%}
+  {%- when 'code' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_code -%}
+  {%- when 'symbol' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_symbol | default: cv_loc_now.currency_code -%}
+  {%- when 'code_symbol' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_code -%}{%- if cv_loc_now.currency_symbol != blank and cv_loc_now.currency_symbol != cv_loc_now.currency_code -%}{%- assign cv_loc_now_cur = cv_loc_now_cur | append: ' ' | append: cv_loc_now.currency_symbol -%}{%- endif -%}
+{%- endcase -%}
+{%- assign cv_loc_now_lang = '' -%}
+{%- for l in localization.available_languages -%}{%- if l.selected -%}{%- if cv_loc_lang == 'code' -%}{%- assign cv_loc_now_lang = l.iso_code | upcase -%}{%- else -%}{%- assign cv_loc_now_lang = l.native_name | default: l.name -%}{%- endif -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_loc_title = 'localization.title' | t -%}
+{%- unless cv_loc_l -%}{%- assign cv_loc_title = 'localization.country' | t -%}{%- endunless -%}
+{%- unless cv_loc_c -%}{%- assign cv_loc_title = 'localization.language' | t -%}{%- endunless -%}
+<div class="cv-loc cv-loc--{{ cv_loc_style }}">
+{%- case cv_loc_style -%}
+{%- when 'links' -%}
+  {%- if cv_loc_c -%}
+  {% form 'localization_set', class: 'cv-loc__links' %}
+    <span class="cv-sr">{{ 'localization.country' | t }}</span>
+    {%- for c in localization.available_countries -%}
+      <button class="cv-loc__link" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>{% if cv_loc_flags and c.iso_code != blank %}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{% endif %}<span dir="auto">{{ c.name }}</span></button>
+    {%- endfor -%}
+  {% endform %}
+  {%- endif -%}
+  {%- if cv_loc_l -%}
+  {% form 'localization_set', class: 'cv-loc__links' %}
+    <span class="cv-sr">{{ 'localization.language' | t }}</span>
+    {%- for l in localization.available_languages -%}
+      <button class="cv-loc__link" type="submit" name="locale" value="{{ l.iso_code }}" lang="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>{% if cv_loc_lang == 'code' %}<abbr title="{{ l.native_name | default: l.name }}">{{ l.iso_code | upcase }}</abbr>{% else %}{{ l.native_name | default: l.name }}{% endif %}</button>
+    {%- endfor -%}
+  {% endform %}
+  {%- endif -%}
+{%- when 'pill', 'modal', 'sheet' -%}
+  <button class="cv-loc__trigger cv-loc__trigger--{{ cv_loc_style }}" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-loc-{{ cv_loc_id }}" data-cv-loc-open="cv-loc-{{ cv_loc_id }}">
+    <span class="cv-sr">{{ cv_loc_title }}:</span>
+    {%- if cv_loc_c -%}
+      {%- if cv_loc_flags and cv_loc_now.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ cv_loc_now.iso_code }}</span>{%- endif -%}
+      {%- if cv_loc_style == 'pill' -%}
+        <span class="cv-sr">{{ cv_loc_now.name }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ cv_loc_now.currency_code | default: cv_loc_now.iso_code }}</span>
+      {%- else -%}
+        <span class="cv-loc__tname" dir="auto">{{ cv_loc_now.name }}</span>{%- if cv_loc_now_cur != blank -%}<span class="cv-loc__tmeta" dir="ltr">{{ cv_loc_now_cur }}</span>{%- endif -%}
+      {%- endif -%}
+    {%- endif -%}
+    {%- if cv_loc_l -%}
+      {%- if cv_loc_c -%}<span class="cv-loc__sep" aria-hidden="true"></span>{%- endif -%}
+      {%- if cv_loc_style == 'pill' -%}
+        {%- for l in localization.available_languages -%}{%- if l.selected -%}<span class="cv-sr">{{ l.native_name | default: l.name }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ l.iso_code | upcase }}</span>{%- endif -%}{%- endfor -%}
+      {%- else -%}
+        <span class="cv-loc__tname">{{ cv_loc_now_lang }}</span>
+      {%- endif -%}
+    {%- endif -%}
+    <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+  <dialog class="cv-loc-dlg cv-loc-dlg--{{ cv_loc_style }}" id="cv-loc-{{ cv_loc_id }}" aria-labelledby="cv-loc-{{ cv_loc_id }}-t" data-cv-loc-dlg>
+    <span class="cv-loc-dlg__handle" aria-hidden="true"></span>
+    <div class="cv-loc-dlg__head">
+      <h2 class="cv-loc-dlg__title" id="cv-loc-{{ cv_loc_id }}-t">{{ cv_loc_title }}</h2>
+      <button class="cv-loc-dlg__close" type="button" data-cv-loc-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+    </div>
+    <div class="cv-loc-dlg__body">
+      {%- if cv_loc_c -%}
+      <div class="cv-loc-dlg__group">
+        {%- if cv_loc_l -%}<h3 class="cv-loc-dlg__sub">{{ 'localization.country' | t }}</h3>{%- endif -%}
+        {%- if cv_loc_style == 'sheet' or localization.available_countries.size > 10 -%}
+        <label class="cv-loc-dlg__search cv-shell">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="cv-sr">{{ 'localization.search' | t }}</span>
+          <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.search' | t }}" aria-controls="cv-loc-{{ cv_loc_id }}-list" data-cv-loc-search>
+        </label>
+        {%- endif -%}
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__list cv-loc-dlg__list--{{ cv_loc_style }}" id="cv-loc-{{ cv_loc_id }}-list" role="list">
+            {%- for c in localization.available_countries -%}
+              {%- assign cv_loc_c_cur = '' -%}
+              {%- case cv_loc_cur -%}
+                {%- when 'code' -%}{%- assign cv_loc_c_cur = c.currency_code -%}
+                {%- when 'symbol' -%}{%- assign cv_loc_c_cur = c.currency_symbol | default: c.currency_code -%}
+                {%- when 'code_symbol' -%}{%- assign cv_loc_c_cur = c.currency_code -%}{%- if c.currency_symbol != blank and c.currency_symbol != c.currency_code -%}{%- assign cv_loc_c_cur = cv_loc_c_cur | append: ' ' | append: c.currency_symbol -%}{%- endif -%}
+              {%- endcase -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ c.name | downcase }} {{ c.iso_code | downcase }} {{ c.currency_code | downcase }} {{ c.currency_name | downcase }}">
+                <button class="cv-loc-dlg__opt" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>
+                  {%- if cv_loc_flags and c.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{%- endif -%}
+                  <span class="cv-loc-dlg__name"><bdi>{{ c.name }}</bdi></span>
+                  {%- if cv_loc_c_cur != blank -%}<span class="cv-loc-dlg__meta" dir="ltr">{{ cv_loc_c_cur }}</span>{%- endif -%}
+                  {%- if c.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.no_results' | t }}</p>
+        {% endform %}
+      </div>
+      {%- endif -%}
+      {%- if cv_loc_l -%}
+      <div class="cv-loc-dlg__group">
+        {%- if cv_loc_c -%}<h3 class="cv-loc-dlg__sub">{{ 'localization.language' | t }}</h3>{%- endif -%}
+        {%- if localization.available_languages.size > 10 -%}
+        <label class="cv-loc-dlg__search cv-shell">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="cv-sr">{{ 'localization.lang_search' | t }}</span>
+          <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.lang_search' | t }}" aria-controls="cv-loc-{{ cv_loc_id }}-langs" data-cv-loc-search>
+        </label>
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__list cv-loc-dlg__list--langs" id="cv-loc-{{ cv_loc_id }}-langs" role="list">
+            {%- for l in localization.available_languages -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ l.native_name | downcase }} {{ l.name | downcase }} {{ l.iso_code | downcase }}">
+                <button class="cv-loc-dlg__opt" type="submit" name="locale" value="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>
+                  <span class="cv-loc-dlg__name"><bdi lang="{{ l.iso_code }}">{{ l.native_name | default: l.name }}</bdi></span>
+                  {%- if cv_loc_lang == 'code' or l.name != l.native_name -%}<span class="cv-loc-dlg__meta">{% if cv_loc_lang == 'code' %}{{ l.iso_code | upcase }}{% else %}{{ l.name }}{% endif %}</span>{%- endif -%}
+                  {%- if l.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.lang_none' | t }}</p>
+        {% endform %}
+        {%- else -%}
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__langs" role="list">
+            {%- for l in localization.available_languages -%}
+              <li><button class="cv-loc-dlg__chip" type="submit" name="locale" value="{{ l.iso_code }}" lang="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>{% if cv_loc_lang == 'code' %}<abbr title="{{ l.native_name | default: l.name }}">{{ l.iso_code | upcase }}</abbr>{% else %}{{ l.native_name | default: l.name }}{% endif %}</button></li>
+            {%- endfor -%}
+          </ul>
+        {% endform %}
+        {%- endif -%}
+      </div>
+      {%- endif -%}
+    </div>
+  </dialog>
+  {%- comment -%} Without script: the same choices in a disclosure, which opens without it. {%- endcomment -%}
+  <noscript>
+    <style>.cv-loc > .cv-loc__trigger[data-cv-loc-open] { display: none; }</style>
+    <details class="cv-loc__nojs">
+      <summary class="cv-loc__trigger cv-loc__trigger--{{ cv_loc_style }}">
+        <span class="cv-sr">{{ cv_loc_title }}:</span>
+        {%- if cv_loc_c -%}{%- if cv_loc_flags and cv_loc_now.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ cv_loc_now.iso_code }}</span>{%- endif -%}<span class="cv-loc__tname" dir="auto">{% if cv_loc_style == 'pill' %}{{ cv_loc_now.currency_code | default: cv_loc_now.iso_code }}{% else %}{{ cv_loc_now.name }}{% endif %}</span>{%- endif -%}
+        {%- if cv_loc_l -%}{%- if cv_loc_c -%}<span class="cv-loc__sep" aria-hidden="true"></span>{%- endif -%}<span class="cv-loc__tname">{% if cv_loc_style == 'pill' %}{%- for l in localization.available_languages -%}{%- if l.selected -%}{{ l.iso_code | upcase }}{%- endif -%}{%- endfor -%}{% else %}{{ cv_loc_now_lang }}{% endif %}</span>{%- endif -%}
+        <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <div class="cv-loc__nojs-panel">
+        {%- if cv_loc_c -%}
+        {% form 'localization_set', class: 'cv-loc__nojs-form' %}
+          {%- if cv_loc_l -%}<p class="cv-loc-dlg__sub">{{ 'localization.country' | t }}</p>{%- endif -%}
+          {%- for c in localization.available_countries -%}
+          <button class="cv-loc-dlg__opt" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>{%- if cv_loc_flags and c.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{%- endif -%}<span class="cv-loc-dlg__name"><bdi>{{ c.name }}</bdi></span>{%- if cv_loc_cur != 'none' -%}<span class="cv-loc-dlg__meta" dir="ltr">{{ c.currency_code }}</span>{%- endif -%}</button>
+          {%- endfor -%}
+        {% endform %}
+        {%- endif -%}
+        {%- if cv_loc_l -%}
+        {% form 'localization_set', class: 'cv-loc__nojs-form' %}
+          {%- if cv_loc_c -%}<p class="cv-loc-dlg__sub">{{ 'localization.language' | t }}</p>{%- endif -%}
+          {%- for l in localization.available_languages -%}
+          <button class="cv-loc-dlg__opt" type="submit" name="locale" value="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}><span class="cv-loc-dlg__name"><bdi lang="{{ l.iso_code }}">{{ l.native_name | default: l.name }}</bdi></span></button>
+          {%- endfor -%}
+        {% endform %}
+        {%- endif -%}
+      </div>
+    </details>
+  </noscript>
+{%- else -%}
+  {%- if cv_loc_c -%}
+  {% form 'localization_set', class: 'cv-loc__form' %}
+    <label class="cv-sr" for="cv-loc-{{ cv_loc_id }}-c">{{ 'localization.country' | t }}</label>
+    <select class="cv-loc__select cv-shell" id="cv-loc-{{ cv_loc_id }}-c" name="country_code" data-cv-autosubmit>
+      {%- for c in localization.available_countries -%}
+        {%- assign cv_loc_c_cur = '' -%}
+        {%- case cv_loc_cur -%}
+          {%- when 'code' -%}{%- assign cv_loc_c_cur = c.currency_code -%}
+          {%- when 'symbol' -%}{%- assign cv_loc_c_cur = c.currency_symbol | default: c.currency_code -%}
+          {%- when 'code_symbol' -%}{%- assign cv_loc_c_cur = c.currency_code -%}{%- if c.currency_symbol != blank and c.currency_symbol != c.currency_code -%}{%- assign cv_loc_c_cur = cv_loc_c_cur | append: ' ' | append: c.currency_symbol -%}{%- endif -%}
+        {%- endcase -%}
+        <option value="{{ c.iso_code }}"{% if c.selected %} selected{% endif %}>{{ c.name }}{% if cv_loc_c_cur != blank %} ({{ cv_loc_c_cur }}){% endif %}</option>
+      {%- endfor -%}
+    </select>
+    <noscript><button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'general.update' | t }}</button></noscript>
+  {% endform %}
+  {%- endif -%}
+  {%- if cv_loc_l -%}
+  {% form 'localization_set', class: 'cv-loc__form' %}
+    <label class="cv-sr" for="cv-loc-{{ cv_loc_id }}-l">{{ 'localization.language' | t }}</label>
+    <select class="cv-loc__select cv-shell" id="cv-loc-{{ cv_loc_id }}-l" name="locale" data-cv-autosubmit>
+      {%- for l in localization.available_languages -%}
+        <option value="{{ l.iso_code }}"{% if l.selected %} selected{% endif %}>{% if cv_loc_lang == 'code' %}{{ l.iso_code | upcase }}{% else %}{{ l.native_name | default: l.name }}{% endif %}</option>
+      {%- endfor -%}
+    </select>
+    <noscript><button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'general.update' | t }}</button></noscript>
+  {% endform %}
+  {%- endif -%}
+{%- endcase -%}
+</div>
+{%- comment -%}/partial:loc-picker{%- endcomment -%}
+        </div>
+        {{ b._editor_block_close }}
+        {%- elsif design_mode -%}
+        {{ b._editor_block_open }}<p class="cv-ft__part cv-editor-hint cv-blk-hint">{{ 'footer.localization_hint' | t }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'social' -%}
+        {%- assign cv_soc_style = b.settings.style -%}
+        {%- if b.settings.show_social != false -%}
+        {{ b._editor_block_open }}
+        <div class="cv-ft__part cv-ft__social">
+{%- comment -%}partial:social-icons{%- endcomment -%}
+{%- comment -%} Social profiles from Theme settings > Social media (https addresses only). Input: cv_soc_style ("icons", or "names" for an
+  icon with the network's name). Output: cv_has_social. {%- endcomment -%}
+{%- assign cv_networks = 'instagram,facebook,x,youtube,tiktok,pinterest,linkedin' | split: ',' -%}
+{%- assign cv_has_social = false -%}
+{%- for cv_n in cv_networks -%}
+  {%- assign cv_key = 'social_' | append: cv_n -%}
+  {%- assign cv_url = theme.settings[cv_key] | strip -%}
+  {%- assign cv_scheme = cv_url | slice: 0, 8 -%}
+  {%- if cv_scheme == 'https://' -%}{%- assign cv_has_social = true -%}{%- endif -%}
+{%- endfor -%}
+{%- if cv_has_social -%}
+<ul class="cv-social cv-social--{{ cv_soc_style | default: 'icons' }}" role="list">
+  {%- for cv_n in cv_networks -%}
+    {%- assign cv_key = 'social_' | append: cv_n -%}
+    {%- assign cv_url = theme.settings[cv_key] | strip -%}
+    {%- assign cv_scheme = cv_url | slice: 0, 8 -%}
+    {%- if cv_scheme == 'https://' -%}
+    <li><a href="{{ cv_url }}" target="_blank" rel="noopener"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true">{%- case cv_n -%}
+{%- when 'instagram' -%}<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6"/>
+{%- when 'facebook' -%}<path d="M15 3h-2.5A3.5 3.5 0 0 0 9 6.5V9H7v3h2v9h3v-9h2.6l.4-3h-3V7a1 1 0 0 1 1-1h2z"/>
+{%- when 'x' -%}<path d="M4 4l16 16M20 4 4 20"/>
+{%- when 'youtube' -%}<rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10 9 5 3-5 3z"/>
+{%- when 'tiktok' -%}<path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5M14 3c.5 2.5 2.5 4.5 5 4.5"/>
+{%- when 'pinterest' -%}<circle cx="12" cy="12" r="9"/><path d="m10.5 21 2.2-9.5M9.5 14c-1-3 .8-6 3.5-6 2.3 0 3.5 1.6 3.5 3.6 0 2.4-1.4 4.4-3.3 4.4"/>
+{%- when 'linkedin' -%}<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/>
+{%- endcase -%}</svg><span class="{% if cv_soc_style == 'names' %}cv-social__name{% else %}cv-sr{% endif %}">{{ 'social.' | append: cv_n | t }}</span></a></li>
+    {%- endif -%}
+  {%- endfor -%}
+</ul>
+{%- endif -%}
+{%- comment -%}/partial:social-icons{%- endcomment -%}
+        {%- if cv_has_social == false and design_mode -%}<p class="cv-editor-hint cv-blk-hint">{{ 'footer.social_hint' | t }}</p>{%- endif -%}
+        </div>
+        {{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'payment' -%}
+        {{ b._editor_block_open }}
+        <div class="cv-ft__part cv-ft__pay">
+        {%- assign cv_pay_list = b.settings.payment_methods -%}
+{%- comment -%}partial:payment-list{%- endcomment -%}
+{%- comment -%} Payment methods the merchant lists (comma-separated), as small labels. Input: cv_pay_list. {%- endcomment -%}
+{%- assign cv_pay = cv_pay_list | split: ',' -%}
+{%- assign cv_pay_n = 0 -%}
+{%- for p in cv_pay -%}{%- assign cv_p = p | strip -%}{%- if cv_p != blank -%}{%- assign cv_pay_n = cv_pay_n | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_pay_n > 0 -%}
+<ul class="cv-pay" role="list" aria-label="{{ 'footer.payment_methods' | t }}" data-tf-field="payment_methods">
+  {%- for p in cv_pay -%}{%- assign cv_p = p | strip -%}{%- if cv_p != blank -%}<li dir="auto">{{ cv_p }}</li>{%- endif -%}{%- endfor -%}
+</ul>
+{%- elsif design_mode -%}
+<p class="cv-editor-hint cv-blk-hint" data-tf-field="payment_methods">{{ 'footer.payment_hint' | t }}</p>
+{%- endif -%}
+{%- comment -%}/partial:payment-list{%- endcomment -%}
+        </div>
+        {{ b._editor_block_close }}
+      {%- when 'note' -%}
+        {%- if b.settings.text != blank -%}
+        {{ b._editor_block_open }}<div class="cv-ft__part cv-ft__note cv-rte" dir="auto" data-tf-field="text">{{ b.settings.text }}</div>{{ b._editor_block_close }}
+        {%- elsif design_mode -%}
+        {{ b._editor_block_open }}<p class="cv-ft__part cv-editor-hint cv-blk-hint">{{ 'sections.editor_empty_block' | t }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'powered_by' -%}
+        {%- if b.settings.show_powered_by != false -%}
+        {{ b._editor_block_open }}<a class="cv-ft__part cv-ft__powered" href="https://tringify.com" target="_blank" rel="noopener">{{ 'footer.powered_by' | t }}</a>{{ b._editor_block_close }}
+        {%- endif -%}
+    {%- endcase -%}
+  {%- endfor -%}
+</div>
+{%- endif -%}
+{%- comment -%}/partial:footer-bar{%- endcomment -%}
+    </div>
+    {%- if settings.blocks.size == 0 and settings.show_store_name == false and design_mode -%}<p class="cv-editor-hint">{{ 'sections.editor_add_content' | t }}</p>{%- endif -%}
+  </div>
+</footer>
+{%- comment -%}partial:loc-script{%- endcomment -%}
+<script>
+(function () {
+  if (window.__cvLoc) return; window.__cvLoc = true;
+  // Dropdown pickers submit on change.
+  if (!window.__cvAutosubmit) {
+    window.__cvAutosubmit = true;
+    document.addEventListener("change", function (e) {
+      var s = e.target.closest && e.target.closest("select[data-cv-autosubmit]");
+      if (s && s.form) s.form.requestSubmit ? s.form.requestSubmit() : s.form.submit();
+    });
+  }
+  // Focus rings follow the last input: a click or a tap opens a list with focus on the current choice but no ring (Safari otherwise rings
+  // focus moved by script after a tap); a key brings the ring back. Pages without the header (the gate pages) get the page-wide cv-pointer
+  // switch from here.
+  var kbd = false, html = document.documentElement;
+  addEventListener("pointerdown", function () { kbd = false; html.classList.add("cv-pointer"); }, true);
+  addEventListener("keydown", function (e) {
+    if (e.key !== "Tab" && e.key !== "Escape" && !/^Arrow/.test(e.key) && e.key !== "Enter" && e.key !== " ") return;
+    kbd = true; html.classList.remove("cv-pointer");
+    document.querySelectorAll("dialog[data-cv-loc-dlg].is-pointer").forEach(function (d) { d.classList.remove("is-pointer"); });
+  }, true);
+  // List pickers: the trigger opens its <dialog> (modal, so focus stays in it and Escape closes it). The pill's list sits under the pill on
+  // wider screens, lined up with it on the page grid; every list is a bottom sheet on phones.
+  var wide = window.matchMedia("(min-width: 750px)");
+  function place(d, t) {
+    if (!d.classList.contains("cv-loc-dlg--pill")) return;
+    if (!wide.matches) { ["--cv-loc-y", "--cv-loc-x", "--cv-loc-b", "--cv-loc-w"].forEach(function (p) { d.style.removeProperty(p); }); return; }
+    var r = t.getBoundingClientRect(), vw = html.clientWidth, vh = window.innerHeight;
+    // The grid: the content box of the row the trigger sits in (the header bar, the gate's top row), else 16px in from the window.
+    var g = t.closest(".cv-wrap, .cv-gate__top"), lo = 16, hi = vw - 16;
+    if (g) {
+      var gr = g.getBoundingClientRect(), gs = getComputedStyle(g);
+      lo = Math.max(lo, gr.left + parseFloat(gs.paddingLeft)); hi = Math.min(hi, gr.right - parseFloat(gs.paddingRight));
+    }
+    var w = Math.min(340, hi - lo);
+    // The list's edge meets the trigger's: the right edges when the trigger is in the right half of the row, else the left edges.
+    var left = (r.left + r.right) / 2 > (lo + hi) / 2 ? r.right - w : r.left;
+    left = Math.max(lo, Math.min(left, hi - w));
+    var rtl = getComputedStyle(d).direction === "rtl";
+    d.style.setProperty("--cv-loc-w", w + "px");
+    d.style.setProperty("--cv-loc-x", (rtl ? vw - left - w : left) + "px");
+    var below = vh - r.bottom, y = below > 280 || below > r.top ? r.bottom + 8 : null;
+    if (y === null) { d.style.setProperty("--cv-loc-y", "auto"); d.style.setProperty("--cv-loc-b", (vh - r.top + 8) + "px"); }
+    else { d.style.setProperty("--cv-loc-y", y + "px"); d.style.removeProperty("--cv-loc-b"); }
+  }
+  function open(t) {
+    var d = document.getElementById(t.getAttribute("data-cv-loc-open"));
+    if (!d || d.open || !d.showModal) return;
+    place(d, t);
+    d.classList.toggle("is-pointer", !kbd);
+    d.showModal();
+    t.setAttribute("aria-expanded", "true");
+    d.__cvTrigger = t;
+    // Wider screens start in the first list's search, if it has one; otherwise (and on phones, where it would raise the keyboard) on the
+    // current choice.
+    var search = wide.matches && d.querySelector(".cv-loc-dlg__group:first-child [data-cv-loc-search]");
+    var cur = d.querySelector('.cv-loc-dlg__opt[aria-current="true"], .cv-loc-dlg__chip[aria-current="true"]');
+    var focus = search || cur;
+    if (focus) focus.focus({ preventScroll: true, focusVisible: kbd });
+    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
+  }
+  function norm(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function filter(input) {
+    // Each list (countries, languages) has its own search.
+    var d = input.closest(".cv-loc-dlg__group") || input.closest("dialog"), q = norm(input.value.trim()), shown = 0;
+    d.querySelectorAll("[data-cv-loc-item]").forEach(function (li) {
+      var hit = !q || norm(li.getAttribute("data-cv-loc-q")).indexOf(q) !== -1 || norm(li.textContent).indexOf(q) !== -1;
+      li.hidden = !hit; if (hit) shown++;
+    });
+    var none = d.querySelector("[data-cv-loc-none]"); if (none) none.hidden = shown > 0;
+  }
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest) return;
+    var t = e.target.closest("[data-cv-loc-open]");
+    if (t) { open(t); return; }
+    var x = e.target.closest("[data-cv-loc-close]");
+    if (x) { x.closest("dialog").close(); return; }
+    // A click on the backdrop (the dialog element itself, outside its content) closes it.
+    if (e.target.matches && e.target.matches("dialog[data-cv-loc-dlg]")) {
+      var r = e.target.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
+    }
+  });
+  document.addEventListener("input", function (e) { if (e.target.matches && e.target.matches("[data-cv-loc-search]")) filter(e.target); });
+  document.addEventListener("close", function (e) {
+    var d = e.target;
+    if (!d.matches || !d.matches("dialog[data-cv-loc-dlg]")) return;
+    if (d.__cvTrigger) d.__cvTrigger.setAttribute("aria-expanded", "false");
+    d.querySelectorAll("[data-cv-loc-search]").forEach(function (s) { if (s.value) { s.value = ""; filter(s); } });
+  }, true);
+  window.addEventListener("resize", function () {
+    document.querySelectorAll("dialog[data-cv-loc-dlg][open]").forEach(function (d) { if (d.__cvTrigger) place(d, d.__cvTrigger); });
+  });
+})();
+</script>
+{%- comment -%}/partial:loc-script{%- endcomment -%}

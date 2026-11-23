@@ -1,0 +1,173 @@
+{
+  "name": "image-compare",
+  "icon": "image",
+  "ctx_needs": [
+    "design_mode",
+    "theme_preview"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": "@t:sections.image_compare.heading"
+    },
+    {
+      "id": "before",
+      "type": "image",
+      "editor": {
+        "label": "before_image",
+        "group": "content"
+      }
+    },
+    {
+      "id": "before_label",
+      "type": "text",
+      "editor": {
+        "label": "before_label",
+        "group": "content"
+      },
+      "default": "@t:sections.image_compare.before_label"
+    },
+    {
+      "id": "after",
+      "type": "image",
+      "editor": {
+        "label": "after_image",
+        "group": "content"
+      }
+    },
+    {
+      "id": "after_label",
+      "type": "text",
+      "editor": {
+        "label": "after_label",
+        "group": "content"
+      },
+      "default": "@t:sections.image_compare.after_label"
+    },
+    {
+      "id": "fallback_photo",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "opt_photo_auto"
+        },
+        {
+          "value": "room",
+          "label": "opt_photo_room"
+        },
+        {
+          "value": "table",
+          "label": "opt_photo_table"
+        },
+        {
+          "value": "shelf",
+          "label": "opt_photo_shelf"
+        },
+        {
+          "value": "corner",
+          "label": "opt_photo_corner"
+        },
+        {
+          "value": "parcel",
+          "label": "opt_photo_parcel"
+        },
+        {
+          "value": "linen",
+          "label": "opt_photo_linen"
+        },
+        {
+          "value": "bedroom",
+          "label": "opt_photo_bedroom"
+        },
+        {
+          "value": "bench",
+          "label": "opt_photo_bench"
+        },
+        {
+          "value": "evening",
+          "label": "opt_photo_evening"
+        },
+        {
+          "value": "off",
+          "label": "opt_photo_none"
+        }
+      ],
+      "editor": {
+        "label": "fallback_photo",
+        "group": "content"
+      }
+    },
+    {
+      "id": "ratio",
+      "type": "select",
+      "editor": {
+        "label": "image_ratio",
+        "group": "layout"
+      },
+      "default": "16 / 9",
+      "options": [
+        {
+          "value": "16 / 9",
+          "label": "opt_wide"
+        },
+        {
+          "value": "4 / 3",
+          "label": "opt_landscape"
+        },
+        {
+          "value": "1 / 1",
+          "label": "opt_square"
+        }
+      ]
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "before-after",
+      "category": "image"
+    }
+  ]
+}

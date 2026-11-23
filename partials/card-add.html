@@ -1,0 +1,63 @@
+{%- comment -%} The card's quick add (partials/card.html places it on the image, or under the price for the button style). Input: the card's
+  cv_p, cv_wl, cv_inline, cv_pre, cv_add_wide, cv_sold_label, cv_unavail and cv_tz. {%- endcomment -%}
+    {%- if cv_add_wide and cv_p.available_for_sale != true -%}
+      <button class="cv-card__quick cv-card__add cv-btn" type="button" disabled><span class="cv-card__add-label">{{ cv_sold_label }}</span></button>
+    {%- elsif theme.settings.card_quick_add and cv_p.available_for_sale and cv_wl == nil -%}
+    {%- if cv_p.is_gift_card != true or cv_add_wide -%}
+      {%- assign cv_quick = false -%}
+      {%- if cv_p.variant_matrix.size == 1 or cv_p.options.size == 0 -%}{%- assign cv_quick = true -%}{%- endif -%}
+      {%- comment -%} A gift card asks for its recipient on its own page: the button and bar open it as Choose options does. {%- endcomment -%}
+      {%- assign cv_gift = false -%}{%- if cv_p.is_gift_card -%}{%- assign cv_gift = true -%}{%- assign cv_quick = false -%}{%- endif -%}
+      {%- if cv_inline -%}
+        {% form 'cart_add', class: 'cv-card__quick' %}
+          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+          <input type="hidden" name="variant_id" value="{{ cv_pre }}" data-cv-pick-variant>
+          <input type="hidden" name="quantity" value="1">
+          <button class="cv-card__add cv-btn" type="submit" data-cv-pick-submit aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.add_to_cart' | t }}</span>
+          </button>
+        {% endform %}
+      {%- elsif cv_quick -%}
+        {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+        {% form 'cart_add', class: 'cv-card__quick' %}
+          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+          {%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}
+          <input type="hidden" name="quantity" value="1">
+          <button class="cv-card__add cv-btn" type="submit" aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.add_to_cart' | t }}</span>
+          </button>
+        {% endform %}
+      {%- elsif theme.settings.card_choose_opens != 'product_page' -%}
+        {%- comment -%} Quick view (theme setting "Choose options opens"): the header's quick view opens the product's options, media and Add to cart over the page; without scripts the link opens the product page. {%- endcomment -%}
+        <a class="cv-card__quick cv-card__add cv-btn" href="{{ cv_p.url }}" data-cv-qv aria-haspopup="dialog" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </a>
+      {%- elsif cv_p.variant_matrix.size > 1 and theme.settings.card_option_picker and cv_gift == false -%}
+        <button class="cv-card__quick cv-card__add cv-btn" type="button" data-cv-pick-open aria-expanded="false" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </button>
+        <div class="cv-card__pick" hidden data-cv-pick data-matrix="{{ cv_p.variant_matrix | json | escape }}" data-unavailable="{{ cv_unavail }}">
+          {%- for cv_r in cv_p.variant_matrix -%}{%- if cv_r.price -%}<span hidden data-cv-pick-px="{{ cv_r.id }}">{{ cv_r.price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}{%- endfor -%}
+          <button class="cv-card__pick-x" type="button" data-cv-pick-close aria-label="{{ 'general.close' | t }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          {%- for cv_opt in cv_p.options -%}
+            <div class="cv-card__pick-opt" data-cv-pick-attr="{{ cv_opt.attribute_slug }}" role="group" aria-label="{{ cv_opt.attribute_name }}">
+              <p class="cv-card__pick-name">{{ cv_opt.attribute_name }}</p>
+              <div class="cv-card__pick-vals">
+                {%- for cv_v in cv_opt.values -%}<button type="button" class="cv-card__pick-val{% if cv_v.color != blank %} cv-card__pick-val--sw{% endif %}" data-cv-pick-val="{{ cv_v.value }}" aria-pressed="false"{% if cv_v.color != blank %} style="--cv-sw: {{ cv_v.color }}" title="{{ cv_v.label }}"{% endif %}>{% if cv_v.color != blank %}<span class="cv-sr">{{ cv_v.label }}</span>{% else %}{{ cv_v.label }}{% endif %}</button>{%- endfor -%}
+              </div>
+            </div>
+          {%- endfor -%}
+          {% form 'cart_add', class: 'cv-card__pick-form' %}
+            <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+            <input type="hidden" name="variant_id" value="" data-cv-pick-variant>
+            <input type="hidden" name="quantity" value="1">
+            <button class="cv-btn cv-btn--sm cv-card__pick-add" type="submit" disabled data-cv-pick-submit>{{ 'products.add_to_cart' | t }}<span class="cv-card__pick-price" data-cv-pick-price></span></button>
+          {% endform %}
+        </div>
+      {%- else -%}
+        <a class="cv-card__quick cv-card__add cv-btn" href="{{ cv_p.url }}" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </a>
+      {%- endif -%}
+    {%- endif -%}
+    {%- endif -%}

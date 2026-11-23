@@ -1,0 +1,7 @@
+  .cv-tr__wrap { display: grid; gap: 16px; max-width: 520px; }
+  .cv-tr__wrap > p { margin: 0; }
+  .cv-tr__form { display: grid; gap: 14px; }
+  .cv-tr__form .cv-btn { justify-self: start; }
+  .cv-tr__verify { padding-top: 16px; border-top: 1px solid var(--border); }
+  .cv-tr__verify > summary { cursor: pointer; margin-bottom: 14px; }
+  .cv-hp { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; opacity: 0; }

@@ -1,0 +1,5 @@
+  .cv-pg__wrap { display: grid; gap: 24px; }
+  .cv-pg__body { font-size: 17px; }
+  .cv-pg__body img { height: auto; }
+  .cv-pg__body table { width: 100%; border-collapse: collapse; }
+  .cv-pg__body th, .cv-pg__body td { padding: 8px; border: 1px solid var(--border); text-align: start; }

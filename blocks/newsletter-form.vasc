@@ -1,0 +1,56 @@
+{%- comment -%} Newsletter signup: an optional title and text over the email field. The platform's confirmation (saved, or check your email
+  when the store asks subscribers to confirm) shows right under the form. {%- endcomment -%}
+<div class="cv-blk-news" data-cv-notice-host>
+  {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-blk-news__title" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+  {%- if settings.text != blank -%}<p dir="auto" class="cv-blk-news__text" data-tf-field="text">{{ settings.text }}</p>{%- endif -%}
+  {% form 'newsletter_subscribe', class: 'cv-ft__news cv-shell' %}
+    <label class="cv-blk-news__field"><span class="cv-sr">{{ 'forms.email' | t }}</span>
+      <input class="cv-input" type="email" name="email" required autocomplete="email"
+             maxlength="{{ forms.newsletter.email.max_length | default: 254 }}" placeholder="{{ 'forms.email' | t }}"></label>
+    <input class="cv-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <button class="cv-btn" type="submit" data-tf-field="button_label">{% if settings.button_label != blank %}{{ settings.button_label }}{% else %}{{ 'footer.subscribe' | t }}{% endif %}</button>
+  {% endform %}
+  {%- assign cv_news_note = false -%}{%- if form_notice.message != blank and form_notice.code contains 'NEWSLETTER' -%}{%- assign cv_news_note = true -%}{%- endif -%}
+  <p class="cv-notice {% if cv_news_note and form_notice.success == false %}cv-notice--error{% else %}cv-notice--ok{% endif %} cv-blk-news__notice" role="status" data-cv-notice{% unless cv_news_note %} hidden{% endunless %}>{% if cv_news_note %}{{ form_notice.message }}{% endif %}</p>
+</div>
+{% schema %}
+{
+  "name": "newsletter-form",
+  "kind": "block",
+  "icon": "mail",
+  "ctx_needs": [
+    "forms",
+    "csrf_token",
+    "form_notice"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.footer.newsletter.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "text",
+      "type": "text",
+      "default": "@t:sections.footer.newsletter.text",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      }
+    },
+    {
+      "id": "button_label",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "button_label_platform",
+        "group": "content"
+      }
+    }
+  ]
+}
+{% endschema %}

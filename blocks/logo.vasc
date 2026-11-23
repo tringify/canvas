@@ -1,0 +1,46 @@
+{%- comment -%} Logo: the merchant's image at a chosen width, else the store name set in the heading font. Links to the home page. {%- endcomment -%}
+<a class="cv-blk-logo" href="{{ routes.root_url }}" data-tf-field="logo">
+  {%- if settings.logo -%}
+    <img src="{{ settings.logo | image_url: width: 480 }}" srcset="{{ settings.logo | image_srcset: max: 960 }}" sizes="{{ settings.logo_width | default: 140 }}px" alt="{{ shop.name }}" loading="lazy" style="width: {{ settings.logo_width | default: 140 }}px">
+  {%- else -%}
+    <span class="cv-blk-logo__name" dir="auto">{{ shop.name }}</span>
+  {%- endif -%}
+</a>
+{% schema %}
+{
+  "name": "logo",
+  "kind": "block",
+  "icon": "image",
+  "ctx_needs": [
+    "shop",
+    "routes"
+  ],
+  "settings": [
+    {
+      "id": "logo",
+      "type": "image",
+      "editor": {
+        "label": "logo",
+        "group": "content"
+      }
+    },
+    {
+      "id": "logo_width",
+      "type": "range",
+      "min": 40,
+      "max": 320,
+      "step": 4,
+      "unit": "px",
+      "default": 140,
+      "editor": {
+        "label": "logo_width",
+        "group": "design"
+      },
+      "visible_if": {
+        "setting": "logo",
+        "set": true
+      }
+    }
+  ]
+}
+{% endschema %}

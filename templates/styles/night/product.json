@@ -1,0 +1,106 @@
+{
+  "page_type": "product",
+  "sections": [
+    {
+      "type": "main-product",
+      "position": 1,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-night-product__0",
+            "type": "vendor",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__1",
+            "type": "title",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__2",
+            "type": "rating",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__3",
+            "type": "price",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__3_notes",
+            "type": "price_notes",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__8",
+            "type": "availability",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__11",
+            "type": "offers",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__4",
+            "type": "variant_picker",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__5",
+            "type": "buy_buttons",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__10",
+            "type": "express_checkout",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__6",
+            "type": "description",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__7",
+            "type": "collapsible",
+            "settings": {}
+          },
+          {
+            "id": "canvas-night-product__9",
+            "type": "share",
+            "settings": {}
+          }
+        ],
+        "gallery_layout": "thumbs",
+        "media_size": "medium",
+        "media_position": "left"
+      }
+    },
+    {
+      "type": "product-reviews",
+      "settings": {},
+      "position": 2
+    },
+    {
+      "type": "related-products",
+      "settings": {},
+      "position": 3
+    },
+    {
+      "type": "shoppable-reels",
+      "settings": {
+        "heading": "@t:sections.reels.heading",
+        "layout": "row",
+        "card_size": "small",
+        "blocks": []
+      },
+      "position": 4
+    },
+    {
+      "type": "recently-viewed",
+      "settings": {},
+      "position": 5
+    }
+  ]
+}

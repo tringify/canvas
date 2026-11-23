@@ -1,0 +1,248 @@
+{%- comment -%} Quick view (theme setting "Choose options opens": Quick view). Any link marked data-cv-qv (a card's Choose options, Shop the look,
+  the hero's pins, Featured product) opens its product over the page: a side drawer on wider screens, a bottom sheet on phones.
+  The content is the product page's own buy box, rendered by the platform for this product and this shopper (?_sections=main-product on
+  the product's address, so the language, market and prices are the page's): media, title, price, options, quantity, Add to cart and
+  Buy it now. Picking an option renders it again for the new choice. Add to cart posts through the platform like on the product page;
+  after an add the drawer closes and the cart behaves as "After adding to cart" says. When the product cannot be shown (an alternative
+  product template without the Product section, a network error) the link opens the product page instead. {%- endcomment -%}
+{%- if theme.settings.card_choose_opens != 'product_page' -%}
+<div class="cv cv-qv" hidden data-cv-qv-root>
+  <div class="cv-qv__backdrop" data-cv-qv-close></div>
+  <div class="cv-qv__panel" role="dialog" aria-modal="true" aria-label="{{ 'products.quick_view' | t }}" data-label="{{ 'products.quick_view' | t }}" tabindex="-1" data-cv-qv-panel>
+    <span class="cv-qv__handle" aria-hidden="true"></span>
+    <button class="cv-qv__close" type="button" data-cv-qv-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+    <div class="cv-qv__body" data-cv-qv-body></div>
+    <template data-cv-qv-wait>
+      <div class="cv-qv__grid cv-qv__wait" role="status">
+        <div class="cv-qv__media"><div class="cv-qv__ph cv-qv__ph--media"></div></div>
+        <div class="cv-qv__info"><div class="cv-qv__ph cv-qv__ph--title"></div><div class="cv-qv__ph cv-qv__ph--line"></div><div class="cv-qv__ph cv-qv__ph--opts"></div><div class="cv-qv__ph cv-qv__ph--btn"></div></div>
+        <span class="cv-sr">{{ 'general.loading' | t }}</span>
+      </div>
+    </template>
+    <template data-cv-qv-details><a class="cv-tbtn cv-qv__details" href="">{{ 'products.view_full_details' | t }}<svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></template>
+  </div>
+</div>
+<script>
+(function () {
+  if (window.__cvQv) return; window.__cvQv = true;
+  var SECTION = "main-product";
+  var st = { seq: 0, open: false, back: null, seen: {} };
+  // The header carries the drawer, but a sticky header is a containing block for fixed elements: the drawer lives on <body>.
+  // A re-rendered header brings a new copy; the one on <body> stays and the copy is dropped.
+  function root() {
+    var r = document.querySelector("body > [data-cv-qv-root]");
+    document.querySelectorAll("[data-cv-qv-root]").forEach(function (x) {
+      if (x === r) return;
+      if (!r) { r = x; document.body.appendChild(x); } else x.remove();
+    });
+    return r;
+  }
+  function part(r, name) { return r.querySelector("[data-cv-qv-" + name + "]"); }
+  function isOpen(r) { return st.open && !!r && !r.hidden; }
+  // The product page's styles come with its HTML. They are scoped to the drawer, rule by rule (every selector under
+  // :where(.cv-qv), which adds no weight), so they style the buy box as on the product page and nothing else on this page.
+  function splitList(sel) {
+    var out = [], depth = 0, from = 0;
+    for (var i = 0; i < sel.length; i++) {
+      var ch = sel.charAt(i);
+      if (ch === "(" || ch === "[") depth++;
+      else if (ch === ")" || ch === "]") depth--;
+      else if (ch === "," && !depth) { out.push(sel.slice(from, i)); from = i + 1; }
+    }
+    out.push(sel.slice(from));
+    return out;
+  }
+  function scopeSelector(sel) {
+    return splitList(sel).map(function (one) {
+      one = one.trim();
+      // Page-level conditions (the document's direction, html classes) stay in front of the scope.
+      var lead = /^(?:(?::root|html|body)(?:\[[^\]]*\]|[.:][\w-]+(?:\([^)]*\))?)*|\[dir[^\]]*\])(?=\s|$)/.exec(one);
+      if (lead) return lead[0] + " :where(.cv-qv)" + one.slice(lead[0].length);
+      return ":where(.cv-qv) " + one;
+    }).join(", ");
+  }
+  function scopeRules(rules) {
+    var css = "";
+    for (var i = 0; i < rules.length; i++) {
+      var r = rules[i];
+      if (r.selectorText !== undefined && r.style) css += scopeSelector(r.selectorText) + " { " + r.style.cssText + " }\n";
+      else if (r.cssRules && r.media) css += "@media " + r.media.mediaText + " {\n" + scopeRules(r.cssRules) + "}\n";
+      else if (r.cssRules && r.conditionText !== undefined && !r.name) css += "@supports " + r.conditionText + " {\n" + scopeRules(r.cssRules) + "}\n";
+      else css += r.cssText + "\n";
+    }
+    return css;
+  }
+  var parser = null;
+  function scopeCSS(text) {
+    parser = parser || document.implementation.createHTMLDocument("");
+    var el = parser.createElement("style"); el.textContent = text; parser.head.appendChild(el);
+    var css = el.sheet ? scopeRules(el.sheet.cssRules) : "";
+    el.remove();
+    return css;
+  }
+  // Each script runs once: they bind to the whole document, guarded against a second run.
+  function adopt(frag) {
+    frag.querySelectorAll("style").forEach(function (s) {
+      var key = "s:" + (s.getAttribute("data-tf-css") || s.textContent.length + ":" + s.textContent.slice(0, 80));
+      if (!st.seen[key]) {
+        st.seen[key] = true;
+        var el = document.createElement("style");
+        el.setAttribute("data-cv-qv-css", "");
+        el.textContent = scopeCSS(s.textContent);
+        document.head.appendChild(el);
+      }
+      s.remove();
+    });
+    frag.querySelectorAll("script").forEach(function (s) {
+      var type = (s.getAttribute("type") || "").toLowerCase();
+      if (!s.src && (type === "" || type === "text/javascript" || type === "module")) {
+        var key = "j:" + s.textContent.length + ":" + s.textContent.slice(0, 160);
+        if (!st.seen[key]) {
+          st.seen[key] = true;
+          var el = document.createElement("script");
+          if (type) el.type = type;
+          el.textContent = s.textContent;
+          document.body.appendChild(el);
+        }
+      }
+      s.remove();
+    });
+  }
+  function absolute(a, base) { a.setAttribute("href", new URL(a.getAttribute("href") || "", base).toString()); }
+  // The photos a gallery shows, in order, without the width each one was rendered at.
+  function mediaKey(el) {
+    return [].map.call(el.querySelectorAll("[data-cv-slide] img"), function (i) { return (i.getAttribute("src") || "").split("?")[0]; }).join("|");
+  }
+  // From the product section: the gallery, and from the details the vendor, title, rating, price, stock, options and buy box.
+  function build(r, sec, href) {
+    var panel = part(r, "panel"), body = part(r, "body");
+    var info = sec.querySelector(".cv-pdp__info") || sec;
+    function pick(sel) { return info.querySelector(sel) || sec.querySelector(sel); }
+    var title = pick(".cv-pdp__title"), buy = pick(".cv-pdp__buy");
+    if (!title || !buy) return false;
+    var details = new URL(href, location.href); details.searchParams.delete("_sections");
+    var grid = document.createElement("div"); grid.className = "cv-qv__grid";
+    var media = document.createElement("div"); media.className = "cv-qv__media";
+    var gallery = sec.querySelector("[data-cv-gallery]");
+    // Picking an option re-renders the section; the photos are the same unless the variant brings its own.
+    // Keep the gallery already on screen when they match, so nothing reloads or flashes.
+    var shown = body.querySelector(".cv-qv__media");
+    if (gallery && shown && mediaKey(shown) === mediaKey(gallery)) {
+      media = shown;
+    } else if (gallery) {
+      gallery.querySelectorAll("[data-cv-gallery-step]").forEach(function (b) { b.remove(); });
+      // Sized for the drawer, not the product page.
+      gallery.querySelectorAll("img[sizes]").forEach(function (i) { i.setAttribute("sizes", "(min-width: 990px) 520px, 100vw"); });
+      media.appendChild(gallery);
+    }
+    var col = document.createElement("div"); col.className = "cv-qv__info"; col.setAttribute("data-cv-notice-host", "");
+    var notice = pick("[data-cv-notice]");
+    if (notice) { notice.hidden = true; notice.textContent = ""; col.appendChild(notice); }
+    var vendor = info.querySelector(".cv-eyebrow"); if (vendor) col.appendChild(vendor);
+    var h = document.createElement("h2"); h.className = "cv-h2 cv-pdp__title cv-qv__title"; h.dir = "auto";
+    var link = document.createElement("a"); link.href = details.toString(); link.textContent = title.textContent.trim(); h.appendChild(link);
+    col.appendChild(h);
+    var rating = pick(".cv-pdp__rating");
+    if (rating) { rating.setAttribute("href", details.toString().split("#")[0] + "#cv-reviews"); col.appendChild(rating); }
+    [".cv-pdp__price-wrap", ".cv-pdp__stock", ".cv-pdp__options"].forEach(function (sel) { var el = pick(sel); if (el) col.appendChild(el); });
+    col.appendChild(buy);
+    var more = part(r, "details").content.firstElementChild.cloneNode(true); more.href = details.toString(); col.appendChild(more);
+    // Option links are written for the product page ("?size=m"): they resolve against the product's address.
+    col.querySelectorAll(".cv-pdp__value[href]").forEach(function (a) { absolute(a, details); a.setAttribute("data-cv-qv-option", ""); });
+    grid.appendChild(media); grid.appendChild(col);
+    // The product page's colour scheme.
+    panel.className = panel.className.replace(/\s*\btf-scheme-\S+/g, "");
+    var scheme = (sec.className.match(/\btf-scheme-\S+/) || [])[0]; if (scheme) panel.classList.add(scheme);
+    panel.setAttribute("aria-label", link.textContent || panel.getAttribute("data-label"));
+    body.replaceChildren(grid);
+    return true;
+  }
+  // Fetch the product section for href and show it. Resolves false when there is nothing to show (the caller opens the page).
+  function load(r, href, keepQty) {
+    var mine = ++st.seq, panel = part(r, "panel"), body = part(r, "body");
+    var qty = keepQty && body.querySelector("input[data-cv-qty]"), q = qty && qty.value;
+    var u = new URL(href, location.href); u.hash = ""; u.searchParams.set("_sections", SECTION);
+    panel.setAttribute("aria-busy", "true"); body.classList.add("is-busy");
+    return fetch(u.toString(), { headers: { "Accept": "application/json" }, credentials: "same-origin" })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        if (mine !== st.seq) return true;
+        var html = data && data.success && data.sections && data.sections[SECTION];
+        if (!html) return false;
+        var t = document.createElement("template"); t.innerHTML = html;
+        var sec = t.content.querySelector('[data-tf-soft-nav="' + SECTION + '"]') || t.content.querySelector(".cv-pdp");
+        if (!sec) return false;
+        adopt(t.content);
+        if (!build(r, sec, href)) return false;
+        var nq = q && body.querySelector("input[data-cv-qty]"); if (nq) nq.value = nq.defaultValue = q;
+        return true;
+      })
+      .catch(function () { return mine !== st.seq; })
+      .then(function (ok) {
+        if (mine === st.seq) { panel.removeAttribute("aria-busy"); body.classList.remove("is-busy"); }
+        return ok;
+      });
+  }
+  function open(trigger, href) {
+    var r = root(); if (!r) return false;
+    st.back = trigger || document.activeElement;
+    part(r, "body").replaceChildren(part(r, "wait").content.cloneNode(true));
+    clearTimeout(r.__cvClosing);
+    st.open = true; r.hidden = false; document.documentElement.style.overflow = "hidden";
+    requestAnimationFrame(function () { if (!st.open) return; r.classList.add("is-open"); r.querySelector(".cv-qv__close").focus(); });
+    load(r, href, false).then(function (ok) { if (!ok && isOpen(r)) { close(false); window.location.href = href; } });
+    return true;
+  }
+  function close(restore) {
+    var r = root(); if (!r || r.hidden) return;
+    st.seq++; st.open = false;
+    r.classList.remove("is-open"); document.documentElement.style.overflow = "";
+    clearTimeout(r.__cvClosing); r.__cvClosing = setTimeout(function () { if (!r.classList.contains("is-open")) r.hidden = true; }, 420);
+    if (restore && st.back && st.back.isConnected && st.back.focus) st.back.focus();
+  }
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var t = e.target.closest && e.target.closest("a[data-cv-qv]");
+    if (t) { if (open(t, t.href)) e.preventDefault(); return; }
+    var r = document.querySelector("body > [data-cv-qv-root]");
+    if (!r || !r.contains(e.target)) return;
+    if (e.target.closest("[data-cv-qv-close]")) { close(true); return; }
+    var o = e.target.closest("a[data-cv-qv-option]");
+    if (o) {
+      e.preventDefault();
+      if (o.classList.contains("is-selected")) return;
+      var href = o.href;
+      load(r, href, true).then(function (ok) {
+        if (!ok && isOpen(r)) { close(false); window.location.href = href; return; }
+        // Focus stays on the chosen value in the new render.
+        var same = [].filter.call(r.querySelectorAll("a[data-cv-qv-option]"), function (a) { return a.href === href; })[0];
+        if (same) same.focus();
+      });
+    }
+  });
+  document.addEventListener("keydown", function (e) {
+    var r = document.querySelector("body > [data-cv-qv-root]");
+    if (!isOpen(r)) return;
+    if (e.key === "Escape") { close(true); return; }
+    // The open drawer is modal: Tab and Shift+Tab cycle inside it.
+    if (e.key !== "Tab") return;
+    var panel = part(r, "panel");
+    var f = [].filter.call(panel.querySelectorAll("a[href], button, input:not([type=hidden]), select, textarea, summary, [tabindex]:not([tabindex='-1'])"), function (x) { return !x.disabled && x.getClientRects().length; });
+    if (!f.length) return;
+    var a = document.activeElement;
+    if (!panel.contains(a) || a === panel) { e.preventDefault(); f[e.shiftKey ? f.length - 1 : 0].focus(); }
+    else if (e.shiftKey && a === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+  // An add from the drawer closes it before the cart drawer, notice or cart page follows ("After adding to cart").
+  // A refused add keeps it open with the platform's message.
+  document.addEventListener("tf:action-success", function (e) {
+    var d = e.detail || {}, r = document.querySelector("body > [data-cv-qv-root]");
+    if (d.action === "cart_add" && d.form && r && r.contains(d.form)) close(true);
+  });
+  // Coming back to the page (the back button) never shows a drawer left open.
+  addEventListener("pageshow", function (e) { if (e.persisted) close(false); });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", root); else root();
+})();
+</script>
+{%- endif -%}

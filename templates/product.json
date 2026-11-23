@@ -1,0 +1,93 @@
+{
+  "page_type": "product",
+  "sections": [
+    {
+      "type": "main-product",
+      "position": 1,
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-product__0",
+            "type": "vendor",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__1",
+            "type": "title",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__2",
+            "type": "rating",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__3",
+            "type": "price",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__3_notes",
+            "type": "price_notes",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__8",
+            "type": "availability",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__11",
+            "type": "offers",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__4",
+            "type": "variant_picker",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__5",
+            "type": "buy_buttons",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__10",
+            "type": "express_checkout",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__6",
+            "type": "description",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__7",
+            "type": "collapsible",
+            "settings": {}
+          },
+          {
+            "id": "canvas-product__9",
+            "type": "share",
+            "settings": {}
+          }
+        ]
+      }
+    },
+    {
+      "type": "product-reviews",
+      "position": 2,
+      "settings": {}
+    },
+    {
+      "type": "related-products",
+      "position": 3,
+      "settings": {}
+    },
+    {
+      "type": "recently-viewed",
+      "position": 4,
+      "settings": {}
+    }
+  ]
+}

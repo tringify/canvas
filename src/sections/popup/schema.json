@@ -1,0 +1,496 @@
+{
+  "name": "popup",
+  "kind": "embed",
+  "target": "global_overlay",
+  "icon": "message-square",
+  "ctx_needs": [
+    "shop",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_alt",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "image_alt",
+        "group": "image"
+      },
+      "visible_if": {
+        "setting": "image",
+        "set": true
+      }
+    },
+    {
+      "id": "image_focus",
+      "type": "point",
+      "image": "image",
+      "default": {
+        "x": 50,
+        "y": 50
+      },
+      "editor": {
+        "label": "focal_point",
+        "group": "image"
+      },
+      "visible_if": {
+        "setting": "image",
+        "set": true
+      }
+    },
+    {
+      "id": "image_position",
+      "type": "select",
+      "default": "side",
+      "options": [
+        {
+          "value": "side",
+          "label": "opt_image_side"
+        },
+        {
+          "value": "top",
+          "label": "opt_image_top"
+        }
+      ],
+      "editor": {
+        "label": "image_position",
+        "group": "image"
+      },
+      "visible_if": {
+        "setting": "image",
+        "set": true
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "modal",
+      "options": [
+        {
+          "value": "modal",
+          "label": "opt_centered_dialog"
+        },
+        {
+          "value": "corner",
+          "label": "opt_corner_card"
+        },
+        {
+          "value": "sheet",
+          "label": "opt_bottom_sheet"
+        },
+        {
+          "value": "side",
+          "label": "opt_side_panel"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "design"
+      }
+    },
+    {
+      "id": "position",
+      "type": "select",
+      "default": "end",
+      "options": [
+        {
+          "value": "start",
+          "label": "opt_start"
+        },
+        {
+          "value": "end",
+          "label": "opt_end"
+        }
+      ],
+      "editor": {
+        "label": "position",
+        "group": "design"
+      },
+      "visible_if": {
+        "setting": "layout",
+        "values": [
+          "corner",
+          "side"
+        ]
+      }
+    },
+    {
+      "id": "size",
+      "type": "select",
+      "default": "medium",
+      "options": [
+        {
+          "value": "small",
+          "label": "opt_small"
+        },
+        {
+          "value": "medium",
+          "label": "opt_medium"
+        },
+        {
+          "value": "large",
+          "label": "opt_large"
+        }
+      ],
+      "editor": {
+        "label": "size",
+        "group": "design"
+      }
+    },
+    {
+      "id": "align",
+      "type": "select",
+      "default": "start",
+      "options": [
+        {
+          "value": "start",
+          "label": "opt_start"
+        },
+        {
+          "value": "center",
+          "label": "opt_center"
+        }
+      ],
+      "editor": {
+        "label": "alignment",
+        "group": "design"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    },
+    {
+      "id": "trigger",
+      "type": "select",
+      "default": "delay",
+      "options": [
+        {
+          "value": "delay",
+          "label": "opt_after_delay"
+        },
+        {
+          "value": "scroll",
+          "label": "opt_after_scroll"
+        },
+        {
+          "value": "exit",
+          "label": "opt_exit_intent"
+        }
+      ],
+      "editor": {
+        "label": "popup_trigger",
+        "group": "display"
+      }
+    },
+    {
+      "id": "delay",
+      "type": "range",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "s",
+      "default": 5,
+      "editor": {
+        "label": "popup_delay",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "trigger",
+        "values": [
+          "delay",
+          "exit"
+        ]
+      }
+    },
+    {
+      "id": "scroll_percent",
+      "type": "range",
+      "min": 10,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 40,
+      "editor": {
+        "label": "popup_scroll",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "trigger",
+        "values": [
+          "scroll"
+        ]
+      }
+    },
+    {
+      "id": "frequency",
+      "type": "select",
+      "default": "days",
+      "options": [
+        {
+          "value": "first_visit",
+          "label": "opt_first_visit"
+        },
+        {
+          "value": "days",
+          "label": "opt_every_days"
+        },
+        {
+          "value": "session",
+          "label": "opt_once_session"
+        }
+      ],
+      "editor": {
+        "label": "popup_frequency",
+        "group": "display"
+      }
+    },
+    {
+      "id": "frequency_days",
+      "type": "range",
+      "min": 1,
+      "max": 90,
+      "step": 1,
+      "unit": "d",
+      "default": 7,
+      "editor": {
+        "label": "popup_days",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "frequency",
+        "values": [
+          "days"
+        ]
+      }
+    },
+    {
+      "id": "pages",
+      "type": "select",
+      "default": "all",
+      "options": [
+        {
+          "value": "all",
+          "label": "opt_all_pages"
+        },
+        {
+          "value": "home",
+          "label": "opt_home_only"
+        },
+        {
+          "value": "chosen",
+          "label": "opt_chosen_pages"
+        }
+      ],
+      "editor": {
+        "label": "popup_pages",
+        "group": "display"
+      }
+    },
+    {
+      "id": "on_home",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "popup_on_home",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "pages",
+        "values": [
+          "chosen"
+        ]
+      }
+    },
+    {
+      "id": "on_product",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "popup_on_product",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "pages",
+        "values": [
+          "chosen"
+        ]
+      }
+    },
+    {
+      "id": "on_listing",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "popup_on_listing",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "pages",
+        "values": [
+          "chosen"
+        ]
+      }
+    },
+    {
+      "id": "on_content",
+      "type": "checkbox",
+      "default": false,
+      "editor": {
+        "label": "popup_on_content",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "pages",
+        "values": [
+          "chosen"
+        ]
+      }
+    },
+    {
+      "id": "on_other",
+      "type": "checkbox",
+      "default": false,
+      "editor": {
+        "label": "popup_on_other",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "pages",
+        "values": [
+          "chosen"
+        ]
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "newsletter-form",
+      "discount-code",
+      "custom-vascula"
+    ],
+    "max": 8
+  },
+  "presets": [
+    {
+      "name": "popup_newsletter",
+      "category": "marketing",
+      "settings": {
+        "layout": "modal",
+        "trigger": "delay",
+        "delay": 8,
+        "frequency": "days",
+        "frequency_days": 14
+      },
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "@t:sections.popup.newsletter_heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "@t:sections.popup.newsletter_text"
+          }
+        },
+        {
+          "type": "theme:newsletter-form",
+          "settings": {
+            "heading": "",
+            "text": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "popup_promotion",
+      "category": "marketing",
+      "settings": {
+        "layout": "corner",
+        "trigger": "scroll",
+        "scroll_percent": 40,
+        "frequency": "session"
+      },
+      "blocks": [
+        {
+          "type": "theme:eyebrow",
+          "settings": {
+            "text": "@t:sections.popup.promo_eyebrow"
+          }
+        },
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "@t:sections.popup.promo_heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "@t:sections.popup.promo_text"
+          }
+        },
+        {
+          "type": "theme:buttons",
+          "settings": {
+            "button_label": "@t:sections.popup.promo_button"
+          }
+        }
+      ]
+    },
+    {
+      "name": "popup_discount",
+      "category": "marketing",
+      "settings": {
+        "layout": "modal",
+        "align": "center",
+        "trigger": "exit",
+        "delay": 20,
+        "frequency": "first_visit"
+      },
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "@t:sections.popup.discount_heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "@t:sections.popup.discount_text"
+          }
+        },
+        {
+          "type": "theme:discount-code",
+          "settings": {
+            "code": "",
+            "reveal": true
+          }
+        }
+      ]
+    }
+  ]
+}

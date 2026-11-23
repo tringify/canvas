@@ -1,0 +1,17 @@
+{%- if cv_logo_b -%}
+{%- assign cv_logo_w = cv_logo_b.settings.logo_width -%}
+{{ cv_logo_b._editor_block_open }}
+<a dir="auto" class="cv-hd__logo cv-hs__logo" href="{{ routes.root_url }}" data-tf-field="logo">
+  {%- if cv_logo_b.settings.logo -%}
+    <img class="cv-hs__logo-img" src="{{ cv_logo_b.settings.logo | image_url: width: 480 }}" srcset="{{ cv_logo_b.settings.logo | image_srcset: max: 640 }}" sizes="{{ cv_logo_w }}px"
+         alt="{{ shop.name }}" style="width: auto; height: auto; max-width: {{ cv_logo_w }}px; max-height: {{ cv_logo_b.settings.logo_max_height | default: 200 }}px" fetchpriority="high">
+  {%- else -%}
+    <span class="cv-hd__name cv-hs__name{% if shop.name.size > 16 %} cv-hd__name--long{% endif %}">{{ shop.name }}</span>
+  {%- endif -%}
+  {%- if settings.transparent and settings.over_logo -%}
+    <img class="cv-hs__logo-over" src="{{ settings.over_logo | image_url: width: 480 }}" srcset="{{ settings.over_logo | image_srcset: max: 640 }}" sizes="{{ cv_logo_w }}px"
+         alt="" aria-hidden="true" style="width: auto; height: auto; max-width: {{ cv_logo_w }}px; max-height: {{ cv_logo_b.settings.logo_max_height | default: 200 }}px">
+  {%- endif -%}
+</a>
+{{ cv_logo_b._editor_block_close }}
+{%- endif -%}

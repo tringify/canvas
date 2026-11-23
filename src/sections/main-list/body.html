@@ -1,0 +1,116 @@
+<section class="cv cv-section cv-section--page cv-li tf-scheme-{{ settings.color_scheme }}" data-tf-soft-nav="main-list">
+  <div class="cv-wrap">
+    <h1 dir="auto" data-tf-field="title" class="cv-h2 cv-page-title cv-li__title">{{ list.title | default: settings.title }}</h1>
+    {%- if list.items.size > 0 -%}
+      <div data-cv-pager-grid class="cv-grid" style="--cv-cols: {{ settings.columns }}; --cv-cols-m: {{ settings.columns_mobile }}">
+        {%- for e in list.items -%}
+          {%- comment -%} An entry without an image takes the theme photo picked in Photo for collections without an image; with No photo it is the name alone. {%- endcomment -%}
+          {%- assign cv_photo = settings.fallback_photo -%}{%- assign cv_photo_i = forloop.index -%}{%- assign cv_photo_wide = false -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+          <a class="cv-li__item" href="{{ e.url }}">
+            {%- if e.image.url -%}<span class="cv-li__media cv-media"><img src="{{ e.image.url | image_url: width: 640 }}" srcset="{{ e.image.url | image_srcset: max: 1080 }}" sizes="(min-width: 750px) 25vw, 50vw" alt="" {{ e.image.url | image_loading }}></span>
+            {%- elsif cv_fb != blank -%}<span class="cv-li__media cv-media"><img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}"></span>{%- endif -%}
+            <span class="cv-li__name">{{ e.name }}</span>
+            {%- assign cv_pc = e.product_count | default: 0 -%}{%- if settings.show_count and cv_pc > 0 -%}<span class="cv-muted cv-li__count">{{ 'filters.product_count' | t: count: e.product_count }}</span>{%- endif -%}
+          </a>
+        {%- endfor -%}
+      </div>
+      {%- assign cv_paging = settings.paging -%}{%- assign cv_pg = list.pagination -%}
+{%- comment -%}partial:pager{%- endcomment -%}
+{%- comment -%} Pages of a listing: numbered (Previous, Page X of Y, Next), a Load more button, or infinite scroll (the same button,
+pressed when it nears the screen). Load more and infinite scroll fetch the next page's section and append its items to the grid
+marked data-cv-pager-grid; without script the button is a plain link to the next page. Reads cv_pg (the pagination) and
+cv_paging (numbered, load_more or infinite). {%- endcomment -%}
+{%- if cv_pg.total_pages > 1 or cv_pg.has_next -%}
+  <nav class="cv-pager" aria-label="{{ 'general.pagination' | t }}" data-cv-pager="{{ cv_paging | default: 'numbered' }}">
+    {%- if cv_paging == 'load_more' or cv_paging == 'infinite' -%}
+      {%- if cv_pg.has_prev -%}<a class="cv-tbtn" href="{{ cv_pg.prev_url }}" rel="prev">{{ 'general.previous' | t }}</a>{%- endif -%}
+      {%- if cv_pg.has_next -%}<a class="cv-btn cv-btn--outline cv-pager__more" href="{{ cv_pg.next_url }}" rel="next" data-cv-more data-loading="{{ 'general.loading' | t }}">{{ 'general.load_more' | t }}</a>{%- endif -%}
+    {%- else -%}
+      {%- if cv_pg.has_prev -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ cv_pg.prev_url }}" rel="prev">{{ 'general.previous' | t }}</a>{%- endif -%}
+      <span class="cv-muted">{{ 'general.page_of' | t: page: cv_pg.current_page, pages: cv_pg.total_pages }}</span>
+      {%- if cv_pg.has_next -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ cv_pg.next_url }}" rel="next">{{ 'general.next' | t }}</a>{%- endif -%}
+    {%- endif -%}
+  </nav>
+  {%- if cv_paging == 'load_more' or cv_paging == 'infinite' -%}
+<script>
+(function () {
+  if (window.__cvPager) { window.__cvPager(); return; }
+  function more(a) {
+    if (a.__cvBusy) return;
+    var nav = a.closest("[data-cv-pager]"), sec = a.closest("[data-tf-soft-nav]");
+    var grid = sec && sec.querySelector("[data-cv-pager-grid]");
+    if (!nav || !grid) { location.href = a.href; return; }
+    a.__cvBusy = true; a.setAttribute("aria-busy", "true"); a.textContent = a.getAttribute("data-loading");
+    var type = sec.getAttribute("data-tf-soft-nav"), url = new URL(a.href, location.href);
+    url.searchParams.set("_sections", type);
+    fetch(url, { credentials: "same-origin", headers: { Accept: "application/json" } })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        var html = j && j.sections && j.sections[type];
+        if (!html) throw new Error("no section");
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var next = doc.querySelector("[data-cv-pager-grid]"), nextNav = doc.querySelector("[data-cv-pager]");
+        if (!next) throw new Error("no grid");
+        var first = null;
+        Array.prototype.slice.call(next.children).forEach(function (el) { var n = document.importNode(el, true); first = first || n; grid.appendChild(n); });
+        // Pages already on screen need no Previous link.
+        if (nextNav) { nextNav = document.importNode(nextNav, true); nextNav.querySelectorAll('a[rel="prev"]').forEach(function (p) { p.remove(); }); nav.replaceWith(nextNav); } else nav.remove();
+        // Keyboard and screen-reader users land on the first new item, not back at the top.
+        var focus = first && first.querySelector("a[href]");
+        if (focus && a === document.activeElement) focus.focus({ preventScroll: true });
+        watch();
+      })
+      .catch(function () { location.href = a.href; });
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("[data-cv-more]");
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    e.preventDefault(); more(a);
+  });
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { if (en.isIntersecting) { io.unobserve(en.target); more(en.target); } });
+  }, { rootMargin: "600px 0px" }) : null;
+  function watch() {
+    if (!io) return;
+    document.querySelectorAll('[data-cv-pager="infinite"] [data-cv-more]').forEach(function (a) { if (!a.__cvSeen) { a.__cvSeen = true; io.observe(a); } });
+  }
+  window.__cvPager = watch;
+  watch();
+})();
+</script>
+  {%- endif -%}
+{%- endif -%}
+{%- comment -%}/partial:pager{%- endcomment -%}
+    {%- else -%}
+      <p class="cv-muted">{{ 'list.empty' | t }}</p>
+    {%- endif -%}
+  </div>
+</section>

@@ -1,0 +1,71 @@
+  /* Quick view (partials/quick-view.html): a side drawer like the cart drawer on wider screens, a bottom sheet like the filter sheet on phones.
+     The buy box inside is the product page's, styled by its own stylesheet (in a layer under these rules). */
+  .cv-qv { position: fixed; inset: 0; z-index: 125; background: transparent; }
+  .cv-qv__backdrop { position: absolute; inset: 0; background: rgb(0 0 0 / 0.28); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.3s var(--cv-ease); }
+  .cv-qv__panel { position: absolute; inset-block: 10px; inset-inline-end: 10px; width: min(calc(100vw - 20px), 520px); display: flex; flex-direction: column; overflow: hidden; outline: none;
+    background: var(--bg); color: var(--text); border-radius: 22px; box-shadow: -24px 0 64px -24px rgb(0 0 0 / 0.25);
+    transform: translateX(calc(100% + 12px)); transition: transform 0.4s var(--cv-ease); }
+  [dir="rtl"] .cv-qv__panel { transform: translateX(calc(-100% - 12px)); }
+  .cv-qv.is-open .cv-qv__backdrop { opacity: 1; }
+  .cv-qv.is-open .cv-qv__panel { transform: none; }
+  .cv-qv__handle { display: none; }
+  .cv-qv__close { position: absolute; top: 14px; inset-inline-end: 14px; z-index: 3; display: grid; place-items: center; width: 40px; height: 40px; padding: 0;
+    color: var(--text); background: color-mix(in srgb, var(--bg) 82%, transparent); border: 0; border-radius: 50%; cursor: pointer;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 0 0 1px var(--cv-line); }
+  .cv-qv__body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; transition: opacity 0.2s; }
+  /* Only a slow answer dims the details; a quick option change shows no flash. */
+  .cv-qv__body.is-busy { pointer-events: none; }
+  .cv-qv__body.is-busy .cv-qv__info { opacity: 0.6; transition: opacity 0.15s var(--cv-ease) 0.25s; }
+  .cv-qv__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; padding: 20px 22px 26px; }
+  .cv-qv__info { display: grid; gap: 16px; align-content: start; min-width: 0; }
+  .cv-qv__info > .cv-eyebrow { margin: 0 0 -8px; }
+  .cv-qv .cv-qv__title { margin: 0; padding-inline-end: 44px; font-size: calc(clamp(22px, 2.1vw, 28px) * var(--cv-heading-scale, 1)); line-height: 1.12; }
+  .cv-qv .cv-qv__title a { color: inherit; text-decoration: none; transition: opacity 0.2s var(--cv-ease); }
+  .cv-qv .cv-qv__title a:hover { opacity: 0.7; }
+  .cv-qv .cv-pdp__price-wrap { margin: -4px 0 0; }
+  .cv-qv .cv-pdp__price { font-size: 19px; }
+  .cv-qv .cv-pdp__options { gap: 16px; }
+  .cv-qv .cv-pdp__add, .cv-qv .cv-pdp__now, .cv-qv .cv-pdp__buy > .cv-btn--block { min-height: 50px; font-size: 15px; }
+  .cv-qv .cv-qty__btn, .cv-qv .cv-qty__input { height: 50px; }
+  .cv-qv__details { justify-self: start; font-size: 14px; }
+  .cv-qv__details .cv-icon { width: 16px; height: 16px; }
+  /* Media: the product page's swipe gallery with its dots, one picture at a time. */
+  .cv-qv .cv-pdp__gallery { display: grid; gap: 10px; min-width: 0; }
+  .cv-qv .cv-pdp__main { display: flex; gap: 8px; margin: 0; padding: 0; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding: 0; }
+  .cv-qv .cv-pdp__slide { flex: 0 0 100%; aspect-ratio: auto; border-radius: calc(var(--cv-radius, 16px) * 0.9); overflow: hidden; }
+  .cv-qv .cv-pdp__slide > img, .cv-qv .cv-pdp__slide > video { width: 100%; height: auto; max-height: min(62vh, 640px); object-fit: contain; }
+  .cv-qv .cv-pdp__thumbs { display: flex; flex-direction: row; justify-content: center; gap: 6px; max-height: none; overflow: visible; order: 0; }
+  .cv-qv .cv-pdp__thumb { position: relative; flex: none; width: 6px; height: 6px; padding: 0; border-radius: 999px; background: color-mix(in srgb, var(--text) 22%, transparent); box-shadow: none; }
+  .cv-qv .cv-pdp__thumb > img, .cv-qv .cv-pdp__thumb-kind { display: none; }
+  .cv-qv .cv-pdp__thumb[aria-current="true"] { width: 20px; background: var(--text); }
+  .cv-qv .cv-pdp__thumb::before { content: ""; position: absolute; inset: -10px -4px; }
+  /* Waiting for the product */
+  .cv-qv__ph { border-radius: calc(var(--cv-radius, 16px) * 0.6); background: var(--cv-soft); }
+  .cv-qv__ph--media { aspect-ratio: var(--cv-card-ratio, 4 / 5); max-height: min(62vh, 640px); border-radius: calc(var(--cv-radius, 16px) * 0.9); }
+  .cv-qv__ph--title { width: 70%; height: 30px; }
+  .cv-qv__ph--line { width: 34%; height: 20px; }
+  .cv-qv__ph--opts { width: 86%; height: 88px; }
+  .cv-qv__ph--btn { height: 50px; border-radius: var(--cv-btn-radius, 999px); }
+  @media (prefers-reduced-motion: no-preference) {
+    .cv-qv__wait .cv-qv__ph { animation: cv-qv-pulse 1.2s ease-in-out infinite alternate; }
+    @keyframes cv-qv-pulse { to { opacity: 0.45; } }
+  }
+  /* Wider screens: the picture beside the details */
+  @media (min-width: 990px) {
+    .cv-qv__panel { width: min(calc(100vw - 20px), 920px); }
+    .cv-qv__grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 32px; padding: 24px 26px 28px; align-items: start; }
+    .cv-qv__media { position: sticky; top: 0; }
+    .cv-qv__info { padding-top: 10px; }
+  }
+  /* Phones: a bottom sheet */
+  @media (max-width: 749px) {
+    .cv-qv__panel { inset: auto 0 0; width: auto; max-height: 92svh; border-radius: calc(var(--cv-radius, 16px) * 1.5) calc(var(--cv-radius, 16px) * 1.5) 0 0;
+      box-shadow: 0 -20px 60px -20px rgb(0 0 0 / 0.35); transform: translateY(105%); transition: transform 0.42s var(--cv-ease); }
+    [dir="rtl"] .cv-qv__panel { transform: translateY(105%); }
+    .cv-qv.is-open .cv-qv__panel { transform: none; }
+    .cv-qv__handle { display: block; position: absolute; top: 9px; left: 50%; z-index: 3; width: 40px; height: 5px; margin-left: -20px; border-radius: 5px; background: color-mix(in srgb, var(--text) 22%, transparent); }
+    .cv-qv__close { top: 18px; inset-inline-end: 14px; width: 44px; height: 44px; }
+    .cv-qv__grid { gap: 18px; padding: 24px 20px calc(22px + env(safe-area-inset-bottom)); }
+    .cv-qv .cv-pdp__slide > img, .cv-qv .cv-pdp__slide > video { max-height: 44svh; }
+    .cv-qv__ph--media { max-height: 44svh; }
+  }

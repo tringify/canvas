@@ -1,0 +1,10 @@
+{
+  "page_type": "wishlist",
+  "sections": [
+    {
+      "type": "main-wishlist",
+      "position": 1,
+      "settings": {}
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{%- comment -%} The footer's columns: its theme blocks (Column, Newsletter, Menu and the other footer blocks), one grid cell each, as many
+  to a row as the section's columns settings allow. A column whose content renders nothing leaves no gap. {%- endcomment -%}
+{%- assign cv_cols_n = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.type contains ':' -%}{%- assign cv_cols_n = cv_cols_n | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_cols_n > 0 -%}
+<div class="cv-ft__cols">
+  {%- for b in settings.blocks -%}
+    {%- if b.type contains ':' -%}
+    <div class="cv-ft__cell cv-ft__cell--{{ b.type | remove: 'theme:' }} cv-ft__cell--w{{ b.settings.width | default: '1' }}">{% blocks b %}</div>
+    {%- endif -%}
+  {%- endfor -%}
+</div>
+{%- endif -%}

@@ -1,0 +1,50 @@
+  .cv-clg__grid { display: grid; gap: clamp(10px, 1.2vw, 16px); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cv-clg__tile { min-width: 0; }
+  .cv-clg__tile { display: flex; align-items: flex-end; width: 100%; height: 100%; min-height: 0; color: var(--media-ink-light); text-decoration: none; aspect-ratio: 1 / 1; }
+  /* Phones: the lead tile across the top, the rest two to a row; a tile left alone takes the full row. */
+  .cv-clg__t1 { grid-column: 1 / -1; }
+  .cv-clg__t1 { aspect-ratio: auto; height: clamp(320px, calc(var(--cv-clg-h, 620px) * 0.75), 520px); }
+  .cv-clg--n2 .cv-clg__t2, .cv-clg--n4 .cv-clg__t4 { grid-column: 1 / -1; }
+  .cv-clg--n2 .cv-clg__t2, .cv-clg--n4 .cv-clg__t4 { aspect-ratio: 16 / 9; }
+  .cv-clg--n1 .cv-clg__grid { grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 750px) {
+    .cv-clg__grid { height: var(--cv-clg-h, 620px); grid-template-rows: repeat(2, minmax(0, 1fr)); grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+    .cv-clg__tile, .cv-clg__t1, .cv-clg--n2 .cv-clg__t2, .cv-clg--n4 .cv-clg__t4 { aspect-ratio: auto; height: 100%; }
+    .cv-clg__t1 { grid-column: 1; grid-row: 1 / span 2; }
+    .cv-clg--n1 .cv-clg__t1 { grid-row: 1 / -1; }
+    .cv-clg--n2 .cv-clg__t2 { grid-column: 2; grid-row: 1 / span 2; }
+    .cv-clg--n4 .cv-clg__grid, .cv-clg--n5 .cv-clg__grid { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); }
+    .cv-clg--n4 .cv-clg__t4 { grid-column: 2 / span 2; }
+    /* Lead tile last: the large tile on the far side. */
+    .cv-clg--lead_end .cv-clg__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+    .cv-clg--lead_end .cv-clg__t1 { grid-column: 2; }
+    .cv-clg--lead_end.cv-clg--n2 .cv-clg__t2 { grid-column: 1; }
+    .cv-clg--lead_end.cv-clg--n4 .cv-clg__grid, .cv-clg--lead_end.cv-clg--n5 .cv-clg__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr); }
+    .cv-clg--lead_end.cv-clg--n4 .cv-clg__t1, .cv-clg--lead_end.cv-clg--n5 .cv-clg__t1 { grid-column: 3; }
+    .cv-clg--lead_end.cv-clg--n4 .cv-clg__t4 { grid-column: 1 / span 2; }
+  }
+  .cv-clg__tile > img, .cv-clg__tile > svg { position: absolute; inset: 0; transition: transform 0.9s var(--cv-ease); }
+  a.cv-clg__tile:hover > img { transform: scale(1.04); }
+  .cv-clg__tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0) 60%); opacity: calc(var(--cv-clg-overlay, 40) / 40); pointer-events: none; }
+  .cv-clg__text { position: relative; z-index: 1; display: grid; gap: 10px; justify-items: start; padding: clamp(18px, 2.4vw, 32px); }
+  .cv-clg__heading { color: var(--media-ink-light); text-shadow: 0 1px 12px rgb(0 0 0 / 0.25); }
+  .cv-clg__t1 .cv-clg__heading { font-size: calc(clamp(24px, 2.8vw, 40px) * var(--cv-heading-scale, 1)); letter-spacing: -0.035em; line-height: 1.05; }
+  .cv-clg__count { font-size: 13px; opacity: 0.85; }
+  .cv-clg__btn { background: var(--media-ink-light); color: var(--media-ink-dark); }
+  .cv-clg__go { position: absolute; inset-inline-end: 16px; bottom: 16px; z-index: 1; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+    background: rgb(255 255 255 / 0.92); color: var(--media-ink-dark); transition: transform 0.3s var(--cv-ease); }
+  /* A product: its photo on the image background, with its name and price on a small card. */
+  .cv-clg__tile--product { color: var(--text); }
+  .cv-clg__tile--product::after { content: none; }
+  .cv-clg__tag { position: relative; z-index: 1; display: grid; gap: 2px; max-width: calc(100% - 32px); margin: 16px; padding: 10px 14px; font-size: 14px; line-height: 1.3;
+    background: color-mix(in srgb, var(--bg) 94%, transparent); border-radius: calc(var(--cv-radius, 16px) * 0.75); box-shadow: 0 2px 12px rgb(0 0 0 / 0.08); }
+  .cv-clg__name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-clg__price { font-size: 14px; }
+  /* No photo (an image tile set to No photo, or a collection without an image set to No photo): a text tile in the scheme's colours. */
+  .cv-clg__tile--plain { flex-direction: column; align-items: stretch; justify-content: flex-end; color: var(--text); background: var(--cv-soft); }
+  .cv-clg__tile--plain::after { content: none; }
+  /* No tile with a picture: text cards at their own height rather than the collage's. */
+  .cv-clg .cv-clg__grid:not(:has(img)) { height: auto; grid-template-rows: auto; }
+  .cv-clg .cv-clg__grid:not(:has(img)) .cv-clg__tile { aspect-ratio: auto; height: auto; min-height: clamp(150px, 15vw, 210px); }
+  .cv-clg__tile--plain .cv-clg__heading { color: var(--text); text-shadow: none; }
+  .cv-clg__tile--plain .cv-clg__go, .cv-clg__tile--plain .cv-clg__btn { background: var(--text); color: var(--bg); }

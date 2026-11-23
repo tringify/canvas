@@ -1,0 +1,13 @@
+<style>
+  :root {
+    --cv-width: {{ theme.settings.page_width }};
+    --cv-radius: {{ theme.settings.corner_radius }};
+    --cv-btn-radius: {{ theme.settings.button_radius }};
+    {% case theme.settings.button_radius %}{% when '0px' %}--cv-field-radius: 0px;{% when '10px' %}--cv-field-radius: 10px;{% else %}--cv-field-radius: 14px;{% endcase %}
+    --cv-card-ratio: {{ theme.settings.card_image_ratio }};
+    --cv-card-fit: {{ theme.settings.card_image_fit }};
+    --cv-heading-case: {{ theme.settings.heading_case }};
+    {% case theme.settings.heading_scale %}{% when '90' %}--cv-heading-scale: 0.9;{% when '115' %}--cv-heading-scale: 1.15;{% else %}--cv-heading-scale: 1;{% endcase %}
+    {% case theme.settings.section_spacing %}{% when 'compact' %}--cv-gap-y: clamp(36px, 5vw, 64px);{% when 'relaxed' %}--cv-gap-y: clamp(72px, 10vw, 144px);{% else %}--cv-gap-y: clamp(56px, 8vw, 112px);{% endcase %}
+  }
+</style>

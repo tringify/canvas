@@ -1,0 +1,168 @@
+  /* ── Gate pages (coming soon · password · maintenance) ──────────────────────────────────────────────────────────────
+     One frame for all three: a status line and languages on top, the message and its one action on a 12-column grid,
+     a hairline row, and the store's name set as a wordmark across the foot of the page. Each page shows the wordmark in
+     one of footer-wordmark's own styles: solid (coming soon), outline (password, filled in on the way in), tint (maintenance,
+     brought back up to solid when the store is back). */
+  .cv-gate { display: grid; grid-template-rows: auto 1fr auto auto; min-height: 100svh; padding: 0; text-align: start; overflow-x: clip; }
+  .cv-gate :where(p, h1, ul) { margin: 0; }
+
+  .cv-gate__top { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; min-height: 72px;
+    padding: 14px var(--cv-pad-x); }
+  .cv-gate__id { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .cv-gate__logo { display: block; width: auto; height: var(--cv-gate-logo-h, 30px); max-width: 160px; object-fit: contain; }
+  .cv-gate__status { color: var(--text); white-space: nowrap; }
+  .cv-gate__dot { display: none; }
+  .cv-gate--maintenance .cv-gate__dot { display: block; position: relative; width: 7px; height: 7px; flex: none; border-radius: 50%; background: currentColor; }
+  .cv-gate--maintenance .cv-gate__dot { color: var(--text-muted); }
+  .cv-gate--maintenance .cv-gate__dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid currentColor; opacity: 0; }
+  .cv-gate.is-back .cv-gate__dot { color: var(--status-ok); }
+  .tf-scheme-inverse .cv-gate.is-back .cv-gate__dot, .cv-gate.tf-scheme-inverse.is-back .cv-gate__dot { color: var(--status-ok-inverse); }
+
+  .cv-gate__langs ul { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; padding: 0; list-style: none; }
+  .cv-gate__langs a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 7px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none; color: var(--text-muted); border-radius: 6px; transition: color 0.2s var(--cv-ease); }
+  .cv-gate__langs a:hover { color: var(--text); }
+  .cv-gate__langs a[aria-current] { color: var(--text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
+  /* Six or more languages: Canvas's header picker (partials/loc-picker.css), whose list rows are links here; without script, its disclosure. */
+  .cv-gate__pick { flex: none; position: relative; }
+
+  .cv-gate__main { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px));
+    row-gap: 32px; align-content: end; padding: clamp(48px, 7vw, 112px) var(--cv-pad-x) clamp(32px, 3.6vw, 52px); }
+  .cv-gate__copy { grid-column: 1 / span 6; }
+  .cv-gate__act { grid-column: 8 / span 5; align-self: end; display: grid; }
+  .cv-gate__act > * { grid-area: 1 / 1; }
+  .cv-gate__title { max-width: 16ch; }
+  .cv-gate__text { max-width: 42ch; margin-top: 18px; font-size: 17px; line-height: 1.5; color: var(--text-muted); text-wrap: pretty; }
+
+  /* The field: Canvas's one-shell newsletter pill (field + button), a size up. */
+  .cv-gate__form { display: grid; gap: 14px; }
+  .cv-gate__field { display: flex; align-items: center; gap: 6px; padding: 5px; background: var(--bg); border-radius: var(--cv-btn-radius, 999px);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 1px 2px rgb(0 0 0 / 0.04); transition: box-shadow 0.2s var(--cv-ease); }
+  .cv-gate__field:focus-within { box-shadow: 0 0 0 1.5px var(--text); }
+  .cv-gate__field .cv-input { flex: 1 1 auto; min-width: 0; min-height: 48px; padding: 0 8px 0 20px; font-size: 16px; background: transparent; border: 0; border-radius: inherit; }
+  [dir="rtl"] .cv-gate__field .cv-input { padding: 0 20px 0 8px; }
+  .cv-gate__field .cv-input:hover, .cv-gate__field .cv-input:focus { background: transparent; }
+  .cv-gate__field .cv-btn { flex: none; min-height: 48px; padding: 0 24px; border-radius: calc(var(--cv-btn-radius, 999px) - 2px); }
+  .cv-gate__field .cv-btn .cv-icon { width: 18px; height: 18px; }
+  .cv-gate__field.is-invalid { box-shadow: 0 0 0 1.5px var(--accent); }
+  .cv-gate__field:has(.cv-input[readonly]) .cv-input { color: var(--text-muted); }
+  .cv-gate .cv-gate__peek[hidden] { display: none; }
+  .cv-gate .cv-gate__peek { flex: none; min-height: 40px; margin: 0; padding: 0 10px; font-size: 13px; }
+  .cv-gate__consent { align-items: flex-start; font-size: 13.5px; line-height: 1.45; color: var(--text-muted); text-align: start; }
+  .cv-gate__consent input { flex: none; margin: 1px 0 0; }
+  .cv-gate__consent.is-invalid { color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  .cv-gate__consent.is-invalid input { outline: 1.5px solid var(--accent); outline-offset: 1px; border-radius: 4px; }
+
+  /* Messages sit under the control they are about, in the error colours of cv-notice--error, without its box. */
+  .cv-gate__msg { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; line-height: 1.45; color: color-mix(in srgb, var(--accent) 78%, var(--text)); }
+  .cv-gate__msg .cv-icon { width: 16px; height: 16px; margin-top: 2px; stroke-width: 1.8; }
+  .cv-gate__msg[hidden] { display: none; }
+
+  /* Done: takes the form's place in the same grid cell, so nothing below it moves. */
+  .cv-gate__done { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; align-content: end; outline: none; }
+  .cv-gate__done[hidden] { display: none; }
+  .cv-gate__tick { grid-row: span 2; width: 40px; height: 40px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--cv-line); display: grid; place-items: center; color: var(--text); }
+  .cv-gate__tick svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .cv-gate__tick path { stroke-dasharray: 24; stroke-dashoffset: 0; }
+  .cv-gate__done-text { font-size: 17px; line-height: 1.45; color: var(--text); padding-top: 8px; text-wrap: pretty; }
+  .cv-gate__done .cv-tbtn { grid-column: 2; justify-self: start; font-size: 14px; margin-top: 6px; }
+  .cv-gate__done:focus-visible { outline: none; }
+  .cv-gate__form.is-gone { visibility: hidden; }
+
+  /* Maintenance: the next check, honest about what it is (not a progress bar). */
+  .cv-gate__watch { display: grid; gap: 10px; align-content: end; }
+  .cv-gate__watch-line { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+  .cv-gate__ring { width: 18px; height: 18px; flex: none; transform: rotate(-90deg); }
+  [dir="rtl"] .cv-gate__ring { transform: rotate(-90deg) scaleY(-1); }
+  .cv-gate__ring circle { fill: none; stroke-width: 1.6; }
+  .cv-gate__ring .bg { stroke: var(--cv-line); }
+  .cv-gate__ring .fg { stroke: var(--text); stroke-linecap: round; stroke-dasharray: 44; stroke-dashoffset: var(--cv-left, 0); }
+  .cv-gate__watch-line.is-checking .cv-gate__ring { animation: cv-spin 0.9s linear infinite; }
+  .cv-gate__watch-line.is-checking .fg { stroke-dashoffset: 30; }
+  .cv-gate__watch-note { max-width: 40ch; font-size: 14px; line-height: 1.5; color: var(--text-muted); }
+  .cv-gate__watch[hidden], .cv-gate__recheck[hidden] { display: none; }
+  .cv-gate__recheck { justify-self: start; align-self: end; font-size: 15px; }
+  .cv-gate__back { display: grid; gap: 18px; justify-items: start; align-content: end; outline: none; }
+  .cv-gate__back[hidden] { display: none; }
+  .cv-gate__back .cv-h3 { font-weight: 500; }
+
+  .cv-gate__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; min-height: 52px; margin-inline: var(--cv-pad-x);
+    border-top: 1px solid var(--cv-line); font-size: 13px; color: var(--text-muted); }
+  .cv-gate__foot .cv-social { display: flex; gap: 4px; margin: 0 0 0 -10px; padding: 0; list-style: none; }
+  [dir="rtl"] .cv-gate__foot .cv-social { margin: 0 -10px 0 0; }
+  .cv-gate__foot .cv-social a { display: grid; place-items: center; width: 40px; height: 40px; color: var(--text-muted); text-decoration: none; border-radius: 50%; transition: color 0.2s var(--cv-ease); }
+  .cv-gate__foot .cv-social a:hover { color: var(--text); }
+  .cv-gate__foot .cv-social .cv-icon { width: 18px; height: 18px; }
+  .cv-gate__powered { margin-inline-start: auto; }
+  .cv-gate__powered a { color: inherit; text-decoration: none; }
+  .cv-gate__powered a:hover { color: var(--text); }
+
+  /* The wordmark. Aligned to the content grid, nudged by its side bearing; sized by script so its longest line fills the width,
+     and broken onto more lines (at word breaks) only when one line would be too small to read as a name. */
+  .cv-gate__band { container-type: inline-size; padding: clamp(10px, 1.4vw, 20px) var(--cv-pad-x) clamp(10px, 1.6vw, 24px); user-select: none; }
+  .cv-gate__mark { display: block; font-family: var(--tf-font-heading_font, inherit); font-weight: 600; letter-spacing: var(--cv-gate-track, -0.055em); line-height: 0.86;
+    text-transform: var(--cv-heading-case, none); white-space: nowrap; margin-inline-start: -0.045em;
+    font-size: min(calc(100cqi / (var(--cv-chars, 8) * 0.56)), 34svh); }
+  .cv-gate__line { display: block; width: max-content; overflow: hidden; padding: 0.04em 0.06em 0.12em 0; margin-bottom: -0.1em; }
+  .cv-gate__ink { display: block; }
+  .cv-gate__band--solid .cv-gate__ink { color: var(--text); }
+  .cv-gate__band--tint .cv-gate__ink { color: color-mix(in srgb, var(--text) 11%, var(--bg)); transition: color 1.2s var(--cv-ease); }
+  .cv-gate.is-back .cv-gate__band--tint .cv-gate__ink { color: var(--text); }
+  /* Outline: an SVG knock-out of the letters' silhouette (text-stroke would draw the font's overlapping contours), with a solid copy
+     on top that is clipped away until the store opens. */
+  .cv-gate__band--outline { --cv-gate-track: 0em; }
+  .cv-gate__band--outline .cv-gate__ink { position: relative; color: var(--text); }
+  .cv-gate__band--outline .cv-gate__o { transition: opacity 0.3s 0.8s; }
+  .cv-gate.is-open .cv-gate__band--outline .cv-gate__o { opacity: 0; }
+  .cv-gate__band--outline .cv-gate__o { filter: url(#cv-gate-outline); }
+  .cv-gate__defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .cv-gate__band--outline .cv-gate__ink::after { content: attr(data-t); position: absolute; inset: 0; color: var(--text); clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.9s var(--cv-ease); }
+  [dir="rtl"] .cv-gate__mark .cv-gate__ink::after { clip-path: inset(0 0 0 100%); }
+  .cv-gate.is-open .cv-gate__band--outline .cv-gate__ink::after { clip-path: inset(0); }
+  /* Coming soon with the merchant's image: the picture shows through the letters. */
+  .cv-gate__band--image .cv-gate__ink { color: transparent; background: var(--cv-gate-img) center 40% / cover no-repeat; -webkit-background-clip: text; background-clip: text; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cv-gate.is-arriving .cv-gate__ink { animation: cv-gate-rise 1.1s var(--cv-ease) both; animation-delay: calc(var(--i, 0) * 90ms + 120ms); }
+    .cv-gate.is-arriving .cv-gate__copy, .cv-gate.is-arriving .cv-gate__act { animation: cv-gate-in 0.8s var(--cv-ease) both 0.35s; }
+    .cv-gate.is-arriving .cv-gate__act { animation-delay: 0.45s; }
+    @keyframes cv-gate-rise { from { transform: translateY(105%); } }
+    @keyframes cv-gate-in { from { opacity: 0; transform: translateY(10px); } }
+    .cv-gate__field.is-shake { animation: cv-gate-shake 0.42s var(--cv-ease); }
+    @keyframes cv-gate-shake { 20% { transform: translateX(-6px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } 90% { transform: translateX(1px); } }
+    .cv-gate__done:not([hidden]) .cv-gate__tick path { animation: cv-gate-tick 0.5s var(--cv-ease) both 0.1s; }
+    @keyframes cv-gate-tick { from { stroke-dashoffset: 24; } }
+    .cv-gate__done:not([hidden]) .cv-gate__done-text, .cv-gate__back:not([hidden]) { animation: cv-gate-in 0.5s var(--cv-ease) both; }
+    .cv-gate--maintenance:not(.is-back) .cv-gate__dot::after { animation: cv-gate-pulse 2.4s ease-out infinite; }
+    @keyframes cv-gate-pulse { 0% { opacity: 0.6; transform: scale(0.6); } 70%, 100% { opacity: 0; transform: scale(1.6); } }
+  }
+
+  @media (max-width: 989px) {
+    .cv-gate__copy, .cv-gate__act { grid-column: 1 / -1; }
+    .cv-gate__act { max-width: 560px; }
+  }
+  @media (max-width: 749px) {
+    .cv-gate__top { min-height: 60px; padding-block: 8px; }
+    .cv-gate__langs a { min-height: 44px; padding: 0 6px; }
+    .cv-gate__main { row-gap: 28px; padding-top: 40px; }
+    .cv-gate__text { font-size: 16px; margin-top: 14px; }
+    .cv-gate__foot { min-height: 48px; }
+  }
+  /* Phones: the pill opens into a field and a full-width button, as in Canvas's footer signup. The field's parts join the form's grid
+     so a message sits right under the field it is about, above the button (it is not focusable, so focus order is unchanged). */
+  @media (max-width: 479px) {
+    .cv-gate__form { position: relative; gap: 10px; }
+    .cv-gate__field { display: contents; }
+    .cv-gate__field .cv-input { order: 1; min-height: 52px; padding: 0 18px; background: var(--cv-soft); border: 1px solid transparent; border-radius: var(--cv-field-radius, 14px); }
+    [dir="rtl"] .cv-gate__field .cv-input { padding: 0 18px; }
+    .cv-gate__form > .cv-gate__msg:first-of-type { order: 2; }
+    .cv-gate__field .cv-btn { order: 3; min-height: 52px; margin-top: 4px; border-radius: var(--cv-btn-radius, 999px); }
+    .cv-gate__consent { order: 4; margin-top: 6px; }
+    .cv-gate__form > #cv-gate-cmsg { order: 5; }
+    .cv-gate__field .cv-input:focus { background: var(--bg); border-color: var(--text); }
+    .cv-gate__field.is-invalid .cv-input { border-color: var(--accent); background: var(--bg); }
+    .cv-gate__field--pw .cv-input { padding-inline-end: 96px; }
+    .cv-gate .cv-gate__peek { position: absolute; inset-inline-end: 8px; top: 6px; z-index: 1; }
+    .cv-gate__field.is-shake .cv-input { animation: inherit; }
+  }

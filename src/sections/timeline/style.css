@@ -1,0 +1,22 @@
+  .cv-tl__list { --cv-tl-dot: 11px; --cv-tl-x: 5px; position: relative; display: grid; gap: clamp(28px, 3.4vw, 48px); margin: 0; padding: 0; list-style: none; }
+  /* The line runs through every dot, from the first to the last. */
+  .cv-tl__list::before { content: ""; position: absolute; top: 8px; bottom: 8px; inset-inline-start: var(--cv-tl-x); width: 1px; background: var(--cv-line); }
+  .cv-tl__item { position: relative; min-width: 0; padding-inline-start: clamp(32px, 4vw, 48px); }
+  .cv-tl__item::before { content: ""; position: absolute; top: 6px; inset-inline-start: calc(var(--cv-tl-x) - var(--cv-tl-dot) / 2 + 0.5px); width: var(--cv-tl-dot); height: var(--cv-tl-dot); border-radius: 50%;
+    background: var(--bg); box-shadow: inset 0 0 0 2px var(--text); }
+  .cv-tl__card { display: grid; gap: 8px; max-width: 640px; }
+  .cv-tl__card p { margin: 0; }
+  .cv-tl__date { font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .cv-tl__text { white-space: pre-line; text-wrap: pretty; }
+  .cv-tl__img { margin-top: 8px; border-radius: var(--cv-radius, 16px); }
+  .cv-tl__img > img { height: auto; }
+  /* Alternating: the line down the middle, milestones taking turns on each side. */
+  @media (min-width: 990px) {
+    .cv-tl--alternate .cv-tl__list { --cv-tl-x: 50%; gap: clamp(20px, 2.4vw, 32px); }
+    .cv-tl--alternate .cv-tl__item { width: 50%; padding-inline: 0 clamp(40px, 4.4vw, 64px); text-align: end; }
+    .cv-tl--alternate .cv-tl__item::before { inset-inline-start: auto; inset-inline-end: calc(var(--cv-tl-dot) / -2); }
+    .cv-tl--alternate .cv-tl__card { justify-items: end; margin-inline-start: auto; }
+    .cv-tl--alternate .cv-tl__item:nth-child(even) { margin-inline-start: 50%; padding-inline: clamp(40px, 4.4vw, 64px) 0; text-align: start; }
+    .cv-tl--alternate .cv-tl__item:nth-child(even)::before { inset-inline-end: auto; inset-inline-start: calc(var(--cv-tl-dot) / -2); }
+    .cv-tl--alternate .cv-tl__item:nth-child(even) .cv-tl__card { justify-items: start; margin-inline-start: 0; }
+  }

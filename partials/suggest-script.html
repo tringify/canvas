@@ -1,0 +1,105 @@
+<script>
+(function () {
+  // Predictive search, one implementation for every search box that offers suggestions (the header's, the search page's):
+  // window.cvSuggest(input, box, opts). The box carries the platform's suggest URL for this page's language and country
+  // (routes.search_suggest_url, as data-suggest-url) and its labels; markup in partials/header-suggest.html.
+  // Debounced, newest response wins; grouped; arrows move through the options, Enter opens one, Escape closes the list.
+  // opts.dismiss: a click outside the box and its field closes the list (the header's panel closes itself instead).
+  if (window.cvSuggest) return;
+  window.cvSuggest = function (input, box, opts) {
+    if (!input || !box || input.__cvSuggest) return;
+    input.__cvSuggest = true; opts = opts || {};
+    var seq = 0, timer = null, active = -1, idp = (box.id || "cv-suggest") + "-o";
+    var labels = {}; try { labels = JSON.parse(box.getAttribute("data-group-labels") || "{}"); } catch (_) {}
+    var suggestURL = box.getAttribute("data-suggest-url") || "/search/suggest";
+    input.setAttribute("aria-expanded", "false");
+    function mark(el, text, q) {
+      var i = text.toLowerCase().indexOf(q.toLowerCase());
+      if (i < 0) { el.textContent = text; return; }
+      el.appendChild(document.createTextNode(text.slice(0, i)));
+      var m = document.createElement("mark"); m.textContent = text.slice(i, i + q.length); el.appendChild(m);
+      el.appendChild(document.createTextNode(text.slice(i + q.length)));
+    }
+    function options() { return Array.prototype.slice.call(box.querySelectorAll("[role=option]")); }
+    function setActive(i) {
+      var o = options(); if (!o.length) return;
+      active = (i + o.length) % o.length;
+      o.forEach(function (x, k) { x.classList.toggle("is-active", k === active); x.setAttribute("aria-selected", k === active ? "true" : "false"); });
+      input.setAttribute("aria-activedescendant", o[active].id); o[active].scrollIntoView({ block: "nearest" });
+    }
+    function close() {
+      clearTimeout(timer); seq++; active = -1;
+      box.replaceChildren(); box.classList.remove("is-loading");
+      input.removeAttribute("aria-activedescendant"); input.setAttribute("aria-expanded", "false");
+    }
+    function run() {
+      clearTimeout(timer);
+      var q = input.value.trim();
+      active = -1; input.removeAttribute("aria-activedescendant");
+      if (!q) { close(); return; }
+      box.classList.add("is-loading");
+      timer = setTimeout(function () {
+        var mine = ++seq;
+        fetch(suggestURL + (suggestURL.indexOf("?") < 0 ? "?" : "&") + "q=" + encodeURIComponent(q), { headers: { "Accept": "application/json" }, credentials: "same-origin" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (mine !== seq) return;
+            box.classList.remove("is-loading");
+            box.replaceChildren();
+            if (!data) { input.setAttribute("aria-expanded", "false"); return; }
+            var n = 0;
+            var top = document.createElement("a");
+            top.className = "cv-hd__sall"; top.id = idp + (n++); top.setAttribute("role", "option");
+            top.href = data.search_url || (box.getAttribute("data-search-url") + "?q=" + encodeURIComponent(q));
+            top.textContent = (box.getAttribute("data-label-for") || "").replace("__q__", q);
+            box.appendChild(top);
+            (data.groups || []).forEach(function (g) {
+              if (!g.items || !g.items.length) return;
+              var sec = document.createElement("div"); sec.className = "cv-hd__sgroup";
+              var h = document.createElement("p"); h.className = "cv-hd__shead"; h.textContent = labels[g.type] || g.type; sec.appendChild(h);
+              var list = document.createElement("div"); list.className = "cv-hd__slist" + (g.type === "product" ? " cv-hd__slist--grid" : "");
+              g.items.forEach(function (it) {
+                var a = document.createElement("a");
+                a.className = "cv-hd__sitem"; a.href = it.url; a.setAttribute("role", "option"); a.id = idp + (n++);
+                if (g.type === "product" || it.image) {
+                  var f = document.createElement("span"); f.className = "cv-hd__sthumb";
+                  if (it.image) { var img = document.createElement("img"); img.src = it.image; img.alt = ""; img.loading = "lazy"; f.appendChild(img); }
+                  a.appendChild(f);
+                }
+                var s = document.createElement("span"); s.className = "cv-hd__stitle"; mark(s, it.title || "", q); a.appendChild(s);
+                if (it.price) { var pr = document.createElement("span"); pr.className = "cv-hd__sprice"; pr.textContent = it.price; a.appendChild(pr); }
+                list.appendChild(a);
+              });
+              sec.appendChild(list); box.appendChild(sec);
+            });
+            if (!box.querySelector(".cv-hd__sgroup")) {
+              var none = document.createElement("p"); none.className = "cv-hd__snone"; none.textContent = box.getAttribute("data-label-empty"); box.appendChild(none);
+            }
+            input.setAttribute("aria-expanded", "true");
+          })
+          .catch(function () { if (mine === seq) box.classList.remove("is-loading"); });
+      }, 220);
+    }
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown") { e.preventDefault(); setActive(active + 1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); setActive(active - 1); }
+      else if (e.key === "Enter" && active >= 0) { var o = options()[active]; if (o) { e.preventDefault(); window.location.href = o.href; } }
+      // Escape closes an open list and stops there; with the list closed it reaches the header (which closes its search panel).
+      else if (e.key === "Escape" && box.firstChild) { e.preventDefault(); e.stopPropagation(); close(); }
+    });
+    input.addEventListener("input", run);
+    // Coming back to a field that still holds a query shows its suggestions again.
+    input.addEventListener("focus", function () { if (input.value.trim() && !box.firstChild) run(); });
+    if (opts.dismiss) {
+      document.addEventListener("pointerdown", function (e) {
+        if (!input.isConnected) return;
+        if (box.firstChild && !box.contains(e.target) && e.target !== input) close();
+      });
+      // Tabbing out of the field and the list closes it too.
+      document.addEventListener("focusin", function (e) {
+        if (input.isConnected && box.firstChild && e.target !== input && !box.contains(e.target)) close();
+      });
+    }
+  };
+})();
+</script>

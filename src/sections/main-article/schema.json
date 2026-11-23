@@ -1,0 +1,36 @@
+{
+  "name": "main-article",
+  "icon": "file-text",
+  "ctx_needs": [
+    "blog_post",
+    "forms",
+    "form_notice",
+    "customer.logged_in",
+    "routes",
+    "csrf_token"
+  ],
+  "settings": [
+    {
+      "id": "show_image",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "show_featured_image",
+        "group": "content"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 10,
+    "accept_app_blocks": true
+  }
+}

@@ -1,0 +1,287 @@
+{%- comment -%} Gift card recipient, inside a cart_add form for a gift card. Input: cv_gid (unique id prefix). The section needs forms in
+  ctx_needs: every maxlength and the message counter come from forms.cart_add.
+  Off: the card goes to the buyer's checkout contact. On: the fields open and post with Add to cart and Buy now; while off they are disabled, so nothing is sent.
+  Send on: without script, the native date-time field posts gift_card_deliver_at itself (the platform reads a bare value as UTC, so its hint says so).
+  With script, the picker in the template replaces it: Now (after payment), Tomorrow morning or a day and time, in the shopper's own time zone,
+  posted as RFC 3339 with that moment's offset. The platform only requires a future moment, so the calendar has no last day.
+  Channels: the email field shows only while forms.cart_add.gift_card_recipient_email.available, the phone field only while
+  gift_card_recipient_phone.available, and the hint and the "add a contact" message name only what is shown. With neither, the store
+  cannot send a card to anyone else, so the whole switch is left out and the card goes to the buyer. {%- endcomment -%}
+{%- assign cv_g_email = forms.cart_add.gift_card_recipient_email.available -%}{%- assign cv_g_phone = forms.cart_add.gift_card_recipient_phone.available -%}
+{%- if cv_g_email or cv_g_phone -%}
+{%- if cv_g_email and cv_g_phone -%}{%- assign cv_g_reach = 'products.gift_reach_hint' | t -%}{%- assign cv_g_need = 'products.gift_need_contact' | t -%}
+{%- elsif cv_g_email -%}{%- assign cv_g_reach = 'products.gift_reach_email' | t -%}{%- assign cv_g_need = 'products.gift_need_email' | t -%}
+{%- else -%}{%- assign cv_g_reach = 'products.gift_reach_phone' | t -%}{%- assign cv_g_need = 'products.gift_need_phone' | t -%}{%- endif -%}
+<div class="cv-gift" data-cv-gift data-need-contact="{{ cv_g_need }}" data-phone-plus="{{ 'products.gift_phone_plus' | t }}">
+  <label class="cv-gift__head">
+    <span class="cv-gift__text"><span class="cv-gift__title">{{ 'products.gift_send' | t }}</span><span class="cv-gift__sub">{{ 'products.gift_send_hint' | t }}</span></span>
+    <input class="cv-gift__switch" type="checkbox" role="switch" name="gift_card_send_as_gift" value="true" aria-controls="{{ cv_gid }}-fields" data-cv-gift-toggle>
+  </label>
+  <div class="cv-gift__body" id="{{ cv_gid }}-fields">
+    <fieldset class="cv-gift__fields" data-cv-gift-fields>
+      <legend class="cv-sr">{{ 'products.gift_recipient' | t }}</legend>
+      <label class="cv-field"><span class="cv-label">{{ 'products.gift_name' | t }}</span><input class="cv-input" name="gift_card_recipient_name" autocomplete="off" maxlength="{{ forms.cart_add.gift_card_recipient_name.max_length }}"></label>
+      <div class="cv-gift__pair">
+        {%- if cv_g_email -%}
+        <label class="cv-field"><span class="cv-label">{{ 'products.gift_email' | t }}</span><input class="cv-input" type="email" name="gift_card_recipient_email" autocomplete="off" maxlength="{{ forms.cart_add.gift_card_recipient_email.max_length }}" aria-describedby="{{ cv_gid }}-reach" data-cv-gift-email></label>
+        {%- endif -%}
+        {%- if cv_g_phone -%}
+        {%- assign cv_ph_id = cv_gid | append: '-phone' -%}{%- assign cv_ph_name = 'gift_card_recipient_phone' -%}{%- assign cv_ph_value = '' -%}
+        {%- assign cv_ph_label = 'products.gift_phone' | t -%}{%- assign cv_ph_required = false -%}{%- assign cv_ph_country = localization.country.iso_code -%}
+        {%- assign cv_ph_disabled = false -%}{%- assign cv_ph_describedby = cv_gid | append: '-reach' -%}{%- assign cv_ph_auto = 'off' -%}
+{%- comment -%}partial:phone-field{%- endcomment -%}
+{%- comment -%}/partial:phone-field{%- endcomment -%}
+        {%- endif -%}
+      </div>
+      <p class="cv-gift__hint" id="{{ cv_gid }}-reach">{{ cv_g_reach }}</p>
+      <label class="cv-field cv-gift__msg">
+        <span class="cv-label">{{ 'products.gift_message' | t }}</span>
+        <textarea class="cv-input" name="gift_card_recipient_message" maxlength="{{ forms.cart_add.gift_card_recipient_message.max_length }}" rows="3" aria-describedby="{{ cv_gid }}-count" data-cv-gift-msg></textarea>
+        <span class="cv-gift__count" id="{{ cv_gid }}-count" aria-live="polite" aria-atomic="true"><span data-cv-gift-count>0</span> / {{ forms.cart_add.gift_card_recipient_message.max_length }}</span>
+      </label>
+      <div class="cv-when" data-cv-when>
+        <div class="cv-when__native" data-cv-when-native>
+          <label class="cv-field"><span class="cv-label">{{ 'products.gift_date' | t }}</span><input class="cv-input" type="datetime-local" name="gift_card_deliver_at" aria-describedby="{{ cv_gid }}-when"></label>
+          <p class="cv-gift__hint" id="{{ cv_gid }}-when">{{ 'products.gift_date_hint' | t }}</p>
+        </div>
+        <template data-cv-when-ui>
+          <div class="cv-when__ui" data-sends="{{ 'products.gift_date_sends' | t: date: '{date}', time: '{time}' | escape }}" data-zone="{{ 'products.gift_date_zone' | t: zone: '{zone}' | escape }}"
+            data-now="{{ 'products.gift_date_now_hint' | t | escape }}" data-past="{{ 'products.gift_date_past' | t | escape }}">
+            <span class="cv-label" id="{{ cv_gid }}-when-l">{{ 'products.gift_date' | t }}</span>
+            <div class="cv-when__opts" role="radiogroup" aria-labelledby="{{ cv_gid }}-when-l" aria-describedby="{{ cv_gid }}-when-say">
+              <button type="button" class="cv-when__opt" role="radio" aria-checked="true" tabindex="0" data-cv-when-opt="now">{{ 'products.gift_date_now' | t }}</button>
+              <button type="button" class="cv-when__opt" role="radio" aria-checked="false" tabindex="-1" data-cv-when-opt="tomorrow">{{ 'products.gift_date_tomorrow' | t }}</button>
+              <button type="button" class="cv-when__opt" role="radio" aria-checked="false" tabindex="-1" aria-expanded="false" aria-controls="{{ cv_gid }}-cal" data-cv-when-opt="pick">{{ 'products.gift_date_pick' | t }}</button>
+            </div>
+            <div class="cv-when__cal" id="{{ cv_gid }}-cal" role="group" aria-labelledby="{{ cv_gid }}-month" hidden data-cv-when-cal>
+              <div class="cv-when__nav">
+                <button type="button" class="cv-when__arrow cv-when__arrow--prev" aria-label="{{ 'products.gift_date_prev' | t }}" data-cv-when-month="-1"></button>
+                <span class="cv-when__month" id="{{ cv_gid }}-month" aria-live="polite" data-cv-when-title></span>
+                <button type="button" class="cv-when__arrow" aria-label="{{ 'products.gift_date_next' | t }}" data-cv-when-month="1"></button>
+              </div>
+              <table class="cv-when__grid" role="grid" aria-labelledby="{{ cv_gid }}-month" data-cv-when-grid></table>
+              <div class="cv-when__foot">
+                <label class="cv-field cv-when__time"><span class="cv-label">{{ 'products.gift_date_time' | t }}</span><select class="cv-input" data-cv-when-time></select></label>
+                <button type="button" class="cv-btn cv-btn--sm" data-cv-when-done>{{ 'products.gift_date_done' | t }}</button>
+              </div>
+            </div>
+            <p class="cv-gift__hint cv-when__say" id="{{ cv_gid }}-when-say" aria-live="polite" data-cv-when-say></p>
+            <input type="hidden" name="gift_card_deliver_at" value="" data-cv-gift-at>
+          </div>
+        </template>
+      </div>
+    </fieldset>
+  </div>
+</div>
+{%- endif -%}
+<script>
+(function () {
+  if (window.__cvGift) return; window.__cvGift = true;
+  // Presentation only (the platform takes any future moment): the time list's step, and the time "Tomorrow morning" and a newly picked day start at.
+  var STEP = 30, MORNING = 9 * 60;
+  var lang = document.documentElement.lang || undefined;
+  function dtf(o) { return new Intl.DateTimeFormat(lang, o); }
+  var F = { day: dtf({ weekday: "short", day: "numeric", month: "short" }), time: dtf({ hour: "numeric", minute: "2-digit" }),
+    month: dtf({ month: "long", year: "numeric" }), full: dtf({ weekday: "long", day: "numeric", month: "long", year: "numeric" }),
+    num: dtf({ day: "numeric" }), wk: dtf({ weekday: "narrow" }), wkLong: dtf({ weekday: "long" }), zone: dtf({ timeZoneName: "long" }) };
+  // The week starts where the page's language starts it (browsers without week data: Monday).
+  var loc = new Intl.Locale(F.day.resolvedOptions().locale), wi = loc.getWeekInfo ? loc.getWeekInfo() : loc.weekInfo, FIRST = wi ? wi.firstDay % 7 : 1;
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  // A local moment as RFC 3339 with that moment's own offset (so summer time is right): 2026-12-24T09:00:00+05:30.
+  function rfc(d) {
+    var off = -d.getTimezoneOffset(), a = Math.abs(off);
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":00" +
+      (off < 0 ? "-" : "+") + pad(Math.floor(a / 60)) + ":" + pad(a % 60);
+  }
+  function today() { var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
+  function plus(d, days, months) { return new Date(d.getFullYear(), d.getMonth() + (months || 0), d.getDate() + days); }
+  function at(d, min) { return new Date(d.getFullYear(), d.getMonth(), d.getDate(), Math.floor(min / 60), min % 60); }
+  function same(a, b) { return !!a && !!b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+  function key(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function unkey(k) { var m = k.split("-"); return new Date(+m[0], m[1] - 1, +m[2]); }
+  function lead(d) { return (d.getDay() - FIRST + 7) % 7; }
+  // The day's times still ahead, every STEP minutes; a time that summer time skips is left out.
+  function slots(d) {
+    var now = Date.now(), out = [];
+    for (var m = 0; m < 1440; m += STEP) { var t = at(d, m); if (same(t, d) && t.getHours() * 60 + t.getMinutes() === m && t.getTime() > now) out.push(m); }
+    return out;
+  }
+  function firstDay() { var t = today(); return slots(t).length ? t : plus(t, 1); }
+  function part(g, k) { return g.querySelector(k === "phone" ? "[data-cv-phone-num]" : "[data-cv-gift-" + k + "]"); }
+  function el(w, k) { return w.ui.querySelector("[data-cv-when-" + k + "]"); }
+
+  // Script replaces the native field with the picker (the native one stays for shoppers without script).
+  function enhance(g) {
+    if (g.__cvWhen) return g.__cvWhen;
+    var box = g.querySelector("[data-cv-when]");
+    box.replaceChildren(box.querySelector("template[data-cv-when-ui]").content.cloneNode(true));
+    var w = { ui: box.firstElementChild, mode: "now", day: null, min: MORNING, view: null, focus: null };
+    w.at = w.ui.querySelector("[data-cv-gift-at]"); w.opts = [].slice.call(w.ui.querySelectorAll("[data-cv-when-opt]"));
+    w.pick = w.opts[2]; w.cal = el(w, "cal"); w.grid = el(w, "grid"); w.time = el(w, "time"); w.say = el(w, "say");
+    return (g.__cvWhen = w);
+  }
+  function moment(w) {
+    if (w.mode === "tomorrow") return at(plus(today(), 1), MORNING);
+    if (w.mode === "pick" && w.day) return at(w.day, w.min);
+    return null;
+  }
+  function write(w) {
+    var m = moment(w);
+    w.at.value = m ? rfc(m) : "";
+    if (!m) { w.say.textContent = w.ui.getAttribute("data-now"); return; }
+    var zone = F.zone.formatToParts(m).filter(function (p) { return p.type === "timeZoneName"; })[0];
+    w.say.textContent = w.ui.getAttribute("data-sends").replace("{date}", F.day.format(m)).replace("{time}", F.time.format(m)) + " " +
+      w.ui.getAttribute("data-zone").replace("{zone}", zone ? zone.value : "");
+  }
+  function show(w, open) {
+    w.cal.hidden = !open;
+    w.pick.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  // The time list for the chosen day: keep the chosen time while that day still has it, else the first one after it.
+  function times(w) {
+    var s = slots(w.day), keep = s.indexOf(w.min) >= 0 ? w.min : (s.filter(function (m) { return m > w.min; })[0] || s[0]);
+    if (keep !== undefined) w.min = keep;
+    w.time.replaceChildren.apply(w.time, s.map(function (m) { var o = new Option(F.time.format(at(w.day, m)), m); o.selected = m === w.min; return o; }));
+  }
+  function render(w) {
+    var t = today(), first = firstDay(), v = w.view, sel = w.day;
+    el(w, "title").textContent = F.month.format(v);
+    w.cal.querySelector('[data-cv-when-month="-1"]').disabled = v <= new Date(t.getFullYear(), t.getMonth(), 1);
+    // The day that takes Tab: the one the keys moved to, the chosen day, the first day open, or the month's first day.
+    var focus = [w.focus, sel, first, v].filter(function (d) { return d && d >= first && d.getMonth() === v.getMonth() && d.getFullYear() === v.getFullYear(); })[0];
+    var head = document.createElement("tr"), body = document.createElement("tbody"), row = null;
+    for (var i = 0; i < 7; i++) {
+      var wd = plus(v, i - lead(v)), th = document.createElement("th");
+      th.scope = "col"; th.abbr = F.wkLong.format(wd); th.textContent = F.wk.format(wd); head.appendChild(th);
+    }
+    var cells = lead(v) + new Date(v.getFullYear(), v.getMonth() + 1, 0).getDate();
+    for (var c = 0; c < Math.ceil(cells / 7) * 7; c++) {
+      if (c % 7 === 0) { row = document.createElement("tr"); body.appendChild(row); }
+      var td = document.createElement("td"), d = plus(v, c - lead(v));
+      if (d.getMonth() === v.getMonth()) {
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "cv-when__day"; b.setAttribute("data-day", key(d));
+        b.textContent = F.num.format(d); b.setAttribute("aria-label", F.full.format(d));
+        b.disabled = d < first; b.tabIndex = same(d, focus) ? 0 : -1;
+        if (same(d, t)) b.setAttribute("aria-current", "date");
+        td.setAttribute("aria-selected", same(d, sel) ? "true" : "false");
+        td.appendChild(b);
+      }
+      row.appendChild(td);
+    }
+    var thead = document.createElement("thead"); thead.appendChild(head);
+    w.grid.replaceChildren(thead, body);
+    times(w);
+  }
+  function focusDay(w) { var b = w.grid.querySelector('button[tabindex="0"]'); if (b) b.focus(); }
+  function choose(w, mode, into) {
+    w.mode = mode; w.time.setCustomValidity("");
+    w.opts.forEach(function (o) { var on = o.getAttribute("data-cv-when-opt") === mode; o.setAttribute("aria-checked", on ? "true" : "false"); o.tabIndex = on ? 0 : -1; });
+    if (mode === "pick") {
+      if (!w.day) w.day = plus(today(), 1);
+      w.view = new Date(w.day.getFullYear(), w.day.getMonth(), 1); w.focus = null;
+      render(w);
+    }
+    show(w, mode === "pick");
+    if (into) focusDay(w);
+    write(w);
+  }
+  function pickDay(w, d) {
+    w.day = d; w.focus = d; w.time.setCustomValidity("");
+    render(w); focusDay(w); write(w);
+  }
+  function close(w) { show(w, false); w.pick.focus(); }
+
+  function sync(g) {
+    var on = part(g, "toggle").checked;
+    g.classList.toggle("is-open", on);
+    part(g, "fields").disabled = !on;
+    part(g, "count").textContent = part(g, "msg").value.length;
+    write(enhance(g));
+  }
+  function all() { document.querySelectorAll("[data-cv-gift]").forEach(sync); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", all); else all();
+  addEventListener("pageshow", all);
+  document.addEventListener("section:soft-nav", all);
+  function picker(e) { var g = e.target.closest && e.target.closest("[data-cv-gift]"); return g && g.__cvWhen; }
+  document.addEventListener("change", function (e) {
+    var g = e.target.closest && e.target.closest("[data-cv-gift]"); if (!g) return;
+    if (e.target.matches("[data-cv-gift-toggle]")) sync(g);
+    var w = g.__cvWhen;
+    if (w && e.target === w.time) { w.min = +w.time.value; w.time.setCustomValidity(""); write(w); }
+  });
+  document.addEventListener("click", function (e) {
+    var w = picker(e); if (!w) return;
+    var o = e.target.closest("[data-cv-when-opt]"), d = e.target.closest("[data-day]"), mv = e.target.closest("[data-cv-when-month]");
+    if (o) {
+      var mode = o.getAttribute("data-cv-when-opt");
+      if (mode === "pick" && w.mode === "pick") { if (w.cal.hidden) { render(w); show(w, true); focusDay(w); } else show(w, false); }
+      else choose(w, mode, mode === "pick");
+    } else if (d) pickDay(w, unkey(d.getAttribute("data-day")));
+    else if (mv) {
+      w.view = plus(w.view, 0, +mv.getAttribute("data-cv-when-month")); w.focus = null; render(w);
+      if (mv.disabled) w.cal.querySelector('[data-cv-when-month="1"]').focus();
+    } else if (e.target.closest("[data-cv-when-done]")) close(w);
+  });
+  // Keys: the choices are a radio group (arrows move and choose); the calendar is a grid (arrows by day and week, Home and End to the
+  // week's ends, Page Up and Page Down by month, with Shift by year). Escape closes the calendar and returns to "Pick a date".
+  document.addEventListener("keydown", function (e) {
+    var w = picker(e); if (!w || e.altKey || e.ctrlKey || e.metaKey) return;
+    var rtl = getComputedStyle(w.ui).direction === "rtl", k = e.key, side = { ArrowLeft: rtl ? 1 : -1, ArrowRight: rtl ? -1 : 1 };
+    var o = e.target.closest("[data-cv-when-opt]");
+    if (o) {
+      var step = side[k] || (k === "ArrowDown" ? 1 : k === "ArrowUp" ? -1 : 0); if (!step) return;
+      e.preventDefault();
+      var next = w.opts[(w.opts.indexOf(o) + step + 3) % 3];
+      choose(w, next.getAttribute("data-cv-when-opt"), false); next.focus();
+      return;
+    }
+    if (!w.cal.contains(e.target)) return;
+    if (k === "Escape") { e.preventDefault(); close(w); return; }
+    var b = e.target.closest("[data-day]"); if (!b) return;
+    var d = unkey(b.getAttribute("data-day")), n = null;
+    if (side[k]) n = plus(d, side[k]);
+    else if (k === "ArrowUp" || k === "ArrowDown") n = plus(d, k === "ArrowUp" ? -7 : 7);
+    else if (k === "Home") n = plus(d, -lead(d));
+    else if (k === "End") n = plus(d, 6 - lead(d));
+    else if (k === "PageUp" || k === "PageDown") {
+      var months = (k === "PageUp" ? -1 : 1) * (e.shiftKey ? 12 : 1), last = new Date(d.getFullYear(), d.getMonth() + months + 1, 0).getDate();
+      n = new Date(d.getFullYear(), d.getMonth() + months, Math.min(d.getDate(), last));
+    }
+    if (!n) return;
+    e.preventDefault();
+    var first = firstDay(); if (n < first) n = first;
+    w.focus = n; w.view = new Date(n.getFullYear(), n.getMonth(), 1);
+    render(w); focusDay(w);
+  });
+  document.addEventListener("focusin", function (e) { var w = picker(e); if (w && e.target === w.time && w.day) { times(w); write(w); } });
+  document.addEventListener("input", function (e) {
+    var g = e.target.closest && e.target.closest("[data-cv-gift]"); if (!g) return;
+    if (e.target.matches("[data-cv-gift-msg]")) part(g, "count").textContent = e.target.value.length;
+    if (e.target.matches("[data-cv-gift-email], [data-cv-phone-num]")) contacts(g).forEach(function (f) { f.setCustomValidity(""); });
+  });
+  // The contact fields shown: email and phone, or only the one the store can deliver by.
+  function contacts(g) { return [part(g, "email"), part(g, "phone")].filter(Boolean); }
+  // Runs on the window before any form handler (the page's own or the platform's fetch): disable the
+  // fields while the switch is off, write the send time, ask for a contact (an email or a phone, or the one shown), and refuse a send
+  // time that has passed (a page left open). A phone field without its country picker (no script data) needs the number to start
+  // with +; with it, the picker supplies the code.
+  addEventListener("submit", function (e) {
+    var g = e.target.querySelector && e.target.querySelector("[data-cv-gift]"); if (!g) return;
+    sync(g);
+    if (!part(g, "toggle").checked) return;
+    var fields = contacts(g), ph = part(g, "phone"), tel = ph ? ph.value.trim() : "", w = g.__cvWhen, bad = null;
+    fields.forEach(function (f) { f.setCustomValidity(""); });
+    if (!fields.some(function (f) { return f.value.trim(); })) { fields[0].setCustomValidity(g.getAttribute("data-need-contact")); bad = fields[0]; }
+    else if (tel && tel.charAt(0) !== "+" && !ph.closest(".cv-phone.is-enhanced")) { ph.setCustomValidity(g.getAttribute("data-phone-plus")); bad = ph; }
+    else if (w && w.mode === "pick" && moment(w) <= new Date()) {
+      // The calendar opens on the chosen day with its next free time; the message says why nothing was sent.
+      w.view = new Date(w.day.getFullYear(), w.day.getMonth(), 1); w.focus = null; render(w); show(w, true); write(w);
+      w.time.setCustomValidity(w.ui.getAttribute("data-past")); bad = w.time;
+    }
+    if (!bad) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    bad.reportValidity();
+  }, true);
+})();
+</script>

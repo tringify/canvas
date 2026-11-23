@@ -1,0 +1,43 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: free gifts and offers the cart is close to. Reads cart. {%- endcomment -%}
+{%- for gift in cart.gift_offers -%}
+  {%- if gift.mode == 'offer' and gift.remaining_quantity > 0 and gift.product -%}
+    <div class="cv-sum__gift">
+      <span class="cv-sum__gift-media cv-media">{%- if gift.product.media.url and gift.product.media.is_image != false -%}<img src="{{ gift.product.media.url | image_url: width: 160 }}" alt="" loading="lazy">{%- else -%}{%- if design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}{%- endif -%}</span>
+      <div class="cv-sum__gift-info"><p class="cv-sum__gift-title">{{ 'cart.gift_available' | t }}</p><p class="cv-muted">{{ gift.product.title }}</p></div>
+      {% form 'cart_add', class: 'cv-sum__gift-form' %}
+        <input type="hidden" name="product_id" value="{{ gift.product_id }}">
+        {%- if gift.variant_id -%}<input type="hidden" name="variant_id" value="{{ gift.variant_id }}">{%- endif -%}
+        <input type="hidden" name="quantity" value="{{ gift.remaining_quantity }}">
+        <button class="cv-btn cv-btn--sm" type="submit">{{ 'cart.claim_gift' | t }}</button>
+      {% endform %}
+    </div>
+  {%- endif -%}
+{%- endfor -%}
+
+{%- for n in cart.discount_nudges -%}
+  <div class="cv-sum__nudge">
+    <p><strong>{{ n.name }}</strong> {{ n.reason }}{% if n.bundle.saving %}{% assign cv_save = n.bundle.saving | money: isolate: true, trim_zeros: cv_tz %} <span class="cv-sum__nudge-save">{{ 'cart.bundle_save' | t: amount: cv_save }}</span>{% endif %}</p>
+    {%- if n.bundle.missing_items.size > 0 -%}
+      <ul class="cv-sum__bundle" role="list">
+        {%- for m in n.bundle.missing_items -%}
+          <li class="cv-sum__bitem">
+            <a class="cv-sum__bmedia cv-media" href="{{ m.url }}">{%- if m.media.url and m.media.is_image != false -%}<img src="{{ m.media.url | image_url: width: 120 }}" alt="" loading="lazy">{%- else -%}{%- if design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}{%- endif -%}</a>
+            <div class="cv-sum__binfo"><a href="{{ m.url }}">{{ m.title }}</a>
+              <span class="cv-muted">{% if m.quantity_needed > 1 %}{{ m.quantity_needed }} × {% endif %}{{ m.unit_price | money: isolate: true, trim_zeros: cv_tz }}</span></div>
+            {%- if m.requires_options -%}
+            <a class="cv-btn cv-btn--sm cv-sum__badd" href="{{ m.url }}">{{ 'products.choose_options' | t }}</a>
+            {%- else -%}
+            {% form 'cart_add', class: 'cv-sum__badd' %}
+              <input type="hidden" name="product_id" value="{{ m.product_id }}">
+              {%- if m.variant_id -%}<input type="hidden" name="variant_id" value="{{ m.variant_id }}">{%- endif -%}
+              <input type="hidden" name="quantity" value="{{ m.quantity_needed | default: 1 }}">
+              <button class="cv-btn cv-btn--sm" type="submit">{{ 'cart.add' | t }}</button>
+            {% endform %}
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+{%- endfor -%}

@@ -1,0 +1,95 @@
+<script>
+(function () {
+  if (window.__cvLoc) return; window.__cvLoc = true;
+  // Dropdown pickers submit on change.
+  if (!window.__cvAutosubmit) {
+    window.__cvAutosubmit = true;
+    document.addEventListener("change", function (e) {
+      var s = e.target.closest && e.target.closest("select[data-cv-autosubmit]");
+      if (s && s.form) s.form.requestSubmit ? s.form.requestSubmit() : s.form.submit();
+    });
+  }
+  // Focus rings follow the last input: a click or a tap opens a list with focus on the current choice but no ring (Safari otherwise rings
+  // focus moved by script after a tap); a key brings the ring back. Pages without the header (the gate pages) get the page-wide cv-pointer
+  // switch from here.
+  var kbd = false, html = document.documentElement;
+  addEventListener("pointerdown", function () { kbd = false; html.classList.add("cv-pointer"); }, true);
+  addEventListener("keydown", function (e) {
+    if (e.key !== "Tab" && e.key !== "Escape" && !/^Arrow/.test(e.key) && e.key !== "Enter" && e.key !== " ") return;
+    kbd = true; html.classList.remove("cv-pointer");
+    document.querySelectorAll("dialog[data-cv-loc-dlg].is-pointer").forEach(function (d) { d.classList.remove("is-pointer"); });
+  }, true);
+  // List pickers: the trigger opens its <dialog> (modal, so focus stays in it and Escape closes it). The pill's list sits under the pill on
+  // wider screens, lined up with it on the page grid; every list is a bottom sheet on phones.
+  var wide = window.matchMedia("(min-width: 750px)");
+  function place(d, t) {
+    if (!d.classList.contains("cv-loc-dlg--pill")) return;
+    if (!wide.matches) { ["--cv-loc-y", "--cv-loc-x", "--cv-loc-b", "--cv-loc-w"].forEach(function (p) { d.style.removeProperty(p); }); return; }
+    var r = t.getBoundingClientRect(), vw = html.clientWidth, vh = window.innerHeight;
+    // The grid: the content box of the row the trigger sits in (the header bar, the gate's top row), else 16px in from the window.
+    var g = t.closest(".cv-wrap, .cv-gate__top"), lo = 16, hi = vw - 16;
+    if (g) {
+      var gr = g.getBoundingClientRect(), gs = getComputedStyle(g);
+      lo = Math.max(lo, gr.left + parseFloat(gs.paddingLeft)); hi = Math.min(hi, gr.right - parseFloat(gs.paddingRight));
+    }
+    var w = Math.min(340, hi - lo);
+    // The list's edge meets the trigger's: the right edges when the trigger is in the right half of the row, else the left edges.
+    var left = (r.left + r.right) / 2 > (lo + hi) / 2 ? r.right - w : r.left;
+    left = Math.max(lo, Math.min(left, hi - w));
+    var rtl = getComputedStyle(d).direction === "rtl";
+    d.style.setProperty("--cv-loc-w", w + "px");
+    d.style.setProperty("--cv-loc-x", (rtl ? vw - left - w : left) + "px");
+    var below = vh - r.bottom, y = below > 280 || below > r.top ? r.bottom + 8 : null;
+    if (y === null) { d.style.setProperty("--cv-loc-y", "auto"); d.style.setProperty("--cv-loc-b", (vh - r.top + 8) + "px"); }
+    else { d.style.setProperty("--cv-loc-y", y + "px"); d.style.removeProperty("--cv-loc-b"); }
+  }
+  function open(t) {
+    var d = document.getElementById(t.getAttribute("data-cv-loc-open"));
+    if (!d || d.open || !d.showModal) return;
+    place(d, t);
+    d.classList.toggle("is-pointer", !kbd);
+    d.showModal();
+    t.setAttribute("aria-expanded", "true");
+    d.__cvTrigger = t;
+    // Wider screens start in the first list's search, if it has one; otherwise (and on phones, where it would raise the keyboard) on the
+    // current choice.
+    var search = wide.matches && d.querySelector(".cv-loc-dlg__group:first-child [data-cv-loc-search]");
+    var cur = d.querySelector('.cv-loc-dlg__opt[aria-current="true"], .cv-loc-dlg__chip[aria-current="true"]');
+    var focus = search || cur;
+    if (focus) focus.focus({ preventScroll: true, focusVisible: kbd });
+    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
+  }
+  function norm(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function filter(input) {
+    // Each list (countries, languages) has its own search.
+    var d = input.closest(".cv-loc-dlg__group") || input.closest("dialog"), q = norm(input.value.trim()), shown = 0;
+    d.querySelectorAll("[data-cv-loc-item]").forEach(function (li) {
+      var hit = !q || norm(li.getAttribute("data-cv-loc-q")).indexOf(q) !== -1 || norm(li.textContent).indexOf(q) !== -1;
+      li.hidden = !hit; if (hit) shown++;
+    });
+    var none = d.querySelector("[data-cv-loc-none]"); if (none) none.hidden = shown > 0;
+  }
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest) return;
+    var t = e.target.closest("[data-cv-loc-open]");
+    if (t) { open(t); return; }
+    var x = e.target.closest("[data-cv-loc-close]");
+    if (x) { x.closest("dialog").close(); return; }
+    // A click on the backdrop (the dialog element itself, outside its content) closes it.
+    if (e.target.matches && e.target.matches("dialog[data-cv-loc-dlg]")) {
+      var r = e.target.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
+    }
+  });
+  document.addEventListener("input", function (e) { if (e.target.matches && e.target.matches("[data-cv-loc-search]")) filter(e.target); });
+  document.addEventListener("close", function (e) {
+    var d = e.target;
+    if (!d.matches || !d.matches("dialog[data-cv-loc-dlg]")) return;
+    if (d.__cvTrigger) d.__cvTrigger.setAttribute("aria-expanded", "false");
+    d.querySelectorAll("[data-cv-loc-search]").forEach(function (s) { if (s.value) { s.value = ""; filter(s); } });
+  }, true);
+  window.addEventListener("resize", function () {
+    document.querySelectorAll("dialog[data-cv-loc-dlg][open]").forEach(function (d) { if (d.__cvTrigger) place(d, d.__cvTrigger); });
+  });
+})();
+</script>

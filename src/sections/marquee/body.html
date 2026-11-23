@@ -1,0 +1,15 @@
+<section class="cv cv-mq cv-mq--{{ settings.size }}{% if settings.pause_on_hover != false %} cv-mq--pause{% endif %} tf-scheme-{{ settings.color_scheme }}" style="--cv-mq-speed: {{ settings.speed }}s">
+  <div class="cv-mq__track" aria-hidden="false">
+    {%- for cv_rep in (1..2) -%}
+    <div class="cv-mq__group"{% if cv_rep == 2 %} aria-hidden="true"{% endif %}>
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+        {%- if cv_rep == 1 -%}{{ b._editor_block_open }}{%- endif -%}
+        <span class="cv-mq__item">{%- if b.settings.link != blank -%}<a dir="auto" href="{{ b.settings.link }}" data-tf-field="text">{{ b.settings.text }}</a>{%- else -%}<span dir="auto" data-tf-field="text">{{ b.settings.text }}</span>{%- endif -%}</span>
+        {%- unless settings.separator == 'none' -%}<span class="cv-mq__sep cv-mq__sep--{{ settings.separator }}" aria-hidden="true"></span>{%- endunless -%}
+        {%- if cv_rep == 1 -%}{{ b._editor_block_close }}{%- endif -%}
+      {%- endfor -%}
+    </div>
+    {%- endfor -%}
+  </div>
+</section>

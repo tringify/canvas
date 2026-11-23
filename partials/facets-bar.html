@@ -1,0 +1,42 @@
+{%- comment -%} Listing toolbar. Inputs: cv_fl (sidebar | horizontal | drawer), cv_fx_on (filters exist), cv_fa (applied count), cv_show_count, cv_show_search, cv_show_sort.
+  Phones get one "Filter & sort" button that opens the bottom sheet: in the page above the grid, and once scrolled past it, floating at the
+  bottom centre or hugging the side of the screen (theme setting filter_button_phone) while the grid is on screen; wider screens show the
+  count, search and sort, plus a Filters button for the drawer. {%- endcomment -%}
+{%- assign cv_has_sort = false -%}{%- if cv_show_sort and products.sort.options.size > 1 -%}{%- assign cv_has_sort = true -%}{%- endif -%}
+{%- if cv_fx_on or cv_has_sort -%}
+{%- assign cv_fx_float = theme.settings.filter_button_phone | default: 'bottom' | append: '' -%}
+<div class="cv-fx-phone cv-fx-phone--{{ cv_fx_float }}" data-cv-fx-phone>
+  <button class="cv-fx-phone__btn" type="button" data-cv-fx-open aria-controls="cv-fx" aria-expanded="false">
+    <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    <span class="cv-fx-phone__label">{{ 'filters.filter_and_sort' | t }}</span>
+    {%- if cv_fa > 0 -%}<span class="cv-fx-phone__n">{{ cv_fa }}</span>{%- endif -%}
+  </button>
+  {%- if cv_show_count -%}<span class="cv-fx-phone__count">{{ 'filters.product_count' | t: count: products.pagination.total_count }}</span>{%- endif -%}
+</div>
+{%- endif -%}
+<div class="cv-fx-bar cv-fx-bar--{{ cv_fl }}">
+  {%- if cv_fx_on -%}
+  <button class="cv-fx-bar__filters" type="button" data-cv-fx-open aria-controls="cv-fx" aria-expanded="false">
+    <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    {{ 'filters.title' | t }}{%- if cv_fa > 0 -%}<span class="cv-fx-bar__n">{{ cv_fa }}</span>{%- endif -%}
+  </button>
+  {%- endif -%}
+  {%- if cv_show_count -%}<p class="cv-fx-bar__count">{{ 'filters.product_count' | t: count: products.pagination.total_count }}</p>{%- endif -%}
+  {%- if cv_show_search and products.search.enabled -%}
+    <form class="cv-fx-bar__search" method="get" action="{{ products.search.url }}" role="search">
+      {%- for input in filters.inputs -%}{%- if input.name != 'q' -%}<input type="hidden" name="{{ input.name }}" value="{{ input.value }}">{%- endif -%}{%- endfor -%}
+      <label class="cv-sr" for="cv-fx-q">{{ 'filters.search_within' | t }}</label>
+      <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input class="cv-input" id="cv-fx-q" type="search" name="q" value="{{ products.search.query }}" placeholder="{{ 'filters.search_within' | t }}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+    </form>
+  {%- endif -%}
+  {%- if cv_has_sort -%}
+    <details class="cv-fx-sort" data-cv-fx-pop>
+      <summary class="cv-fx-sort__btn">{{ 'filters.sort_by' | t }} <strong>{%- assign cv_sort_now = '' -%}{%- for o in products.sort.options -%}{%- if o.selected -%}{%- assign cv_sort_now = o.label -%}{%- endif -%}{%- endfor -%}{{ cv_sort_now }}</strong>
+        <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <ul class="cv-fx-sort__list" role="list">
+        {%- for o in products.sort.options -%}<li><a href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}>{{ o.label }}</a></li>{%- endfor -%}
+      </ul>
+    </details>
+  {%- endif -%}
+</div>

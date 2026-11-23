@@ -1,0 +1,46 @@
+{%- comment -%} Cart summary block: estimate shipping, tax, duties and cash on delivery for a country, state and postal code before
+  checkout (cart.shipping_estimate, the cart_estimate action). Reads cart, csrf_token and the block (b); cv_where keeps the page's and
+  the drawer's ids apart. Folds like the note; the script (partials/cart-estimate-script) sends the fields and shows the answer, and
+  remembers the last address on this device so a refreshed cart estimates it again. Hidden when there is nothing to estimate.
+  {%- endcomment -%}
+{%- assign cv_est = cart.shipping_estimate -%}
+{%- if cv_est -%}
+{%- assign cv_est_label = b.settings.label | default: '' -%}
+{%- if cv_est_label == blank -%}{%- assign cv_est_label = 'cart.estimate_heading' | t -%}{%- endif -%}
+{%- assign cv_est_cc = '' -%}
+{%- for c in cv_est.countries -%}{%- if c.selected -%}{%- assign cv_est_cc = c.iso_code -%}{%- endif -%}{%- endfor -%}
+{%- if cv_est_cc == blank -%}{%- assign cv_est_cc = cv_est.countries.first.iso_code -%}{%- endif -%}
+<details class="cv-sum__codeform cv-est" data-cv-est{% if cv_where == 'page' %} data-cv-est-auto{% endif %} data-url="{{ cv_est.url }}" data-csrf="{{ csrf_token }}"
+  data-lookup-url="{{ cv_est.postal_lookup.url }}" data-lookup="{{ cv_est.postal_lookup.countries | join: ',' }}"
+  data-t-shipping="{{ 'cart.estimate_shipping' | t | escape }}" data-t-free="{{ 'cart.estimate_free' | t | escape }}"
+  data-t-tax="{{ 'cart.estimate_tax' | t | escape }}" data-t-tax-included="{{ 'cart.estimate_tax_included' | t | escape }}"
+  data-t-state="{{ 'cart.estimate_state_hint' | t | escape }}" data-t-duties="{{ 'cart.estimate_duties' | t | escape }}"
+  data-t-cod="{{ 'cart.estimate_cod' | t | escape }}" data-t-cod-yes="{{ 'cart.estimate_cod_available' | t | escape }}"
+  data-t-cod-no="{{ 'cart.estimate_cod_unavailable' | t | escape }}" data-t-cod-fee="{{ 'cart.estimate_cod_fee' | t | escape }}"
+  data-t-total="{{ 'cart.estimate_total' | t | escape }}" data-t-note="{{ 'cart.estimate_note' | t | escape }}"
+  data-t-error="{{ 'cart.estimate_error' | t | escape }}">
+  <summary dir="auto"{% if b.settings.label != blank %} data-tf-field="label"{% endif %}>{{ cv_est_label }}</summary>
+  <form class="cv-est__form" data-cv-est-form novalidate>
+    <label class="cv-field"><span class="cv-label">{{ 'cart.estimate_country' | t }}</span>
+      <select class="cv-input" name="country_code" autocomplete="shipping country" data-cv-est-country>
+        {%- for c in cv_est.countries -%}<option value="{{ c.iso_code }}"{% if c.iso_code == cv_est_cc %} selected{% endif %}>{{ c.name }}</option>{%- endfor -%}
+      </select>
+    </label>
+    {%- for c in cv_est.countries -%}
+      {%- assign cv_est_fields = cv_est.fields_by_country[c.iso_code] -%}
+      <div class="cv-est__fields" data-cv-est-for="{{ c.iso_code }}"{% if c.iso_code != cv_est_cc %} hidden{% endif %}>
+        {%- for f in cv_est_fields -%}
+          <label class="cv-field"><span class="cv-label">{{ f.label }}</span>
+          {%- if f.options.size > 0 -%}
+            <select class="cv-input" name="{{ f.key }}" autocomplete="shipping address-level1"{% if c.iso_code != cv_est_cc %} disabled{% endif %}><option value="">—</option>{%- for o in f.options -%}<option value="{{ o.value }}">{{ o.label }}</option>{%- endfor -%}</select>
+          {%- else -%}
+            <input class="cv-input" name="{{ f.key }}" autocomplete="shipping postal-code" inputmode="{{ f.input_mode }}" maxlength="{{ f.max_length }}"{% if f.placeholder != blank %} placeholder="{{ f.placeholder }}"{% endif %}{% if c.iso_code != cv_est_cc %} disabled{% endif %}>
+          {%- endif -%}</label>
+        {%- endfor -%}
+      </div>
+    {%- endfor -%}
+    <button class="cv-btn cv-btn--sm cv-btn--soft cv-est__go" type="submit">{{ 'cart.estimate_submit' | t }}</button>
+  </form>
+  <div class="cv-est__out" data-cv-est-out aria-live="polite" hidden></div>
+</details>
+{%- endif -%}

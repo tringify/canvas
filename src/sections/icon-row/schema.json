@@ -1,0 +1,214 @@
+{
+  "name": "icon-row",
+  "icon": "star",
+  "ctx_needs": [],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": ""
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "editor": {
+        "label": "style",
+        "group": "design"
+      },
+      "default": "plain",
+      "options": [
+        {
+          "value": "plain",
+          "label": "opt_plain"
+        },
+        {
+          "value": "cards",
+          "label": "opt_cards"
+        }
+      ]
+    },
+    {
+      "id": "align",
+      "type": "select",
+      "editor": {
+        "label": "alignment",
+        "group": "layout"
+      },
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "opt_left"
+        },
+        {
+          "value": "center",
+          "label": "opt_center"
+        }
+      ]
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 6,
+    "default": [
+      "item",
+      "item",
+      "item",
+      "item"
+    ],
+    "types": [
+      {
+        "type": "item",
+        "editor": {
+          "label": "icon_item"
+        },
+        "settings": [
+          {
+            "id": "icon",
+            "type": "select",
+            "editor": {
+              "label": "icon",
+              "group": "content"
+            },
+            "default": "truck",
+            "options": [
+              {
+                "value": "truck",
+                "label": "opt_icon_delivery"
+              },
+              {
+                "value": "return",
+                "label": "opt_icon_returns"
+              },
+              {
+                "value": "lock",
+                "label": "opt_icon_secure"
+              },
+              {
+                "value": "chat",
+                "label": "opt_icon_support"
+              },
+              {
+                "value": "gift",
+                "label": "opt_icon_gift"
+              },
+              {
+                "value": "leaf",
+                "label": "opt_icon_sustainable"
+              },
+              {
+                "value": "star",
+                "label": "opt_icon_quality"
+              },
+              {
+                "value": "heart",
+                "label": "opt_icon_care"
+              },
+              {
+                "value": "check",
+                "label": "opt_icon_check"
+              }
+            ]
+          },
+          {
+            "id": "title",
+            "type": "text",
+            "editor": {
+              "label": "heading",
+              "group": "content"
+            },
+            "default": "@t:sections.icon_row.item.title"
+          },
+          {
+            "id": "text",
+            "type": "text",
+            "editor": {
+              "label": "text",
+              "group": "content"
+            },
+            "default": "@t:sections.icon_row.item.text"
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "trust-icons",
+      "category": "text",
+      "blocks": [
+        {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "title": "@t:sections.icon_row.item.title",
+            "text": "@t:sections.icon_row.item.text"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "return",
+            "title": "@t:content.easy_returns",
+            "text": "@t:content.thirty_days"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "title": "@t:content.secure_checkout",
+            "text": "@t:content.encrypted_payments"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "chat",
+            "title": "@t:content.real_support",
+            "text": "@t:content.reply_within_day"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,354 @@
+{
+  "page_type": "home",
+  "sections": [
+    {
+      "type": "image-banner",
+      "settings": {
+        "hero_style": "room",
+        "height": "large",
+        "layout": "inset",
+        "overlay": 45,
+        "color_scheme": "inverse",
+        "heading_size": "large",
+        "fallback_photo": "room",
+        "blocks": [
+          {
+            "id": "canvas-home-hero__0",
+            "type": "heading",
+            "settings": {}
+          },
+          {
+            "id": "canvas-home-hero__1",
+            "type": "text",
+            "settings": {}
+          },
+          {
+            "id": "canvas-home-hero__2",
+            "type": "buttons",
+            "settings": {}
+          },
+          {
+            "id": "canvas-home-hero__3",
+            "type": "hotspot",
+            "settings": {
+              "product": "ceramic-mug",
+              "position": {
+                "x": 72,
+                "y": 51
+              }
+            }
+          },
+          {
+            "id": "canvas-home-hero__4",
+            "type": "hotspot",
+            "settings": {
+              "product": "cotton-throw",
+              "position": {
+                "x": 87,
+                "y": 53
+              }
+            }
+          },
+          {
+            "id": "canvas-home-hero__5",
+            "type": "hotspot",
+            "settings": {
+              "product": "stoneware-vase",
+              "position": {
+                "x": 92,
+                "y": 37
+              }
+            }
+          }
+        ]
+      },
+      "position": 1
+    },
+    {
+      "type": "featured-products",
+      "settings": {
+        "heading": "@t:content.new_arrivals",
+        "layout": "row",
+        "columns": 4,
+        "columns_mobile": "2",
+        "products": [
+          "linen-shirt",
+          "wool-beanie",
+          "canvas-tote",
+          "ceramic-mug",
+          "stoneware-vase",
+          "leather-wallet",
+          "cotton-throw",
+          "glass-carafe"
+        ],
+        "limit": 8
+      },
+      "position": 2
+    },
+    {
+      "type": "shoppable-reels",
+      "settings": {
+        "heading": "@t:sections.reels.heading",
+        "layout": "row",
+        "card_size": "medium",
+        "blocks": [
+          {
+            "id": "canvas-home-reels__0",
+            "type": "reel",
+            "settings": {
+              "products": [
+                "linen-shirt",
+                "wool-beanie"
+              ]
+            }
+          },
+          {
+            "id": "canvas-home-reels__1",
+            "type": "reel",
+            "settings": {
+              "products": [
+                "ceramic-mug"
+              ]
+            }
+          },
+          {
+            "id": "canvas-home-reels__2",
+            "type": "reel",
+            "settings": {
+              "products": [
+                "canvas-tote",
+                "leather-wallet",
+                "round-sunglasses"
+              ]
+            }
+          },
+          {
+            "id": "canvas-home-reels__3",
+            "type": "reel",
+            "settings": {
+              "products": [
+                "cotton-throw"
+              ]
+            }
+          },
+          {
+            "id": "canvas-home-reels__4",
+            "type": "reel",
+            "settings": {
+              "products": [
+                "scented-candle"
+              ]
+            }
+          }
+        ]
+      },
+      "position": 3
+    },
+    {
+      "type": "promo-grid",
+      "settings": {
+        "blocks": [
+          {
+            "id": "canvas-home-promo__0",
+            "type": "theme:promo-tile",
+            "settings": {
+              "blocks": [
+                {
+                  "id": "canvas-home-promo__0-promo-tile-copy-to-blocks-1",
+                  "type": "theme:eyebrow",
+                  "settings": {
+                    "text": "@t:sections.promo_grid.tile.eyebrow"
+                  }
+                },
+                {
+                  "id": "canvas-home-promo__0-promo-tile-copy-to-blocks-2",
+                  "type": "theme:heading",
+                  "settings": {
+                    "heading": "@t:sections.promo_grid.tile.heading"
+                  }
+                }
+              ],
+              "fallback_photo": "shelf"
+            }
+          },
+          {
+            "id": "canvas-home-promo__1",
+            "type": "theme:promo-tile",
+            "settings": {
+              "blocks": [
+                {
+                  "id": "canvas-home-promo__1-promo-tile-copy-to-blocks-1",
+                  "type": "theme:eyebrow",
+                  "settings": {
+                    "text": "@t:sections.promo_grid.tile.eyebrow"
+                  }
+                },
+                {
+                  "id": "canvas-home-promo__1-promo-tile-copy-to-blocks-2",
+                  "type": "theme:heading",
+                  "settings": {
+                    "heading": "@t:content.new_arrivals"
+                  }
+                }
+              ],
+              "fallback_photo": "corner"
+            }
+          },
+          {
+            "id": "canvas-home-promo__2",
+            "type": "theme:promo-tile",
+            "settings": {
+              "blocks": [
+                {
+                  "id": "canvas-home-promo__2-promo-tile-copy-to-blocks-1",
+                  "type": "theme:eyebrow",
+                  "settings": {
+                    "text": "@t:content.gifts"
+                  }
+                },
+                {
+                  "id": "canvas-home-promo__2-promo-tile-copy-to-blocks-2",
+                  "type": "theme:heading",
+                  "settings": {
+                    "heading": "@t:content.gift_ideas"
+                  }
+                }
+              ],
+              "fallback_photo": "parcel"
+            }
+          }
+        ],
+        "layout": "feature"
+      },
+      "position": 4
+    },
+    {
+      "type": "collection-list",
+      "settings": {
+        "heading": "@t:sections.collection_list.heading",
+        "layout": "grid",
+        "collections": [
+          "apparel",
+          "home",
+          "accessories"
+        ],
+        "columns": 3
+      },
+      "position": 5
+    },
+    {
+      "type": "image-hotspots",
+      "settings": {
+        "heading": "@t:sections.image_hotspots.heading",
+        "layout": "side",
+        "ratio": "1 / 1",
+        "blocks": [
+          {
+            "id": "canvas-home-look__0",
+            "type": "spot",
+            "settings": {
+              "product": "ceramic-mug",
+              "position": {
+                "x": 56,
+                "y": 42
+              }
+            }
+          },
+          {
+            "id": "canvas-home-look__1",
+            "type": "spot",
+            "settings": {
+              "product": "cotton-throw",
+              "position": {
+                "x": 23,
+                "y": 52
+              }
+            }
+          },
+          {
+            "id": "canvas-home-look__2",
+            "type": "spot",
+            "settings": {
+              "product": "stoneware-vase",
+              "position": {
+                "x": 77,
+                "y": 34
+              }
+            }
+          }
+        ]
+      },
+      "position": 6
+    },
+    {
+      "type": "image-with-text",
+      "settings": {
+        "blocks": [
+          {
+            "id": "image-with-text-copy-to-blocks-2",
+            "type": "theme:heading",
+            "settings": {
+              "heading": "@t:sections.image_with_text.heading"
+            }
+          },
+          {
+            "id": "image-with-text-copy-to-blocks-3",
+            "type": "theme:text",
+            "settings": {
+              "text": "@t:styles.story_text"
+            }
+          }
+        ],
+        "image_position": "left",
+        "image_ratio": "portrait",
+        "layout": "overlap"
+      },
+      "position": 7
+    },
+    {
+      "type": "icon-row",
+      "settings": {
+        "style": "cards",
+        "blocks": [
+          {
+            "id": "canvas-home-icons__0",
+            "type": "item",
+            "settings": {
+              "icon": "truck",
+              "title": "@t:sections.icon_row.item.title",
+              "text": "@t:sections.icon_row.item.text"
+            }
+          },
+          {
+            "id": "canvas-home-icons__1",
+            "type": "item",
+            "settings": {
+              "icon": "return",
+              "title": "@t:content.easy_returns",
+              "text": "@t:content.thirty_days"
+            }
+          },
+          {
+            "id": "canvas-home-icons__2",
+            "type": "item",
+            "settings": {
+              "icon": "lock",
+              "title": "@t:content.secure_checkout",
+              "text": "@t:content.encrypted_payments"
+            }
+          },
+          {
+            "id": "canvas-home-icons__3",
+            "type": "item",
+            "settings": {
+              "icon": "chat",
+              "title": "@t:content.real_support",
+              "text": "@t:content.reply_within_day"
+            }
+          }
+        ]
+      },
+      "position": 8
+    }
+  ]
+}

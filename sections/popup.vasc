@@ -1,0 +1,973 @@
+<style>
+  /* Canvas design system. Repeated in every section, because sections are standalone. */
+  :where(.cv) { --cv-pad-x: clamp(16px, 4vw, 56px); --cv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --cv-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+    --cv-soft: color-mix(in srgb, var(--text) 5%, var(--bg)); --cv-line: color-mix(in srgb, var(--text) 10%, transparent);
+    font-family: var(--tf-font-body_font, "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: 15px; line-height: 1.55; letter-spacing: -0.006em; color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01", "cv11"; }
+  :where(.cv *) { box-sizing: border-box; }
+  .cv[hidden], .cv [hidden] { display: none !important; }
+  :where(.cv img) { max-width: 100%; display: block; }
+  :where(.cv a) { color: inherit; }
+  :where(.cv-section) { padding-block: calc(var(--cv-gap-y, clamp(56px, 8vw, 112px)) * 0.58); }
+  :where(.cv-section--page) { padding-top: clamp(28px, 4vw, 56px); }
+  :where(.cv-page-title) { font-size: calc(clamp(32px, 4vw, 56px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-wrap) { width: 100%; max-width: var(--cv-width, 1440px); margin-inline: auto; padding-inline: var(--cv-pad-x); }
+  :where(.cv-app-blocks) { display: grid; gap: 16px; margin-top: 24px; }
+  .cv-app-blocks:empty { display: none; }
+  :where(.cv-h1, .cv-h2, .cv-h3, .cv-h4) { font-family: var(--tf-font-heading_font, inherit); font-weight: 500; line-height: 1.04;
+    letter-spacing: -0.035em; text-transform: var(--cv-heading-case, none); margin: 0; text-wrap: balance; }
+  :where(.cv-h1) { font-size: calc(clamp(40px, 6.4vw, 88px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h2) { font-size: calc(clamp(28px, 3.6vw, 48px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h3) { font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); letter-spacing: -0.02em; line-height: 1.2; }
+  :where(.cv-h4) { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+  :where(.cv-eyebrow) { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0; }
+  :where(.cv-muted) { color: var(--text-muted); }
+  :where(.cv-meta > * + *)::before { content: " · "; }
+  :where(.cv-rte) { line-height: 1.65; }
+  :where(.cv-rte > * + *) { margin-top: 0.9em; }
+  :where(.cv-rte a) { text-underline-offset: 3px; }
+  :where(.cv-rte ul, .cv-rte ol) { margin: 0; padding-inline-start: 1.25em; }
+  :where(.cv-rte li + li) { margin-top: 0.3em; }
+
+  :where(.cv-btn) { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 26px;
+    font: inherit; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+    background: var(--btn); color: var(--btn-text); border: 0; border-radius: var(--cv-btn-radius, 999px); -webkit-tap-highlight-color: transparent;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(0 0 0 / 0.08);
+    transition: transform 0.25s var(--cv-ease), background-color 0.25s var(--cv-ease), color 0.25s var(--cv-ease), box-shadow 0.25s var(--cv-ease); }
+  :where(.cv-btn:hover) { background: color-mix(in srgb, var(--btn) 86%, var(--bg)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 6px 18px -6px rgb(0 0 0 / 0.35); }
+  :where(.cv-btn:active) { transform: scale(0.97); }
+  :where(.cv-btn--outline, .cv-btn--soft) { background: var(--cv-soft); color: var(--text); box-shadow: none; }
+  :where(.cv-btn--outline:hover, .cv-btn--soft:hover) { background: color-mix(in srgb, var(--text) 10%, var(--bg)); box-shadow: none; }
+  :where(.cv-btn--ghost) { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--ghost:hover) { background: var(--cv-soft); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--link) { min-height: 0; padding: 0; gap: 6px; background: none; box-shadow: none; color: var(--text); font-weight: 500; text-decoration: none; }
+  :where(.cv-btn--link)::after { content: ""; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--cv-arrow) center / contain no-repeat; mask: var(--cv-arrow) center / contain no-repeat; transition: transform 0.25s var(--cv-ease); }
+  :where(.cv-btn--link:hover) { background: none; box-shadow: none; }
+  :where([dir="rtl"] .cv-btn--link)::after { transform: scaleX(-1); }
+  :where(.cv-btn--link:active) { transform: none; }
+  :where(.cv-btn--plain)::after { content: none; }
+  :where(.cv-btn--block) { width: 100%; }
+  :where(.cv-btn--sm) { min-height: 38px; padding: 0 16px; font-size: 14px; }
+  :where(.cv-btn--lg) { min-height: 56px; padding: 0 32px; font-size: 16px; }
+  :where(.cv-btn:disabled, .cv-btn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  :where(.cv-btn.is-loading, .cv-btn.is-done) { opacity: 1; cursor: progress; }
+  :where(.cv-btn.is-loading) > *, :where(.cv-btn.is-loading) { color: transparent; }
+  :where(.cv-btn.is-loading)::before { content: ""; position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+    border: 2px solid var(--btn-text); border-right-color: transparent; animation: cv-spin 0.7s linear infinite; }
+  :where(.cv-btn--outline.is-loading, .cv-btn--soft.is-loading, .cv-btn--ghost.is-loading)::before { border-color: var(--text); border-right-color: transparent; }
+  /* A link button (wishlist, share) keeps its icon and label while busy and only dims: a spinner on a borderless button reads as the control vanishing. */
+  .cv-btn--link.is-loading, .cv-btn--link.is-loading > * { color: inherit; }
+  .cv-btn--link.is-loading { opacity: 0.55; }
+  .cv-btn--link.is-loading::before { content: none; }
+  :where(.cv-btn.is-done) { animation: cv-pop 0.4s var(--cv-ease); }
+  /* Text buttons: actions set as words (Clear cart, Create account, Edit, Show more), on <button>, <a> or <summary>. No underline and
+     no arrow, at rest or on hover: muted at rest, ink on hover. A surface with other colours sets --cv-tbtn and --cv-tbtn-hover.
+     Links inside running prose keep the browser underline; .cv-btn--link (with its arrow) is for navigation such as "Continue shopping". */
+  :where(.cv-tbtn) { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 0; font: inherit; font-weight: 500; letter-spacing: inherit;
+    color: var(--cv-tbtn, var(--text-muted)); text-align: start; text-decoration: none; background: none; border: 0; border-radius: 4px; cursor: pointer;
+    list-style: none; -webkit-tap-highlight-color: transparent; transition: color 0.2s var(--cv-ease); }
+  :where(.cv-tbtn:hover) { color: var(--cv-tbtn-hover, var(--text)); text-decoration: none; }
+  :where(.cv-tbtn)::-webkit-details-marker { display: none; }
+  :where(.cv-tbtn:disabled, .cv-tbtn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; }
+  @keyframes cv-spin { to { transform: rotate(360deg); } }
+  @keyframes cv-pop { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+  :where(.cv-field) { display: grid; gap: 6px; }
+  :where(.cv-label) { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+  :where(.cv-input) { width: 100%; min-height: 50px; padding: 0 18px; font: inherit; font-size: 15px; color: var(--text); background: var(--cv-soft);
+    border: 1px solid transparent; border-radius: var(--cv-field-radius, 14px); outline: none; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
+  :where(.cv-input::placeholder) { color: color-mix(in srgb, var(--text) 45%, transparent); }
+  :where(.cv-input:hover) { background: color-mix(in srgb, var(--text) 7%, var(--bg)); }
+  :where(.cv-input:focus) { background: var(--bg); border-color: var(--text); box-shadow: none; }
+  :where(textarea.cv-input) { min-height: 132px; padding: 14px 18px; resize: vertical; }
+  :where(select.cv-input) { appearance: none; padding-inline-end: 44px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 18px center; }
+  /* Focus. Fields (text, email, phone, code, search, quantity, select, textarea) show it with their own border only, for mouse, touch and
+     keyboard alike. Everything else (buttons, links, swatches, cards, checks, tabs, dots, chips) gets one thin ring, for keyboard focus only.
+     A field drawn by its wrapper (newsletter pill, search bar, quantity stepper) puts .cv-shell on the wrapper, which takes the border.
+     Sections only move the ring (offset, colour) or draw it on a proxy with var(--cv-ring); they never add their own. */
+  :where(.cv) { --cv-ring: 2px solid var(--text); --cv-ring-offset: 2px; }
+  :where(.cv :focus-visible) { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }
+  :where(.cv [tabindex="-1"]:focus-visible) { outline: none; }
+  /* After a click or tap no ring shows, even where a script moved focus (a drawer focusing its close button). */
+  html.cv-pointer :where(.cv :focus-visible) { outline: none; }
+  :where(.cv) :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="submit"], [type="button"], [type="reset"], [type="image"], [type="color"]), select, textarea):focus { outline: none; }
+  .cv-shell:is(:focus, :has(input:focus, select:focus, textarea:focus)) { box-shadow: 0 0 0 1px var(--text); }
+  :where(.cv-check) { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+  :where(.cv-check input) { width: 18px; height: 18px; accent-color: var(--text); border-radius: 6px; }
+
+  :where(.cv-media) { position: relative; overflow: hidden; background: var(--surface); border-radius: var(--cv-radius, 16px); isolation: isolate; }
+  :where(.cv-media > img, .cv-media > svg, .cv-media > video, .cv-media > picture) { width: 100%; height: 100%; object-fit: cover; }
+  /* A real product (or post) without an image: a quiet tinted tile with its name, never a placeholder drawing. */
+  .cv-noimg { position: absolute; inset: 0; display: grid; place-items: center; padding: 12%; overflow: hidden; font-size: 13px; line-height: 1.35; text-align: center; color: var(--text-muted, currentColor);
+    background: color-mix(in srgb, var(--text) 6%, var(--bg)); overflow-wrap: anywhere; }
+  .cv-noimg--lg { font-family: var(--tf-font-heading_font, inherit); font-size: clamp(18px, 2vw, 26px); }
+  :where(.cv-price) { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
+  :where(.cv-price__sale) { color: var(--accent); }
+  :where(.cv-price__was) { color: var(--text-muted); text-decoration: line-through; font-size: 0.9em; }
+  :where(.cv-badge) { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+    border-radius: 999px; background: color-mix(in srgb, var(--bg) 92%, transparent); color: var(--text); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  :where(.cv-badge--sale) { background: var(--accent); color: var(--bg); }
+  :where(.cv-badge--sold) { background: color-mix(in srgb, var(--text) 82%, transparent); color: var(--bg); }
+  :where(.cv-notice) { padding: 14px 18px; font-size: 14px; background: var(--cv-soft); border-radius: 14px; }
+  :where(.cv-notice--ok) { background: color-mix(in srgb, var(--status-ok) 10%, var(--bg)); color: color-mix(in srgb, var(--status-ok) 80%, var(--text)); }
+  /* A notice marked cv-toast floats at the bottom of the window instead of pushing the page down. */
+  .cv-toast { position: fixed; z-index: 400; inset-inline: 16px; bottom: max(24px, env(safe-area-inset-bottom)); width: auto; max-width: 440px; margin: 0 auto;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 18px 44px -16px rgb(0 0 0 / 0.35); }
+  .cv-toast[hidden] { display: none; }
+  /* A confirmation toast wears the button colours of its scheme (Theme settings > Notifications); errors keep their warning colours. */
+  .cv-toast.cv-notice--ok { background: var(--btn); color: var(--btn-text); }
+  .cv-toast--top_center { top: max(20px, env(safe-area-inset-top)); bottom: auto; }
+  .cv-toast--bottom_end { inset-inline: auto 20px; margin: 0; }
+  /* The in-theme confirm dialog for destructive actions (data-cv-confirm). */
+  .cv-confirm { position: fixed; inset: 0; margin: auto; height: fit-content; max-height: calc(100dvh - 32px); border: 0; padding: 24px; width: min(420px, calc(100vw - 32px)); border-radius: var(--cv-field-radius, 14px); background: var(--bg); color: var(--text);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 24px 64px -20px rgb(0 0 0 / 0.4); }
+  .cv-confirm::backdrop { background: rgb(0 0 0 / 0.4); }
+  .cv-confirm__msg { margin: 0 0 20px; font-size: 1rem; line-height: 1.5; }
+  .cv-confirm__acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+  @media (prefers-reduced-motion: no-preference) { .cv-toast:not([hidden]) { animation: cv-toast-in 0.2s ease-out; } @keyframes cv-toast-in { from { opacity: 0; transform: translateY(8px); } } }
+  :where(.cv-notice--error) { background: color-mix(in srgb, var(--accent) 9%, var(--bg)); color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  :where(.cv-sr) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  :where(.cv-icon) { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  :where([dir="rtl"] .cv-icon--dir) { transform: scaleX(-1); }
+  :where(.cv-pk-ico) { width: 1.15em; height: 1.15em; vertical-align: -0.2em; stroke-width: 1.6; }
+  :where(.cv-grid) { display: grid; gap: var(--cv-grid-gap, clamp(28px, 3vw, 40px)) var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); grid-template-columns: repeat(var(--cv-cols-m, 2), minmax(0, 1fr)); }
+  @media (min-width: 750px) { :where(.cv-grid) { grid-template-columns: repeat(var(--cv-cols, 4), minmax(0, 1fr)); } }
+  :where(.cv-head) { display: flex; flex-wrap: wrap; align-items: last baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: clamp(24px, 3.4vw, 48px); }
+  :where(.cv-head--center) { flex-direction: column; align-items: center; text-align: center; }
+  /* Tile cards are panels: rows sit as close as columns, so the gutters read as one even grid. */
+  :where(.cv-grid:has(> .cv-card--tile)) { row-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); }
+  :where(.cv-head p) { margin: 10px 0 0; max-width: 56ch; }
+  :where(.cv-stars) { --cv-star: var(--text); display: inline-block; width: 72px; height: 13px;
+    background: linear-gradient(90deg, var(--cv-star) var(--cv-rating, 0%), color-mix(in srgb, var(--text) 16%, transparent) var(--cv-rating, 0%));
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x; }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      :where(.cv-reveal) { animation: cv-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+      @keyframes cv-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { :where(.cv, .cv *), :where(.cv, .cv *)::before, :where(.cv, .cv *)::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+  /* Section spacing (each section's "Space above and below"). */
+  .cv-section.cv-pad--compact { padding-block: calc(var(--cv-gap-y, 96px) * 0.4); }
+  .cv-section.cv-pad--relaxed { padding-block: calc(var(--cv-gap-y, 96px) * 0.9); }
+  .cv-section.cv-pad--none { padding-block: 0; }
+  .cv-section.cv-pad--top-none { padding-top: 0; }
+
+  /* Phones: link, small and text buttons get a 44px tap target; type and icon sizes stay the same. */
+  @media (max-width: 749px) {
+    :where(.cv-btn--link) { min-height: 44px; padding-block: 12px; }
+    :where(.cv-btn--sm) { min-height: 44px; padding-block: 12px; }
+    /* The padding gives a 44px target; the equal negative margin keeps the line where it was, also inside a sentence. */
+    :where(.cv-tbtn) { padding-block: 12px; margin-block: -12px; }
+  }
+  /* Wishlist limit: when the wishlist is full, hearts that would add are dimmed and explain at the button (on a card, across the foot of its image). */
+  :where([data-cv-wish].is-full) { opacity: 0.5; cursor: not-allowed; }
+  :where(.cv-wishmsg) { position: absolute; z-index: 6; inset-block-start: calc(100% + 8px); inset-inline-start: 0; width: max-content; max-width: min(280px, 80vw); margin: 0; padding: 9px 12px;
+    font-size: 13px; line-height: 1.4; text-align: start; color: var(--bg); background: var(--text); border-radius: 10px; box-shadow: 0 10px 28px -10px rgb(0 0 0 / 0.35); }
+  :where(.cv-wishmsg[hidden]) { display: none; }
+  :where(.cv-card__media > .cv-wishmsg) { inset: auto 8px 8px; width: auto; max-width: none; }
+  @media (prefers-reduced-motion: no-preference) { :where(.cv-wishmsg) { animation: cv-wishmsg-in 0.2s var(--cv-ease, ease-out); } @keyframes cv-wishmsg-in { from { opacity: 0; transform: translateY(4px); } } }
+
+/* Editor-only note on a section that shoppers can't see yet. */
+.cv-editor-hint { margin: 0 auto 16px; max-width: 640px; padding: 10px 14px; font-size: 13px; line-height: 1.45; text-align: center; color: var(--text-muted); border: 1px dashed var(--cv-line); border-radius: 12px; }
+
+/* Theme blocks (blocks/*.vasc): the content blocks sections, slides and tiles hold. Section's style ("auto") is the look the
+   section gives that part (a slide's headline, a tile's heading); sections style .cv-blk-*--auto where they hold blocks. */
+  :where(.cv-blk-eyebrow, .cv-blk-heading, .cv-blk-text) { margin: 0; }
+  :where(.cv-blk-heading) { max-width: 100%; overflow-wrap: break-word; }
+  :where(.cv-blk-text--small) { font-size: 14px; }
+  :where(.cv-blk-text--medium) { font-size: 17px; }
+  :where(.cv-blk-text--large) { font-size: calc(clamp(18px, 1.6vw, 22px)); }
+  :where(.cv-blk-buttons) { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  :where(.cv-blk-image) { width: var(--cv-blk-w, 100%); max-width: 100%; }
+  :where(.cv-blk-image img) { display: block; width: 100%; height: auto; }
+  :where(.cv-blk-image--square img) { aspect-ratio: 1 / 1; object-fit: cover; }
+  :where(.cv-blk-image--portrait img) { aspect-ratio: 4 / 5; object-fit: cover; }
+  :where(.cv-blk-image--landscape img) { aspect-ratio: 4 / 3; object-fit: cover; }
+  :where(.cv-blk-image__ph) { display: block; aspect-ratio: 4 / 3; background: var(--cv-soft); border-radius: var(--cv-radius, 16px); overflow: hidden; }
+  :where(.cv-blk-image__ph svg) { width: 100%; height: 100%; }
+  :where(.cv-blk-spacer) { height: var(--cv-blk-h, 32px); width: 100%; }
+  :where(.cv-blk-spacer--line) { display: flex; align-items: center; }
+  :where(.cv-blk-spacer--line)::before { content: ""; flex: 1; border-top: 1px solid var(--cv-line); }
+  .cv-blk-hint { margin: 0; }
+  :where(.cv-blk-heading__link) { color: inherit; text-decoration: none; }
+  :where(.cv-blk-heading__link:hover) { text-decoration: underline; text-underline-offset: 0.12em; text-decoration-thickness: 1px; }
+  /* An eyebrow that links (the product page's vendor): underlined on hover only. */
+  :where(.cv-eyebrow__link) { color: inherit; text-decoration: none; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  :where(.cv-eyebrow__link:hover) { text-decoration: underline; }
+/* A tile's own link (promo and split tiles, mega menu promotions): the pointer target over the whole tile. Its heading and button blocks carry the
+   same link for keyboards and screen readers; they sit above it, and the rest of the content lets clicks through to it. */
+  :where(.cv-tile-link) { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  :where(.cv-tile-over) { position: relative; z-index: 2; }
+  :where(.cv-tile-link ~ .cv-tile-over) { pointer-events: none; }
+  :where(.cv-tile-link ~ .cv-tile-over :is(a, button, input, select, textarea, video, [tabindex])) { pointer-events: auto; }
+  /* The platform metafield block (theme:metafield): the storefront writes its markup (tf-metafield); Canvas styles it. */
+  :where(.tf-metafield) { display: grid; gap: 4px; }
+  :where(.tf-metafield__label) { font-size: 13px; color: var(--text-muted); }
+  :where(.tf-metafield__value) { font-size: 15px; overflow-wrap: anywhere; }
+  :where(.tf-metafield__list) { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+  :where(.tf-metafield--list-product-reference, .tf-metafield--list-variant-reference) :where(.tf-metafield__reference) { display: inline-flex; padding: 6px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__image, .tf-metafield__video) { max-width: 100%; height: auto; border-radius: 12px; }
+  :where(.tf-metafield__file) { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 8px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__json) { margin: 0; font: inherit; white-space: pre-wrap; }
+  :where(.tf-metafield-notice) { font-size: 14px; }
+  :where(.cv-pl__block) { margin-block: 12px; }
+
+/* Popup layouts: a centred dialog, a card in a corner, a sheet from the bottom, or a side panel (like the cart drawer). The photo sits
+     above the content or beside it; on phones every layout but the corner card is a bottom sheet. */
+  .cv-popup { box-sizing: border-box; max-width: none; max-height: none; padding: 0; color: var(--text); background: transparent; border: 0; overflow: visible; }
+  .cv-popup[open] { display: flex; }
+  .cv-popup::backdrop { background: rgb(0 0 0 / 0.36); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  html.cv-popup-lock { overflow: hidden; }
+  .cv-popup__panel { position: relative; box-sizing: border-box; display: flex; flex-direction: column; width: 100%; max-height: inherit; overflow: hidden; background: var(--bg);
+    border-radius: 22px; box-shadow: 0 0 0 1px var(--cv-line), 0 30px 80px -24px rgb(0 0 0 / 0.45); }
+  .cv-popup__handle { display: none; }
+  .cv-popup__close { position: absolute; top: 12px; inset-inline-end: 12px; z-index: 3; display: grid; place-items: center; width: 40px; height: 40px; padding: 0; color: var(--text);
+    background: color-mix(in srgb, var(--bg) 82%, transparent); border: 0; border-radius: 50%; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 0 0 1px var(--cv-line); }
+  .cv-popup__close:hover { background: var(--bg); }
+  .cv-popup__media { flex: none; overflow: hidden; background: var(--surface); }
+  .cv-popup__media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .cv-popup--img-top .cv-popup__media { aspect-ratio: 16 / 9; }
+  .cv-popup__body { display: grid; align-content: start; gap: 14px; min-height: 0; padding: 36px 32px 30px; overflow-y: auto; overscroll-behavior: contain; }
+  .cv-popup__body--center { justify-items: center; text-align: center; }
+  .cv-popup__body--center .cv-blk-buttons { justify-content: center; }
+  .cv-popup__body > :first-child { padding-inline-end: 32px; }
+  .cv-popup__body--center > :first-child { padding-inline: 32px; }
+  .cv-popup__notice { margin: 0; }
+  .cv-popup .cv-blk-heading--auto { font-size: calc(clamp(24px, 2.4vw, 32px) * var(--cv-heading-scale, 1)); line-height: 1.1; }
+  .cv-popup .cv-blk-text--auto { color: var(--text-muted); }
+  .cv-popup .cv-blk-news { width: 100%; }
+  .cv-popup .cv-blk-news__title { font-size: calc(clamp(22px, 2.2vw, 28px) * var(--cv-heading-scale, 1)); }
+/* partial:footer-forms */
+  .cv-ft__news { position: relative; display: flex; align-items: center; gap: 6px; padding: 5px; background: var(--bg); border-radius: var(--cv-btn-radius, 999px);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 1px 2px rgb(0 0 0 / 0.04); transition: box-shadow 0.2s; }
+  .cv-ft__news .cv-input { flex: 1 1 auto; min-width: 0; min-height: 46px; padding: 0 8px 0 16px; background: transparent; border: 0; border-radius: inherit; }
+  .cv-ft__news .cv-input:hover, .cv-ft__news .cv-input:focus { background: transparent; }
+  .cv-ft__news .cv-btn { flex: none; min-height: 46px; padding: 0 22px; border-radius: calc(var(--cv-btn-radius, 999px) - 2px); }
+  .cv-hp { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; opacity: 0; }
+  .cv-blk-news__notice { margin: 12px 0 0; }
+/* /partial:footer-forms */
+  /* Sizes */
+  .cv-popup--small { --cv-pp-w: 380px; }
+  .cv-popup--medium { --cv-pp-w: 480px; }
+  .cv-popup--large { --cv-pp-w: 620px; }
+  .cv-popup--img-side { --cv-pp-w-img: calc(var(--cv-pp-w) + 340px); }
+  /* Centred dialog */
+  .cv-popup--modal { width: min(var(--cv-pp-w-img, var(--cv-pp-w)), calc(100vw - 32px)); max-height: min(88vh, 760px); margin: auto; }
+  /* Card in a corner: no dimming, the page stays usable. */
+  .cv-popup--corner { position: fixed; inset: auto 16px 16px auto; width: min(var(--cv-pp-w), calc(100vw - 32px)); max-height: calc(100vh - 32px); margin: 0; z-index: 135; }
+  .cv-popup--corner.cv-popup--start { inset: auto auto 16px 16px; }
+  [dir="rtl"] .cv-popup--corner { inset: auto auto 16px 16px; }
+  [dir="rtl"] .cv-popup--corner.cv-popup--start { inset: auto 16px 16px auto; }
+  .cv-popup--corner .cv-popup__panel { border-radius: 18px; box-shadow: 0 0 0 1px var(--cv-line), 0 24px 60px -20px rgb(0 0 0 / 0.35); }
+  .cv-popup--corner .cv-popup__body { padding: 24px 22px 22px; gap: 12px; }
+  .cv-popup--corner .cv-blk-heading--auto { font-size: calc(20px * var(--cv-heading-scale, 1)); }
+  .cv-popup--corner.cv-popup--img-side .cv-popup__media, .cv-popup--corner .cv-popup__media { aspect-ratio: 16 / 9; }
+  /* Sheet from the bottom */
+  .cv-popup--sheet { width: min(var(--cv-pp-w-img, var(--cv-pp-w)), 100vw); max-height: 88svh; margin: auto auto 0; }
+  .cv-popup--sheet .cv-popup__panel { border-radius: calc(var(--cv-radius, 16px) * 1.5) calc(var(--cv-radius, 16px) * 1.5) 0 0; box-shadow: 0 -20px 60px -20px rgb(0 0 0 / 0.35); }
+  .cv-popup--sheet .cv-popup__handle { display: block; position: absolute; top: 9px; left: 50%; z-index: 3; width: 40px; height: 5px; margin-left: -20px; border-radius: 5px;
+    background: color-mix(in srgb, var(--text) 22%, transparent); }
+  .cv-popup--sheet .cv-popup__body { padding-bottom: calc(28px + env(safe-area-inset-bottom)); }
+  /* Side panel: like the cart drawer, floating at the window's edge. */
+  .cv-popup--side { width: min(var(--cv-pp-w), calc(100vw - 20px)); height: calc(100% - 20px); max-height: none; margin: 10px 10px 10px auto; }
+  .cv-popup--side.cv-popup--start { margin: 10px auto 10px 10px; }
+  [dir="rtl"] .cv-popup--side { margin: 10px auto 10px 10px; }
+  [dir="rtl"] .cv-popup--side.cv-popup--start { margin: 10px 10px 10px auto; }
+  .cv-popup--side .cv-popup__panel { height: 100%; }
+  .cv-popup--side .cv-popup__media { aspect-ratio: 4 / 3; }
+  /* Photo beside the content (dialog and sheet on wider screens). */
+  @media (min-width: 750px) {
+    .cv-popup:is(.cv-popup--modal, .cv-popup--sheet).cv-popup--img-side .cv-popup__panel { flex-direction: row; }
+    .cv-popup:is(.cv-popup--modal, .cv-popup--sheet).cv-popup--img-side .cv-popup__media { width: 340px; }
+    .cv-popup:is(.cv-popup--modal, .cv-popup--sheet).cv-popup--img-side .cv-popup__body { flex: 1; align-content: center; padding: 44px 40px 38px; }
+    .cv-popup--start:is(.cv-popup--modal, .cv-popup--sheet).cv-popup--img-side .cv-popup__panel { flex-direction: row-reverse; }
+  }
+  .cv-popup:is(.cv-popup--modal, .cv-popup--sheet).cv-popup--img-side .cv-popup__media { aspect-ratio: auto; }
+  @media (max-width: 749px) {
+    .cv-popup--modal, .cv-popup--side, .cv-popup--sheet { width: 100vw; height: auto; max-height: 90svh; margin: auto 0 0; }
+    .cv-popup:is(.cv-popup--modal, .cv-popup--side, .cv-popup--sheet) .cv-popup__panel { height: auto; border-radius: calc(var(--cv-radius, 16px) * 1.5) calc(var(--cv-radius, 16px) * 1.5) 0 0;
+      box-shadow: 0 -20px 60px -20px rgb(0 0 0 / 0.35); }
+    .cv-popup:is(.cv-popup--modal, .cv-popup--side, .cv-popup--sheet) .cv-popup__handle { display: block; position: absolute; top: 9px; left: 50%; z-index: 3; width: 40px; height: 5px; margin-left: -20px;
+      border-radius: 5px; background: color-mix(in srgb, var(--text) 22%, transparent); }
+    .cv-popup:is(.cv-popup--modal, .cv-popup--side, .cv-popup--sheet) .cv-popup__media { aspect-ratio: 16 / 9; max-height: 30svh; }
+    .cv-popup__body { padding: 30px 22px calc(24px + env(safe-area-inset-bottom)); }
+    .cv-popup__close { width: 44px; height: 44px; }
+    .cv-popup--corner, .cv-popup--corner.cv-popup--start, [dir="rtl"] .cv-popup--corner { inset: auto 8px 8px 8px; width: auto; }
+  }
+  /* Discount code (blocks/discount-code). */
+  .cv-blk-code { display: grid; gap: 8px; justify-items: inherit; width: 100%; }
+  .cv-blk-code__box { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 12px 12px 16px; border: 1.5px dashed color-mix(in srgb, var(--text) 30%, transparent);
+    border-radius: var(--cv-field-radius, 14px); }
+  .cv-blk-code__box[hidden] { display: none; }
+  .cv-blk-code__label { flex-basis: 100%; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .cv-blk-code__code { flex: 1; min-width: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 20px; font-weight: 600; letter-spacing: 0.06em; overflow-wrap: anywhere; }
+  .cv-blk-code__done { margin: 0; font-size: 13.5px; color: var(--text-muted); }
+  .cv-popup__body--center .cv-blk-code__box { justify-content: center; text-align: center; }
+  @media (prefers-reduced-motion: no-preference) {
+    .cv-popup[open] .cv-popup__panel { animation: cv-pp-in 0.4s var(--cv-ease); }
+    .cv-popup--sheet[open] .cv-popup__panel { animation-name: cv-pp-up; }
+    .cv-popup--side[open] .cv-popup__panel { animation-name: cv-pp-side; }
+    [dir="rtl"] .cv-popup--side[open] .cv-popup__panel, .cv-popup--side.cv-popup--start[open] .cv-popup__panel { animation-name: cv-pp-side-start; }
+    [dir="rtl"] .cv-popup--side.cv-popup--start[open] .cv-popup__panel { animation-name: cv-pp-side; }
+    .cv-popup[open]::backdrop { animation: cv-pp-fade 0.3s ease-out; }
+    @keyframes cv-pp-in { from { opacity: 0; transform: translateY(14px) scale(0.985); } }
+    @keyframes cv-pp-up { from { transform: translateY(105%); } }
+    @keyframes cv-pp-side { from { transform: translateX(calc(100% + 12px)); } }
+    @keyframes cv-pp-side-start { from { transform: translateX(calc(-100% - 12px)); } }
+    @keyframes cv-pp-fade { from { opacity: 0; } }
+    @media (max-width: 749px) { .cv-popup:is(.cv-popup--modal, .cv-popup--side, .cv-popup--sheet)[open] .cv-popup__panel { animation-name: cv-pp-up; } }
+  }
+</style>
+{%- comment -%} Popup: the merchant's content blocks (a heading, text, buttons, a newsletter form, a discount code) with an optional photo, as a
+  centred dialog, a card in a corner, a sheet from the bottom or a side panel. It opens after a delay, after the shopper scrolls, or when the
+  pointer leaves the page (phones: after the delay), on the pages chosen, as often as chosen. Its "seen" note is kept in the browser's local
+  storage (once-per-visit popups use session storage), never in a cookie; it waits for the age gate, the cookie banner and the country
+  prompt to be answered, and for any other popup to close. In the editor it opens only while selected and stores nothing. {%- endcomment -%}
+{%- assign cv_pp = settings.layout | default: 'modal' -%}
+{%- assign cv_pp_pages = 'all' -%}
+{%- if settings.pages == 'home' -%}{%- assign cv_pp_pages = 'home' -%}
+{%- elsif settings.pages == 'chosen' -%}
+  {%- assign cv_pp_pages = '' -%}
+  {%- if settings.on_home -%}{%- assign cv_pp_pages = cv_pp_pages | append: 'home,' -%}{%- endif -%}
+  {%- if settings.on_product -%}{%- assign cv_pp_pages = cv_pp_pages | append: 'product,' -%}{%- endif -%}
+  {%- if settings.on_listing -%}{%- assign cv_pp_pages = cv_pp_pages | append: 'listing,' -%}{%- endif -%}
+  {%- if settings.on_content -%}{%- assign cv_pp_pages = cv_pp_pages | append: 'content,' -%}{%- endif -%}
+  {%- if settings.on_other -%}{%- assign cv_pp_pages = cv_pp_pages | append: 'other,' -%}{%- endif -%}
+{%- endif -%}
+<dialog class="cv cv-popup cv-popup--{{ cv_pp }} cv-popup--{{ settings.position | default: 'end' }} cv-popup--{{ settings.size | default: 'medium' }}{% if settings.image %} cv-popup--img-{{ settings.image_position | default: 'side' }}{% endif %} tf-scheme-{{ settings.color_scheme }}"
+  data-cv-popup data-cv-notice-host data-trigger="{{ settings.trigger | default: 'delay' }}" data-delay="{{ settings.delay | default: 5 }}" data-scroll="{{ settings.scroll_percent | default: 40 }}"
+  data-freq="{{ settings.frequency | default: 'days' }}" data-days="{{ settings.frequency_days | default: 7 }}" data-pages="{{ cv_pp_pages }}"{% if design_mode %} data-editor{% endif %} aria-label="{{ shop.name }}">
+  <div class="cv-popup__panel">
+    <span class="cv-popup__handle" aria-hidden="true"></span>
+    <button class="cv-popup__close" type="button" data-cv-popup-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+    {%- if settings.image -%}
+    <div class="cv-popup__media" data-tf-field="image">
+      <img src="{{ settings.image | image_url: width: 900 }}" srcset="{{ settings.image | image_srcset: max: 1400 }}" sizes="(min-width: 750px) 400px, 100vw" alt="{{ settings.image_alt }}" loading="lazy"
+        style="object-position: {{ settings.image_focus.x | default: 50 }}% {{ settings.image_focus.y | default: 50 }}%">
+    </div>
+    {%- endif -%}
+    <div class="cv-popup__body cv-popup__body--{{ settings.align | default: 'start' }}">
+      {%- if settings.blocks.size > 0 -%}{% blocks %}{%- elsif design_mode -%}<p class="cv-editor-hint cv-blk-hint">{{ 'popup.editor_empty' | t }}</p>{%- endif -%}
+      <p class="cv-notice cv-popup__notice" role="status" data-cv-notice hidden></p>
+    </div>
+  </div>
+</dialog>
+<script>
+(function () {
+  var root = document.currentScript && document.currentScript.previousElementSibling;
+  if (!root || !root.matches("[data-cv-popup]") || root.__cvPopup) return;
+  root.__cvPopup = true;
+  var editor = root.hasAttribute("data-editor");
+  var modal = !root.classList.contains("cv-popup--corner");
+  var Q = window.__cvPopups = window.__cvPopups || { open: null, waiting: [] };
+  // Name the dialog after its first heading.
+  var h = root.querySelector(".cv-popup__body h1, .cv-popup__body h2, .cv-popup__body h3, .cv-blk-news__title");
+  if (h) { h.id = h.id || "cv-popup-h-" + Math.random().toString(36).slice(2, 8); root.removeAttribute("aria-label"); root.setAttribute("aria-labelledby", h.id); }
+  function show() {
+    if (root.open) return;
+    if (modal && root.showModal) root.showModal(); else if (root.show) root.show(); else root.setAttribute("open", "");
+    document.documentElement.classList.toggle("cv-popup-lock", modal);
+    if (!modal) { var f = root.querySelector("[data-cv-popup-close]"); if (f && editor) f.focus({ preventScroll: true }); }
+  }
+  function hide() {
+    if (root.open) { if (root.close) root.close(); else root.removeAttribute("open"); }
+    document.documentElement.classList.remove("cv-popup-lock");
+  }
+  // Close controls work everywhere, editor included: the close button, a click on the dimmed page, Escape.
+  root.addEventListener("click", function (e) {
+    if (e.target.closest("[data-cv-popup-close]")) { hide(); return; }
+    if (e.target === root && modal) {
+      var r = root.querySelector(".cv-popup__panel").getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) hide();
+    }
+  });
+  root.addEventListener("cancel", function (e) { e.preventDefault(); hide(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && root.open && !modal) hide(); });
+  root.addEventListener("close", function () { document.documentElement.classList.remove("cv-popup-lock"); if (Q.open === root) { Q.open = null; next(); } });
+
+  if (editor) {
+    // Editor: open only while this section (or one of its blocks) is selected. No timer, no scroll trigger, nothing stored.
+    var marker = root.closest("[data-tf-section-id]");
+    var id = marker ? marker.getAttribute("data-tf-section-id") : "";
+    document.addEventListener("tf:section-selected", function (e) { if (e.detail && e.detail.id === id) show(); });
+    document.addEventListener("tf:section-deselected", function (e) { if (e.detail && e.detail.id === id) hide(); });
+    return;
+  }
+
+  // Storefront. The "seen" note is keyed by the popup's content and layout, so a new campaign shows again.
+  var text = (root.querySelector(".cv-popup__panel").textContent || "").replace(/\s+/g, " ") + "|" + root.className;
+  var hash = 0; for (var i = 0; i < text.length; i++) hash = (hash * 31 + text.charCodeAt(i)) | 0;
+  var key = "cv-popup:" + (hash >>> 0).toString(36);
+  var freq = root.getAttribute("data-freq"), days = +root.getAttribute("data-days") || 7;
+  function store(kind) { try { return kind === "session" ? window.sessionStorage : window.localStorage; } catch (e) { return null; } }
+  function read(kind) { var s = store(kind); try { return s && JSON.parse(s.getItem(key) || "null"); } catch (e) { return null; } }
+  function write(kind, v) { var s = store(kind); try { if (s) s.setItem(key, JSON.stringify(v)); } catch (e) {} }
+  function due() {
+    var done = read("local"); if (done && done.done) return false;
+    if (freq === "session") return !read("session");
+    if (!done) return true;
+    if (freq === "first_visit") return false;
+    return Date.now() - (done.t || 0) > days * 864e5;
+  }
+  function seen(extra) {
+    if (freq === "session") write("session", { t: Date.now() });
+    var v = read("local") || {}; v.t = Date.now(); if (extra) v.done = true; write("local", v);
+  }
+  // A signup or other form sent from the popup means it has done its job: it does not show again for this content.
+  document.addEventListener("tf:action-success", function (e) { if (e.detail && e.detail.form && root.contains(e.detail.form)) seen(true); });
+
+  function pageMatches() {
+    var pages = root.getAttribute("data-pages");
+    if (pages === "all") return true;
+    var t = (window.__tfCtx && window.__tfCtx.page_type) || "";
+    var group = t === "home" ? "home" : t === "product" ? "product"
+      : /^(collection|category|shop|search|vendor|brand)(_list)?$/.test(t) ? "listing"
+      : /^(page|policy|blog|blog_list|blog_category|blog_post)$/.test(t) ? "content" : "other";
+    return pages.split(",").indexOf(group) !== -1;
+  }
+  // Wait for the age gate, the cookie banner and the country prompt, and for another popup that is open.
+  function blocked() {
+    var gate = document.querySelector("[data-tf-age-gate]");
+    if (gate && !document.documentElement.hasAttribute("data-tf-age-ok") && getComputedStyle(gate).display !== "none") return true;
+    var c = document.querySelector("[data-cv-consent]"); if (c && !c.hidden) return true;
+    var p = document.querySelector("[data-cv-lp]"); if (p && !p.hidden) return true;
+    return !!(Q.open && Q.open !== root);
+  }
+  function next() { var w = Q.waiting.shift(); if (w) w(); }
+  function fire() {
+    if (!due()) return;
+    if (blocked()) { if (Q.waiting.indexOf(fire) === -1) Q.waiting.push(fire); return; }
+    Q.open = root; seen(false); show();
+  }
+  // Something that blocked a popup went away: try the waiting ones again.
+  function retry() { if (!Q.open || !Q.open.open) { Q.open = null; next(); } }
+  document.addEventListener("tf:age-gate-confirmed", function () { setTimeout(retry, 400); });
+  new MutationObserver(retry).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ["hidden"] });
+
+  function start() {
+    if (!pageMatches() || !due()) return;
+    var trig = root.getAttribute("data-trigger"), delay = (+root.getAttribute("data-delay") || 0) * 1000;
+    var touch = window.matchMedia("(hover: none)").matches;
+    if (trig === "scroll") {
+      var pct = +root.getAttribute("data-scroll") || 40;
+      var onScroll = function () {
+        var h = document.documentElement.scrollHeight - window.innerHeight;
+        if (h <= 0 || window.scrollY / h * 100 >= pct) { window.removeEventListener("scroll", onScroll); fire(); }
+      };
+      window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+    } else if (trig === "exit" && !touch) {
+      var onLeave = function (e) { if (!e.relatedTarget && e.clientY <= 0) { document.removeEventListener("mouseout", onLeave); fire(); } };
+      document.addEventListener("mouseout", onLeave);
+    } else {
+      setTimeout(fire, delay);
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+</script>
+{% schema %}
+{
+  "name": "popup",
+  "kind": "embed",
+  "target": "global_overlay",
+  "icon": "message-square",
+  "ctx_needs": [
+    "shop",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_alt",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "image_alt",
+        "group": "image"
+      },
+      "visible_if": {
+        "setting": "image",
+        "set": true
+      }
+    },
+    {
+      "id": "image_focus",
+      "type": "point",
+      "image": "image",
+      "default": {
+        "x": 50,
+        "y": 50
+      },
+      "editor": {
+        "label": "focal_point",
+        "group": "image"
+      },
+      "visible_if": {
+        "setting": "image",
+        "set": true
+      }
+    },
+    {
+      "id": "image_position",
+      "type": "select",
+      "default": "side",
+      "options": [
+        {
+          "value": "side",
+          "label": "opt_image_side"
+        },
+        {
+          "value": "top",
+          "label": "opt_image_top"
+        }
+      ],
+      "editor": {
+        "label": "image_position",
+        "group": "image"
+      },
+      "visible_if": {
+        "setting": "image",
+        "set": true
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "modal",
+      "options": [
+        {
+          "value": "modal",
+          "label": "opt_centered_dialog"
+        },
+        {
+          "value": "corner",
+          "label": "opt_corner_card"
+        },
+        {
+          "value": "sheet",
+          "label": "opt_bottom_sheet"
+        },
+        {
+          "value": "side",
+          "label": "opt_side_panel"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "design"
+      }
+    },
+    {
+      "id": "position",
+      "type": "select",
+      "default": "end",
+      "options": [
+        {
+          "value": "start",
+          "label": "opt_start"
+        },
+        {
+          "value": "end",
+          "label": "opt_end"
+        }
+      ],
+      "editor": {
+        "label": "position",
+        "group": "design"
+      },
+      "visible_if": {
+        "setting": "layout",
+        "values": [
+          "corner",
+          "side"
+        ]
+      }
+    },
+    {
+      "id": "size",
+      "type": "select",
+      "default": "medium",
+      "options": [
+        {
+          "value": "small",
+          "label": "opt_small"
+        },
+        {
+          "value": "medium",
+          "label": "opt_medium"
+        },
+        {
+          "value": "large",
+          "label": "opt_large"
+        }
+      ],
+      "editor": {
+        "label": "size",
+        "group": "design"
+      }
+    },
+    {
+      "id": "align",
+      "type": "select",
+      "default": "start",
+      "options": [
+        {
+          "value": "start",
+          "label": "opt_start"
+        },
+        {
+          "value": "center",
+          "label": "opt_center"
+        }
+      ],
+      "editor": {
+        "label": "alignment",
+        "group": "design"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    },
+    {
+      "id": "trigger",
+      "type": "select",
+      "default": "delay",
+      "options": [
+        {
+          "value": "delay",
+          "label": "opt_after_delay"
+        },
+        {
+          "value": "scroll",
+          "label": "opt_after_scroll"
+        },
+        {
+          "value": "exit",
+          "label": "opt_exit_intent"
+        }
+      ],
+      "editor": {
+        "label": "popup_trigger",
+        "group": "display"
+      }
+    },
+    {
+      "id": "delay",
+      "type": "range",
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "unit": "s",
+      "default": 5,
+      "editor": {
+        "label": "popup_delay",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "trigger",
+        "values": [
+          "delay",
+          "exit"
+        ]
+      }
+    },
+    {
+      "id": "scroll_percent",
+      "type": "range",
+      "min": 10,
+      "max": 90,
+      "step": 5,
+      "unit": "%",
+      "default": 40,
+      "editor": {
+        "label": "popup_scroll",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "trigger",
+        "values": [
+          "scroll"
+        ]
+      }
+    },
+    {
+      "id": "frequency",
+      "type": "select",
+      "default": "days",
+      "options": [
+        {
+          "value": "first_visit",
+          "label": "opt_first_visit"
+        },
+        {
+          "value": "days",
+          "label": "opt_every_days"
+        },
+        {
+          "value": "session",
+          "label": "opt_once_session"
+        }
+      ],
+      "editor": {
+        "label": "popup_frequency",
+        "group": "display"
+      }
+    },
+    {
+      "id": "frequency_days",
+      "type": "range",
+      "min": 1,
+      "max": 90,
+      "step": 1,
+      "unit": "d",
+      "default": 7,
+      "editor": {
+        "label": "popup_days",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "frequency",
+        "values": [
+          "days"
+        ]
+      }
+    },
+    {
+      "id": "pages",
+      "type": "select",
+      "default": "all",
+      "options": [
+        {
+          "value": "all",
+          "label": "opt_all_pages"
+        },
+        {
+          "value": "home",
+          "label": "opt_home_only"
+        },
+        {
+          "value": "chosen",
+          "label": "opt_chosen_pages"
+        }
+      ],
+      "editor": {
+        "label": "popup_pages",
+        "group": "display"
+      }
+    },
+    {
+      "id": "on_home",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "popup_on_home",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "pages",
+        "values": [
+          "chosen"
+        ]
+      }
+    },
+    {
+      "id": "on_product",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "popup_on_product",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "pages",
+        "values": [
+          "chosen"
+        ]
+      }
+    },
+    {
+      "id": "on_listing",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "popup_on_listing",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "pages",
+        "values": [
+          "chosen"
+        ]
+      }
+    },
+    {
+      "id": "on_content",
+      "type": "checkbox",
+      "default": false,
+      "editor": {
+        "label": "popup_on_content",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "pages",
+        "values": [
+          "chosen"
+        ]
+      }
+    },
+    {
+      "id": "on_other",
+      "type": "checkbox",
+      "default": false,
+      "editor": {
+        "label": "popup_on_other",
+        "group": "display"
+      },
+      "visible_if": {
+        "setting": "pages",
+        "values": [
+          "chosen"
+        ]
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "newsletter-form",
+      "discount-code",
+      "custom-vascula"
+    ],
+    "max": 8
+  },
+  "presets": [
+    {
+      "name": "popup_newsletter",
+      "category": "marketing",
+      "settings": {
+        "layout": "modal",
+        "trigger": "delay",
+        "delay": 8,
+        "frequency": "days",
+        "frequency_days": 14
+      },
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "@t:sections.popup.newsletter_heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "@t:sections.popup.newsletter_text"
+          }
+        },
+        {
+          "type": "theme:newsletter-form",
+          "settings": {
+            "heading": "",
+            "text": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "popup_promotion",
+      "category": "marketing",
+      "settings": {
+        "layout": "corner",
+        "trigger": "scroll",
+        "scroll_percent": 40,
+        "frequency": "session"
+      },
+      "blocks": [
+        {
+          "type": "theme:eyebrow",
+          "settings": {
+            "text": "@t:sections.popup.promo_eyebrow"
+          }
+        },
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "@t:sections.popup.promo_heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "@t:sections.popup.promo_text"
+          }
+        },
+        {
+          "type": "theme:buttons",
+          "settings": {
+            "button_label": "@t:sections.popup.promo_button"
+          }
+        }
+      ]
+    },
+    {
+      "name": "popup_discount",
+      "category": "marketing",
+      "settings": {
+        "layout": "modal",
+        "align": "center",
+        "trigger": "exit",
+        "delay": 20,
+        "frequency": "first_visit"
+      },
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "@t:sections.popup.discount_heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "@t:sections.popup.discount_text"
+          }
+        },
+        {
+          "type": "theme:discount-code",
+          "settings": {
+            "code": "",
+            "reveal": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

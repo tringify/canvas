@@ -1,0 +1,174 @@
+{
+  "name": "countdown",
+  "icon": "clock",
+  "ctx_needs": [
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "eyebrow",
+      "type": "text",
+      "editor": {
+        "label": "eyebrow",
+        "group": "content"
+      },
+      "default": "@t:sections.countdown.eyebrow"
+    },
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": "@t:sections.countdown.heading"
+    },
+    {
+      "id": "text",
+      "type": "text",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      },
+      "default": ""
+    },
+    {
+      "id": "end_at",
+      "type": "datetime",
+      "editor": {
+        "label": "end_at",
+        "group": "content"
+      }
+    },
+    {
+      "id": "after_end",
+      "type": "select",
+      "editor": {
+        "label": "after_end",
+        "group": "content"
+      },
+      "default": "hide",
+      "options": [
+        {
+          "value": "hide",
+          "label": "opt_hide_section"
+        },
+        {
+          "value": "message",
+          "label": "opt_show_message"
+        }
+      ]
+    },
+    {
+      "id": "ended_text",
+      "type": "text",
+      "editor": {
+        "label": "ended_text",
+        "group": "content"
+      },
+      "default": "@t:sections.countdown.ended_text",
+      "visible_if": {
+        "setting": "after_end",
+        "values": [
+          "message"
+        ]
+      }
+    },
+    {
+      "id": "button_label",
+      "type": "text",
+      "editor": {
+        "label": "button_label",
+        "group": "content"
+      },
+      "default": "@t:sections.countdown.button_label"
+    },
+    {
+      "id": "button_style",
+      "type": "select",
+      "default": "solid",
+      "options": [
+        {
+          "value": "solid",
+          "label": "opt_solid"
+        },
+        {
+          "value": "outline",
+          "label": "opt_soft"
+        },
+        {
+          "value": "ghost",
+          "label": "opt_bordered"
+        },
+        {
+          "value": "link",
+          "label": "opt_text_link"
+        }
+      ],
+      "editor": {
+        "label": "button_style",
+        "group": "design"
+      }
+    },
+    {
+      "id": "button_scheme",
+      "type": "color_scheme",
+      "default": "",
+      "editor": {
+        "label": "button_scheme",
+        "group": "design"
+      }
+    },
+    {
+      "id": "button_link",
+      "type": "url",
+      "editor": {
+        "label": "button_link",
+        "group": "content"
+      }
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "countdown",
+      "category": "promotion"
+    }
+  ]
+}

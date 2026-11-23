@@ -1,0 +1,195 @@
+{%- comment -%} Split promo tile: the merchant's image (a phone image, with its own focal point, can replace it on small screens), or the theme photo the section
+  picks for its place (its --cv-fb), with the tile's content blocks over or below it. "No photo" makes it a text tile on the scheme's soft panel.
+  With a link the whole tile is a pointer target; its heading and button blocks carry the link for keyboards and screen readers. {%- endcomment -%}
+{%- assign cv_plain = false -%}{%- if settings.image == blank and settings.fallback_photo == 'off' -%}{%- assign cv_plain = true -%}{%- endif -%}
+<article class="cv-split__tile cv-reveal{% if cv_plain %} cv-split__tile--plain{% endif %}">
+  {%- unless cv_plain -%}
+  {%- assign cv_fx = settings.image_focus.x -%}{%- if cv_fx == nil -%}{%- assign cv_fx = 50 -%}{%- endif -%}
+  {%- assign cv_fy = settings.image_focus.y -%}{%- if cv_fy == nil -%}{%- assign cv_fy = 50 -%}{%- endif -%}
+  {%- assign cv_mfx = settings.image_mobile_focus.x -%}{%- if cv_mfx == nil -%}{%- assign cv_mfx = 50 -%}{%- endif -%}
+  {%- assign cv_mfy = settings.image_mobile_focus.y -%}{%- if cv_mfy == nil -%}{%- assign cv_mfy = 50 -%}{%- endif -%}
+  <div class="cv-split__media cv-media"{% if settings.image %} style="--cv-focus-x: {{ cv_fx }}%; --cv-focus-y: {{ cv_fy }}%{% if settings.image_mobile %}; --cv-mfocus-x: {{ cv_mfx }}%; --cv-mfocus-y: {{ cv_mfy }}%{% endif %}"{% endif %}>
+    {%- if settings.image -%}<picture>
+      {%- if settings.image_mobile -%}<source data-tf-field="image_mobile" media="(max-width: 749px)" srcset="{{ settings.image_mobile | image_srcset: max: 1200 }}">{%- endif -%}
+      <img src="{{ settings.image | image_url: width: 1200 }}" srcset="{{ settings.image | image_srcset: max: 2000 }}" sizes="(min-width: 750px) 50vw, 100vw" alt="{{ settings.image.alt_text }}" loading="lazy" data-tf-field="image"></picture>
+    {%- else -%}<span class="cv-split__fb" aria-hidden="true"></span>{%- endif -%}
+  </div>
+  {%- endunless -%}
+  {%- if settings.link != blank -%}<a class="cv-tile-link" href="{{ settings.link }}" tabindex="-1" aria-hidden="true" data-tf-field="link"></a>{%- endif -%}
+  <div class="cv-split__text cv-tile-over">{% blocks %}</div>
+</article>
+{% schema %}
+{
+  "name": "split-tile",
+  "kind": "block",
+  "icon": "columns-2",
+  "settings": [
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "content"
+      }
+    },
+    {
+      "id": "image_focus",
+      "type": "point",
+      "image": "image",
+      "default": {
+        "x": 50,
+        "y": 50
+      },
+      "editor": {
+        "label": "focal_point",
+        "group": "content"
+      }
+    },
+    {
+      "id": "image_mobile",
+      "type": "image",
+      "editor": {
+        "label": "image_mobile",
+        "group": "content"
+      }
+    },
+    {
+      "id": "image_mobile_focus",
+      "type": "point",
+      "image": "image_mobile",
+      "default": {
+        "x": 50,
+        "y": 50
+      },
+      "editor": {
+        "label": "focal_point_mobile",
+        "group": "content"
+      }
+    },
+    {
+      "id": "fallback_photo",
+      "type": "select",
+      "default": "none",
+      "options": [
+        {
+          "value": "none",
+          "label": "opt_photo_auto"
+        },
+        {
+          "value": "room",
+          "label": "opt_photo_room"
+        },
+        {
+          "value": "table",
+          "label": "opt_photo_table"
+        },
+        {
+          "value": "shelf",
+          "label": "opt_photo_shelf"
+        },
+        {
+          "value": "corner",
+          "label": "opt_photo_corner"
+        },
+        {
+          "value": "parcel",
+          "label": "opt_photo_parcel"
+        },
+        {
+          "value": "linen",
+          "label": "opt_photo_linen"
+        },
+        {
+          "value": "bedroom",
+          "label": "opt_photo_bedroom"
+        },
+        {
+          "value": "bench",
+          "label": "opt_photo_bench"
+        },
+        {
+          "value": "evening",
+          "label": "opt_photo_evening"
+        },
+        {
+          "value": "off",
+          "label": "opt_photo_none"
+        }
+      ],
+      "editor": {
+        "label": "fallback_photo",
+        "group": "content"
+      }
+    },
+    {
+      "id": "link",
+      "type": "url",
+      "editor": {
+        "label": "link",
+        "group": "content"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "custom-vascula"
+    ],
+    "max": 6
+  },
+  "migrations": [
+    {
+      "id": "split-tile-copy-to-blocks",
+      "op": "settings_to_blocks",
+      "blocks": [
+        {
+          "type": "theme:eyebrow",
+          "settings": {
+            "text": "eyebrow"
+          }
+        },
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "heading"
+          },
+          "copy": {
+            "link": "link"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "text"
+          }
+        },
+        {
+          "type": "theme:buttons",
+          "settings": {
+            "button_label": "button_label",
+            "button_style": "button_style",
+            "button_scheme": "button_scheme"
+          },
+          "copy": {
+            "button_link": "link"
+          },
+          "when": [
+            "button_label",
+            "link"
+          ]
+        }
+      ],
+      "source_defaults": {
+        "heading": "@t:sections.promo_grid.tile.heading",
+        "button_label": "@t:sections.promo_grid.tile.button_label"
+      }
+    }
+  ]
+}
+{% endschema %}

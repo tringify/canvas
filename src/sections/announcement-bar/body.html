@@ -1,0 +1,57 @@
+{%- assign cv_msgs = settings.blocks | where: 'type', 'message' -%}
+{%- assign cv_live = 0 -%}
+{%- for b in cv_msgs -%}{%- unless b.disabled -%}{%- assign cv_live = cv_live | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+{%- if cv_live > 0 or settings.blocks.size > 0 or design_mode -%}
+<div class="cv cv-ann tf-scheme-{{ settings.color_scheme }}" data-cv-ann data-speed="{{ settings.speed }}" role="region" aria-label="{{ 'announcement.label' | t }}">
+  {%- if design_mode and cv_live == 0 -%}<p class="cv-editor-hint">{{ 'sections.editor_add_content' | t }}</p>{%- endif -%}
+  <div class="cv-wrap cv-ann__inner">
+    {%- if cv_live > 1 -%}
+    <button class="cv-ann__nav" type="button" data-cv-ann-step="-1"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg><span class="cv-sr">{{ 'general.previous' | t }}</span></button>
+    {%- endif -%}
+    <div class="cv-ann__track">
+      {%- assign cv_i = 0 -%}
+      {%- for b in settings.blocks -%}
+        {%- unless b.disabled -%}
+          {{ b._editor_block_open }}
+          <p class="cv-ann__msg{% if cv_i == 0 %} is-active{% endif %}" data-cv-ann-msg>
+            {%- if b.settings.link != blank -%}<a dir="auto" data-tf-field="text" href="{{ b.settings.link }}">{{ b.settings.text }}</a>{%- else -%}{{ b.settings.text }}{%- endif -%}
+          </p>
+          {{ b._editor_block_close }}
+          {%- assign cv_i = cv_i | plus: 1 -%}
+        {%- endunless -%}
+      {%- endfor -%}
+    </div>
+    {%- if cv_live > 1 -%}
+    <button class="cv-ann__nav" type="button" data-cv-ann-step="1"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span class="cv-sr">{{ 'general.next' | t }}</span></button>
+    {%- endif -%}
+  </div>
+</div>
+{%- if cv_live > 1 -%}
+<script>
+(function () {
+  document.querySelectorAll("[data-cv-ann]:not([data-ready])").forEach(function (root) {
+    root.setAttribute("data-ready", "");
+    var msgs = root.querySelectorAll("[data-cv-ann-msg]"), i = 0, timer;
+    function show(n) { msgs[i].classList.remove("is-active"); i = (n + msgs.length) % msgs.length; msgs[i].classList.add("is-active"); }
+    function start() { clearInterval(timer); if (!matchMedia("(prefers-reduced-motion: reduce)").matches) timer = setInterval(function () { if (!gone()) show(i + 1); }, (Number(root.getAttribute("data-speed")) || 5) * 1000); }
+    root.addEventListener("click", function (e) { var b = e.target.closest("[data-cv-ann-step]"); if (!b) return; show(i + Number(b.getAttribute("data-cv-ann-step"))); start(); });
+    // Editor: selecting a message shows it and holds it until deselected.
+    // A re-rendered bar replaces this one: the old one drops its timer and these listeners.
+    function gone() { if (root.isConnected) return false; clearInterval(timer); document.removeEventListener("tf:block-selected", onSel); document.removeEventListener("tf:block-deselected", onDesel); return true; }
+    function onSel(e) {
+      if (gone()) return;
+      var el = e.detail && e.detail.element, m = el && el.querySelector && el.querySelector("[data-cv-ann-msg]");
+      var n = Array.prototype.indexOf.call(msgs, m);
+      if (n >= 0) { clearInterval(timer); show(n); }
+    }
+    function onDesel(e) { if (!gone() && e.detail && e.detail.section_type === "announcement-bar") start(); }
+    document.addEventListener("tf:block-selected", onSel);
+    document.addEventListener("tf:block-deselected", onDesel);
+    root.addEventListener("mouseenter", function () { clearInterval(timer); });
+    root.addEventListener("mouseleave", start);
+    start();
+  });
+})();
+</script>
+{%- endif -%}
+{%- endif -%}

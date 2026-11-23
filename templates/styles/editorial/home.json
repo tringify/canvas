@@ -1,0 +1,183 @@
+{
+  "page_type": "home",
+  "sections": [
+    {
+      "type": "image-banner",
+      "settings": {
+        "hero_style": "split",
+        "height": "large",
+        "layout": "full",
+        "media_position": "left",
+        "media_ratio": "4 / 5",
+        "color_scheme": "default",
+        "heading_size": "huge",
+        "content_width": "medium",
+        "align_x": "left",
+        "align_y": "center",
+        "fallback_photo": "table",
+        "blocks": [
+          {
+            "id": "canvas-editorial-hero__0",
+            "type": "eyebrow",
+            "settings": {
+              "eyebrow": "@t:styles.editorial.hero_eyebrow"
+            }
+          },
+          {
+            "id": "canvas-editorial-hero__1",
+            "type": "heading",
+            "settings": {
+              "heading": "@t:styles.editorial.hero_heading"
+            }
+          },
+          {
+            "id": "canvas-editorial-hero__2",
+            "type": "text",
+            "settings": {
+              "text": "@t:styles.editorial.hero_text"
+            }
+          },
+          {
+            "id": "canvas-editorial-hero__3",
+            "type": "buttons",
+            "settings": {
+              "button_label": "@t:sections.image_banner.button_label"
+            }
+          },
+          {
+            "id": "canvas-editorial-hero__4",
+            "type": "hotspot",
+            "settings": {
+              "product": "linen-shirt"
+            }
+          },
+          {
+            "id": "canvas-editorial-hero__5",
+            "type": "hotspot",
+            "settings": {
+              "product": "canvas-sneaker"
+            }
+          },
+          {
+            "id": "canvas-editorial-hero__6",
+            "type": "hotspot",
+            "settings": {
+              "product": "round-sunglasses"
+            }
+          }
+        ]
+      },
+      "position": 1
+    },
+    {
+      "type": "rich-text",
+      "settings": {
+        "align": "center",
+        "blocks": [
+          {
+            "id": "rich-text-copy-to-blocks-2",
+            "type": "theme:heading",
+            "settings": {
+              "heading": "@t:styles.editorial.note_heading"
+            }
+          },
+          {
+            "id": "rich-text-copy-to-blocks-3",
+            "type": "theme:text",
+            "settings": {
+              "text": "@t:styles.editorial.note_text"
+            }
+          }
+        ],
+        "padding": "relaxed",
+        "width": 840
+      },
+      "position": 2
+    },
+    {
+      "type": "featured-products",
+      "settings": {
+        "heading": "@t:styles.editorial.featured_heading",
+        "layout": "lead",
+        "columns": 4,
+        "columns_mobile": "2",
+        "products": [
+          "linen-shirt",
+          "wool-beanie",
+          "canvas-sneaker",
+          "round-sunglasses",
+          "leather-wallet"
+        ],
+        "limit": 5,
+        "link_label": "@t:sections.featured_products.link_label"
+      },
+      "position": 3
+    },
+    {
+      "type": "video",
+      "settings": {
+        "blocks": [
+          {
+            "id": "video-copy-to-blocks-2",
+            "type": "theme:heading",
+            "settings": {
+              "heading": "@t:styles.editorial.video_heading"
+            }
+          },
+          {
+            "id": "video-copy-to-blocks-3",
+            "type": "theme:text",
+            "settings": {
+              "text": "@t:styles.editorial.video_text"
+            }
+          }
+        ],
+        "layout": "vertical",
+        "products": [
+          "linen-shirt",
+          "canvas-tote",
+          "wool-beanie"
+        ]
+      },
+      "position": 4
+    },
+    {
+      "type": "collection-list",
+      "settings": {
+        "heading": "@t:sections.collection_list.heading",
+        "layout": "list",
+        "collections": [
+          "apparel",
+          "accessories",
+          "home"
+        ],
+        "show_count": true
+      },
+      "position": 5
+    },
+    {
+      "type": "image-with-text",
+      "settings": {
+        "blocks": [
+          {
+            "id": "image-with-text-copy-to-blocks-2",
+            "type": "theme:heading",
+            "settings": {
+              "heading": "@t:sections.image_with_text.heading"
+            }
+          },
+          {
+            "id": "image-with-text-copy-to-blocks-3",
+            "type": "theme:text",
+            "settings": {
+              "text": "@t:styles.story_text"
+            }
+          }
+        ],
+        "image_position": "right",
+        "layout": "cover"
+      },
+      "position": 6
+    }
+  ]
+}

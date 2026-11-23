@@ -1,0 +1,2184 @@
+<style>
+  /* Canvas design system. Repeated in every section, because sections are standalone. */
+  :where(.cv) { --cv-pad-x: clamp(16px, 4vw, 56px); --cv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --cv-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+    --cv-soft: color-mix(in srgb, var(--text) 5%, var(--bg)); --cv-line: color-mix(in srgb, var(--text) 10%, transparent);
+    font-family: var(--tf-font-body_font, "Inter", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    font-size: 15px; line-height: 1.55; letter-spacing: -0.006em; color: var(--text); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01", "cv11"; }
+  :where(.cv *) { box-sizing: border-box; }
+  .cv[hidden], .cv [hidden] { display: none !important; }
+  :where(.cv img) { max-width: 100%; display: block; }
+  :where(.cv a) { color: inherit; }
+  :where(.cv-section) { padding-block: calc(var(--cv-gap-y, clamp(56px, 8vw, 112px)) * 0.58); }
+  :where(.cv-section--page) { padding-top: clamp(28px, 4vw, 56px); }
+  :where(.cv-page-title) { font-size: calc(clamp(32px, 4vw, 56px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-wrap) { width: 100%; max-width: var(--cv-width, 1440px); margin-inline: auto; padding-inline: var(--cv-pad-x); }
+  :where(.cv-app-blocks) { display: grid; gap: 16px; margin-top: 24px; }
+  .cv-app-blocks:empty { display: none; }
+  :where(.cv-h1, .cv-h2, .cv-h3, .cv-h4) { font-family: var(--tf-font-heading_font, inherit); font-weight: 500; line-height: 1.04;
+    letter-spacing: -0.035em; text-transform: var(--cv-heading-case, none); margin: 0; text-wrap: balance; }
+  :where(.cv-h1) { font-size: calc(clamp(40px, 6.4vw, 88px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h2) { font-size: calc(clamp(28px, 3.6vw, 48px) * var(--cv-heading-scale, 1)); }
+  :where(.cv-h3) { font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); letter-spacing: -0.02em; line-height: 1.2; }
+  :where(.cv-h4) { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+  :where(.cv-eyebrow) { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); margin: 0; }
+  :where(.cv-muted) { color: var(--text-muted); }
+  :where(.cv-meta > * + *)::before { content: " · "; }
+  :where(.cv-rte) { line-height: 1.65; }
+  :where(.cv-rte > * + *) { margin-top: 0.9em; }
+  :where(.cv-rte a) { text-underline-offset: 3px; }
+  :where(.cv-rte ul, .cv-rte ol) { margin: 0; padding-inline-start: 1.25em; }
+  :where(.cv-rte li + li) { margin-top: 0.3em; }
+
+  :where(.cv-btn) { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 26px;
+    font: inherit; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer;
+    background: var(--btn); color: var(--btn-text); border: 0; border-radius: var(--cv-btn-radius, 999px); -webkit-tap-highlight-color: transparent;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(0 0 0 / 0.08);
+    transition: transform 0.25s var(--cv-ease), background-color 0.25s var(--cv-ease), color 0.25s var(--cv-ease), box-shadow 0.25s var(--cv-ease); }
+  :where(.cv-btn:hover) { background: color-mix(in srgb, var(--btn) 86%, var(--bg)); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 6px 18px -6px rgb(0 0 0 / 0.35); }
+  :where(.cv-btn:active) { transform: scale(0.97); }
+  :where(.cv-btn--outline, .cv-btn--soft) { background: var(--cv-soft); color: var(--text); box-shadow: none; }
+  :where(.cv-btn--outline:hover, .cv-btn--soft:hover) { background: color-mix(in srgb, var(--text) 10%, var(--bg)); box-shadow: none; }
+  :where(.cv-btn--ghost) { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--ghost:hover) { background: var(--cv-soft); box-shadow: inset 0 0 0 1px var(--cv-line); }
+  :where(.cv-btn--link) { min-height: 0; padding: 0; gap: 6px; background: none; box-shadow: none; color: var(--text); font-weight: 500; text-decoration: none; }
+  :where(.cv-btn--link)::after { content: ""; width: 1em; height: 1em; background: currentColor; -webkit-mask: var(--cv-arrow) center / contain no-repeat; mask: var(--cv-arrow) center / contain no-repeat; transition: transform 0.25s var(--cv-ease); }
+  :where(.cv-btn--link:hover) { background: none; box-shadow: none; }
+  :where([dir="rtl"] .cv-btn--link)::after { transform: scaleX(-1); }
+  :where(.cv-btn--link:active) { transform: none; }
+  :where(.cv-btn--plain)::after { content: none; }
+  :where(.cv-btn--block) { width: 100%; }
+  :where(.cv-btn--sm) { min-height: 38px; padding: 0 16px; font-size: 14px; }
+  :where(.cv-btn--lg) { min-height: 56px; padding: 0 32px; font-size: 16px; }
+  :where(.cv-btn:disabled, .cv-btn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  :where(.cv-btn.is-loading, .cv-btn.is-done) { opacity: 1; cursor: progress; }
+  :where(.cv-btn.is-loading) > *, :where(.cv-btn.is-loading) { color: transparent; }
+  :where(.cv-btn.is-loading)::before { content: ""; position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+    border: 2px solid var(--btn-text); border-right-color: transparent; animation: cv-spin 0.7s linear infinite; }
+  :where(.cv-btn--outline.is-loading, .cv-btn--soft.is-loading, .cv-btn--ghost.is-loading)::before { border-color: var(--text); border-right-color: transparent; }
+  /* A link button (wishlist, share) keeps its icon and label while busy and only dims: a spinner on a borderless button reads as the control vanishing. */
+  .cv-btn--link.is-loading, .cv-btn--link.is-loading > * { color: inherit; }
+  .cv-btn--link.is-loading { opacity: 0.55; }
+  .cv-btn--link.is-loading::before { content: none; }
+  :where(.cv-btn.is-done) { animation: cv-pop 0.4s var(--cv-ease); }
+  /* Text buttons: actions set as words (Clear cart, Create account, Edit, Show more), on <button>, <a> or <summary>. No underline and
+     no arrow, at rest or on hover: muted at rest, ink on hover. A surface with other colours sets --cv-tbtn and --cv-tbtn-hover.
+     Links inside running prose keep the browser underline; .cv-btn--link (with its arrow) is for navigation such as "Continue shopping". */
+  :where(.cv-tbtn) { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 0; font: inherit; font-weight: 500; letter-spacing: inherit;
+    color: var(--cv-tbtn, var(--text-muted)); text-align: start; text-decoration: none; background: none; border: 0; border-radius: 4px; cursor: pointer;
+    list-style: none; -webkit-tap-highlight-color: transparent; transition: color 0.2s var(--cv-ease); }
+  :where(.cv-tbtn:hover) { color: var(--cv-tbtn-hover, var(--text)); text-decoration: none; }
+  :where(.cv-tbtn)::-webkit-details-marker { display: none; }
+  :where(.cv-tbtn:disabled, .cv-tbtn[aria-disabled="true"]) { opacity: 0.4; cursor: not-allowed; }
+  @keyframes cv-spin { to { transform: rotate(360deg); } }
+  @keyframes cv-pop { 0% { transform: scale(1); } 40% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+  :where(.cv-field) { display: grid; gap: 6px; }
+  :where(.cv-label) { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+  :where(.cv-input) { width: 100%; min-height: 50px; padding: 0 18px; font: inherit; font-size: 15px; color: var(--text); background: var(--cv-soft);
+    border: 1px solid transparent; border-radius: var(--cv-field-radius, 14px); outline: none; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s; }
+  :where(.cv-input::placeholder) { color: color-mix(in srgb, var(--text) 45%, transparent); }
+  :where(.cv-input:hover) { background: color-mix(in srgb, var(--text) 7%, var(--bg)); }
+  :where(.cv-input:focus) { background: var(--bg); border-color: var(--text); box-shadow: none; }
+  :where(textarea.cv-input) { min-height: 132px; padding: 14px 18px; resize: vertical; }
+  :where(select.cv-input) { appearance: none; padding-inline-end: 44px; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 18px center; }
+  /* Focus. Fields (text, email, phone, code, search, quantity, select, textarea) show it with their own border only, for mouse, touch and
+     keyboard alike. Everything else (buttons, links, swatches, cards, checks, tabs, dots, chips) gets one thin ring, for keyboard focus only.
+     A field drawn by its wrapper (newsletter pill, search bar, quantity stepper) puts .cv-shell on the wrapper, which takes the border.
+     Sections only move the ring (offset, colour) or draw it on a proxy with var(--cv-ring); they never add their own. */
+  :where(.cv) { --cv-ring: 2px solid var(--text); --cv-ring-offset: 2px; }
+  :where(.cv :focus-visible) { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }
+  :where(.cv [tabindex="-1"]:focus-visible) { outline: none; }
+  /* After a click or tap no ring shows, even where a script moved focus (a drawer focusing its close button). */
+  html.cv-pointer :where(.cv :focus-visible) { outline: none; }
+  :where(.cv) :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"], [type="submit"], [type="button"], [type="reset"], [type="image"], [type="color"]), select, textarea):focus { outline: none; }
+  .cv-shell:is(:focus, :has(input:focus, select:focus, textarea:focus)) { box-shadow: 0 0 0 1px var(--text); }
+  :where(.cv-check) { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+  :where(.cv-check input) { width: 18px; height: 18px; accent-color: var(--text); border-radius: 6px; }
+
+  :where(.cv-media) { position: relative; overflow: hidden; background: var(--surface); border-radius: var(--cv-radius, 16px); isolation: isolate; }
+  :where(.cv-media > img, .cv-media > svg, .cv-media > video, .cv-media > picture) { width: 100%; height: 100%; object-fit: cover; }
+  /* A real product (or post) without an image: a quiet tinted tile with its name, never a placeholder drawing. */
+  .cv-noimg { position: absolute; inset: 0; display: grid; place-items: center; padding: 12%; overflow: hidden; font-size: 13px; line-height: 1.35; text-align: center; color: var(--text-muted, currentColor);
+    background: color-mix(in srgb, var(--text) 6%, var(--bg)); overflow-wrap: anywhere; }
+  .cv-noimg--lg { font-family: var(--tf-font-heading_font, inherit); font-size: clamp(18px, 2vw, 26px); }
+  :where(.cv-price) { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
+  :where(.cv-price__sale) { color: var(--accent); }
+  :where(.cv-price__was) { color: var(--text-muted); text-decoration: line-through; font-size: 0.9em; }
+  :where(.cv-badge) { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+    border-radius: 999px; background: color-mix(in srgb, var(--bg) 92%, transparent); color: var(--text); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  :where(.cv-badge--sale) { background: var(--accent); color: var(--bg); }
+  :where(.cv-badge--sold) { background: color-mix(in srgb, var(--text) 82%, transparent); color: var(--bg); }
+  :where(.cv-notice) { padding: 14px 18px; font-size: 14px; background: var(--cv-soft); border-radius: 14px; }
+  :where(.cv-notice--ok) { background: color-mix(in srgb, var(--status-ok) 10%, var(--bg)); color: color-mix(in srgb, var(--status-ok) 80%, var(--text)); }
+  /* A notice marked cv-toast floats at the bottom of the window instead of pushing the page down. */
+  .cv-toast { position: fixed; z-index: 400; inset-inline: 16px; bottom: max(24px, env(safe-area-inset-bottom)); width: auto; max-width: 440px; margin: 0 auto;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 18px 44px -16px rgb(0 0 0 / 0.35); }
+  .cv-toast[hidden] { display: none; }
+  /* A confirmation toast wears the button colours of its scheme (Theme settings > Notifications); errors keep their warning colours. */
+  .cv-toast.cv-notice--ok { background: var(--btn); color: var(--btn-text); }
+  .cv-toast--top_center { top: max(20px, env(safe-area-inset-top)); bottom: auto; }
+  .cv-toast--bottom_end { inset-inline: auto 20px; margin: 0; }
+  /* The in-theme confirm dialog for destructive actions (data-cv-confirm). */
+  .cv-confirm { position: fixed; inset: 0; margin: auto; height: fit-content; max-height: calc(100dvh - 32px); border: 0; padding: 24px; width: min(420px, calc(100vw - 32px)); border-radius: var(--cv-field-radius, 14px); background: var(--bg); color: var(--text);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 24px 64px -20px rgb(0 0 0 / 0.4); }
+  .cv-confirm::backdrop { background: rgb(0 0 0 / 0.4); }
+  .cv-confirm__msg { margin: 0 0 20px; font-size: 1rem; line-height: 1.5; }
+  .cv-confirm__acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+  @media (prefers-reduced-motion: no-preference) { .cv-toast:not([hidden]) { animation: cv-toast-in 0.2s ease-out; } @keyframes cv-toast-in { from { opacity: 0; transform: translateY(8px); } } }
+  :where(.cv-notice--error) { background: color-mix(in srgb, var(--accent) 9%, var(--bg)); color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  :where(.cv-sr) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  :where(.cv-icon) { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  :where([dir="rtl"] .cv-icon--dir) { transform: scaleX(-1); }
+  :where(.cv-pk-ico) { width: 1.15em; height: 1.15em; vertical-align: -0.2em; stroke-width: 1.6; }
+  :where(.cv-grid) { display: grid; gap: var(--cv-grid-gap, clamp(28px, 3vw, 40px)) var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); grid-template-columns: repeat(var(--cv-cols-m, 2), minmax(0, 1fr)); }
+  @media (min-width: 750px) { :where(.cv-grid) { grid-template-columns: repeat(var(--cv-cols, 4), minmax(0, 1fr)); } }
+  :where(.cv-head) { display: flex; flex-wrap: wrap; align-items: last baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: clamp(24px, 3.4vw, 48px); }
+  :where(.cv-head--center) { flex-direction: column; align-items: center; text-align: center; }
+  /* Tile cards are panels: rows sit as close as columns, so the gutters read as one even grid. */
+  :where(.cv-grid:has(> .cv-card--tile)) { row-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); }
+  :where(.cv-head p) { margin: 10px 0 0; max-width: 56ch; }
+  :where(.cv-stars) { --cv-star: var(--text); display: inline-block; width: 72px; height: 13px;
+    background: linear-gradient(90deg, var(--cv-star) var(--cv-rating, 0%), color-mix(in srgb, var(--text) 16%, transparent) var(--cv-rating, 0%));
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z'/%3E%3C/svg%3E") 0 0 / 14.4px 13px repeat-x; }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      :where(.cv-reveal) { animation: cv-rise linear both; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+      @keyframes cv-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { :where(.cv, .cv *), :where(.cv, .cv *)::before, :where(.cv, .cv *)::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+  /* Section spacing (each section's "Space above and below"). */
+  .cv-section.cv-pad--compact { padding-block: calc(var(--cv-gap-y, 96px) * 0.4); }
+  .cv-section.cv-pad--relaxed { padding-block: calc(var(--cv-gap-y, 96px) * 0.9); }
+  .cv-section.cv-pad--none { padding-block: 0; }
+  .cv-section.cv-pad--top-none { padding-top: 0; }
+
+  /* Phones: link, small and text buttons get a 44px tap target; type and icon sizes stay the same. */
+  @media (max-width: 749px) {
+    :where(.cv-btn--link) { min-height: 44px; padding-block: 12px; }
+    :where(.cv-btn--sm) { min-height: 44px; padding-block: 12px; }
+    /* The padding gives a 44px target; the equal negative margin keeps the line where it was, also inside a sentence. */
+    :where(.cv-tbtn) { padding-block: 12px; margin-block: -12px; }
+  }
+  /* Wishlist limit: when the wishlist is full, hearts that would add are dimmed and explain at the button (on a card, across the foot of its image). */
+  :where([data-cv-wish].is-full) { opacity: 0.5; cursor: not-allowed; }
+  :where(.cv-wishmsg) { position: absolute; z-index: 6; inset-block-start: calc(100% + 8px); inset-inline-start: 0; width: max-content; max-width: min(280px, 80vw); margin: 0; padding: 9px 12px;
+    font-size: 13px; line-height: 1.4; text-align: start; color: var(--bg); background: var(--text); border-radius: 10px; box-shadow: 0 10px 28px -10px rgb(0 0 0 / 0.35); }
+  :where(.cv-wishmsg[hidden]) { display: none; }
+  :where(.cv-card__media > .cv-wishmsg) { inset: auto 8px 8px; width: auto; max-width: none; }
+  @media (prefers-reduced-motion: no-preference) { :where(.cv-wishmsg) { animation: cv-wishmsg-in 0.2s var(--cv-ease, ease-out); } @keyframes cv-wishmsg-in { from { opacity: 0; transform: translateY(4px); } } }
+
+/* Editor-only note on a section that shoppers can't see yet. */
+.cv-editor-hint { margin: 0 auto 16px; max-width: 640px; padding: 10px 14px; font-size: 13px; line-height: 1.45; text-align: center; color: var(--text-muted); border: 1px dashed var(--cv-line); border-radius: 12px; }
+
+/* Theme blocks (blocks/*.vasc): the content blocks sections, slides and tiles hold. Section's style ("auto") is the look the
+   section gives that part (a slide's headline, a tile's heading); sections style .cv-blk-*--auto where they hold blocks. */
+  :where(.cv-blk-eyebrow, .cv-blk-heading, .cv-blk-text) { margin: 0; }
+  :where(.cv-blk-heading) { max-width: 100%; overflow-wrap: break-word; }
+  :where(.cv-blk-text--small) { font-size: 14px; }
+  :where(.cv-blk-text--medium) { font-size: 17px; }
+  :where(.cv-blk-text--large) { font-size: calc(clamp(18px, 1.6vw, 22px)); }
+  :where(.cv-blk-buttons) { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  :where(.cv-blk-image) { width: var(--cv-blk-w, 100%); max-width: 100%; }
+  :where(.cv-blk-image img) { display: block; width: 100%; height: auto; }
+  :where(.cv-blk-image--square img) { aspect-ratio: 1 / 1; object-fit: cover; }
+  :where(.cv-blk-image--portrait img) { aspect-ratio: 4 / 5; object-fit: cover; }
+  :where(.cv-blk-image--landscape img) { aspect-ratio: 4 / 3; object-fit: cover; }
+  :where(.cv-blk-image__ph) { display: block; aspect-ratio: 4 / 3; background: var(--cv-soft); border-radius: var(--cv-radius, 16px); overflow: hidden; }
+  :where(.cv-blk-image__ph svg) { width: 100%; height: 100%; }
+  :where(.cv-blk-spacer) { height: var(--cv-blk-h, 32px); width: 100%; }
+  :where(.cv-blk-spacer--line) { display: flex; align-items: center; }
+  :where(.cv-blk-spacer--line)::before { content: ""; flex: 1; border-top: 1px solid var(--cv-line); }
+  .cv-blk-hint { margin: 0; }
+  :where(.cv-blk-heading__link) { color: inherit; text-decoration: none; }
+  :where(.cv-blk-heading__link:hover) { text-decoration: underline; text-underline-offset: 0.12em; text-decoration-thickness: 1px; }
+  /* An eyebrow that links (the product page's vendor): underlined on hover only. */
+  :where(.cv-eyebrow__link) { color: inherit; text-decoration: none; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  :where(.cv-eyebrow__link:hover) { text-decoration: underline; }
+/* A tile's own link (promo and split tiles, mega menu promotions): the pointer target over the whole tile. Its heading and button blocks carry the
+   same link for keyboards and screen readers; they sit above it, and the rest of the content lets clicks through to it. */
+  :where(.cv-tile-link) { position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
+  :where(.cv-tile-over) { position: relative; z-index: 2; }
+  :where(.cv-tile-link ~ .cv-tile-over) { pointer-events: none; }
+  :where(.cv-tile-link ~ .cv-tile-over :is(a, button, input, select, textarea, video, [tabindex])) { pointer-events: auto; }
+  /* The platform metafield block (theme:metafield): the storefront writes its markup (tf-metafield); Canvas styles it. */
+  :where(.tf-metafield) { display: grid; gap: 4px; }
+  :where(.tf-metafield__label) { font-size: 13px; color: var(--text-muted); }
+  :where(.tf-metafield__value) { font-size: 15px; overflow-wrap: anywhere; }
+  :where(.tf-metafield__list) { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+  :where(.tf-metafield--list-product-reference, .tf-metafield--list-variant-reference) :where(.tf-metafield__reference) { display: inline-flex; padding: 6px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__image, .tf-metafield__video) { max-width: 100%; height: auto; border-radius: 12px; }
+  :where(.tf-metafield__file) { display: inline-flex; align-items: center; gap: 8px; width: fit-content; padding: 8px 14px; font-size: 14px; text-decoration: none; background: var(--cv-soft); border-radius: 999px; }
+  :where(.tf-metafield__json) { margin: 0; font: inherit; white-space: pre-wrap; }
+  :where(.tf-metafield-notice) { font-size: 14px; }
+  :where(.cv-pl__block) { margin-block: 12px; }
+
+/* partial:card */
+  .cv-card { position: relative; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .cv-card__media { z-index: 2; aspect-ratio: var(--cv-card-ratio, 4 / 5); }
+  .cv-card__img { position: absolute; inset: 0; display: block; }
+  .cv-card__img > img { width: 100%; height: 100%; object-fit: var(--cv-card-fit, cover); transition: transform 0.9s var(--cv-ease); }
+  .cv-card__img > svg { width: 100%; height: 100%; }
+  /* Second image: hidden until a pointer hovers the card; touch screens keep the first. */
+  .cv-card__img > .cv-card__img2 { position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s var(--cv-ease), transform 0.9s var(--cv-ease); }
+  /* It shows only once it has loaded (is-ready, set by the header script), so a hover never reveals an empty frame. */
+  @media (hover: hover) { .cv-card:hover .cv-card__img > .cv-card__img2.is-ready { opacity: 1; } }
+  .cv-card:hover .cv-card__img > img { transform: scale(1.04); }
+  .cv-card__badges { position: absolute; top: 12px; inset-inline-start: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; max-width: calc(100% - 64px); pointer-events: none; }
+  .cv-badge--low { gap: 6px; color: var(--text); background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 0 0 1px color-mix(in srgb, var(--text) 8%, transparent); }
+  .cv-badge--low::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  @media (max-width: 749px) { .cv-card__badges { top: 8px; inset-inline-start: 8px; } }
+  .cv-card__quick { position: absolute; inset-inline-end: 12px; bottom: 12px; z-index: 3; margin: 0; }
+  .cv-card__add.cv-btn { min-height: 44px; height: 44px; max-width: 44px; padding: 0 12px; gap: 0; overflow: hidden; justify-content: flex-start;
+    background: color-mix(in srgb, var(--bg) 92%, transparent); color: var(--text); border-radius: 999px;
+    box-shadow: 0 4px 16px -4px rgb(0 0 0 / 0.18); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition: max-width 0.45s var(--cv-ease), background-color 0.25s, color 0.25s, gap 0.45s var(--cv-ease), transform 0.25s var(--cv-ease); }
+  .cv-card__add .cv-icon { flex: none; width: 20px; height: 20px; stroke-width: 1.8; }
+  .cv-card__add-label { font-size: 14px; opacity: 0; transition: opacity 0.2s; }
+  /* The round + opens into a pill from the image's end edge. The image is the size container, so the pill stays inside it (its inset on
+     each side) and a label that still cannot fit ends in an ellipsis. Hover opens it only where there is a hover; on touch screens a tap
+     just does the action, and the pill opens for the adding and Added states. */
+  .cv-card__media { container-type: inline-size; }
+  .cv-card__add:focus-visible, .cv-card__add.is-loading, .cv-card__add.is-done { max-width: min(220px, 100cqw - 24px); gap: 6px; background: var(--btn); color: var(--btn-text); }
+  .cv-card__add:focus-visible .cv-card__add-label, .cv-card__add.is-done .cv-card__add-label { opacity: 1; }
+  @media (hover: hover) {
+    .cv-card__add:hover { max-width: min(220px, 100cqw - 24px); gap: 6px; background: var(--btn); color: var(--btn-text); }
+    .cv-card__add:hover .cv-card__add-label { opacity: 1; }
+  }
+  .cv-card:not(.cv-card--add-button, .cv-card--add-bar) .cv-card__add-label { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .cv-card__add.is-loading::before { border-color: var(--btn-text); border-right-color: transparent; }
+  @media (max-width: 749px) { .cv-card__quick { inset-inline-end: 8px; bottom: 8px; } }
+  /* Quick add styles (theme setting): button is a full-width button under the price, in line across a row; bar sits over the bottom of the image
+     and slides up on hover or focus (touch screens always show it). Both show the label instead of the + icon and keep the icon's forms. */
+  .cv-card--add-button .cv-card__add.cv-btn, .cv-card--add-bar .cv-card__add.cv-btn { width: 100%; max-width: none; height: auto; min-height: 44px; padding: 0 16px; gap: 8px;
+    justify-content: center; white-space: normal; text-align: center; }
+  .cv-card--add-button .cv-card__add-label, .cv-card--add-bar .cv-card__add-label { opacity: 1; }
+  .cv-card--add-button .cv-card__add:not(.is-done) > .cv-icon, .cv-card--add-bar .cv-card__add:not(.is-done) > .cv-icon { display: none; }
+  .cv-card--add-button .cv-card__info { flex: 1 1 auto; display: flex; flex-direction: column; }
+  .cv-card__buy { align-self: stretch; margin-top: auto; padding-top: 8px; }
+  .cv-card__buy .cv-card__quick { position: relative; inset: auto; z-index: 2; max-width: none; }
+  .cv-card--add-button .cv-card__add.cv-btn { background: var(--cv-soft); box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: var(--cv-btn-radius, 999px); }
+  .cv-card--add-button .cv-card__add.cv-btn:is(:hover, :focus-visible, .is-loading, .is-done) { background: var(--btn); color: var(--btn-text); }
+  .cv-card--add-button .cv-card__add.cv-btn:disabled { background: var(--cv-soft); color: var(--text); }
+  .cv-card--add-bar .cv-card__quick { inset: auto 12px 12px; max-width: none; opacity: 0; transform: translateY(calc(100% + 12px));
+    transition: transform 0.35s var(--cv-ease), opacity 0.25s, background-color 0.25s, color 0.25s; }
+  .cv-card--add-bar:hover .cv-card__quick, .cv-card--add-bar:focus-within .cv-card__quick, .cv-card--add-bar .cv-card__quick:is(.is-loading, .is-done, :has(.is-loading, .is-done)) { opacity: 1; transform: none; }
+  /* "Choose options" is the bar and the button in one link: the side insets size it, not the button's full width. */
+  .cv-card--add-bar .cv-card__quick.cv-card__add.cv-btn { width: auto; }
+  .cv-card--add-bar .cv-card__add.cv-btn:disabled { background: color-mix(in srgb, var(--bg) 92%, transparent); color: var(--text); }
+  @media (hover: none) { .cv-card--add-bar .cv-card__quick { opacity: 1; transform: none; } }
+  @media (max-width: 749px) { .cv-card--add-bar .cv-card__quick { inset: auto 8px 8px; } }
+  .cv-card__info { display: grid; gap: 4px; padding-inline: 2px; }
+  .cv-card__vendor { margin: 0; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); }
+  .cv-card__title { margin: 0; font-size: 15px; font-weight: 500; line-height: 1.35; letter-spacing: -0.01em; }
+  .cv-card__title a { text-decoration: none; }
+  .cv-card__title a::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+  .cv-card__price { margin: 0; font-size: 15px; color: var(--text); }
+  /* Stock line (theme setting): muted, with the product page's in-stock dot; low stock takes the low-stock badge's accent. */
+  .cv-card__stock { display: inline-flex; align-items: center; gap: 6px; margin: 0; font-size: 13px; color: var(--text-muted); }
+  .cv-card__stock::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--status-in-stock, currentColor); }
+  .cv-card__stock.is-low::before { background: var(--accent); }
+  .cv-card__extra { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 0; }
+  .cv-card__extra:empty { display: none; }
+  .cv-card__rating { display: inline-flex; align-items: center; gap: 4px; margin: 0; font-size: 13px; }
+  .cv-card__rating svg { width: 13px; height: 12px; fill: currentColor; }
+  .cv-card__swatches { display: flex; flex-wrap: wrap; gap: 5px; list-style: none; margin: 4px 0 0; padding: 0; }
+  .cv-swatch { width: 14px; height: 14px; border-radius: 50%; background: var(--cv-sw); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 18%, transparent); }
+  .cv-card__more { font-size: 12px; line-height: 14px; }
+  .cv-card__pick { position: absolute; inset: 8px; z-index: 4; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; padding: 14px; overflow-y: auto;
+    background: color-mix(in srgb, var(--bg) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: calc(var(--cv-radius, 16px) * 0.8);
+    box-shadow: 0 8px 24px -8px rgb(0 0 0 / 0.2); animation: cv-pick-in 0.25s var(--cv-ease); }
+  @keyframes cv-pick-in { from { opacity: 0; transform: translateY(8px); } }
+  .cv-card__pick-x { position: absolute; top: 6px; inset-inline-end: 6px; display: grid; place-items: center; width: 32px; height: 32px; color: var(--text); background: none; border: 0; border-radius: 50%; cursor: pointer; }
+  .cv-card__pick-x:hover { background: var(--cv-soft); }
+  .cv-card__pick-opt { display: grid; gap: 6px; }
+  .cv-card__pick-name { margin: 0; font-size: 12px; font-weight: 500; color: var(--text-muted); }
+  .cv-card__pick-vals { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cv-card__pick-val { min-width: 36px; min-height: 32px; padding: 0 10px; font: inherit; font-size: 13px; color: var(--text); background: var(--cv-soft); border: 0; border-radius: 999px; cursor: pointer; }
+  .cv-card__pick-val[aria-pressed="true"] { color: var(--btn-text); background: var(--btn); }
+  .cv-card__pick-val.is-off { color: color-mix(in srgb, var(--text) 40%, transparent); text-decoration: line-through; }
+  .cv-card__pick-val--sw { width: 28px; min-width: 0; height: 28px; min-height: 0; padding: 0; background: var(--cv-sw); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 14%, transparent); }
+  .cv-card__pick-val--sw[aria-pressed="true"] { background: var(--cv-sw); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 14%, transparent), 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text); }
+  .cv-card__pick-form { margin: 0; }
+  .cv-card__pick-add { width: 100%; gap: 8px; }
+  .cv-card__pick-price:not(:empty)::before { content: "·"; margin-inline-end: 8px; opacity: 0.6; }
+  /* Inline option picker: sits above the card's full-size title link so its values stay clickable. */
+  .cv-card__opts { position: relative; z-index: 2; display: grid; gap: 6px; margin-top: 4px; }
+  .cv-card__opt { display: flex; flex-wrap: wrap; gap: 5px; }
+  .cv-card__opt-val { min-width: 32px; min-height: 28px; padding: 0 9px; font-size: 12.5px; background: transparent; box-shadow: inset 0 0 0 1px var(--cv-line); transition: box-shadow 0.2s var(--cv-ease), background-color 0.2s var(--cv-ease), color 0.2s var(--cv-ease); }
+  .cv-card__opt-val:hover { box-shadow: inset 0 0 0 1px var(--text); }
+  .cv-card__opt-val[aria-pressed="true"] { box-shadow: none; }
+  .cv-card__opt-val.cv-card__pick-val--sw { width: 22px; height: 22px; min-width: 0; min-height: 0; background: var(--cv-sw); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 14%, transparent); }
+  .cv-card__opt-val.cv-card__pick-val--sw[aria-pressed="true"] { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 14%, transparent), 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text); }
+  .cv-card__opt-val.cv-card__pick-val--sw:hover { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 14%, transparent), 0 0 0 2px var(--bg), 0 0 0 3px color-mix(in srgb, var(--text) 40%, transparent); }
+  .cv-card__opts.is-missing .cv-card__opt:not(:has([aria-pressed="true"])) .cv-card__opt-val { box-shadow: inset 0 0 0 1px var(--accent); }
+  .cv-card__opts-hint { margin: 0; font-size: 12.5px; color: var(--accent); }
+  .cv-card--editorial .cv-card__opt { justify-content: center; }
+  .cv-card__opts [data-cv-pick-px] { display: none; }
+  .cv-card__wishform { position: absolute; inset-block-start: 10px; inset-inline-end: 10px; z-index: 3; margin: 0; }
+  .cv-card__wish { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; color: var(--text); background: color-mix(in srgb, var(--bg) 88%, transparent); border: 0; border-radius: 999px; cursor: pointer; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: transform 0.2s var(--cv-ease), color 0.2s var(--cv-ease); }
+  .cv-card__wish:hover { transform: scale(1.06); }
+  .cv-card__wish .cv-icon { width: 18px; height: 18px; }
+  .cv-card__wish[aria-pressed="true"] { color: var(--accent); }
+  .cv-card__wish[aria-pressed="true"] .cv-icon path { fill: currentColor; }
+  .cv-card__wish.is-loading { opacity: 0.6; }
+  /* Wishlist button "On hover (desktop only)": with a mouse the heart shows on hover and focus, and stays once saved; touch screens
+     (no hover) always show it. */
+  @media (hover: hover) and (pointer: fine) {
+    .cv-card--wish-hover .cv-card__wishform { opacity: 0; transition: opacity 0.2s var(--cv-ease); }
+    .cv-card--wish-hover:hover .cv-card__wishform, .cv-card--wish-hover:focus-within .cv-card__wishform,
+    .cv-card--wish-hover .cv-card__wishform:has([aria-pressed="true"]) { opacity: 1; }
+  }
+  @media (hover: none) { .cv-card__wishform { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .cv-card--wish-hover .cv-card__wishform { transition: none; } }
+  @media (max-width: 749px) { .cv-card__wishform { inset-block-start: 6px; inset-inline-end: 6px; } .cv-card__wish { width: 32px; height: 32px; } }
+  /* Card styles (theme setting): soft is the default above; tile sets each product on a soft panel; editorial is square, centred and quiet. */
+  .cv-card--tile { gap: 0; padding: 8px; background: var(--cv-soft); border-radius: calc(var(--cv-radius, 16px) * 1.15); transition: background-color 0.3s var(--cv-ease); }
+  .cv-card--tile:hover { background: color-mix(in srgb, var(--text) 8%, var(--bg)); }
+  .cv-card--tile .cv-card__media { border-radius: calc(var(--cv-radius, 16px) * 0.75); background: var(--bg); }
+  .cv-card--tile .cv-card__info { padding: 12px 8px 6px; }
+  .cv-card--tile .cv-card__title { font-size: 14px; }
+  .cv-card--tile .cv-card__price { font-weight: 600; font-size: 14px; }
+  .cv-card--editorial { gap: 16px; }
+  .cv-card--editorial .cv-card__media { border-radius: 0; }
+  .cv-card--editorial .cv-card__info { justify-items: center; text-align: center; gap: 6px; }
+  .cv-card--editorial .cv-card__title { font-size: 12.5px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
+  .cv-card--editorial .cv-card__price { font-size: 14px; color: var(--text-muted); justify-content: center; }
+  .cv-card--editorial .cv-card__extra { justify-content: center; }
+  .cv-card--editorial.cv-card--add-button .cv-card__info { align-items: center; }
+  .cv-card--editorial .cv-card__add.cv-btn, .cv-card--editorial .cv-card__wish, .cv-card--editorial .cv-badge { border-radius: 0; }
+
+  @media (max-width: 749px) {
+    .cv-card__add.cv-btn { min-height: 44px; height: 44px; max-width: 44px; padding: 0 12px; }
+    .cv-card__wish, .cv-card__pick-x { width: 44px; height: 44px; padding: 6px; }
+    .cv-card__pick-val { min-width: 44px; min-height: 44px; padding: 6px 10px; }
+    .cv-card__opt-val { min-width: 36px; min-height: 36px; padding: 0 10px; }
+    .cv-card__opt-val.cv-card__pick-val--sw { width: 30px; height: 30px; }
+  }
+
+  @media (max-width: 749px) {
+    .cv-card__quick { max-width: calc(100% - 16px); }
+    .cv-card__add:focus-visible, .cv-card__add.is-loading, .cv-card__add.is-done { max-width: min(220px, 100cqw - 16px); }
+    :is(.cv-card--add-button, .cv-card--add-bar) .cv-card__add-label { min-width: 0; overflow-wrap: anywhere; }
+  }
+  @media (max-width: 749px) and (hover: hover) { .cv-card__add:hover { max-width: min(220px, 100cqw - 16px); } }
+/* /partial:card */
+/* partial:crumbs */
+  .cv-crumbs { margin-bottom: 16px; font-size: 13px; color: var(--text-muted); }
+  .cv-crumbs__list { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0; padding: 0; list-style: none; }
+  .cv-crumbs__item { display: inline-flex; align-items: baseline; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
+  .cv-crumbs__sep { display: inline-block; }
+  [dir="rtl"] .cv-crumbs__sep { transform: scaleX(-1); }
+  .cv-crumbs a { color: inherit; text-decoration: none; }
+  .cv-crumbs a:hover { color: var(--text); }
+/* /partial:crumbs */
+  .cv-pl__head { display: grid; gap: 12px; margin-bottom: clamp(24px, 3vw, 40px); }
+  .cv-pl__banner { aspect-ratio: 4 / 1; margin-bottom: 12px; }
+  @media (max-width: 749px) { .cv-pl__banner { aspect-ratio: 2 / 1; } }
+  .cv-pl__desc { max-width: 72ch; }
+/* partial:facets */
+  /* Listing toolbar */
+  .cv-fx-bar { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--cv-line); }
+  .cv-fx-bar__filters, .cv-fx-sort__btn { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 18px; font: inherit; font-size: 14px; font-weight: 500; color: var(--text);
+    background: var(--cv-soft); border: 0; border-radius: var(--cv-btn-radius, 999px); cursor: pointer; list-style: none; transition: background-color 0.2s var(--cv-ease); }
+  .cv-fx-bar__filters:hover, .cv-fx-sort__btn:hover { background: color-mix(in srgb, var(--text) 10%, var(--bg)); }
+  .cv-fx-bar__filters .cv-icon { width: 18px; height: 18px; }
+  .cv-fx-bar__n, .cv-fx-phone__n, .cv-fx__n, .cv-fx__gcount { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; font-size: 11px; font-weight: 600;
+    color: var(--btn-text); background: var(--btn); border-radius: 999px; font-variant-numeric: tabular-nums; }
+  .cv-fx-bar__count { margin: 0; font-size: 14px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .cv-fx-bar__search { position: relative; flex: 1 1 220px; max-width: 340px; margin-inline-start: auto; }
+  .cv-fx-bar__search .cv-icon { position: absolute; inset-inline-start: 14px; top: 50%; width: 17px; height: 17px; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+  .cv-fx-bar__search .cv-input { min-height: 42px; padding-inline-start: 40px; font-size: 14px; border-radius: var(--cv-btn-radius, 999px); }
+  .cv-fx-sort { position: relative; margin-inline-start: auto; }
+  .cv-fx-bar__search + .cv-fx-sort { margin-inline-start: 0; }
+  .cv-fx-sort__btn { background: transparent; box-shadow: inset 0 0 0 1px var(--cv-line); }
+  .cv-fx-sort__btn::-webkit-details-marker { display: none; }
+  .cv-fx-sort__btn strong { font-weight: 500; }
+  .cv-fx-sort__btn .cv-icon { width: 16px; height: 16px; transition: transform 0.25s var(--cv-ease); }
+  .cv-fx-sort[open] .cv-fx-sort__btn .cv-icon { transform: rotate(180deg); }
+  .cv-fx-sort__list { position: absolute; inset-inline-end: 0; top: calc(100% + 8px); z-index: 30; min-width: 240px; margin: 0; padding: 6px; list-style: none;
+    background: var(--bg); border-radius: calc(var(--cv-radius, 16px) * 0.9); box-shadow: 0 0 0 1px var(--cv-line), 0 24px 48px -16px rgb(0 0 0 / 0.25); animation: cv-fx-pop 0.2s var(--cv-ease); }
+  .cv-fx-sort__list a { display: block; padding: 10px 14px; font-size: 14px; color: var(--text); text-decoration: none; border-radius: calc(var(--cv-radius, 16px) * 0.6); }
+  .cv-fx-sort__list a:hover { background: var(--cv-soft); }
+  .cv-fx-sort__list a[aria-current="true"] { font-weight: 600; background: var(--cv-soft); }
+  @keyframes cv-fx-pop { from { opacity: 0; transform: translateY(-6px); } }
+
+  /* Active filter chips */
+  .cv-fx-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: -4px 0 22px; }
+  .cv-fx-chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px 0 14px; font-size: 13px; color: var(--text); text-decoration: none;
+    background: var(--bg); border-radius: 999px; box-shadow: inset 0 0 0 1px var(--cv-line); transition: box-shadow 0.2s, background-color 0.2s; }
+  .cv-fx-chip:hover { box-shadow: inset 0 0 0 1px var(--text); }
+  .cv-fx-chip__k { color: var(--text-muted); }
+  .cv-fx-chip .cv-icon { width: 15px; height: 15px; }
+  .cv-fx-chips__clear { margin-inline-start: 6px; font-size: 13px; }
+
+  /* Panel: shared parts */
+  .cv-fx { display: flex; flex-direction: column; min-width: 0; }
+  .cv-fx__head, .cv-fx__foot, .cv-fx__end { display: none; }
+  .cv-fx__group { border-bottom: 1px solid var(--cv-line); }
+  .cv-fx__gname { display: flex; align-items: center; gap: 8px; padding: 16px 0; font-size: 14px; font-weight: 500; cursor: pointer; list-style: none; user-select: none; }
+  .cv-fx__gname::-webkit-details-marker { display: none; }
+  .cv-fx__gname > span:first-child { flex: 1; }
+  .cv-fx__gname::after { content: ""; width: 16px; height: 16px; flex: none; background: currentColor; transition: transform 0.25s var(--cv-ease);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat; }
+  .cv-fx__group[open] > .cv-fx__gname::after { transform: rotate(180deg); }
+  .cv-fx__pop { padding-bottom: 18px; }
+  .cv-fx__values { display: grid; gap: 1px; list-style: none; margin: 0; padding: 0; }
+  .cv-fx__values--c10.is-clamped > li:nth-child(n + 11), .cv-fx__values--c20.is-clamped > li:nth-child(n + 21), .cv-fx__values > li[hidden] { display: none; }
+  /* "All" values: a long list scrolls in its own area (the bar's gutter keeps the counts clear of it) */
+  .cv-fx__values--scroll { max-height: 22rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding-inline-end: 6px; }
+  .cv-fx__values--scroll.cv-fx__values--swatch, .cv-fx__values--scroll.cv-fx__values--image { padding-top: 4px; }
+  .cv-fx__value { display: flex; align-items: center; gap: 12px; padding: 7px 0; font-size: 14px; color: var(--text); text-decoration: none; }
+  .cv-fx__value.is-disabled { color: var(--text-muted); opacity: 0.5; }
+  .cv-fx__box { display: grid; place-items: center; width: 20px; height: 20px; flex: none; border-radius: calc(var(--cv-field-radius, 14px) * 0.4);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--text) 30%, transparent); transition: background-color 0.2s, box-shadow 0.2s; }
+  .cv-fx__box svg { width: 14px; height: 14px; fill: none; stroke: var(--btn-text); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; opacity: 0; }
+  .cv-fx__value:not(.is-disabled):hover .cv-fx__box { box-shadow: inset 0 0 0 1.5px var(--text); }
+  .cv-fx__value.is-selected .cv-fx__box { background: var(--btn); box-shadow: none; }
+  .cv-fx__value.is-selected .cv-fx__box svg { opacity: 1; }
+  .cv-fx__vlabel { flex: 1; min-width: 0; }
+  .cv-fx__vcount { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .cv-fx__values--swatch { grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 12px 6px; }
+  .cv-fx__values--swatch .cv-fx__value { flex-direction: column; gap: 6px; padding: 4px 0; text-align: center; font-size: 12px; }
+  .cv-fx__values--swatch .cv-fx__vcount { display: none; }
+  .cv-fx__sw { width: 32px; height: 32px; flex: none; overflow: hidden; border-radius: 50%; background: var(--cv-sw); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 16%, transparent); transition: box-shadow 0.2s; }
+  .cv-fx__sw img { width: 100%; height: 100%; object-fit: cover; }
+  .cv-fx__value.is-selected .cv-fx__sw { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text); }
+  .cv-fx__values--swatch .cv-fx__value:not(.is-disabled):not(.is-selected):hover .cv-fx__sw { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px color-mix(in srgb, var(--text) 30%, transparent); }
+  /* Check list: a box when several values may be chosen, a radio dot when only one; colour values add a small dot */
+  .cv-fx__value .cv-fx__dot { transition: box-shadow 0.2s; }
+  .cv-fx__value:not(.is-disabled):hover .cv-fx__dot { box-shadow: inset 0 0 0 1.5px var(--text); }
+  .cv-fx__value.is-selected .cv-fx__dot { box-shadow: inset 0 0 0 6px var(--btn); }
+  .cv-fx__sw--dot, .cv-fx__value.is-selected .cv-fx__sw--dot { width: 14px; height: 14px; margin-inline-end: -4px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 16%, transparent); }
+  /* Pills */
+  .cv-fx__values--pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cv-fx__values--pills .cv-fx__value { gap: 6px; min-height: 38px; padding: 0 14px; font-size: 13px; border-radius: var(--cv-btn-radius, 999px); box-shadow: inset 0 0 0 1px var(--cv-line);
+    transition: background-color 0.2s var(--cv-ease), color 0.2s var(--cv-ease), box-shadow 0.2s var(--cv-ease); }
+  .cv-fx__values--pills .cv-fx__vlabel { flex: none; }
+  .cv-fx__values--pills .cv-fx__value:not(.is-disabled):hover { box-shadow: inset 0 0 0 1px var(--text); }
+  .cv-fx__values--pills .cv-fx__value.is-selected { color: var(--btn-text); background: var(--btn); box-shadow: none; }
+  .cv-fx__values--pills .is-selected .cv-fx__vcount { color: inherit; opacity: 0.7; }
+  .cv-fx__values--pills .is-disabled { box-shadow: inset 0 0 0 1px var(--cv-line); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text) 40%, transparent); }
+  /* Image tiles; a value without an image shows its name on the tile */
+  .cv-fx__values--image { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 14px 10px; padding: 4px 4px 0; }
+  .cv-fx__values--image .cv-fx__value { flex-direction: column; align-items: stretch; gap: 7px; padding: 2px 0; font-size: 12px; line-height: 1.3; text-align: center; }
+  .cv-fx__tile { display: grid; place-items: center; aspect-ratio: 1; overflow: hidden; background: var(--cv-soft); border-radius: calc(var(--cv-radius, 16px) * 0.6);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 8%, transparent); transition: box-shadow 0.2s var(--cv-ease); }
+  .cv-fx__tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s var(--cv-ease); }
+  .cv-fx__tile-text { font-family: var(--tf-font-heading_font, inherit); font-size: 24px; line-height: 1; color: var(--text-muted); text-transform: uppercase; }
+  .cv-fx__values--image .cv-fx__vlabel { flex: none; }
+  .cv-fx__values--image .cv-fx__value:not(.is-disabled):hover .cv-fx__tile img { transform: scale(1.05); }
+  .cv-fx__values--image .cv-fx__value:not(.is-disabled):not(.is-selected):hover .cv-fx__tile { box-shadow: inset 0 0 0 1px var(--text); }
+  .cv-fx__values--image .is-selected .cv-fx__tile { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--text); }
+  .cv-fx__values--image .is-selected .cv-fx__vlabel { font-weight: 500; }
+  /* On/off switch (boolean filters) */
+  .cv-fx__toggle { display: flex; align-items: center; gap: 12px; padding: 16px 0; font-size: 14px; font-weight: 500; color: var(--text); text-decoration: none; }
+  .cv-fx__toggle.is-disabled { color: var(--text-muted); opacity: 0.5; }
+  .cv-fx__switch { position: relative; width: 36px; height: 22px; flex: none; background: color-mix(in srgb, var(--text) 22%, transparent); border-radius: 999px; transition: background-color 0.25s var(--cv-ease); }
+  .cv-fx__switch::after { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 16px; height: 16px; background: var(--bg); border-radius: 50%; box-shadow: 0 1px 3px rgb(0 0 0 / 0.25); transition: transform 0.3s var(--cv-ease); }
+  .cv-fx__toggle:not(.is-disabled):hover .cv-fx__switch { background: color-mix(in srgb, var(--text) 34%, transparent); }
+  .cv-fx__toggle.is-selected .cv-fx__switch { background: var(--btn); }
+  .cv-fx__toggle.is-selected .cv-fx__switch::after { transform: translateX(14px); }
+  [dir="rtl"] .cv-fx__toggle.is-selected .cv-fx__switch::after { transform: translateX(-14px); }
+  .cv-fx__more, .cv-fx__gclear { margin-top: 8px; font-size: 13px; }
+  .cv-fx__gclear { color: var(--text-muted); }
+  .cv-fx__more + .cv-fx__gclear { margin-inline-start: 14px; }
+  .cv-fx__vpage { display: flex; gap: 16px; margin-top: 8px; font-size: 13px; }
+  .cv-fx__vsearch { position: relative; margin-bottom: 10px; }
+  .cv-fx__vsearch .cv-icon { position: absolute; inset-inline-start: 12px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+  .cv-fx__vsearch .cv-input { min-height: 40px; padding-inline-start: 36px; font-size: 14px; }
+  .cv-fx__group.is-loading .cv-fx__values { opacity: 0.6; transition: opacity 0.2s; }
+  .cv-fx__vnone { margin: 2px 0 6px; font-size: 14px; color: var(--text-muted); }
+  .cv-fx__sortlist { display: grid; gap: 1px; list-style: none; margin: 0; padding: 0; }
+  .cv-fx__radio { display: flex; align-items: center; gap: 12px; padding: 7px 0; font-size: 14px; color: var(--text); text-decoration: none; }
+  .cv-fx__dot { width: 20px; height: 20px; flex: none; border-radius: 50%; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--text) 30%, transparent); }
+  .cv-fx__radio.is-selected .cv-fx__dot { box-shadow: inset 0 0 0 6px var(--btn); }
+  /* Price */
+  .cv-fx__range { display: grid; gap: 14px; }
+  /* The track is inset by half a thumb plus its outline, so a thumb at either end stays inside the filter column. */
+  .cv-fx__slider { --cv-thumb: 22px; position: relative; height: 28px; margin: 2px calc(var(--cv-thumb) / 2 + 3px) 0; }
+  .cv-fx__slider::before, .cv-fx__slider::after { content: ""; position: absolute; top: 12px; height: 4px; border-radius: 4px; }
+  .cv-fx__slider::before { inset-inline: 0; background: var(--cv-line); }
+  .cv-fx__slider::after { left: var(--lo, 0%); right: calc(100% - var(--hi, 100%)); background: var(--text); }
+  .cv-fx__slider input { position: absolute; inset: 0 calc(var(--cv-thumb) / -2); width: calc(100% + var(--cv-thumb)); height: 28px; margin: 0; background: none; pointer-events: none; -webkit-appearance: none; appearance: none; z-index: 1; }
+  .cv-fx__slider input::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); box-shadow: 0 0 0 1.5px var(--text), 0 3px 8px rgb(0 0 0 / 0.2); pointer-events: auto; cursor: grab; }
+  .cv-fx__slider input::-moz-range-thumb { width: 22px; height: 22px; border: 0; border-radius: 50%; background: var(--bg); box-shadow: 0 0 0 1.5px var(--text), 0 3px 8px rgb(0 0 0 / 0.2); pointer-events: auto; cursor: grab; }
+  .cv-fx__slider input::-webkit-slider-runnable-track { background: none; }
+  .cv-fx__minmax { display: grid; grid-template-columns: 1fr 12px 1fr; align-items: end; gap: 8px; }
+  .cv-fx__field { display: grid; gap: 4px; font-size: 12px; color: var(--text-muted); }
+  .cv-fx__field .cv-input { min-height: 42px; padding: 0 14px; font-size: 14px; }
+  .cv-fx__dash { height: 1px; margin-bottom: 21px; background: var(--text-muted); }
+  .cv-fx__apply { justify-self: start; }
+  .cv-fx__rfoot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+  .cv-fx__rfoot .cv-fx__gclear { margin-top: 0; }
+
+  /* Sidebar: a sticky rail from 990px */
+  @media (min-width: 990px) {
+    .cv-pl__layout--nofx .cv-fx--sidebar { display: none; }
+    .cv-pl__layout--sidebar:not(.cv-pl__layout--nofx):has(.cv-fx) { display: grid; grid-template-columns: 264px minmax(0, 1fr); gap: clamp(28px, 3vw, 48px); align-items: start; }
+    .cv-fx--sidebar { position: sticky; top: var(--cv-fx-top, 24px); max-height: calc(100vh - var(--cv-fx-top, 24px) - 16px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding-inline-end: 6px; }
+    .cv-fx--sidebar .cv-fx__group:first-child .cv-fx__gname { padding-top: 0; }
+    .cv-fx--sidebar .cv-fx__group--toggle:first-child .cv-fx__toggle { padding-top: 0; }
+    .cv-fx--sidebar .cv-fx__group--sort, .cv-pl--sidebar .cv-fx-bar__filters { display: none; }
+    /* Horizontal: dropdown pills in the toolbar */
+    .cv-pl__layout--horizontal { display: grid; gap: 0; }
+    .cv-fx--horizontal { position: relative; z-index: 6; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding-bottom: 20px; margin-bottom: 22px; border-bottom: 1px solid var(--cv-line); }
+    .cv-fx--horizontal .cv-fx__body { display: flex; flex: 1; flex-wrap: wrap; gap: 8px; }
+    .cv-fx--horizontal .cv-fx__end { display: flex; align-items: center; gap: 14px; }
+    .cv-pl--horizontal .cv-fx-bar > :not(.cv-fx-bar__search) { display: none; }
+    .cv-pl--horizontal .cv-fx-bar:not(:has(.cv-fx-bar__search)) { display: none; }
+    .cv-pl--horizontal .cv-fx-bar { border: 0; padding-bottom: 0; }
+    .cv-fx--horizontal .cv-fx__group { position: relative; border: 0; }
+    .cv-fx--horizontal .cv-fx__group--sort, .cv-pl--horizontal .cv-fx-bar__filters { display: none; }
+    .cv-fx--horizontal .cv-fx__gname { min-height: 42px; padding: 0 14px 0 18px; background: var(--cv-soft); border-radius: var(--cv-btn-radius, 999px); transition: background-color 0.2s, color 0.2s; }
+    .cv-fx--horizontal .cv-fx__gname:hover { background: color-mix(in srgb, var(--text) 10%, var(--bg)); }
+    .cv-fx--horizontal .cv-fx__group[open] > .cv-fx__gname { color: var(--btn-text); background: var(--btn); }
+    .cv-fx--horizontal .cv-fx__group[open] .cv-fx__gcount { color: var(--btn); background: var(--btn-text); }
+    .cv-fx--horizontal .cv-fx__toggle { min-height: 42px; padding: 0 14px 0 18px; background: var(--cv-soft); border-radius: var(--cv-btn-radius, 999px); transition: background-color 0.2s; }
+    .cv-fx--horizontal .cv-fx__toggle:not(.is-disabled):hover { background: color-mix(in srgb, var(--text) 10%, var(--bg)); }
+    .cv-fx--horizontal .cv-fx__pop { position: absolute; inset-inline-start: 0; top: calc(100% + 8px); z-index: 30; width: 320px; max-height: min(440px, 60vh); overflow-y: auto; padding: 16px 18px;
+      background: var(--bg); border-radius: calc(var(--cv-radius, 16px) * 1.1); box-shadow: 0 0 0 1px var(--cv-line), 0 28px 56px -18px rgb(0 0 0 / 0.3); animation: cv-fx-pop 0.2s var(--cv-ease); }
+    .cv-fx--horizontal .cv-fx__values.is-clamped > li:not([hidden]) { display: block; }
+    .cv-fx--horizontal .cv-fx__values--scroll { max-height: none; overflow: visible; padding-inline-end: 0; }
+    .cv-fx--horizontal .cv-fx__more { display: none; }
+    .cv-pl--horizontal .cv-fx-bar__search { margin-inline-start: 0; }
+  }
+
+  /* Drawer (and every layout from 768px to 989px): an off-canvas panel floating at the edge */
+  .cv-fx-backdrop { position: fixed; inset: 0; z-index: 140; background: rgb(0 0 0 / 0.36); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); animation: cv-fx-fade 0.25s; }
+  @keyframes cv-fx-fade { from { opacity: 0; } }
+  :root.cv-fx-lock { overflow: hidden; }
+  @media (min-width: 768px) {
+    .cv-fx--drawer, .cv-fx:is(.cv-fx--sidebar, .cv-fx--horizontal) { --cv-fx-w: 420px; }
+  }
+  @media (min-width: 768px) and (max-width: 989px) {
+    .cv-fx--sidebar, .cv-fx--horizontal { position: fixed; inset-block: 10px; inset-inline-start: 10px; z-index: 150; width: min(var(--cv-fx-w), calc(100vw - 20px)); padding: 0 24px;
+      background: var(--bg); border-radius: calc(var(--cv-radius, 16px) * 1.4); box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.4); overflow: hidden;
+      transform: translateX(calc(-100% - 20px)); visibility: hidden; transition: transform 0.4s var(--cv-ease), visibility 0s 0.4s; }
+    .cv-fx--sidebar.is-open, .cv-fx--horizontal.is-open { transform: none; visibility: visible; transition: transform 0.4s var(--cv-ease); }
+    .cv-pl__layout--sidebar, .cv-pl__layout--horizontal { display: block; }
+  }
+  @media (min-width: 768px) {
+    .cv-fx--drawer { position: fixed; inset-block: 10px; inset-inline-start: 10px; z-index: 150; width: min(var(--cv-fx-w), calc(100vw - 20px)); padding: 0 24px;
+      background: var(--bg); border-radius: calc(var(--cv-radius, 16px) * 1.4); box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.4); overflow: hidden;
+      transform: translateX(calc(-100% - 20px)); visibility: hidden; transition: transform 0.4s var(--cv-ease), visibility 0s 0.4s; }
+    [dir="rtl"] .cv-fx--drawer { transform: translateX(calc(100% + 20px)); }
+    .cv-fx--drawer.is-open { transform: none; visibility: visible; transition: transform 0.4s var(--cv-ease); }
+  }
+  @media (max-width: 989px) {
+    [dir="rtl"] .cv-fx:not(.is-open) { transform: translateX(calc(100% + 20px)); }
+  }
+  /* Head, scrolling body and sticky footer of a drawer or sheet */
+  .cv-fx.is-open .cv-fx__head, .cv-fx--drawer .cv-fx__head { display: flex; }
+  .cv-fx.is-open .cv-fx__foot, .cv-fx--drawer .cv-fx__foot { display: flex; }
+  .cv-fx__head { position: relative; align-items: center; gap: 10px; flex: none; padding: 22px 0 14px; border-bottom: 1px solid var(--cv-line); }
+  .cv-fx__title { flex: 1; display: flex; align-items: center; gap: 8px; margin: 0; font-size: 18px; font-weight: 500; letter-spacing: -0.02em; }
+  .cv-fx__close { display: grid; place-items: center; width: 40px; height: 40px; margin-inline-end: -8px; color: var(--text); background: var(--cv-soft); border: 0; border-radius: 50%; cursor: pointer; }
+  .cv-fx__handle { display: none; }
+  .cv-fx.is-open .cv-fx__body, .cv-fx--drawer .cv-fx__body { flex: 1; overflow-y: auto; overscroll-behavior: contain; margin-inline: -24px; padding-inline: 24px; }
+  .cv-fx__foot { flex: none; gap: 10px; padding: 14px 0 calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--cv-line); background: var(--bg); }
+  .cv-fx__foot .cv-btn { flex: 1; min-height: 50px; }
+  .cv-fx__clearall { flex: 0 1 auto !important; }
+  .cv-fx-phone { display: none; }
+
+  /* Phones: one "Filter & sort" button (floating once scrolled past) and a bottom sheet for every layout */
+  @media (max-width: 767px) {
+    .cv-fx-bar { display: none; }
+    .cv-fx-phone { position: relative; display: flex; align-items: center; gap: 12px; min-height: 46px; margin: 0 0 16px; }
+    .cv-fx-phone__btn { display: inline-flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 20px 0 16px; font: inherit; font-size: 14px; font-weight: 500;
+      color: var(--btn-text); background: var(--btn); border: 0; border-radius: var(--cv-btn-radius, 999px); box-shadow: 0 10px 24px -10px rgb(0 0 0 / 0.45); cursor: pointer; }
+    .cv-fx-phone__btn .cv-icon { width: 18px; height: 18px; }
+    .cv-fx-phone__n { color: var(--btn); background: var(--btn-text); }
+    .cv-fx-phone__count { font-size: 13px; color: var(--text-muted);  transition: opacity 0.2s var(--cv-ease), visibility 0.2s; }
+    /* Scrolled past: the button floats where it covers no product (the count stays in the page). */
+    .cv-fx-phone.is-float .cv-fx-phone__btn { position: fixed; z-index: 20; animation: cv-fx-float-in 0.28s var(--cv-ease); }
+    .cv-fx-phone--bottom.is-float .cv-fx-phone__btn { left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); translate: -50% 0; }
+    .cv-fx-phone--side.is-float .cv-fx-phone__btn { inset-inline-end: 0; top: 50%; translate: 0 -50%; flex-direction: column; gap: 6px; min-height: 0; padding: 14px 10px 14px 12px;
+      border-start-end-radius: 0; border-end-end-radius: 0; }
+    .cv-fx-phone--side.is-float .cv-fx-phone__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    @keyframes cv-fx-float-in { from { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .cv-fx-phone.is-float .cv-fx-phone__btn { animation: none; } }
+    .cv-fx { position: fixed; inset-inline: 0; bottom: 0; z-index: 150; display: flex; max-height: 88svh; padding: 0 20px; background: var(--bg);
+      border-radius: calc(var(--cv-radius, 16px) * 1.5) calc(var(--cv-radius, 16px) * 1.5) 0 0; box-shadow: 0 -20px 60px -20px rgb(0 0 0 / 0.35);
+      transform: translateY(105%); visibility: hidden; transition: transform 0.42s var(--cv-ease), visibility 0s 0.42s; }
+    [dir="rtl"] .cv-fx:not(.is-open) { transform: translateY(105%); }
+    .cv-fx.is-open { transform: none; visibility: visible; transition: transform 0.42s var(--cv-ease); }
+    .cv-fx.is-open .cv-fx__body { margin-inline: -20px; padding-inline: 20px; }
+    .cv-fx__head { padding-top: 26px; touch-action: none; }
+    .cv-fx__handle { display: block; position: absolute; top: 9px; left: 50%; width: 40px; height: 5px; margin-left: -20px; border-radius: 5px; background: color-mix(in srgb, var(--text) 22%, transparent); }
+    .cv-fx--horizontal .cv-fx__body { display: block; }
+    .cv-pl__layout { display: block; }
+  }
+
+  @media (max-width: 767px) {
+    .cv-fx__close { width: 44px; height: 44px; padding: 12px; }
+    .cv-fx__value, .cv-fx__radio, .cv-fx__more, .cv-fx__gclear, .cv-fx__vpage a { min-height: 44px; padding-block: 12px; }
+    .cv-fx__values--pills .cv-fx__value { padding-block: 0; }
+    .cv-fx__values--swatch .cv-fx__value, .cv-fx__values--image .cv-fx__value { min-height: 0; padding-block: 4px; }
+    .cv-fx__vsearch .cv-input, .cv-fx__field .cv-input { min-height: 44px; padding-block: 4px; }
+    .cv-fx-chip { height: auto; min-height: 44px; padding-block: 6px; }
+    .cv-fx-chips__clear { display: inline-flex; align-items: center; min-height: 44px; padding-block: 12px; }
+    .cv-fx__more, .cv-fx__gclear { margin-bottom: 0; }
+    .cv-fx__vpage a, .cv-fx-chips__clear { margin-block: 0; }
+  }
+
+  @media (max-width: 767px) { .cv-fx__gclear { min-width: 44px; padding-inline: 8px; } }
+
+  @media (max-width: 767px) {
+    .cv-fx__slider { --cv-thumb: 44px; }
+    .cv-fx__slider, .cv-fx__slider input { height: 44px; }
+    .cv-fx__slider::before, .cv-fx__slider::after { top: 20px; }
+    .cv-fx__slider input::-webkit-slider-thumb { width: 44px; height: 44px; }
+    .cv-fx__slider input::-moz-range-thumb { width: 44px; height: 44px; }
+  }
+
+  /* Theme settings › Filters › scrollbars off: the column, the drawer or sheet and long lists still scroll by wheel, touch and keyboard, without a bar */
+  .cv-fx--nobar, .cv-fx--nobar :is(.cv-fx__body, .cv-fx__pop, .cv-fx__values) { scrollbar-width: none; }
+  .cv-fx--nobar::-webkit-scrollbar, .cv-fx--nobar :is(.cv-fx__body, .cv-fx__pop, .cv-fx__values)::-webkit-scrollbar { display: none; }
+  .cv-fx--nobar .cv-fx__values--scroll { padding-inline-end: 0; }
+  @media (min-width: 990px) { .cv-fx--sidebar.cv-fx--nobar { padding-inline-end: 0; } }
+
+  @media (prefers-reduced-motion: reduce) { .cv-fx__switch, .cv-fx__switch::after, .cv-fx__tile img { transition: none; } }
+/* /partial:facets */
+  .cv-pl__results { min-width: 0; }
+  .cv-pager { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 40px; font-size: 14px; }
+  .cv-pl__empty { display: grid; gap: 16px; justify-items: center; padding: 64px 0; text-align: center; }
+/* partial:listing-grid */
+  /* Product layouts for listings: grid, editorial (a large lead card every seven), list (rows). */
+  .cv-pl__grid--editorial { grid-auto-flow: row dense; }
+  @media (min-width: 750px) {
+    .cv-pl__grid--editorial { --cv-cols: 3 !important; }
+    .cv-pl__grid--editorial > .cv-card:nth-child(7n + 1) { grid-column: span 2; grid-row: span 2; }
+    .cv-pl__grid--editorial > .cv-card:nth-child(14n + 8) { grid-column: 2 / span 2; }
+    .cv-pl__grid--editorial > .cv-card:nth-child(7n + 1) .cv-card__media { flex: 1; aspect-ratio: auto; min-height: 420px; }
+    .cv-pl__grid--editorial > .cv-card:nth-child(7n + 1) .cv-card__title { font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); font-family: var(--tf-font-heading_font, inherit); letter-spacing: -0.02em; font-weight: 400; text-transform: none; }
+  }
+  @media (max-width: 749px) {
+    .cv-pl__grid--editorial > .cv-card:nth-child(5n + 1) { grid-column: 1 / -1; }
+    .cv-pl__grid--editorial > .cv-card:nth-child(5n + 1) .cv-card__media { aspect-ratio: 4 / 3; }
+  }
+  /* A last card that would sit alone (or leave a hole) stretches across the gap with its details beside the photo, so the grid always ends on a full row. */
+  @media (min-width: 750px) {
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) { grid-column: span 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); align-content: center; align-items: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) > * { grid-column: 2 / -1; grid-row: 1; align-self: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) > .cv-card__media { grid-column: 1; align-self: stretch; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) .cv-card__info { justify-items: start; text-align: start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) :is(.cv-card__price, .cv-card__extra) { justify-content: flex-start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 4), :nth-child(7n)) .cv-card__title { font-family: var(--tf-font-heading_font, inherit); font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); font-weight: 400; letter-spacing: -0.02em; text-transform: none; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) { grid-column: span 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); align-content: center; align-items: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) > * { grid-column: 2 / -1; grid-row: 1; align-self: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) > .cv-card__media { grid-column: 1; align-self: stretch; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) .cv-card__info { justify-items: start; text-align: start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) :is(.cv-card__price, .cv-card__extra) { justify-content: flex-start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(7n + 5)) .cv-card__title { font-family: var(--tf-font-heading_font, inherit); font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); font-weight: 400; letter-spacing: -0.02em; text-transform: none; }
+  }
+  @media (max-width: 749px) {
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) { grid-column: span 2; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px)); align-content: center; align-items: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) > * { grid-column: 2 / -1; grid-row: 1; align-self: center; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) > .cv-card__media { grid-column: 1; align-self: stretch; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) .cv-card__info { justify-items: start; text-align: start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) :is(.cv-card__price, .cv-card__extra) { justify-content: flex-start; }
+    .cv-pl__grid--editorial > .cv-card:last-child:is(:nth-child(5n + 2), :nth-child(5n + 4)) .cv-card__title { font-family: var(--tf-font-heading_font, inherit); font-size: calc(clamp(19px, 1.8vw, 24px) * var(--cv-heading-scale, 1)); font-weight: 400; letter-spacing: -0.02em; text-transform: none; }
+  }
+  .cv-pl__grid--list { grid-template-columns: minmax(0, 1fr) !important; gap: 0; }
+  .cv-pl__grid--list > .cv-card { display: grid; grid-template-columns: clamp(96px, 16vw, 200px) minmax(0, 1fr); align-items: center; gap: clamp(16px, 2.6vw, 36px);
+    padding-block: clamp(14px, 1.6vw, 22px); border-bottom: 1px solid var(--cv-line); }
+  .cv-pl__grid--list > .cv-card:first-child { border-top: 1px solid var(--cv-line); }
+  .cv-pl__grid--list .cv-card__info { grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 24px; }
+  .cv-pl__grid--list .cv-card__vendor, .cv-pl__grid--list .cv-card__title, .cv-pl__grid--list .cv-card__extra { grid-column: 1; }
+  .cv-pl__grid--list .cv-card__price { grid-column: 2; grid-row: 1 / span 3; font-size: clamp(15px, 1.4vw, 18px); }
+  .cv-pl__grid--list .cv-card__title { font-size: clamp(16px, 1.6vw, 22px); letter-spacing: -0.02em; }
+  .cv-pl__grid--list .cv-card__wishform { inset-block-start: 6px; inset-inline-end: 6px; }
+  .cv-pl__grid--list .cv-card__wish { width: 30px; height: 30px; }
+/* /partial:listing-grid */
+</style>
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- assign cv_entity = collection | default: category | default: vendor | default: brand -%}
+{%- assign cv_fa = filters.applied_count | default: 0 -%}
+{%- assign cv_fitems = filters.items.size | default: 0 -%}
+{%- assign cv_fl = settings.filter_layout | default: 'sidebar' -%}
+{%- assign cv_fx_on = false -%}{%- if cv_fitems > 0 or filters.price -%}{%- assign cv_fx_on = true -%}{%- endif -%}
+{%- assign cv_show_sort = true -%}
+{%- for b in settings.blocks -%}{%- if b.type == 'toolbar' and b.disabled != true and b.settings.show_sort == false -%}{%- assign cv_show_sort = false -%}{%- endif -%}{%- endfor -%}
+<section class="cv cv-section cv-section--page cv-pl cv-pl--{{ cv_fl }} tf-scheme-{{ settings.color_scheme }}" data-tf-soft-nav="main-collection">
+  <div class="cv-wrap">
+    {%- comment -%} Blocks: breadcrumbs, the title banner, the toolbar, app blocks and metafield blocks, in the merchant's order. Filters and the product grid follow; filters and sort stay reachable when the toolbar is removed. {%- endcomment -%}
+    {%- assign cv_has_toolbar = false -%}
+    {%- for b in settings.blocks -%}
+      {%- if b.disabled or b.settings.show == false -%}{%- continue -%}{%- endif -%}
+      {%- case b.type -%}
+        {%- when 'breadcrumbs' -%}
+          {{ b._editor_block_open }}
+{%- comment -%}partial:crumbs{%- endcomment -%}
+{%- comment -%} Breadcrumbs: the platform's home crumb (the store, named as the store is named), then its trail (ctx.breadcrumbs, declared in the section's ctx_needs), the current page last as
+  plain text. The platform gives a trail on product, category, collection, vendor and brand pages and writes the matching BreadcrumbList JSON-LD
+  itself, so the theme adds none. {%- endcomment -%}
+{%- if breadcrumbs.items.size > 0 -%}
+  <nav class="cv-crumbs" aria-label="{{ 'general.breadcrumbs' | t }}">
+    <ol class="cv-crumbs__list">
+      {%- if breadcrumbs.home -%}<li class="cv-crumbs__item"><a dir="auto" href="{{ breadcrumbs.home.url }}">{{ breadcrumbs.home.title }}</a></li>{%- endif -%}
+      {%- for c in breadcrumbs.items -%}
+        <li class="cv-crumbs__item"><span class="cv-crumbs__sep" aria-hidden="true">›</span>{%- if c.current or forloop.last -%}<span dir="auto" aria-current="page">{{ c.title }}</span>{%- else -%}<a dir="auto" href="{{ c.url }}">{{ c.title }}</a>{%- endif -%}</li>
+      {%- endfor -%}
+    </ol>
+  </nav>
+{%- endif -%}
+{%- comment -%}/partial:crumbs{%- endcomment -%}
+
+          {{ b._editor_block_close }}
+        {%- when 'banner' -%}
+          {%- assign cv_title = cv_entity.name | default: b.settings.title -%}
+          {{ b._editor_block_open }}
+        <header class="cv-pl__head{% if b.settings.show_image and cv_entity.image.url %} cv-pl__head--image{% endif %}">
+          {%- if b.settings.show_image and cv_entity.image.url -%}
+            <div class="cv-pl__banner cv-media"><img src="{{ cv_entity.image.url | image_url: width: 1440 }}" srcset="{{ cv_entity.image.url | image_srcset: max: 2048 }}" sizes="100vw" alt="" {{ cv_entity.image.url | image_loading }}></div>
+          {%- endif -%}
+          <h1 class="cv-h2 cv-page-title">{{ cv_title }}</h1>
+          {%- if b.settings.show_description and cv_entity.description != blank -%}<div dir="auto" class="cv-rte cv-muted cv-pl__desc">{{ cv_entity.description }}</div>{%- endif -%}
+        </header>
+
+
+          {{ b._editor_block_close }}
+        {%- when 'toolbar' -%}
+          {%- assign cv_has_toolbar = true -%}
+          {%- assign cv_show_count = true -%}{%- if b.settings.show_count == false -%}{%- assign cv_show_count = false -%}{%- endif -%}
+          {%- assign cv_show_search = true -%}{%- if b.settings.show_search == false -%}{%- assign cv_show_search = false -%}{%- endif -%}
+          {%- assign cv_show_sort = true -%}{%- if b.settings.show_sort == false -%}{%- assign cv_show_sort = false -%}{%- endif -%}
+          {{ b._editor_block_open }}
+{%- comment -%}partial:facets-bar{%- endcomment -%}
+{%- comment -%} Listing toolbar. Inputs: cv_fl (sidebar | horizontal | drawer), cv_fx_on (filters exist), cv_fa (applied count), cv_show_count, cv_show_search, cv_show_sort.
+  Phones get one "Filter & sort" button that opens the bottom sheet: in the page above the grid, and once scrolled past it, floating at the
+  bottom centre or hugging the side of the screen (theme setting filter_button_phone) while the grid is on screen; wider screens show the
+  count, search and sort, plus a Filters button for the drawer. {%- endcomment -%}
+{%- assign cv_has_sort = false -%}{%- if cv_show_sort and products.sort.options.size > 1 -%}{%- assign cv_has_sort = true -%}{%- endif -%}
+{%- if cv_fx_on or cv_has_sort -%}
+{%- assign cv_fx_float = theme.settings.filter_button_phone | default: 'bottom' | append: '' -%}
+<div class="cv-fx-phone cv-fx-phone--{{ cv_fx_float }}" data-cv-fx-phone>
+  <button class="cv-fx-phone__btn" type="button" data-cv-fx-open aria-controls="cv-fx" aria-expanded="false">
+    <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    <span class="cv-fx-phone__label">{{ 'filters.filter_and_sort' | t }}</span>
+    {%- if cv_fa > 0 -%}<span class="cv-fx-phone__n">{{ cv_fa }}</span>{%- endif -%}
+  </button>
+  {%- if cv_show_count -%}<span class="cv-fx-phone__count">{{ 'filters.product_count' | t: count: products.pagination.total_count }}</span>{%- endif -%}
+</div>
+{%- endif -%}
+<div class="cv-fx-bar cv-fx-bar--{{ cv_fl }}">
+  {%- if cv_fx_on -%}
+  <button class="cv-fx-bar__filters" type="button" data-cv-fx-open aria-controls="cv-fx" aria-expanded="false">
+    <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    {{ 'filters.title' | t }}{%- if cv_fa > 0 -%}<span class="cv-fx-bar__n">{{ cv_fa }}</span>{%- endif -%}
+  </button>
+  {%- endif -%}
+  {%- if cv_show_count -%}<p class="cv-fx-bar__count">{{ 'filters.product_count' | t: count: products.pagination.total_count }}</p>{%- endif -%}
+  {%- if cv_show_search and products.search.enabled -%}
+    <form class="cv-fx-bar__search" method="get" action="{{ products.search.url }}" role="search">
+      {%- for input in filters.inputs -%}{%- if input.name != 'q' -%}<input type="hidden" name="{{ input.name }}" value="{{ input.value }}">{%- endif -%}{%- endfor -%}
+      <label class="cv-sr" for="cv-fx-q">{{ 'filters.search_within' | t }}</label>
+      <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input class="cv-input" id="cv-fx-q" type="search" name="q" value="{{ products.search.query }}" placeholder="{{ 'filters.search_within' | t }}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+    </form>
+  {%- endif -%}
+  {%- if cv_has_sort -%}
+    <details class="cv-fx-sort" data-cv-fx-pop>
+      <summary class="cv-fx-sort__btn">{{ 'filters.sort_by' | t }} <strong>{%- assign cv_sort_now = '' -%}{%- for o in products.sort.options -%}{%- if o.selected -%}{%- assign cv_sort_now = o.label -%}{%- endif -%}{%- endfor -%}{{ cv_sort_now }}</strong>
+        <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <ul class="cv-fx-sort__list" role="list">
+        {%- for o in products.sort.options -%}<li><a href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}>{{ o.label }}</a></li>{%- endfor -%}
+      </ul>
+    </details>
+  {%- endif -%}
+</div>
+{%- comment -%}/partial:facets-bar{%- endcomment -%}
+          {{ b._editor_block_close }}
+        {%- else -%}
+          {%- comment -%} App blocks and the platform metafield block (the collection's, category's, vendor's or brand's own fields). {%- endcomment -%}
+          <div class="cv-pl__block">{% blocks b %}</div>
+      {%- endcase -%}
+    {%- endfor -%}
+    {%- unless cv_has_toolbar -%}
+      {%- assign cv_show_count = false -%}{%- assign cv_show_search = false -%}{%- assign cv_show_sort = true -%}
+{%- comment -%}partial:facets-bar{%- endcomment -%}
+{%- comment -%} Listing toolbar. Inputs: cv_fl (sidebar | horizontal | drawer), cv_fx_on (filters exist), cv_fa (applied count), cv_show_count, cv_show_search, cv_show_sort.
+  Phones get one "Filter & sort" button that opens the bottom sheet: in the page above the grid, and once scrolled past it, floating at the
+  bottom centre or hugging the side of the screen (theme setting filter_button_phone) while the grid is on screen; wider screens show the
+  count, search and sort, plus a Filters button for the drawer. {%- endcomment -%}
+{%- assign cv_has_sort = false -%}{%- if cv_show_sort and products.sort.options.size > 1 -%}{%- assign cv_has_sort = true -%}{%- endif -%}
+{%- if cv_fx_on or cv_has_sort -%}
+{%- assign cv_fx_float = theme.settings.filter_button_phone | default: 'bottom' | append: '' -%}
+<div class="cv-fx-phone cv-fx-phone--{{ cv_fx_float }}" data-cv-fx-phone>
+  <button class="cv-fx-phone__btn" type="button" data-cv-fx-open aria-controls="cv-fx" aria-expanded="false">
+    <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    <span class="cv-fx-phone__label">{{ 'filters.filter_and_sort' | t }}</span>
+    {%- if cv_fa > 0 -%}<span class="cv-fx-phone__n">{{ cv_fa }}</span>{%- endif -%}
+  </button>
+  {%- if cv_show_count -%}<span class="cv-fx-phone__count">{{ 'filters.product_count' | t: count: products.pagination.total_count }}</span>{%- endif -%}
+</div>
+{%- endif -%}
+<div class="cv-fx-bar cv-fx-bar--{{ cv_fl }}">
+  {%- if cv_fx_on -%}
+  <button class="cv-fx-bar__filters" type="button" data-cv-fx-open aria-controls="cv-fx" aria-expanded="false">
+    <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
+    {{ 'filters.title' | t }}{%- if cv_fa > 0 -%}<span class="cv-fx-bar__n">{{ cv_fa }}</span>{%- endif -%}
+  </button>
+  {%- endif -%}
+  {%- if cv_show_count -%}<p class="cv-fx-bar__count">{{ 'filters.product_count' | t: count: products.pagination.total_count }}</p>{%- endif -%}
+  {%- if cv_show_search and products.search.enabled -%}
+    <form class="cv-fx-bar__search" method="get" action="{{ products.search.url }}" role="search">
+      {%- for input in filters.inputs -%}{%- if input.name != 'q' -%}<input type="hidden" name="{{ input.name }}" value="{{ input.value }}">{%- endif -%}{%- endfor -%}
+      <label class="cv-sr" for="cv-fx-q">{{ 'filters.search_within' | t }}</label>
+      <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input class="cv-input" id="cv-fx-q" type="search" name="q" value="{{ products.search.query }}" placeholder="{{ 'filters.search_within' | t }}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+    </form>
+  {%- endif -%}
+  {%- if cv_has_sort -%}
+    <details class="cv-fx-sort" data-cv-fx-pop>
+      <summary class="cv-fx-sort__btn">{{ 'filters.sort_by' | t }} <strong>{%- assign cv_sort_now = '' -%}{%- for o in products.sort.options -%}{%- if o.selected -%}{%- assign cv_sort_now = o.label -%}{%- endif -%}{%- endfor -%}{{ cv_sort_now }}</strong>
+        <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <ul class="cv-fx-sort__list" role="list">
+        {%- for o in products.sort.options -%}<li><a href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}>{{ o.label }}</a></li>{%- endfor -%}
+      </ul>
+    </details>
+  {%- endif -%}
+</div>
+{%- comment -%}/partial:facets-bar{%- endcomment -%}
+    {%- endunless -%}
+    <div class="cv-pl__layout cv-pl__layout--{{ cv_fl }}{% unless cv_fx_on %} cv-pl__layout--nofx{% endunless %}">
+      {%- if cv_fx_on or products.sort.options.size > 1 -%}
+{%- comment -%}partial:facets-panel{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Filter panel. Inputs: cv_fl, cv_fa, cv_show_sort. One panel, four presentations:
+  sidebar (sticky rail), horizontal (dropdown pills), drawer (off-canvas), and below 768px a bottom sheet for every layout.
+  Every choice is a link or GET form the platform resolves, so the state lives in the URL and survives back/forward, sharing, paging and sorting.
+  Theme settings › Filters: how many values a list shows before Show more (10, 20, or all: every value, the platform's further pages loaded in the
+  background up to 500) and whether the column and long lists show scrollbars (they scroll either way). {%- endcomment -%}
+{%- assign cv_vshown = theme.settings.filter_values_shown | default: '6' | append: '' -%}
+{%- assign cv_vmax = 6 -%}{%- if cv_vshown == '10' -%}{%- assign cv_vmax = 10 -%}{%- elsif cv_vshown == '20' -%}{%- assign cv_vmax = 20 -%}{%- endif -%}
+<aside class="cv-fx cv-fx--{{ cv_fl }}{% if theme.settings.filter_scrollbar == false %} cv-fx--nobar{% endif %}" id="cv-fx" aria-label="{{ 'filters.title' | t }}" data-cv-fx data-layout="{{ cv_fl }}" data-shown="{{ cv_vshown }}"
+       data-label-none="{{ 'filters.no_matches' | t }}" data-label-found="{{ 'filters.values_found' | t: n: '__n__' }}">
+  <div class="cv-fx__head">
+    <span class="cv-fx__handle" data-cv-fx-handle aria-hidden="true"></span>
+    <h2 class="cv-fx__title">{{ 'filters.filter_and_sort' | t }}{%- if cv_fa > 0 -%} <span class="cv-fx__n">{{ cv_fa }}</span>{%- endif -%}</h2>
+    <button class="cv-fx__close" type="button" data-cv-fx-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+  </div>
+  <div class="cv-fx__body">
+    {%- if cv_show_sort and products.sort.options.size > 1 -%}
+      <details class="cv-fx__group cv-fx__group--sort" open>
+        <summary class="cv-fx__gname"><span>{{ 'filters.sort_by' | t }}</span></summary>
+        <div class="cv-fx__pop">
+          <ul class="cv-fx__sortlist" role="list">
+            {%- for o in products.sort.options -%}<li><a class="cv-fx__radio{% if o.selected %} is-selected{% endif %}" href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}><span class="cv-fx__dot" aria-hidden="true"></span>{{ o.label }}</a></li>{%- endfor -%}
+          </ul>
+        </div>
+      </details>
+    {%- endif -%}
+    {%- comment -%} Filters in the merchant's order. The price filter takes its place in that order (first when the list does not name it); each filter is drawn
+      the way its display_type asks: check list, pills, colour swatches, image tiles, an on/off switch or a min/max range. {%- endcomment -%}
+    {%- assign cv_n = filters.items.size | default: 0 -%}
+    {%- assign cv_pin = false -%}
+    {%- for f in filters.items -%}{%- if f.key == 'price' -%}{%- assign cv_pin = true -%}{%- endif -%}{%- endfor -%}
+    {%- assign cv_extra = 0 -%}
+    {%- if filters.price and cv_pin == false -%}{%- assign cv_extra = 1 -%}{%- endif -%}
+    {%- assign cv_slots = cv_n | plus: cv_extra -%}
+    {%- if cv_slots > 0 -%}{%- for cv_s in (1..cv_slots) -%}
+      {%- assign cv_off = cv_s | minus: 1 | minus: cv_extra -%}
+      {%- assign cv_isprice = false -%}
+      {%- if cv_off < 0 -%}{%- assign cv_isprice = true -%}
+      {%- else -%}
+        {%- for cv_f in filters.items offset: cv_off limit: 1 -%}{%- assign f = cv_f -%}{%- endfor -%}
+        {%- if f.key == 'price' and filters.price -%}{%- assign cv_isprice = true -%}{%- endif -%}
+      {%- endif -%}
+      {%- if cv_isprice -%}
+        {%- assign cv_rg = filters.price -%}
+        {%- assign cv_rapplied = false -%}{%- if cv_rg.applied_min != blank or cv_rg.applied_max != blank -%}{%- assign cv_rapplied = true -%}{%- endif -%}
+        <details class="cv-fx__group cv-fx__group--price"{% if cv_fl != 'horizontal' %} open{% endif %}>
+          <summary class="cv-fx__gname"><span>{% if cv_rg.label != blank %}{{ cv_rg.label }}{% else %}{{ 'filters.price' | t }}{% endif %}</span>{%- if cv_rapplied -%}<span class="cv-fx__gcount">1</span>{%- endif -%}</summary>
+          <div class="cv-fx__pop">
+      {%- elsif f.display_type == 'toggle' -%}
+        {%- assign cv_tv = f.values.first -%}
+        {%- for v in f.values -%}{%- if v.key == 'true' or v.key == 'yes' or v.key == '1' -%}{%- assign cv_tv = v -%}{%- break -%}{%- endif -%}{%- endfor -%}
+        {%- if cv_tv -%}
+          {%- assign cv_cl = cv_tv.count_label | default: cv_tv.count -%}
+          <div class="cv-fx__group cv-fx__group--toggle">
+            {%- if cv_tv.selectable or cv_tv.selected -%}<a class="cv-fx__toggle{% if cv_tv.selected %} is-selected{% endif %}" href="{{ cv_tv.url }}" rel="nofollow" role="switch" aria-checked="{% if cv_tv.selected %}true{% else %}false{% endif %}">
+            {%- else -%}<span class="cv-fx__toggle is-disabled" role="switch" aria-checked="false" aria-disabled="true">{%- endif -%}
+              <span class="cv-fx__vlabel">{{ f.label }}</span>
+              {%- if cv_tv.selected != true -%}<span class="cv-fx__vcount">{{ cv_cl }}</span>{%- endif -%}
+              <span class="cv-fx__switch" aria-hidden="true"></span>
+            {%- if cv_tv.selectable or cv_tv.selected -%}</a>{%- else -%}</span>{%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- continue -%}
+      {%- else -%}
+        {%- assign cv_rg = nil -%}
+        {%- if f.filter_type == 'range' or f.display_type == 'range' -%}{%- if f.range.action != blank -%}{%- assign cv_rg = f.range -%}{%- endif -%}{%- endif -%}
+        <details class="cv-fx__group"{% if cv_fl != 'horizontal' %}{% if cv_s <= 4 or f.applied_count > 0 %} open{% endif %}{% endif %} data-cv-fx-key="{{ f.key }}">
+          <summary class="cv-fx__gname"><span>{{ f.label }}</span>{%- if f.applied_count > 0 -%}<span class="cv-fx__gcount">{{ f.applied_count }}</span>{%- endif -%}</summary>
+          <div class="cv-fx__pop">
+      {%- endif -%}
+        {%- if cv_rg -%}
+          {%- comment -%} Range (and price): two handles over the min…max span, number fields, Apply. Empty fields mean no bound. {%- endcomment -%}
+          <form class="cv-fx__range" method="get" action="{{ cv_rg.action }}" data-cv-fx-range>
+            {%- for input in cv_rg.inputs -%}<input type="hidden" name="{{ input.name }}" value="{{ input.value }}">{%- endfor -%}
+            {%- if cv_rg.integer -%}{%- assign cv_step = '1' -%}{%- assign cv_im = 'numeric' -%}{%- elsif cv_isprice -%}{%- assign cv_step = '0.01' -%}{%- assign cv_im = 'decimal' -%}{%- else -%}{%- assign cv_step = 'any' -%}{%- assign cv_im = 'decimal' -%}{%- endif -%}
+            {%- if cv_rg.min != blank and cv_rg.max != blank -%}
+              {%- assign cv_lo = cv_rg.applied_min | default: cv_rg.min -%}{%- assign cv_hi = cv_rg.applied_max | default: cv_rg.max -%}
+              <div class="cv-fx__slider">
+                <input type="range" min="{{ cv_rg.min }}" max="{{ cv_rg.max }}" step="{{ cv_step }}" value="{{ cv_lo }}" data-cv-fx-lo aria-label="{{ 'filters.min' | t }}" tabindex="-1">
+                <input type="range" min="{{ cv_rg.min }}" max="{{ cv_rg.max }}" step="{{ cv_step }}" value="{{ cv_hi }}" data-cv-fx-hi aria-label="{{ 'filters.max' | t }}" tabindex="-1">
+              </div>
+            {%- endif -%}
+            {%- comment -%} Placeholders show the bounds: the price through money (its min_money / max_money), any other bound, or a price without
+              a money value, in the shopper's number format (whole when the filter is integer). {%- endcomment -%}
+            {%- assign cv_ph_lo = '' -%}{%- assign cv_ph_hi = '' -%}
+            {%- if cv_rg.min != blank -%}{%- if cv_rg.integer -%}{%- assign cv_ph_lo = cv_rg.min | default: 0 | round | format_number -%}{%- else -%}{%- assign cv_ph_lo = cv_rg.min | format_number -%}{%- endif -%}{%- endif -%}
+            {%- if cv_rg.max != blank -%}{%- if cv_rg.integer -%}{%- assign cv_ph_hi = cv_rg.max | default: 0 | round | format_number -%}{%- else -%}{%- assign cv_ph_hi = cv_rg.max | format_number -%}{%- endif -%}{%- endif -%}
+            {%- if cv_isprice -%}
+              {%- if filters.price.min_money -%}{%- assign cv_ph_lo = filters.price.min_money | money: trim_zeros: cv_tz -%}{%- endif -%}
+              {%- if filters.price.max_money -%}{%- assign cv_ph_hi = filters.price.max_money | money: trim_zeros: cv_tz -%}{%- endif -%}
+            {%- endif -%}
+            <div class="cv-fx__minmax">
+              <label class="cv-fx__field"><span>{{ 'filters.min' | t }}</span><input class="cv-input" type="text" inputmode="{{ cv_im }}" name="{{ cv_rg.min_input }}" value="{{ cv_rg.applied_min }}" placeholder="{{ cv_ph_lo }}" data-cv-fx-min></label>
+              <span class="cv-fx__dash" aria-hidden="true"></span>
+              <label class="cv-fx__field"><span>{{ 'filters.max' | t }}</span><input class="cv-input" type="text" inputmode="{{ cv_im }}" name="{{ cv_rg.max_input }}" value="{{ cv_rg.applied_max }}" placeholder="{{ cv_ph_hi }}" data-cv-fx-max></label>
+            </div>
+            <div class="cv-fx__rfoot">
+              <button class="cv-btn cv-btn--sm cv-fx__apply" type="submit">{{ 'filters.apply' | t }}</button>
+              {%- if cv_isprice -%}{%- if cv_rapplied -%}<a class="cv-tbtn cv-fx__gclear" href="{{ cv_rg.clear_url }}" rel="nofollow">{{ 'filters.clear' | t }}</a>{%- endif -%}
+              {%- elsif f.applied_count > 0 -%}<a class="cv-tbtn cv-fx__gclear" href="{{ f.clear_url }}" rel="nofollow">{{ 'filters.clear' | t }}</a>{%- endif -%}
+            </div>
+          </form>
+        {%- else -%}
+          {%- comment -%} A long list (over ten values, or one the platform pages) gets a search. Without script it is a GET form the platform answers
+            (facet.<key>.search); with script typing narrows the loaded values at once and, when the platform holds more than are loaded, asks it for
+            this list alone without leaving the page. {%- endcomment -%}
+          {%- assign cv_vt = f.values_page.total | default: 0 -%}{%- assign cv_vl = f.values_page.limit | default: 0 -%}
+          {%- assign cv_paged = false -%}{%- if f.values_page.has_next or f.values_page.has_previous -%}{%- assign cv_paged = true -%}{%- endif -%}
+          {%- assign cv_vsearch = false -%}
+          {%- if f.values_page.search_input != blank -%}
+            {%- if cv_vt > cv_vl or cv_paged or f.values.size > 10 or f.values_page.search != blank -%}{%- assign cv_vsearch = true -%}{%- endif -%}
+          {%- endif -%}
+          {%- if cv_vsearch -%}
+            <form class="cv-fx__vsearch" method="get" action="{{ f.values_page.action }}" role="search" aria-label="{{ 'filters.search_values' | t: name: f.label }}" data-cv-fx-vsearch>
+              {%- for input in f.values_page.inputs -%}<input type="hidden" name="{{ input.name }}" value="{{ input.value }}">{%- endfor -%}
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input class="cv-input" type="search" name="{{ f.values_page.search_input }}" value="{{ f.values_page.search }}" placeholder="{{ 'filters.search_values' | t: name: f.label }}" aria-label="{{ 'filters.search_values' | t: name: f.label }}"
+                     aria-controls="cv-fx-v{{ cv_s }}" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search">
+              <span class="cv-sr" role="status" aria-live="polite" data-cv-fx-vstatus></span>
+            </form>
+            <p class="cv-fx__vnone" data-cv-fx-vnone{% if f.values.size > 0 %} hidden{% endif %}>{{ 'filters.no_matches' | t }}</p>
+          {%- endif -%}
+          {%- case f.display_type -%}
+            {%- when 'pills' -%}{%- assign cv_mode = 'pills' -%}
+            {%- when 'swatch' -%}{%- assign cv_mode = 'swatch' -%}
+            {%- when 'image_swatch' -%}{%- assign cv_mode = 'image' -%}
+            {%- else -%}{%- assign cv_mode = 'check' -%}
+          {%- endcase -%}
+          {%- if f.allow_multiple -%}{%- assign cv_role = 'checkbox' -%}{%- else -%}{%- assign cv_role = 'radio' -%}{%- endif -%}
+          {%- comment -%} A long check list shows 10 or 20 (Theme settings › Filters) and a "Show N more" button; a list the platform pages
+            (values_page) shows its page and the Show more / Show fewer links instead, which with script swap that page into the list in place.
+            With "All" every value shows: a paged list loads the platform's next pages (next_url) in the background, up to 500, and scrolls inside
+            its own area; the links stay for pages without script. {%- endcomment -%}
+          {%- assign cv_more = 0 -%}
+          {%- if cv_vshown != 'all' and cv_mode == 'check' and cv_paged == false -%}{%- assign cv_more = f.values.size | minus: cv_vmax -%}{%- endif -%}
+          {%- assign cv_long = false -%}
+          {%- if cv_vshown == 'all' and cv_mode != 'pills' -%}{%- if f.values.size > 12 or f.values_page.has_next -%}{%- assign cv_long = true -%}{%- endif -%}{%- endif -%}
+          {%- comment -%} A paged list says which page it shows ("Page 2 of 5"): Show more / Show fewer announce it when they swap the list in place. {%- endcomment -%}
+          {%- assign cv_pageof = '' -%}
+          {%- if cv_paged and cv_vl > 0 -%}
+            {%- assign cv_pgn = f.values_page.offset | default: 0 | divided_by: cv_vl | floor | plus: 1 -%}
+            {%- assign cv_pgs = cv_vt | plus: cv_vl | minus: 1 | divided_by: cv_vl | floor -%}
+            {%- if cv_pgs < cv_pgn -%}{%- assign cv_pgs = cv_pgn -%}{%- endif -%}
+            {%- assign cv_pageof = 'general.page_of' | t: page: cv_pgn, pages: cv_pgs -%}
+          {%- endif -%}
+          <ul class="cv-fx__values cv-fx__values--{{ cv_mode }} cv-fx__values--c{{ cv_vmax }}{% if cv_more > 0 %} is-clamped{% endif %}{% if cv_long %} cv-fx__values--scroll{% endif %}" id="cv-fx-v{{ cv_s }}" role="{% if f.allow_multiple %}group{% else %}radiogroup{% endif %}" aria-label="{{ f.label }}" data-cv-fx-values
+              data-cv-fx-next="{% if f.values_page.has_next %}{{ f.values_page.next_url }}{% endif %}"{% if cv_vsearch %} data-search-input="{{ f.values_page.search_input }}"{% endif %}{% if cv_pageof != '' %} data-cv-fx-pageof="{{ f.label }}, {{ cv_pageof }}"{% endif %}>
+            {%- for v in f.values -%}
+              {%- assign cv_cl = v.count_label | default: v.count -%}
+              <li role="none" data-v="{{ v.key }}">
+                {%- if v.selectable or v.selected -%}<a class="cv-fx__value{% if v.selected %} is-selected{% endif %}" href="{{ v.url }}" rel="nofollow" role="{{ cv_role }}" aria-checked="{% if v.selected %}true{% else %}false{% endif %}"{% if cv_mode == 'swatch' or cv_mode == 'image' %} title="{{ v.label }} ({{ cv_cl }})"{% endif %}>
+                {%- else -%}<span class="cv-fx__value is-disabled" role="{{ cv_role }}" aria-checked="false" aria-disabled="true"{% if cv_mode == 'swatch' or cv_mode == 'image' %} title="{{ v.label }}"{% endif %}>{%- endif -%}
+                  {%- case cv_mode -%}
+                    {%- when 'swatch' -%}
+                      <span class="cv-fx__sw" style="--cv-sw: {{ v.color | default: 'var(--cv-soft)' }}" aria-hidden="true">{%- if v.image_url != blank -%}<img src="{{ v.image_url | image_url: width: 160 }}" alt="" loading="lazy" width="36" height="36">{%- endif -%}</span>
+                      <span class="cv-fx__vlabel">{{ v.label }}</span>
+                    {%- when 'image' -%}
+                      <span class="cv-fx__tile" aria-hidden="true">{%- if v.image_url != blank -%}<img src="{{ v.image_url | image_url: width: 160 }}" srcset="{{ v.image_url | image_srcset: max: 320 }}" sizes="96px" alt="" loading="lazy" width="96" height="96">{%- else -%}<span class="cv-fx__tile-text">{{ v.label | slice: 0 }}</span>{%- endif -%}</span>
+                      <span class="cv-fx__vlabel">{{ v.label }}</span>
+                    {%- when 'pills' -%}
+                      <span class="cv-fx__vlabel">{{ v.label }}</span><span class="cv-fx__vcount">{{ cv_cl }}</span>
+                    {%- else -%}
+                      {%- if f.allow_multiple -%}<span class="cv-fx__box" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg></span>
+                      {%- else -%}<span class="cv-fx__dot" aria-hidden="true"></span>{%- endif -%}
+                      {%- if v.color != blank or v.image_url != blank -%}<span class="cv-fx__sw cv-fx__sw--dot" style="--cv-sw: {{ v.color | default: 'transparent' }}" aria-hidden="true">{%- if v.image_url != blank -%}<img src="{{ v.image_url | image_url: width: 160 }}" alt="" loading="lazy" width="16" height="16">{%- endif -%}</span>{%- endif -%}
+                      <span class="cv-fx__vlabel">{{ v.label }}</span>
+                      <span class="cv-fx__vcount">{{ cv_cl }}</span>
+                  {%- endcase -%}
+                {%- if v.selectable or v.selected -%}</a>{%- else -%}</span>{%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+          {%- if cv_more > 0 -%}
+            <button class="cv-tbtn cv-fx__more" type="button" data-cv-fx-more aria-expanded="false" data-less="{{ 'filters.show_less' | t }}">{{ 'filters.show_more_count' | t: count: cv_more }}</button>
+          {%- endif -%}
+          {%- if cv_paged -%}
+            {%- if cv_vshown == 'all' and f.values_page.has_previous != true -%}<noscript>{%- endif -%}
+            <div class="cv-fx__vpage" data-cv-fx-vpage>
+              {%- if f.values_page.has_next -%}<a class="cv-tbtn" href="{{ f.values_page.next_url }}" rel="nofollow" data-cv-fx-vnext>{{ 'filters.show_more' | t }}</a>{%- endif -%}
+              {%- if f.values_page.has_previous -%}<a class="cv-tbtn" href="{{ f.values_page.previous_url }}" rel="nofollow" data-cv-fx-vprev>{{ 'filters.show_fewer' | t }}</a>{%- endif -%}
+            </div>
+            {%- if cv_vshown == 'all' and f.values_page.has_previous != true -%}</noscript>{%- endif -%}
+          {%- endif -%}
+          {%- if f.applied_count > 0 -%}<a class="cv-tbtn cv-fx__gclear" href="{{ f.clear_url }}" rel="nofollow">{{ 'filters.clear' | t }}</a>{%- endif -%}
+        {%- endif -%}
+          </div>
+        </details>
+    {%- endfor -%}{%- endif -%}
+  </div>
+  {%- comment -%} Filter bar layout: the product count and sort close the row of pills. {%- endcomment -%}
+  <div class="cv-fx__end">
+    <p class="cv-fx-bar__count">{{ 'filters.product_count' | t: count: products.pagination.total_count }}</p>
+    {%- if cv_show_sort and products.sort.options.size > 1 -%}
+      <details class="cv-fx-sort" data-cv-fx-pop>
+        <summary class="cv-fx-sort__btn">{{ 'filters.sort_by' | t }} <strong>{%- assign cv_sort_now = '' -%}{%- for o in products.sort.options -%}{%- if o.selected -%}{%- assign cv_sort_now = o.label -%}{%- endif -%}{%- endfor -%}{{ cv_sort_now }}</strong>
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <ul class="cv-fx-sort__list" role="list">
+          {%- for o in products.sort.options -%}<li><a href="{{ o.url }}" rel="nofollow"{% if o.selected %} aria-current="true"{% endif %}>{{ o.label }}</a></li>{%- endfor -%}
+        </ul>
+      </details>
+    {%- endif -%}
+  </div>
+  <p class="cv-sr" role="status" aria-live="polite" data-cv-fx-live></p>
+  <div class="cv-fx__foot">
+    {%- if cv_fa > 0 -%}<a class="cv-btn cv-btn--ghost cv-fx__clearall" href="{{ filters.clear_url }}" rel="nofollow">{{ 'filters.clear_all' | t }}</a>{%- endif -%}
+    <button class="cv-btn cv-fx__show" type="button" data-cv-fx-close>{{ 'filters.show_results' | t: count: products.pagination.total_count }}</button>
+  </div>
+</aside>
+<div class="cv-fx-backdrop" data-cv-fx-close hidden></div>
+<script>
+(function () {
+  if (window.__cvFacets) return; window.__cvFacets = true;
+  var phone = matchMedia("(max-width: 767px)"), narrow = matchMedia("(max-width: 989px)");
+  var lastBtn = null, wasOpen = false, byEditor = false;
+  function panel() { return document.querySelector("[data-cv-fx]"); }
+  // The panel is a modal below 990px for every layout (a sheet on phones), and always for the drawer layout.
+  function modal() { var p = panel(); return !!p && (narrow.matches || p.getAttribute("data-layout") === "drawer"); }
+  function setOpen(open, focus) {
+    var p = panel(); if (!p) return;
+    var back = document.querySelector(".cv-fx-backdrop");
+    if (open && !modal()) return;
+    p.classList.toggle("is-open", open); p.style.transform = "";
+    if (back) back.hidden = !open;
+    if (open) { p.setAttribute("role", "dialog"); p.setAttribute("aria-modal", "true"); } else { p.removeAttribute("role"); p.removeAttribute("aria-modal"); }
+    document.querySelectorAll("[data-cv-fx-open]").forEach(function (b) { b.setAttribute("aria-expanded", open ? "true" : "false"); });
+    document.documentElement.classList.toggle("cv-fx-lock", open);
+    if (open && focus !== false) { var c = p.querySelector(".cv-fx__close"); if (c) c.focus({ preventScroll: true }); }
+    if (!open && lastBtn && focus !== false && document.contains(lastBtn)) lastBtn.focus({ preventScroll: true });
+  }
+  function closePops(except) {
+    document.querySelectorAll(".cv-fx--horizontal .cv-fx__group[open], [data-cv-fx-pop][open]").forEach(function (d) {
+      if (d !== except && !(modal() && d.closest("[data-cv-fx]"))) d.open = false;
+    });
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target : null; if (!t) return;
+    var o = t.closest("[data-cv-fx-open]");
+    if (o) { lastBtn = o; byEditor = false; setOpen(!(panel() && panel().classList.contains("is-open"))); return; }
+    if (t.closest("[data-cv-fx-close]")) { setOpen(false); return; }
+    var more = t.closest("[data-cv-fx-more]");
+    if (more) {
+      var list = more.parentNode.querySelector("[data-cv-fx-values]"), open = list.classList.toggle("is-clamped") === false;
+      more.setAttribute("aria-expanded", open ? "true" : "false");
+      if (!more.hasAttribute("data-more")) more.setAttribute("data-more", more.textContent);
+      more.textContent = open ? more.getAttribute("data-less") : more.getAttribute("data-more");
+      return;
+    }
+    // Remember an open sheet across the in-place update a filter link triggers.
+    if (t.closest("[data-cv-fx] a") && !t.closest("[data-cv-fx-vpage]")) wasOpen = panel().classList.contains("is-open");
+    var g = t.closest(".cv-fx--horizontal .cv-fx__group, [data-cv-fx-pop]");
+    closePops(g);
+  }, false);
+  function isOpen() { var p = panel(); return !byEditor && !!p && p.classList.contains("is-open") && modal(); }
+  function focusables(p) { return [].filter.call(p.querySelectorAll("a[href], button, input:not([type=hidden]), select, textarea, summary, [tabindex]:not([tabindex='-1'])"), function (x) { return !x.disabled && x.getClientRects().length; }); }
+  document.addEventListener("keydown", function (e) {
+    // The open drawer or sheet is modal: Tab and Shift+Tab cycle inside it.
+    if (e.key === "Tab" && isOpen()) {
+      var p = panel(), f = focusables(p); if (!f.length) return;
+      var a = document.activeElement;
+      if (!p.contains(a)) { e.preventDefault(); (e.shiftKey ? f[f.length - 1] : f[0]).focus(); }
+      else if (e.shiftKey && a === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+      return;
+    }
+    if (e.key !== "Escape") return;
+    // Escape in a value search with text clears the search first.
+    var vs = e.target.matches && e.target.matches("[data-cv-fx-vsearch] input[type=search]") ? e.target : null;
+    if (vs && vs.value) { e.preventDefault(); vs.value = ""; runSearch(vs); return; }
+    closePops(null);
+    if (panel() && panel().classList.contains("is-open")) setOpen(false);
+  });
+  // Filter values are links acting as checkboxes, radios and switches: Space chooses them as well as Enter.
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== " ") return;
+    var a = e.target.closest && e.target.closest('[data-cv-fx] a[role="checkbox"], [data-cv-fx] a[role="radio"], [data-cv-fx] a[role="switch"]');
+    if (a) { e.preventDefault(); a.click(); }
+  });
+  // Focus that lands behind the open panel some other way (a screen reader's virtual cursor) is brought back.
+  document.addEventListener("focusin", function (e) {
+    if (!isOpen()) return;
+    var p = panel(); if (p.contains(e.target)) return;
+    var f = focusables(p); if (f.length) f[0].focus({ preventScroll: true });
+  });
+  // Swipe the sheet down by its handle to close it.
+  var drag = null;
+  document.addEventListener("pointerdown", function (e) {
+    var h = e.target.closest && e.target.closest("[data-cv-fx-handle], .cv-fx__head");
+    if (!h || !phone.matches || e.target.closest("button")) return;
+    drag = { y: e.clientY, dy: 0, p: panel() }; drag.p.style.transition = "none";
+  });
+  document.addEventListener("pointermove", function (e) {
+    if (!drag) return; drag.dy = Math.max(0, e.clientY - drag.y); drag.p.style.transform = "translateY(" + drag.dy + "px)";
+  });
+  document.addEventListener("pointerup", function () {
+    if (!drag) return; var d = drag; drag = null; d.p.style.transition = "";
+    if (d.dy > 90) setOpen(false, false); else d.p.style.transform = "";
+  });
+  // Price slider: the two handles move the min and max fields and apply on release.
+  document.addEventListener("input", function (e) {
+    var r = e.target; if (!r.matches || !r.matches("[data-cv-fx-lo], [data-cv-fx-hi]")) return;
+    var f = r.form, lo = f.querySelector("[data-cv-fx-lo]"), hi = f.querySelector("[data-cv-fx-hi]");
+    if (Number(lo.value) > Number(hi.value)) { if (r === lo) lo.value = hi.value; else hi.value = lo.value; }
+    var min = Number(lo.min), span = Number(lo.max) - min || 1;
+    r.parentNode.style.setProperty("--lo", ((lo.value - min) / span * 100) + "%");
+    r.parentNode.style.setProperty("--hi", ((hi.value - min) / span * 100) + "%");
+    f.querySelector("[data-cv-fx-min]").value = Number(lo.value) <= min ? "" : lo.value;
+    f.querySelector("[data-cv-fx-max]").value = Number(hi.value) >= Number(lo.max) ? "" : hi.value;
+  });
+  document.addEventListener("change", function (e) {
+    var r = e.target; if (!r.matches || !r.matches("[data-cv-fx-lo], [data-cv-fx-hi]")) return;
+    wasOpen = panel() && panel().classList.contains("is-open");
+    r.form.requestSubmit ? r.form.requestSubmit() : r.form.submit();
+  });
+  function initSliders() {
+    document.querySelectorAll(".cv-fx__slider").forEach(function (s) {
+      var lo = s.querySelector("[data-cv-fx-lo]"), hi = s.querySelector("[data-cv-fx-hi]"), min = Number(lo.min), span = Number(lo.max) - min || 1;
+      s.style.setProperty("--lo", ((lo.value - min) / span * 100) + "%"); s.style.setProperty("--hi", ((hi.value - min) / span * 100) + "%");
+    });
+  }
+  initSliders();
+  // Value lists: search and background loading. Each list keeps its own values (base) apart from what a search shows, so clearing
+  // the search puts them back. Lists are fetched from the platform as whole pages and only this facet's list is taken from them;
+  // the page, its address and its scroll position never change.
+  var CAP = 500;
+  function fold(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim(); }
+  function vstate(g) {
+    if (g.__cvV) return g.__cvV;
+    var list = g.querySelector("[data-cv-fx-values]");
+    return g.__cvV = { g: g, list: list, base: list ? [].slice.call(list.children) : [], showing: "base", q: "", seq: 0, timer: 0 };
+  }
+  // Value links from a fetched page drop this facet's search and offset, so choosing one opens the list whole.
+  function clean(li, input) {
+    if (!input) return li;
+    var off = input.replace(/search$/, "offset");
+    li.querySelectorAll("a[href]").forEach(function (a) {
+      try {
+        var u = new URL(a.getAttribute("href"), location.href);
+        u.searchParams.delete(input); u.searchParams.delete(off);
+        a.setAttribute("href", u.origin === location.origin ? u.pathname + u.search + u.hash : u.href);
+      } catch (_) {}
+    });
+    return li;
+  }
+  function fetchGroup(url, key) {
+    return fetch(url, { credentials: "same-origin", headers: { "Accept": "text/html" } })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (html) {
+        var doc = new DOMParser().parseFromString(html, "text/html"), found = null;
+        doc.querySelectorAll("[data-cv-fx] [data-cv-fx-key]").forEach(function (x) { if (!found && x.getAttribute("data-cv-fx-key") === key) found = x; });
+        return found;
+      });
+  }
+  function fetchList(url, key) {
+    return fetchGroup(url, key).then(function (found) {
+      var list = found && found.querySelector("[data-cv-fx-values]");
+      return { items: list ? [].slice.call(list.children) : [], next: list ? list.getAttribute("data-cv-fx-next") || "" : "" };
+    });
+  }
+  // Show more / Show fewer of a list the platform pages: the other page replaces just this list, so the drawer stays open, nothing
+  // else in it changes (open groups, typed prices, a value search) and its scroll stays put. The address takes the new page with
+  // replaceState (no history entry), so a reload shows it. A failed fetch makes the link navigate as it does without script.
+  function scroller(el) {
+    for (var n = el.parentElement; n && n !== document.body; n = n.parentElement) {
+      var o = getComputedStyle(n).overflowY;
+      if ((o === "auto" || o === "scroll") && n.scrollHeight > n.clientHeight) return n;
+    }
+    return null;
+  }
+  function view(sc) {
+    if (sc) { var r = sc.getBoundingClientRect(); return { top: r.top, bottom: r.bottom }; }
+    var hd = document.querySelector("[data-cv-header]");
+    return { top: Math.max(0, hd ? hd.getBoundingClientRect().bottom : 0), bottom: innerHeight };
+  }
+  function shift(sc, dy) { if (!dy) return; if (sc) sc.scrollTop += dy; else scrollBy(0, dy); }
+  function announce(text) {
+    var live = panel() && panel().querySelector("[data-cv-fx-live]"); if (!live || !text) return;
+    live.textContent = ""; setTimeout(function () { live.textContent = text; }, 60);
+  }
+  function turnPage(a) {
+    var g = a.closest("[data-cv-fx-key]"), list = g && g.querySelector("[data-cv-fx-values]");
+    if (!list) { location.href = a.href; return; }
+    if (g.__cvPaging) return;
+    var key = g.getAttribute("data-cv-fx-key"), url = new URL(a.href, location.href), more = a.hasAttribute("data-cv-fx-vnext");
+    var sc = scroller(a), was = a.getBoundingClientRect().top;
+    g.__cvPaging = true; g.setAttribute("aria-busy", "true");
+    // Only a slow answer dims the list; a fast one swaps without a flash.
+    var slow = setTimeout(function () { g.classList.add("is-loading"); }, 300);
+    function done() { clearTimeout(slow); g.__cvPaging = false; g.classList.remove("is-loading"); g.removeAttribute("aria-busy"); }
+    fetchGroup(url.href, key).then(function (found) {
+      if (!g.isConnected) return;
+      var next = found && found.querySelector("[data-cv-fx-values]");
+      if (!next) throw new Error("no list");
+      // A new list element stops any background loading still filling the old one.
+      var fresh = document.importNode(next, true); fresh.id = list.id;
+      list.replaceWith(fresh); g.__cvV = null;
+      var pages = g.querySelector("[data-cv-fx-vpage]"), np = found.querySelector("[data-cv-fx-vpage]");
+      if (np && np.closest("noscript")) np = null;
+      if (np) { np = document.importNode(np, true); if (pages) pages.replaceWith(np); else fresh.after(np); } else if (pages) pages.remove();
+      var none = g.querySelector("[data-cv-fx-vnone]"); if (none) none.hidden = fresh.children.length > 0;
+      var u = new URL(location.href);
+      ["offset", "search"].forEach(function (k) {
+        var n = "facet." + key + "." + k, v = url.searchParams.get(n);
+        if (v === null) u.searchParams.delete(n); else u.searchParams.set(n, v);
+      });
+      history.replaceState(history.state, "", u.pathname + u.search + u.hash);
+      done();
+      // Show more lands on the new page's first value, bringing the group's top into view if it has left it; Show fewer keeps
+      // its button where the shopper tapped it.
+      var target;
+      if (more) {
+        target = fresh.querySelector("a.cv-fx__value");
+        var head = g.querySelector(".cv-fx__gname"), mark = sc && !sc.contains(head) ? fresh : head, v = view(sc), t = mark.getBoundingClientRect().top;
+        if (t < v.top || t > v.bottom - 80) shift(sc, t - v.top);
+      } else {
+        // With every value shown, the first page loads the rest in the background and has no links: focus its first value.
+        target = g.querySelector("[data-cv-fx-vprev]") || g.querySelector("[data-cv-fx-vnext]") || fresh.querySelector("a.cv-fx__value");
+        if (target) shift(sc, target.getBoundingClientRect().top - was);
+      }
+      if (target) target.focus({ preventScroll: true });
+      announce(fresh.getAttribute("data-cv-fx-pageof"));
+      if (panel().getAttribute("data-shown") === "all") loadAll(g);
+    }).catch(function () { done(); location.href = a.href; });
+  }
+  // Capture, so the platform's in-place section update never sees these clicks.
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest && e.target.closest("[data-cv-fx] [data-cv-fx-vpage] a[href]");
+    if (!a) return;
+    e.preventDefault(); turnPage(a);
+  }, true);
+  function matches(li, q) { var l = li.querySelector(".cv-fx__vlabel"); return !q || fold((l || li).textContent).indexOf(q) >= 0; }
+  function status(st, n) {
+    var p = panel(), live = st.g.querySelector("[data-cv-fx-vstatus]"), none = st.g.querySelector("[data-cv-fx-vnone]");
+    if (none) none.hidden = n !== 0;
+    if (live) live.textContent = n === null ? "" : n === 0 ? p.getAttribute("data-label-none") : (p.getAttribute("data-label-found") || "").replace("__n__", n);
+  }
+  // Searching lifts the Show more clamp and hides the platform's page links; clearing brings them back as they were.
+  function searching(st, on) {
+    var more = st.g.querySelector("[data-cv-fx-more]"), pages = st.g.querySelector("[data-cv-fx-vpage]");
+    if (more) { more.hidden = on; st.list.classList.toggle("is-clamped", !on && more.getAttribute("aria-expanded") !== "true"); }
+    if (pages) pages.hidden = on;
+  }
+  // Swap the list's items without losing focus: focus inside the list moves to the search box.
+  function show(st, items) {
+    var box = st.g.querySelector("[data-cv-fx-vsearch] input[type=search]");
+    var had = st.list.contains(document.activeElement);
+    st.list.replaceChildren.apply(st.list, items);
+    if (had && box) box.focus({ preventScroll: true });
+  }
+  function filterBase(st) {
+    if (st.showing !== "base") { show(st, st.base); st.showing = "base"; }
+    var n = 0;
+    st.base.forEach(function (li) { var m = matches(li, st.q); li.hidden = !m; if (m) n++; });
+    return n;
+  }
+  // Appends the platform's next pages of a list (all of them, or the search's), up to CAP values.
+  function loadMore(st, url, into, done) {
+    var key = st.g.getAttribute("data-cv-fx-key"), input = st.list.getAttribute("data-search-input"), mine = st.seq;
+    fetchList(url, key).then(function (r) {
+      if (!st.list.isConnected || mine !== st.seq) return;
+      var have = {}; into.forEach(function (li) { have[li.getAttribute("data-v")] = 1; });
+      var add = r.items.filter(function (li) { return !have[li.getAttribute("data-v")]; }).slice(0, Math.max(0, CAP - into.length)).map(function (li) { return clean(document.importNode(li, true), input); });
+      add.forEach(function (li) { into.push(li); });
+      done(add, into.length < CAP ? r.next : "");
+    }).catch(function () { if (mine === st.seq) done([], ""); });
+  }
+  function loadAll(g) {
+    var st = vstate(g); if (!st.list || st.loading) return;
+    var next = st.list.getAttribute("data-cv-fx-next"); if (!next) return;
+    st.loading = true;
+    (function step(url) {
+      var key = g.getAttribute("data-cv-fx-key"), input = st.list.getAttribute("data-search-input");
+      fetchList(url, key).then(function (r) {
+        if (!st.list.isConnected) return;
+        var have = {}; st.base.forEach(function (li) { have[li.getAttribute("data-v")] = 1; });
+        var add = r.items.filter(function (li) { return !have[li.getAttribute("data-v")]; }).slice(0, Math.max(0, CAP - st.base.length)).map(function (li) { return clean(document.importNode(li, true), input); });
+        add.forEach(function (li) { st.base.push(li); if (st.showing === "base") { li.hidden = !matches(li, st.q); st.list.appendChild(li); } });
+        var more = st.base.length < CAP && add.length ? r.next : "";
+        // Stopped at CAP with values left: a search still asks the platform.
+        if (r.next && !more) st.partial = true;
+        st.list.setAttribute("data-cv-fx-next", more);
+        if (more) step(more); else st.loading = false;
+        if (st.q && st.showing === "base") status(st, st.base.filter(function (li) { return !li.hidden; }).length);
+      }).catch(function () { st.loading = false; });
+    })(next);
+  }
+  function loadOpenLists() {
+    var p = panel(); if (!p || p.getAttribute("data-shown") !== "all") return;
+    p.querySelectorAll("details[data-cv-fx-key][open]").forEach(loadAll);
+  }
+  document.addEventListener("toggle", function (e) {
+    var g = e.target; if (g.matches && g.matches("details[data-cv-fx-key]") && g.open && panel().getAttribute("data-shown") === "all") loadAll(g);
+  }, true);
+  function runSearch(box) {
+    var st = vstate(box.closest("[data-cv-fx-key]")); if (!st.list) return;
+    var raw = box.value.trim(), input = st.list.getAttribute("data-search-input");
+    clearTimeout(st.timer); st.seq++; st.q = fold(raw);
+    // The page came with a search already applied (no script, or a shared link): clearing asks the platform for the whole list.
+    var preset = box.defaultValue.trim() !== "";
+    if (!raw && !preset) { filterBase(st); searching(st, false); status(st, null); return; }
+    searching(st, true);
+    var n = filterBase(st);
+    // Everything is loaded: the loaded values are the answer.
+    var remote = preset || st.partial || !!st.list.getAttribute("data-cv-fx-next") || !!st.g.querySelector("[data-cv-fx-vpage] a");
+    if (!remote) { status(st, n); return; }
+    var mine = st.seq;
+    st.timer = setTimeout(function () {
+      var u = new URL(location.href);
+      u.searchParams.delete(input.replace(/search$/, "offset"));
+      if (raw) u.searchParams.set(input, raw); else u.searchParams.delete(input);
+      st.g.classList.add("is-loading");
+      fetchList(u.href, st.g.getAttribute("data-cv-fx-key")).then(function (r) {
+        if (mine !== st.seq || !st.list.isConnected) return;
+        st.g.classList.remove("is-loading");
+        var items = r.items.map(function (li) { return clean(document.importNode(li, true), input); });
+        if (!raw) {
+          // Cleared after a preset search: the platform's whole list becomes the base.
+          st.base = items; st.showing = "base"; show(st, items); searching(st, false); status(st, null);
+          st.list.setAttribute("data-cv-fx-next", r.next); box.defaultValue = "";
+          var none = st.g.querySelector("[data-cv-fx-vnone]"); if (none) none.hidden = items.length > 0;
+          if (panel().getAttribute("data-shown") === "all") loadAll(st.g);
+          return;
+        }
+        st.showing = "search"; show(st, items); status(st, items.length);
+        (function more(next) {
+          if (!next) return;
+          loadMore(st, next, items, function (add, nx) { add.forEach(function (li) { st.list.appendChild(li); }); status(st, items.length); more(nx); });
+        })(items.length < CAP ? r.next : "");
+      }).catch(function () { if (mine === st.seq) { st.g.classList.remove("is-loading"); status(st, n); } });
+    }, 250);
+  }
+  document.addEventListener("input", function (e) {
+    var box = e.target; if (box.matches && box.matches("[data-cv-fx-vsearch] input[type=search]")) runSearch(box);
+  });
+  // With script the value search never submits: Enter stays in the box.
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && e.target.matches && e.target.matches("[data-cv-fx-vsearch] input")) e.preventDefault();
+  });
+  document.addEventListener("submit", function (e) {
+    if (e.target.matches && e.target.matches("[data-cv-fx-vsearch]")) { e.preventDefault(); e.stopPropagation(); }
+  }, true);
+  // Nor does a change in it reach a listener that would submit the form.
+  document.addEventListener("change", function (e) {
+    if (e.target.matches && e.target.matches("[data-cv-fx-vsearch] input")) e.stopPropagation();
+  }, true);
+  loadOpenLists();
+  // The sidebar rail sits below the header while it shows; the phone button floats once its place is scrolled past.
+  var ticking = false;
+  function top() {
+    ticking = false;
+    var hd = document.querySelector("[data-cv-header]"), b = hd ? hd.getBoundingClientRect().bottom : 0;
+    var t = Math.max(0, b) + 12;
+    document.documentElement.style.setProperty("--cv-fx-top", t + "px");
+    // It floats only while the listing is still on screen, so it never sits over the footer.
+    document.querySelectorAll("[data-cv-fx-phone]").forEach(function (el) {
+      var list = el.closest(".cv-pl"), end = list ? list.getBoundingClientRect().bottom : Infinity;
+      el.classList.toggle("is-float", el.getBoundingClientRect().bottom <= t && end > innerHeight * 0.6);
+    });
+  }
+  addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(top); } }, { passive: true });
+  top();
+  document.addEventListener("section:soft-nav", function () {
+    initSliders(); loadOpenLists();
+    if (wasOpen) { setOpen(true, false); wasOpen = false; }
+  });
+  // Editor: selecting the listing section opens the drawer or sheet wherever the panel is one; deselecting closes it.
+  function ours(d) { return d && (d.type === "main-collection" || d.type === "main-search" || d.section_type === "main-collection" || d.section_type === "main-search"); }
+  document.addEventListener("tf:section-selected", function (e) { if (ours(e.detail) && modal()) { byEditor = true; setOpen(true, false); } });
+  document.addEventListener("tf:section-deselected", function (e) { if (ours(e.detail)) setOpen(false, false); });
+  narrow.addEventListener("change", function () { if (!modal()) setOpen(false, false); });
+})();
+</script>
+{%- comment -%}/partial:facets-panel{%- endcomment -%}
+      {%- endif -%}
+      <div class="cv-pl__results">
+{%- comment -%}partial:pickup-catalog{%- endcomment -%}
+{%- comment -%} Pickup mode: the platform's line naming the store the listing shows ("Showing stock at …", or "Showing products
+  stocked at …" when the store lists only what it stocks), with Change to open the store sheet. Null for delivery. {%- endcomment -%}
+{%- if shopping.catalog_notice != blank -%}
+  <p class="cv-pk-cat" role="status"><svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20"/></svg><span dir="auto">{{ shopping.catalog_notice }}</span><button class="cv-pk-link" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-pickup" data-cv-pk-open>{{ 'pickup.change' | t }}</button></p>
+{%- endif -%}
+{%- comment -%}/partial:pickup-catalog{%- endcomment -%}
+{%- comment -%}partial:facets-chips{%- endcomment -%}
+{%- comment -%} Active filters as removable chips, on every layout: "Brand: Kiln & Co."; a yes/no filter by its name alone ("On sale"); a range as
+  "From 12", "Up to 1,250.50" or "12 – 1,250.50". Other ranges print their plain bounds through format_number (the shopper's digits and grouping), whole when the filter is `integer`; the price prints its applied bounds as money.
+  Input: cv_fa. {%- endcomment -%}
+{%- if cv_fa > 0 -%}
+  {%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+  {%- assign cv_nr = filters.items.size | default: 0 -%}
+  <div class="cv-fx-chips" role="list" aria-label="{{ 'filters.title' | t }}">
+    {%- for f in filters.items -%}
+      {%- for v in f.values -%}{%- if v.selected -%}
+        {%- assign cv_yes = false -%}
+        {%- if f.filter_type == 'boolean' -%}{%- if v.key == 'true' or v.key == 'yes' or v.key == '1' -%}{%- assign cv_yes = true -%}{%- endif -%}{%- endif -%}
+        <a class="cv-fx-chip" role="listitem" href="{{ v.url }}" rel="nofollow">{%- if cv_yes -%}{{ f.label }}{%- else -%}<span class="cv-fx-chip__k">{{ 'filters.chip_name' | t: name: f.label }}</span> {{ v.label }}{%- endif -%}<svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg><span class="cv-sr">{{ 'filters.remove' | t }}</span></a>
+      {%- endif -%}{%- endfor -%}
+    {%- endfor -%}
+    {%- comment -%} Range filters, then the price (one pass: the slot after the last filter is the price). {%- endcomment -%}
+    {%- for cv_i in (0..cv_nr) -%}
+      {%- assign cv_r = nil -%}{%- assign cv_rp = false -%}
+      {%- if cv_i == cv_nr -%}
+        {%- if filters.price -%}{%- assign cv_r = filters.price -%}{%- assign cv_rp = true -%}
+          {%- if filters.price.label != blank -%}{%- assign cv_rk = filters.price.label -%}{%- else -%}{%- assign cv_rk = 'filters.price' | t -%}{%- endif -%}
+        {%- endif -%}
+      {%- else -%}
+        {%- for cv_f in filters.items offset: cv_i limit: 1 -%}
+          {%- if cv_f.range and cv_f.range.action != blank -%}{%- unless cv_f.key == 'price' and filters.price -%}{%- assign cv_r = cv_f.range -%}{%- assign cv_rk = cv_f.label -%}{%- endunless -%}{%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {%- if cv_r -%}{%- if cv_r.applied_min != blank or cv_r.applied_max != blank -%}
+        {%- assign cv_whole = false -%}{%- if cv_r.integer -%}{%- assign cv_whole = true -%}{%- endif -%}
+        {%- assign cv_lo = '' -%}{%- assign cv_hi = '' -%}
+        {%- if cv_r.applied_min != blank -%}
+          {%- assign cv_rw = cv_whole -%}{%- if cv_rp and cv_tz -%}{%- assign cv_frac = cv_r.applied_min | modulo: 1 -%}{%- if cv_frac == 0 -%}{%- assign cv_rw = true -%}{%- endif -%}{%- endif -%}
+          {%- if cv_rw -%}{%- assign cv_lo = cv_r.applied_min | round | format_number -%}{%- else -%}{%- assign cv_lo = cv_r.applied_min | format_number -%}{%- endif -%}
+        {%- endif -%}
+        {%- if cv_r.applied_max != blank -%}
+          {%- assign cv_rw = cv_whole -%}{%- if cv_rp and cv_tz -%}{%- assign cv_frac = cv_r.applied_max | modulo: 1 -%}{%- if cv_frac == 0 -%}{%- assign cv_rw = true -%}{%- endif -%}{%- endif -%}
+          {%- if cv_rw -%}{%- assign cv_hi = cv_r.applied_max | round | format_number -%}{%- else -%}{%- assign cv_hi = cv_r.applied_max | format_number -%}{%- endif -%}
+        {%- endif -%}
+        {%- comment -%} The price prints as money from the platform's applied bounds. {%- endcomment -%}
+        {%- if cv_rp -%}
+          {%- if filters.price.applied_min_money -%}{%- assign cv_lo = filters.price.applied_min_money | money: isolate: true, trim_zeros: cv_tz -%}{%- endif -%}
+          {%- if filters.price.applied_max_money -%}{%- assign cv_hi = filters.price.applied_max_money | money: isolate: true, trim_zeros: cv_tz -%}{%- endif -%}
+        {%- endif -%}
+        <a class="cv-fx-chip" role="listitem" href="{{ cv_r.clear_url }}" rel="nofollow"><span class="cv-fx-chip__k">{{ 'filters.chip_name' | t: name: cv_rk }}</span> <bdi>
+          {%- if cv_lo != blank and cv_hi != blank -%}{{ 'filters.range_between' | t: min: cv_lo, max: cv_hi }}
+          {%- elsif cv_lo != blank -%}{{ 'filters.range_from' | t: min: cv_lo }}
+          {%- else -%}{{ 'filters.range_up_to' | t: max: cv_hi }}{%- endif -%}
+        </bdi><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg><span class="cv-sr">{{ 'filters.remove' | t }}</span></a>
+      {%- endif -%}{%- endif -%}
+    {%- endfor -%}
+    <a class="cv-tbtn cv-fx-chips__clear" href="{{ filters.clear_url }}" rel="nofollow">{{ 'filters.clear_all' | t }}</a>
+  </div>
+{%- endif -%}
+{%- comment -%}/partial:facets-chips{%- endcomment -%}
+        {%- if products.items.size > 0 -%}
+          <div data-cv-pager-grid class="cv-grid cv-pl__grid cv-pl__grid--{{ settings.product_layout | default: 'grid' }}" style="--cv-cols: {{ settings.columns }}; --cv-cols-m: {{ settings.columns_mobile }}">
+            {%- for cv_p in products.items -%}
+{%- assign cv_wl = nil -%}
+{%- comment -%}partial:card{%- endcomment -%}
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Product card. Input: cv_p (product_card); cv_wl, assigned right before every card (nil outside the wishlist; sync_partials.py
+  checks it). Reads theme.settings for card options.
+  Wishlist mode (main-wishlist), set before each card and cleared after it: cv_wl is the saved row, cv_wl_url the saved variant's address,
+  cv_wl_opts its options as text, cv_wl_reg its regular price, cv_card_cls extra classes. The heart and quick add become Remove (cv_wl_rm:
+  'icon' in the corner, else a link) and Move to cart (cv_wl_move: the move action, else an add that keeps the row). {%- endcomment -%}
+{%- assign cv_td = cv_p.price.tax_display.current -%}
+{%- assign cv_tr = cv_p.price.tax_display.regular -%}
+{%- assign cv_cur = cv_p.price.current -%}
+{%- assign cv_reg = cv_p.price.regular -%}
+{%- if cv_td and cv_td.status != 'unavailable' and cv_td.status != 'not_applicable' -%}{%- assign cv_cur = cv_td.primary -%}{%- endif -%}
+{%- if cv_tr and cv_tr.status != 'unavailable' and cv_tr.status != 'not_applicable' -%}{%- assign cv_reg = cv_tr.primary -%}{%- endif -%}
+{%- assign cv_sale = cv_p.price.on_sale -%}{%- assign cv_range = cv_p.price_range.has_range -%}
+{%- assign cv_url = cv_p.url -%}
+{%- assign cv_img = cv_p.featured_image | default: cv_p.media -%}
+{%- if cv_wl -%}
+  {%- assign cv_url = cv_wl_url -%}
+  {%- comment -%} A saved variant shows its own price. Its regular price has no tax display of its own, so it is struck through only when the price shown is the price entered. {%- endcomment -%}
+  {%- if cv_wl.variant_id and cv_wl.price -%}
+    {%- assign cv_range = false -%}{%- assign cv_sale = cv_wl.on_sale -%}{%- assign cv_reg = cv_wl_reg -%}
+    {%- assign cv_cur = cv_wl.price -%}{%- assign cv_wl_td = cv_wl.price.tax_display -%}
+    {%- if cv_wl_td and cv_wl_td.status != 'unavailable' and cv_wl_td.status != 'not_applicable' -%}{%- assign cv_cur = cv_wl_td.primary -%}{%- if cv_wl_td.primary.amount != cv_wl_td.entered.amount -%}{%- assign cv_reg = nil -%}{%- endif -%}{%- endif -%}
+  {%- endif -%}
+{%- endif -%}
+{%- comment -%} A card shows a picture: a video or 3D model shows its generated poster, or the placeholder until there is one. {%- endcomment -%}
+{%- assign cv_img_alt = cv_img.alt_text | default: cv_p.title -%}
+{%- assign cv_img_w = cv_img.width -%}{%- assign cv_img_h = cv_img.height -%}
+{%- if cv_img.media_type and cv_img.media_type != 'image' -%}{%- assign cv_img = cv_img.preview_image -%}{%- assign cv_img_w = nil -%}{%- endif -%}
+{%- assign cv_img2 = cv_p.secondary_image -%}
+{%- if cv_img2.media_type and cv_img2.media_type != 'image' -%}{%- assign cv_img2 = cv_img2.preview_image -%}{%- endif -%}
+{%- assign cv_img_src = cv_img.url -%}
+{%- if cv_wl.variant.media.url and cv_wl.variant.media.is_image != false -%}
+  {%- assign cv_img_src = cv_wl.variant.media.url -%}{%- assign cv_img_alt = cv_wl.variant.media.alt_text | default: cv_p.title -%}{%- assign cv_img_w = nil -%}
+  {%- comment -%} The saved variant's photo leads; on hover the product's own photo shows when it differs. {%- endcomment -%}
+  {%- if cv_img2.url == cv_img_src and cv_img.url != cv_img_src -%}{%- assign cv_img2 = cv_img -%}{%- endif -%}
+{%- endif -%}
+{%- comment -%} Quick add's style (theme setting): icon is the round + on the image; button a full-width button under the price; hover_bar a bar
+  that slides up over the bottom of the image on hover or focus (always shown on touch screens). All three post the same forms and open the same
+  options; button and bar also give gift cards their Choose options and show a disabled button with the reason on cards the shopper cannot buy. {%- endcomment -%}
+{%- assign cv_add_style = 'icon' -%}
+{%- if theme.settings.card_quick_add and cv_wl == nil -%}{%- assign cv_add_style = theme.settings.card_add_style | default: 'icon' -%}{%- endif -%}
+{%- assign cv_add_wide = false -%}{%- if cv_add_style == 'button' or cv_add_style == 'hover_bar' -%}{%- assign cv_add_wide = true -%}{%- endif -%}
+<article class="cv-card cv-card--{{ theme.settings.card_style | default: 'soft' }}{% if theme.settings.card_wishlist_display != 'always' and cv_wl == nil %} cv-card--wish-hover{% endif %}{% if cv_add_style == 'button' %} cv-card--add-button{% elsif cv_add_style == 'hover_bar' %} cv-card--add-bar{% endif %} cv-reveal{% if cv_wl and cv_card_cls != blank %} {{ cv_card_cls }}{% endif %}" data-product-id="{{ cv_p.id }}"{% if cv_p.selection_complete and cv_p.selected_variant.id %} data-variant-id="{{ cv_p.selected_variant.id }}"{% endif %}>
+  <div class="cv-card__media cv-media">
+    <a class="cv-card__img"{% if cv_url != blank %} href="{{ cv_url }}"{% endif %} tabindex="-1" aria-hidden="true">
+      {%- if cv_img_src -%}
+        <img src="{{ cv_img_src | image_url: width: 640 }}" srcset="{{ cv_img_src | image_srcset: max: 1080 }}"
+             sizes="(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw" alt="{{ cv_img_alt }}"{% if cv_img_w and cv_img_h %} width="{{ cv_img_w }}" height="{{ cv_img_h }}"{% endif %} {{ cv_img_src | image_loading }}>
+        {%- if theme.settings.card_hover_image != false and cv_img2.url -%}
+          <img class="cv-card__img2" src="{{ cv_img2.url | image_url: width: 640 }}" srcset="{{ cv_img2.url | image_srcset: max: 1080 }}"
+               sizes="(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw" alt="" loading="lazy">
+        {%- endif -%}
+      {%- else -%}
+        <span class="cv-noimg">{{ cv_p.title }}</span>
+      {%- endif -%}
+    </a>
+    {%- comment -%} Stock badges (theme setting): the platform reports in_stock, low_stock or out_of_stock without a count, so low stock reads "Low stock". {%- endcomment -%}
+    {%- assign cv_stock_on = false -%}{%- if theme.settings.card_stock_badge != false -%}{%- assign cv_stock_on = true -%}{%- endif -%}
+    {%- assign cv_sold = false -%}
+    {%- if cv_p.available_for_sale == false -%}{%- assign cv_sold = true -%}{%- endif -%}
+    {%- if cv_stock_on and cv_p.inventory_status == 'out_of_stock' -%}{%- assign cv_sold = true -%}{%- endif -%}
+    {%- assign cv_sold_label = 'products.sold_out' | t -%}
+    {%- comment -%} A card the shopper cannot buy says why in the platform's words (sold out, or in pickup mode not at the pickup store); a wishlist row's own reason wins below. Options a pickup store lacks read "Not at this store". {%- endcomment -%}
+    {%- if cv_p.availability_reason != blank -%}{%- assign cv_sold_label = cv_p.availability_reason_label -%}{%- endif -%}
+    {%- assign cv_unavail = cv_sold_label -%}
+    {%- if shopping.mode == 'pickup' -%}{%- assign cv_unavail = 'pickup.not_at_store' | t -%}{%- endif -%}
+    {%- assign cv_low_status = cv_p.inventory_status -%}
+    {%- if cv_wl -%}
+      {%- comment -%} A saved row the shopper cannot buy (sold out, unpublished) says why when the platform gives a reason. A saved variant's stock is known only when it is the card's selected variant. {%- endcomment -%}
+      {%- if cv_wl.available_for_sale == false -%}{%- assign cv_sold = true -%}{%- assign cv_sold_label = cv_wl.availability_reason_label | default: cv_sold_label -%}{%- endif -%}
+      {%- if cv_wl.variant_id and cv_p.selected_variant.id != cv_wl.variant_id -%}{%- assign cv_low_status = '' -%}{%- endif -%}
+    {%- endif -%}
+    {%- assign cv_low = false -%}
+    {%- if cv_stock_on and cv_sold == false and cv_low_status == 'low_stock' -%}{%- assign cv_low = true -%}{%- endif -%}
+    {%- if cv_sold or cv_low or cv_sale -%}
+      <div class="cv-card__badges">
+        {%- if cv_sold -%}
+          <span class="cv-card__badge cv-badge cv-badge--sold">{{ cv_sold_label }}</span>
+        {%- else -%}
+          {%- if cv_sale -%}<span class="cv-card__badge cv-badge cv-badge--sale">{{ 'products.sale' | t }}</span>{%- endif -%}
+          {%- if cv_low -%}<span class="cv-card__badge cv-badge cv-badge--low">{{ 'products.low_stock' | t }}</span>{%- endif -%}
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    {%- if cv_wl -%}
+      {%- if cv_wl_rm == 'icon' -%}
+        {% form 'wishlist_remove', class: 'cv-card__wishform' %}
+          <input type="hidden" name="product_id" value="{{ cv_wl.product_id }}">
+          {%- if cv_wl.variant_id -%}<input type="hidden" name="variant_id" value="{{ cv_wl.variant_id }}">{%- endif -%}
+          {%- if cv_wl.identity_hash -%}<input type="hidden" name="identity_hash" value="{{ cv_wl.identity_hash }}">{%- endif -%}
+          <button class="cv-card__wish cv-card__rm" type="submit" data-cv-wl-rm aria-label="{{ 'wishlist.remove_item' | t: title: cv_p.title }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        {% endform %}
+      {%- endif -%}
+    {%- elsif customer_settings.wishlist_enabled and theme.settings.card_wishlist != false -%}
+      {%- assign cv_wsaved = cv_p.session_state.wishlist.direct_saved -%}
+      {% form 'wishlist_toggle', class: 'cv-card__wishform' %}
+        <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+        <button class="cv-card__wish" type="submit" data-cv-wish aria-pressed="{% if cv_wsaved %}true{% else %}false{% endif %}" aria-label="{{ 'products.wishlist_add' | t }}: {{ cv_p.title }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+      {% endform %}
+    {%- endif -%}
+    {%- comment -%} Inline option picker (theme setting, off by default): a product with several variants shows its options under the price, and quick add adds the chosen variant. {%- endcomment -%}
+    {%- assign cv_inline = false -%}
+    {%- comment -%} Nested so that a card reads its variant matrix (fetched on demand) only with the picker on. {%- endcomment -%}
+    {%- if theme.settings.card_quick_add and theme.settings.card_inline_picker and cv_wl == nil -%}
+      {%- if cv_p.available_for_sale and cv_p.is_gift_card != true and cv_p.options.size > 0 -%}{%- if cv_p.variant_matrix.size > 1 -%}{%- assign cv_inline = true -%}{%- endif -%}{%- endif -%}
+    {%- endif -%}
+    {%- assign cv_pre = '' -%}{%- if cv_inline and cv_p.selection_complete and cv_p.selected_variant.available_for_sale -%}{%- assign cv_pre = cv_p.selected_variant.id -%}{%- endif -%}
+    {%- if cv_add_style != 'button' -%}
+{%- comment -%}partial:card-add{%- endcomment -%}
+{%- comment -%} The card's quick add (partials/card.html places it on the image, or under the price for the button style). Input: the card's
+  cv_p, cv_wl, cv_inline, cv_pre, cv_add_wide, cv_sold_label, cv_unavail and cv_tz. {%- endcomment -%}
+    {%- if cv_add_wide and cv_p.available_for_sale != true -%}
+      <button class="cv-card__quick cv-card__add cv-btn" type="button" disabled><span class="cv-card__add-label">{{ cv_sold_label }}</span></button>
+    {%- elsif theme.settings.card_quick_add and cv_p.available_for_sale and cv_wl == nil -%}
+    {%- if cv_p.is_gift_card != true or cv_add_wide -%}
+      {%- assign cv_quick = false -%}
+      {%- if cv_p.variant_matrix.size == 1 or cv_p.options.size == 0 -%}{%- assign cv_quick = true -%}{%- endif -%}
+      {%- comment -%} A gift card asks for its recipient on its own page: the button and bar open it as Choose options does. {%- endcomment -%}
+      {%- assign cv_gift = false -%}{%- if cv_p.is_gift_card -%}{%- assign cv_gift = true -%}{%- assign cv_quick = false -%}{%- endif -%}
+      {%- if cv_inline -%}
+        {% form 'cart_add', class: 'cv-card__quick' %}
+          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+          <input type="hidden" name="variant_id" value="{{ cv_pre }}" data-cv-pick-variant>
+          <input type="hidden" name="quantity" value="1">
+          <button class="cv-card__add cv-btn" type="submit" data-cv-pick-submit aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.add_to_cart' | t }}</span>
+          </button>
+        {% endform %}
+      {%- elsif cv_quick -%}
+        {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+        {% form 'cart_add', class: 'cv-card__quick' %}
+          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+          {%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}
+          <input type="hidden" name="quantity" value="1">
+          <button class="cv-card__add cv-btn" type="submit" aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.add_to_cart' | t }}</span>
+          </button>
+        {% endform %}
+      {%- elsif theme.settings.card_choose_opens != 'product_page' -%}
+        {%- comment -%} Quick view (theme setting "Choose options opens"): the header's quick view opens the product's options, media and Add to cart over the page; without scripts the link opens the product page. {%- endcomment -%}
+        <a class="cv-card__quick cv-card__add cv-btn" href="{{ cv_p.url }}" data-cv-qv aria-haspopup="dialog" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </a>
+      {%- elsif cv_p.variant_matrix.size > 1 and theme.settings.card_option_picker and cv_gift == false -%}
+        <button class="cv-card__quick cv-card__add cv-btn" type="button" data-cv-pick-open aria-expanded="false" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </button>
+        <div class="cv-card__pick" hidden data-cv-pick data-matrix="{{ cv_p.variant_matrix | json | escape }}" data-unavailable="{{ cv_unavail }}">
+          {%- for cv_r in cv_p.variant_matrix -%}{%- if cv_r.price -%}<span hidden data-cv-pick-px="{{ cv_r.id }}">{{ cv_r.price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}{%- endfor -%}
+          <button class="cv-card__pick-x" type="button" data-cv-pick-close aria-label="{{ 'general.close' | t }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          {%- for cv_opt in cv_p.options -%}
+            <div class="cv-card__pick-opt" data-cv-pick-attr="{{ cv_opt.attribute_slug }}" role="group" aria-label="{{ cv_opt.attribute_name }}">
+              <p class="cv-card__pick-name">{{ cv_opt.attribute_name }}</p>
+              <div class="cv-card__pick-vals">
+                {%- for cv_v in cv_opt.values -%}<button type="button" class="cv-card__pick-val{% if cv_v.color != blank %} cv-card__pick-val--sw{% endif %}" data-cv-pick-val="{{ cv_v.value }}" aria-pressed="false"{% if cv_v.color != blank %} style="--cv-sw: {{ cv_v.color }}" title="{{ cv_v.label }}"{% endif %}>{% if cv_v.color != blank %}<span class="cv-sr">{{ cv_v.label }}</span>{% else %}{{ cv_v.label }}{% endif %}</button>{%- endfor -%}
+              </div>
+            </div>
+          {%- endfor -%}
+          {% form 'cart_add', class: 'cv-card__pick-form' %}
+            <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+            <input type="hidden" name="variant_id" value="" data-cv-pick-variant>
+            <input type="hidden" name="quantity" value="1">
+            <button class="cv-btn cv-btn--sm cv-card__pick-add" type="submit" disabled data-cv-pick-submit>{{ 'products.add_to_cart' | t }}<span class="cv-card__pick-price" data-cv-pick-price></span></button>
+          {% endform %}
+        </div>
+      {%- else -%}
+        <a class="cv-card__quick cv-card__add cv-btn" href="{{ cv_p.url }}" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </a>
+      {%- endif -%}
+    {%- endif -%}
+    {%- endif -%}
+{%- comment -%}/partial:card-add{%- endcomment -%}
+    {%- endif -%}
+  </div>
+  <div class="cv-card__info">
+    {%- if theme.settings.card_show_vendor and cv_p.vendor != blank -%}<p class="cv-card__vendor">{{ cv_p.vendor }}</p>{%- endif -%}
+    <h3 dir="auto" class="cv-card__title"><a{% if cv_url != blank %} href="{{ cv_url }}"{% endif %}>{{ cv_p.title }}</a></h3>
+    {%- if cv_wl and cv_wl_opts != blank -%}<p dir="auto" class="cv-card__variant">{{ cv_wl_opts }}</p>{%- endif %}
+    <p class="cv-card__price cv-price"{% if cv_inline %} aria-live="polite"{% endif %}>
+      {%- if cv_inline -%}<span data-cv-pick-price hidden></span>{%- endif -%}
+      <span class="cv-card__price-base" data-cv-pick-base>
+      {%- if cv_range -%}
+        <span><span class="cv-muted">{{ 'products.from' | t }}</span> {{ cv_cur | money: isolate: true, trim_zeros: cv_tz }}</span>
+      {%- elsif cv_sale -%}
+        <span class="cv-price__sale">{{ cv_cur | money: isolate: true, trim_zeros: cv_tz }}</span>
+        {% if cv_reg %}<s class="cv-price__was">{{ cv_reg | money: isolate: true, trim_zeros: cv_tz }}</s>{% endif %}
+      {%- else -%}
+        <span>{{ cv_cur | money: isolate: true, trim_zeros: cv_tz }}</span>
+      {%- endif -%}
+      </span>
+    </p>
+    {%- comment -%} Stock line (theme setting) on cards the shopper can buy: "In stock" or "Low stock"; with Stock count, how many are left when the
+      platform gives a number (products without options), else the same words. {%- endcomment -%}
+    {%- assign cv_sl = theme.settings.card_stock_line | default: 'off' -%}
+    {%- if cv_sl != 'off' and cv_sold == false and cv_p.available_for_sale and cv_p.is_gift_card != true -%}
+      {%- assign cv_sl_low = false -%}{%- if cv_low_status == 'low_stock' -%}{%- assign cv_sl_low = true -%}{%- endif -%}
+      {%- assign cv_sl_n = nil -%}
+      {%- if cv_sl == 'count' and cv_p.quantity_available != nil and cv_low_status != '' -%}{%- assign cv_sl_n = cv_p.quantity_available | default: 0 -%}{%- if cv_sl_n < 1 -%}{%- assign cv_sl_n = nil -%}{%- endif -%}{%- endif -%}
+      <p class="cv-card__stock{% if cv_sl_low %} is-low{% endif %}">
+        {%- if cv_sl_n and cv_sl_low -%}{{ 'products.only_left' | t: count: cv_sl_n }}
+        {%- elsif cv_sl_n -%}{{ 'products.count_in_stock' | t: count: cv_sl_n }}
+        {%- elsif cv_sl_low -%}{{ 'products.low_stock' | t }}
+        {%- else -%}{{ 'products.in_stock' | t }}{%- endif -%}
+      </p>
+    {%- endif -%}
+    {%- if cv_inline -%}
+      {%- comment -%} The shopper's choice fills the quick-add form above; values with no variant left to sell are marked. {%- endcomment -%}
+      <div class="cv-card__opts" data-cv-pick data-cv-pick-inline data-matrix="{{ cv_p.variant_matrix | json | escape }}" data-unavailable="{{ cv_unavail }}">
+        {%- for cv_r in cv_p.variant_matrix -%}{%- if cv_r.price -%}<span hidden data-cv-pick-px="{{ cv_r.id }}">{{ cv_r.price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}{%- endfor -%}
+        {%- for cv_opt in cv_p.options -%}
+          <div class="cv-card__opt" data-cv-pick-attr="{{ cv_opt.attribute_slug }}" role="group" aria-label="{{ cv_opt.attribute_name }}: {{ cv_p.title }}">
+            {%- for cv_v in cv_opt.values -%}
+              {%- assign cv_on = false -%}
+              {%- if cv_opt.values.size == 1 -%}{%- assign cv_on = true -%}{%- endif -%}
+              {%- if cv_pre != '' -%}{%- for cv_so in cv_p.selected_variant.selected_options -%}{%- if cv_so.attribute_slug == cv_opt.attribute_slug and cv_so.option_value == cv_v.value -%}{%- assign cv_on = true -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+              <button type="button" class="cv-card__pick-val cv-card__opt-val{% if cv_v.color != blank %} cv-card__pick-val--sw{% endif %}" data-cv-pick-val="{{ cv_v.value }}" aria-pressed="{% if cv_on %}true{% else %}false{% endif %}"{% if cv_v.color != blank %} style="--cv-sw: {{ cv_v.color }}" title="{{ cv_v.label }}"{% endif %}>{% if cv_v.color != blank %}<span class="cv-sr">{{ cv_v.label }}</span>{% else %}{{ cv_v.label }}{% endif %}</button>
+            {%- endfor -%}
+          </div>
+        {%- endfor -%}
+        <p class="cv-card__opts-hint" data-cv-pick-hint hidden>{{ 'products.choose_options' | t }}</p>
+      </div>
+    {%- endif -%}
+    <div class="cv-card__extra">
+      {%- if theme.settings.card_show_swatches and cv_inline == false -%}
+        {%- for cv_opt in cv_p.options -%}
+          {%- assign cv_has_color = 0 -%}{%- for cv_v in cv_opt.values -%}{%- if cv_v.color != blank -%}{%- assign cv_has_color = cv_has_color | plus: 1 -%}{%- endif -%}{%- endfor -%}
+          {%- if cv_opt.sub_type == 'swatch' or cv_has_color > 0 -%}
+            <ul class="cv-card__swatches" role="list" aria-label="{{ cv_opt.attribute_name }}">
+              {%- for cv_v in cv_opt.values limit: 5 -%}
+                <li class="cv-swatch" title="{{ cv_v.label }}" style="--cv-sw: {{ cv_v.color | default: 'transparent' }}"><span class="cv-sr">{{ cv_v.label }}</span></li>
+              {%- endfor -%}
+              {%- if cv_opt.values.size > 5 -%}<li class="cv-card__more cv-muted">+{{ cv_opt.values.size | minus: 5 }}</li>{%- endif -%}
+            </ul>
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {%- assign cv_rc = cv_p.rating.count | default: 0 -%}
+      {%- if theme.settings.card_show_rating and cv_rc > 0 -%}
+        <p class="cv-card__rating" aria-label="{{ 'products.rating' | t: rating: cv_p.rating.average, count: cv_p.rating.count }}">
+          <svg viewBox="0 0 16 14" aria-hidden="true"><path d="M8 0l2.3 4.7 5.2.8-3.7 3.6.9 5.1L8 11.8l-4.7 2.4.9-5.1L.5 5.5l5.2-.8z"/></svg>{{ cv_p.rating.average }} <span class="cv-muted">({{ cv_p.rating.count }})</span>
+        </p>
+      {%- endif -%}
+    </div>
+    {%- if cv_add_style == 'button' -%}
+    <div class="cv-card__buy">
+{%- comment -%}partial:card-add{%- endcomment -%}
+{%- comment -%} The card's quick add (partials/card.html places it on the image, or under the price for the button style). Input: the card's
+  cv_p, cv_wl, cv_inline, cv_pre, cv_add_wide, cv_sold_label, cv_unavail and cv_tz. {%- endcomment -%}
+    {%- if cv_add_wide and cv_p.available_for_sale != true -%}
+      <button class="cv-card__quick cv-card__add cv-btn" type="button" disabled><span class="cv-card__add-label">{{ cv_sold_label }}</span></button>
+    {%- elsif theme.settings.card_quick_add and cv_p.available_for_sale and cv_wl == nil -%}
+    {%- if cv_p.is_gift_card != true or cv_add_wide -%}
+      {%- assign cv_quick = false -%}
+      {%- if cv_p.variant_matrix.size == 1 or cv_p.options.size == 0 -%}{%- assign cv_quick = true -%}{%- endif -%}
+      {%- comment -%} A gift card asks for its recipient on its own page: the button and bar open it as Choose options does. {%- endcomment -%}
+      {%- assign cv_gift = false -%}{%- if cv_p.is_gift_card -%}{%- assign cv_gift = true -%}{%- assign cv_quick = false -%}{%- endif -%}
+      {%- if cv_inline -%}
+        {% form 'cart_add', class: 'cv-card__quick' %}
+          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+          <input type="hidden" name="variant_id" value="{{ cv_pre }}" data-cv-pick-variant>
+          <input type="hidden" name="quantity" value="1">
+          <button class="cv-card__add cv-btn" type="submit" data-cv-pick-submit aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.add_to_cart' | t }}</span>
+          </button>
+        {% endform %}
+      {%- elsif cv_quick -%}
+        {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+        {% form 'cart_add', class: 'cv-card__quick' %}
+          <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+          {%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}
+          <input type="hidden" name="quantity" value="1">
+          <button class="cv-card__add cv-btn" type="submit" aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.add_to_cart' | t }}</span>
+          </button>
+        {% endform %}
+      {%- elsif theme.settings.card_choose_opens != 'product_page' -%}
+        {%- comment -%} Quick view (theme setting "Choose options opens"): the header's quick view opens the product's options, media and Add to cart over the page; without scripts the link opens the product page. {%- endcomment -%}
+        <a class="cv-card__quick cv-card__add cv-btn" href="{{ cv_p.url }}" data-cv-qv aria-haspopup="dialog" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </a>
+      {%- elsif cv_p.variant_matrix.size > 1 and theme.settings.card_option_picker and cv_gift == false -%}
+        <button class="cv-card__quick cv-card__add cv-btn" type="button" data-cv-pick-open aria-expanded="false" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </button>
+        <div class="cv-card__pick" hidden data-cv-pick data-matrix="{{ cv_p.variant_matrix | json | escape }}" data-unavailable="{{ cv_unavail }}">
+          {%- for cv_r in cv_p.variant_matrix -%}{%- if cv_r.price -%}<span hidden data-cv-pick-px="{{ cv_r.id }}">{{ cv_r.price | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}{%- endfor -%}
+          <button class="cv-card__pick-x" type="button" data-cv-pick-close aria-label="{{ 'general.close' | t }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          {%- for cv_opt in cv_p.options -%}
+            <div class="cv-card__pick-opt" data-cv-pick-attr="{{ cv_opt.attribute_slug }}" role="group" aria-label="{{ cv_opt.attribute_name }}">
+              <p class="cv-card__pick-name">{{ cv_opt.attribute_name }}</p>
+              <div class="cv-card__pick-vals">
+                {%- for cv_v in cv_opt.values -%}<button type="button" class="cv-card__pick-val{% if cv_v.color != blank %} cv-card__pick-val--sw{% endif %}" data-cv-pick-val="{{ cv_v.value }}" aria-pressed="false"{% if cv_v.color != blank %} style="--cv-sw: {{ cv_v.color }}" title="{{ cv_v.label }}"{% endif %}>{% if cv_v.color != blank %}<span class="cv-sr">{{ cv_v.label }}</span>{% else %}{{ cv_v.label }}{% endif %}</button>{%- endfor -%}
+              </div>
+            </div>
+          {%- endfor -%}
+          {% form 'cart_add', class: 'cv-card__pick-form' %}
+            <input type="hidden" name="product_id" value="{{ cv_p.id }}">
+            <input type="hidden" name="variant_id" value="" data-cv-pick-variant>
+            <input type="hidden" name="quantity" value="1">
+            <button class="cv-btn cv-btn--sm cv-card__pick-add" type="submit" disabled data-cv-pick-submit>{{ 'products.add_to_cart' | t }}<span class="cv-card__pick-price" data-cv-pick-price></span></button>
+          {% endform %}
+        </div>
+      {%- else -%}
+        <a class="cv-card__quick cv-card__add cv-btn" href="{{ cv_p.url }}" aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="cv-card__add-label">{{ 'products.choose_options' | t }}</span>
+        </a>
+      {%- endif -%}
+    {%- endif -%}
+    {%- endif -%}
+{%- comment -%}/partial:card-add{%- endcomment -%}
+    </div>
+    {%- endif -%}
+    {%- if cv_wl -%}
+      {%- comment -%} Wishlist actions. Move to cart adds the saved variant (or the product's only one) directly; a product with options left to
+        choose opens them as the theme's Choose options does (quick view or the product page). A row the shopper cannot buy has none. {%- endcomment -%}
+      <div class="cv-card__wl">
+        {%- if cv_wl.available_for_sale and cv_url != blank -%}
+          {%- comment -%} Without a saved variant, a product with nothing to choose is added as the shop grid's quick add adds it. {%- endcomment -%}
+          {%- assign cv_wl_vid = cv_wl.variant_id -%}{%- assign cv_wl_direct = true -%}
+          {%- unless cv_wl_vid -%}
+            {%- assign cv_wl_direct = false -%}
+            {%- if cv_p.options.size == 0 or cv_p.variant_matrix.size == 1 -%}{%- assign cv_wl_direct = true -%}{%- assign cv_wl_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}{%- endif -%}
+          {%- endunless -%}
+          {%- assign cv_wl_label = 'products.add_to_cart' | t -%}{%- if cv_wl_move -%}{%- assign cv_wl_label = 'wishlist.move_to_cart' | t -%}{%- endif -%}
+          {%- if cv_wl_direct -%}
+            {%- if cv_wl_move -%}
+              {% form 'wishlist_move_to_cart', class: 'cv-card__wl-form' %}
+                <input type="hidden" name="product_id" value="{{ cv_wl.product_id }}">
+                {%- if cv_wl_vid -%}<input type="hidden" name="variant_id" value="{{ cv_wl_vid }}">{%- endif -%}
+                {%- if cv_wl.variant_id -%}<input type="hidden" name="wishlist_variant_id" value="{{ cv_wl.variant_id }}">{%- endif -%}
+                {%- if cv_wl.identity_hash -%}<input type="hidden" name="wishlist_identity_hash" value="{{ cv_wl.identity_hash }}">{%- endif -%}
+                <button class="cv-btn cv-btn--sm cv-btn--block" type="submit" aria-label="{{ cv_wl_label }}: {{ cv_p.title }}">{{ cv_wl_label }}</button>
+              {% endform %}
+            {%- else -%}
+              {% form 'cart_add', class: 'cv-card__wl-form' %}
+                <input type="hidden" name="product_id" value="{{ cv_wl.product_id }}">
+                {%- if cv_wl_vid -%}<input type="hidden" name="variant_id" value="{{ cv_wl_vid }}">{%- endif -%}
+                <input type="hidden" name="quantity" value="1">
+                <button class="cv-btn cv-btn--sm cv-btn--block" type="submit" aria-label="{{ cv_wl_label }}: {{ cv_p.title }}">{{ cv_wl_label }}</button>
+              {% endform %}
+            {%- endif -%}
+          {%- elsif theme.settings.card_choose_opens != 'product_page' -%}
+            <a class="cv-btn cv-btn--sm cv-btn--block" href="{{ cv_url }}" data-cv-qv data-cv-wl-choose aria-haspopup="dialog" aria-label="{{ cv_wl_label }}: {{ cv_p.title }}">{{ cv_wl_label }}</a>
+          {%- else -%}
+            <a class="cv-btn cv-btn--sm cv-btn--block" href="{{ cv_url }}" aria-label="{{ cv_wl_label }}: {{ cv_p.title }}">{{ cv_wl_label }}</a>
+          {%- endif -%}
+        {%- endif -%}
+        {%- if cv_wl.available_for_sale == false and cv_wl.notify_me_eligible and cv_wl_notify and cv_wl_url != blank -%}
+          {%- comment -%} A sold-out saved row asks to hear when it is back on its product page, with the saved variant selected. {%- endcomment -%}
+          <a class="cv-tbtn cv-card__wl-notify" href="{{ cv_wl_url }}">{{ 'products.notify_title_short' | t }}</a>
+        {%- endif -%}
+        {%- if cv_wl_rm != 'icon' -%}
+          {% form 'wishlist_remove', class: 'cv-card__wl-form' %}
+            <input type="hidden" name="product_id" value="{{ cv_wl.product_id }}">
+            {%- if cv_wl.variant_id -%}<input type="hidden" name="variant_id" value="{{ cv_wl.variant_id }}">{%- endif -%}
+            {%- if cv_wl.identity_hash -%}<input type="hidden" name="identity_hash" value="{{ cv_wl.identity_hash }}">{%- endif -%}
+            <button class="cv-tbtn cv-card__wl-rm" type="submit" data-cv-wl-rm aria-label="{{ 'wishlist.remove_item' | t: title: cv_p.title }}">{{ 'wishlist.remove' | t }}</button>
+          {% endform %}
+        {%- endif -%}
+      </div>
+    {%- endif %}
+  </div>
+</article>
+{%- comment -%} Wishlist mode belongs to one card: clear its inputs. {%- endcomment -%}
+{%- assign cv_wl = nil -%}{%- assign cv_wl_url = nil -%}{%- assign cv_wl_opts = nil -%}{%- assign cv_wl_reg = nil -%}{%- assign cv_wl_rm = nil -%}{%- assign cv_wl_move = nil -%}{%- assign cv_wl_notify = nil -%}{%- assign cv_card_cls = nil -%}
+{%- comment -%}/partial:card{%- endcomment -%}
+            {%- endfor -%}
+          </div>
+          {%- assign cv_paging = settings.paging -%}{%- assign cv_pg = products.pagination -%}
+{%- comment -%}partial:pager{%- endcomment -%}
+{%- comment -%} Pages of a listing: numbered (Previous, Page X of Y, Next), a Load more button, or infinite scroll (the same button,
+pressed when it nears the screen). Load more and infinite scroll fetch the next page's section and append its items to the grid
+marked data-cv-pager-grid; without script the button is a plain link to the next page. Reads cv_pg (the pagination) and
+cv_paging (numbered, load_more or infinite). {%- endcomment -%}
+{%- if cv_pg.total_pages > 1 or cv_pg.has_next -%}
+  <nav class="cv-pager" aria-label="{{ 'general.pagination' | t }}" data-cv-pager="{{ cv_paging | default: 'numbered' }}">
+    {%- if cv_paging == 'load_more' or cv_paging == 'infinite' -%}
+      {%- if cv_pg.has_prev -%}<a class="cv-tbtn" href="{{ cv_pg.prev_url }}" rel="prev">{{ 'general.previous' | t }}</a>{%- endif -%}
+      {%- if cv_pg.has_next -%}<a class="cv-btn cv-btn--outline cv-pager__more" href="{{ cv_pg.next_url }}" rel="next" data-cv-more data-loading="{{ 'general.loading' | t }}">{{ 'general.load_more' | t }}</a>{%- endif -%}
+    {%- else -%}
+      {%- if cv_pg.has_prev -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ cv_pg.prev_url }}" rel="prev">{{ 'general.previous' | t }}</a>{%- endif -%}
+      <span class="cv-muted">{{ 'general.page_of' | t: page: cv_pg.current_page, pages: cv_pg.total_pages }}</span>
+      {%- if cv_pg.has_next -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ cv_pg.next_url }}" rel="next">{{ 'general.next' | t }}</a>{%- endif -%}
+    {%- endif -%}
+  </nav>
+  {%- if cv_paging == 'load_more' or cv_paging == 'infinite' -%}
+<script>
+(function () {
+  if (window.__cvPager) { window.__cvPager(); return; }
+  function more(a) {
+    if (a.__cvBusy) return;
+    var nav = a.closest("[data-cv-pager]"), sec = a.closest("[data-tf-soft-nav]");
+    var grid = sec && sec.querySelector("[data-cv-pager-grid]");
+    if (!nav || !grid) { location.href = a.href; return; }
+    a.__cvBusy = true; a.setAttribute("aria-busy", "true"); a.textContent = a.getAttribute("data-loading");
+    var type = sec.getAttribute("data-tf-soft-nav"), url = new URL(a.href, location.href);
+    url.searchParams.set("_sections", type);
+    fetch(url, { credentials: "same-origin", headers: { Accept: "application/json" } })
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function (j) {
+        var html = j && j.sections && j.sections[type];
+        if (!html) throw new Error("no section");
+        var doc = new DOMParser().parseFromString(html, "text/html");
+        var next = doc.querySelector("[data-cv-pager-grid]"), nextNav = doc.querySelector("[data-cv-pager]");
+        if (!next) throw new Error("no grid");
+        var first = null;
+        Array.prototype.slice.call(next.children).forEach(function (el) { var n = document.importNode(el, true); first = first || n; grid.appendChild(n); });
+        // Pages already on screen need no Previous link.
+        if (nextNav) { nextNav = document.importNode(nextNav, true); nextNav.querySelectorAll('a[rel="prev"]').forEach(function (p) { p.remove(); }); nav.replaceWith(nextNav); } else nav.remove();
+        // Keyboard and screen-reader users land on the first new item, not back at the top.
+        var focus = first && first.querySelector("a[href]");
+        if (focus && a === document.activeElement) focus.focus({ preventScroll: true });
+        watch();
+      })
+      .catch(function () { location.href = a.href; });
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("[data-cv-more]");
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    e.preventDefault(); more(a);
+  });
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { if (en.isIntersecting) { io.unobserve(en.target); more(en.target); } });
+  }, { rootMargin: "600px 0px" }) : null;
+  function watch() {
+    if (!io) return;
+    document.querySelectorAll('[data-cv-pager="infinite"] [data-cv-more]').forEach(function (a) { if (!a.__cvSeen) { a.__cvSeen = true; io.observe(a); } });
+  }
+  window.__cvPager = watch;
+  watch();
+})();
+</script>
+  {%- endif -%}
+{%- endif -%}
+{%- comment -%}/partial:pager{%- endcomment -%}
+        {%- else -%}
+          <div class="cv-pl__empty">
+            <p class="cv-h3">{{ 'filters.no_results' | t }}</p>
+            {%- if cv_fa > 0 -%}<a class="cv-btn cv-btn--outline" href="{{ filters.clear_url }}">{{ 'filters.clear_all' | t }}</a>
+            {%- else -%}<a class="cv-btn cv-btn--outline" href="{{ routes.shop_url }}">{{ 'general.continue_shopping' | t }}</a>{%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "main-collection",
+  "icon": "layout-grid",
+  "ctx_needs": [
+    "products",
+    "filters",
+    "collection",
+    "category",
+    "vendor",
+    "brand",
+    "breadcrumbs",
+    "routes",
+    "csrf_token",
+    "customer_settings",
+    "design_mode",
+    "shopping"
+  ],
+  "settings": [
+    {
+      "id": "filter_layout",
+      "type": "select",
+      "default": "sidebar",
+      "options": [
+        {
+          "value": "sidebar",
+          "label": "opt_sidebar"
+        },
+        {
+          "value": "horizontal",
+          "label": "opt_filter_bar"
+        },
+        {
+          "value": "drawer",
+          "label": "opt_drawer"
+        }
+      ],
+      "editor": {
+        "label": "filter_layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "product_layout",
+      "type": "select",
+      "default": "grid",
+      "options": [
+        {
+          "value": "grid",
+          "label": "opt_grid"
+        },
+        {
+          "value": "editorial",
+          "label": "opt_editorial_grid"
+        },
+        {
+          "value": "list",
+          "label": "opt_list"
+        }
+      ],
+      "editor": {
+        "label": "product_layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4,
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "columns_mobile",
+      "type": "select",
+      "default": "2",
+      "options": [
+        {
+          "value": "1",
+          "label": "opt_one_column"
+        },
+        {
+          "value": "2",
+          "label": "opt_two_columns"
+        }
+      ],
+      "editor": {
+        "label": "columns_mobile",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "page_size",
+      "type": "range",
+      "min": 8,
+      "max": 60,
+      "step": 4,
+      "default": 24,
+      "editor": {
+        "label": "page_size",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "paging",
+      "type": "select",
+      "default": "numbered",
+      "options": [
+        {
+          "value": "numbered",
+          "label": "opt_numbered"
+        },
+        {
+          "value": "load_more",
+          "label": "opt_load_more"
+        },
+        {
+          "value": "infinite",
+          "label": "opt_infinite_scroll"
+        }
+      ],
+      "editor": {
+        "label": "paging",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 10,
+    "default": [
+      "breadcrumbs",
+      "banner",
+      "toolbar"
+    ],
+    "types": [
+      {
+        "type": "breadcrumbs",
+        "editor": {
+          "label": "breadcrumbs"
+        },
+        "settings": [
+          {
+            "id": "show",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "banner",
+        "editor": {
+          "label": "collection_banner"
+        },
+        "settings": [
+          {
+            "id": "title",
+            "type": "text",
+            "default": "@t:sections.main_collection.title",
+            "editor": {
+              "label": "title_fallback",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_description",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_description",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_image",
+            "type": "checkbox",
+            "default": false,
+            "editor": {
+              "label": "show_banner_image",
+              "group": "content"
+            }
+          }
+        ]
+      },
+      {
+        "type": "toolbar",
+        "editor": {
+          "label": "collection_toolbar"
+        },
+        "settings": [
+          {
+            "id": "show_count",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_product_count",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_search",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_listing_search",
+              "group": "content"
+            }
+          },
+          {
+            "id": "show_sort",
+            "type": "checkbox",
+            "default": true,
+            "editor": {
+              "label": "show_sort",
+              "group": "content"
+            }
+          }
+        ]
+      }
+    ],
+    "accept_app_blocks": true
+  }
+}
+{% endschema %}

@@ -1,0 +1,1879 @@
+{%- comment -%}partial:header-vars{%- endcomment -%}
+<style>
+  :root {
+    --cv-width: {{ theme.settings.page_width }};
+    --cv-radius: {{ theme.settings.corner_radius }};
+    --cv-btn-radius: {{ theme.settings.button_radius }};
+    {% case theme.settings.button_radius %}{% when '0px' %}--cv-field-radius: 0px;{% when '10px' %}--cv-field-radius: 10px;{% else %}--cv-field-radius: 14px;{% endcase %}
+    --cv-card-ratio: {{ theme.settings.card_image_ratio }};
+    --cv-card-fit: {{ theme.settings.card_image_fit }};
+    --cv-heading-case: {{ theme.settings.heading_case }};
+    {% case theme.settings.heading_scale %}{% when '90' %}--cv-heading-scale: 0.9;{% when '115' %}--cv-heading-scale: 1.15;{% else %}--cv-heading-scale: 1;{% endcase %}
+    {% case theme.settings.section_spacing %}{% when 'compact' %}--cv-gap-y: clamp(36px, 5vw, 64px);{% when 'relaxed' %}--cv-gap-y: clamp(72px, 10vw, 144px);{% else %}--cv-gap-y: clamp(56px, 8vw, 112px);{% endcase %}
+  }
+</style>
+{%- comment -%}/partial:header-vars{%- endcomment -%}
+{%- comment -%} Blocks: the logo and the menu keep their places in the bar (set by Logo position); search, account, wishlist, cart, country/language and links line up on the right in block order. {%- endcomment -%}
+{%- comment -%} cv_refresh: this section's name, the key the platform uses to refresh the cart and wishlist counts after an action. {%- endcomment -%}
+{%- assign cv_refresh = 'header' -%}{%- assign cv_search_inline = false -%}{%- assign cv_logo_b = nil -%}{%- assign cv_menu_b = nil -%}{%- assign cv_search_on = false -%}{%- assign cv_account_on = false -%}{%- assign cv_wish_on = false -%}{%- assign cv_wish_phone = false -%}{%- assign cv_loc_b = nil -%}
+{%- for b in settings.blocks -%}
+  {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+  {%- case b.type -%}
+    {%- when 'logo' -%}{%- if cv_logo_b == nil -%}{%- assign cv_logo_b = b -%}{%- endif -%}
+    {%- when 'menu' -%}{%- if cv_menu_b == nil -%}{%- assign cv_menu_b = b -%}{%- endif -%}
+    {%- when 'search' -%}{%- if b.settings.show_search != false -%}{%- assign cv_search_on = true -%}{%- endif -%}
+    {%- when 'account' -%}{%- if b.settings.show_account != false -%}{%- assign cv_account_on = true -%}{%- endif -%}
+    {%- when 'wishlist' -%}{%- if b.settings.show_wishlist != false -%}{%- assign cv_wish_on = true -%}{%- if b.settings.show_on_phones != false and customer_settings.wishlist_enabled -%}{%- assign cv_wish_phone = true -%}{%- endif -%}{%- endif -%}
+    {%- when 'localization' -%}{%- if cv_loc_b == nil -%}{%- assign cv_loc_b = b -%}{%- endif -%}
+  {%- endcase -%}
+{%- endfor -%}
+{%- assign cv_menu = cv_menu_b.settings.menu_resolved -%}
+<header class="cv cv-hd tf-scheme-{{ settings.color_scheme }}{% if settings.show_border %} cv-hd--border{% endif %} cv-hd--logo-{{ settings.logo_position }}"
+        data-cv-header data-cv-type="header" data-added-label="{{ 'products.added' | t }}" data-notice-ms="{{ theme.settings.notice_seconds | times: 1000 }}" data-notice-class="cv-toast--{{ theme.settings.notice_position }}{% if theme.settings.notice_scheme != blank %} tf-scheme-{{ theme.settings.notice_scheme }}{% endif %}" data-cancel-label="{{ 'general.cancel' | t }}"{% if customer_settings.wishlist_enabled %}{% assign cv_wmax = customer_settings.wishlist_max_items | default: 0 %} data-cv-wish-count="{{ wishlist.item_count | default: 0 }}" data-cv-wish-max="{{ cv_wmax }}"{% if cv_wmax > 0 %} data-cv-wish-full="{{ 'products.wishlist_full' | t: count: cv_wmax }}"{% endif %}{% endif %} data-sticky="{{ settings.sticky }}">
+{%- comment -%}partial:header-skip{%- endcomment -%}
+<a class="cv cv-skip tf-scheme-{{ settings.color_scheme }}" href="#MainContent" data-cv-skip>{{ 'general.skip_to_content' | t }}</a>
+{%- comment -%}/partial:header-skip{%- endcomment -%}
+  <div class="cv-wrap cv-hd__bar">
+    {%- if cv_menu.items.size > 0 -%}
+    <button class="cv-hd__icon cv-hd__burger" type="button" data-cv-open="cv-mnav" aria-controls="cv-mnav" aria-expanded="false">
+      <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      <span class="cv-sr">{{ 'header.menu' | t }}</span>
+    </button>
+    {%- endif -%}
+
+    {%- if cv_logo_b -%}
+    {%- assign cv_logo_w = cv_logo_b.settings.logo_width -%}
+    {{ cv_logo_b._editor_block_open }}
+    <a dir="auto" class="cv-hd__logo" href="{{ routes.root_url }}" data-tf-field="logo">
+      {% if cv_logo_b.settings.logo %}
+        <img src="{{ cv_logo_b.settings.logo | image_url: width: 480 }}" srcset="{{ cv_logo_b.settings.logo | image_srcset: max: 640 }}" sizes="{{ cv_logo_w }}px"
+             alt="{{ shop.name }}" style="width: auto; height: auto; max-width: {{ cv_logo_w }}px; max-height: {{ cv_logo_b.settings.logo_max_height | default: 200 }}px" fetchpriority="high">
+      {% else %}
+        <span class="cv-hd__name{% if shop.name.size > 16 %} cv-hd__name--long{% endif %}">{{ shop.name }}</span>
+      {% endif %}
+    </a>
+    {{ cv_logo_b._editor_block_close }}
+    {%- endif -%}
+
+    {% if cv_menu_b %}
+    {{ cv_menu_b._editor_block_open }}
+    <nav dir="auto" class="cv-hd__nav" aria-label="{{ 'header.main_navigation' | t }}" data-tf-field="menu">
+      {%- if cv_menu.items.size > 0 -%}
+      <ul class="cv-hd__menu" role="list">
+        {% for item in cv_menu.items %}
+{%- comment -%}partial:header-item{%- endcomment -%}
+          <li class="cv-hd__item">
+            {% if item.children.size > 0 %}
+              <details class="cv-hd__dd" data-cv-dd>
+                <summary class="cv-hd__link">{{ item.title }}<svg class="cv-icon cv-hd__caret" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+                <div class="cv-hd__panel tf-scheme-{{ settings.color_scheme }}">
+                  <ul class="cv-hd__sub" role="list">
+                    {% if item.url != blank %}<li><a class="cv-hd__sublink cv-hd__sublink--all" href="{{ item.url }}"{% if item.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ item.title }}</a></li>{% endif %}
+                    {% for child in item.children %}
+                      <li>
+                        {% if child.url != blank %}<a class="cv-hd__sublink" href="{{ child.url }}"{% if child.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ child.title }}</a>{% else %}<span class="cv-hd__sublink">{{ child.title }}</span>{% endif %}
+                        {% if child.children.size > 0 %}
+                          <ul class="cv-hd__sub3" role="list">
+                            {% for grand in child.children %}
+                              <li>{% if grand.url != blank %}<a href="{{ grand.url }}"{% if grand.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ grand.title }}</a>{% else %}<span>{{ grand.title }}</span>{% endif %}</li>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </details>
+            {% else %}
+              {% if item.url != blank %}<a class="cv-hd__link" href="{{ item.url }}"{% if item.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ item.title }}</a>{% else %}<span class="cv-hd__link">{{ item.title }}</span>{% endif %}
+            {% endif %}
+          </li>
+{%- comment -%}/partial:header-item{%- endcomment -%}
+        {% endfor %}
+      </ul>
+      {%- endif -%}
+    </nav>
+    {{ cv_menu_b._editor_block_close }}
+    {% endif %}
+
+    <div class="cv-hd__actions">
+{%- comment -%}partial:header-actions{%- endcomment -%}
+      {%- comment -%} Delivery or pickup (Theme settings › Pickup), ahead of the blocks; it opens the sheet in partials/pickup-sheet. Nothing renders while the store offers no pickup. {%- endcomment -%}
+      {%- if shopping.pickup_available -%}
+        {%- if theme.settings.pickup_chip != false -%}
+        <button class="cv-pk-chip cv-pk-chip--{{ theme.settings.pickup_chip_style | default: 'text' }}{% if cv_menu.items.size > 0 %} cv-pk-chip--has-mnav{% endif %}" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-pickup" data-cv-pk-open>
+          <span class="cv-sr">{{ 'pickup.title' | t }}:</span>
+          {%- if shopping.pickup_location -%}
+          <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20"/></svg><span class="cv-pk-chip__text">{{ 'pickup.pickup' | t }} · <span dir="auto">{{ shopping.pickup_location.name }}</span></span>
+          {%- else -%}
+          <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 6.5h11v10h-11zM13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6.5" cy="17.5" r="1.75"/><circle cx="16.5" cy="17.5" r="1.75"/></svg><span class="cv-pk-chip__text">{{ 'pickup.delivery' | t }}</span>
+          {%- endif -%}
+          <svg class="cv-icon cv-pk-chip__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        {%- endif -%}
+      {%- elsif design_mode and theme.settings.pickup_chip != false -%}
+        <p class="cv-editor-hint cv-pk-hint" title="{{ 'pickup.editor_off' | t }}">{{ 'pickup.editor_off_short' | t }}</p>
+      {%- endif -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+        {%- case b.type -%}
+          {%- when 'search' -%}
+            {%- comment -%} header-mega shows search as a field of its own (cv_search_inline), not as an icon. {%- endcomment -%}
+            {%- if b.settings.show_search != false and cv_search_inline != true -%}
+            {{ b._editor_block_open }}
+            <button class="cv-hd__icon" type="button" data-cv-open="cv-search" aria-controls="cv-search" aria-expanded="false">
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <span class="cv-sr">{{ 'header.search' | t }}</span>
+            </button>
+            {{ b._editor_block_close }}
+            {%- endif -%}
+          {%- when 'account' -%}
+            {%- if b.settings.show_account != false -%}
+            {{ b._editor_block_open }}
+            {%- comment -%} Narrow phones with the wishlist heart in the bar keep the account in the menu sheet only (its foot lists it), so the logo stays centred. {%- endcomment -%}
+            <a class="cv-hd__icon{% if cv_wish_phone and cv_menu.items.size > 0 %} cv-hd__icon--in-menu{% endif %}" href="{% if customer.logged_in %}{{ routes.account_url }}{% else %}{{ routes.login_url }}{% endif %}">
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+              <span class="cv-sr">{% if customer.logged_in %}{{ 'header.account' | t }}{% else %}{{ 'header.sign_in' | t }}{% endif %}</span>
+            </a>
+            {{ b._editor_block_close }}
+            {%- endif -%}
+          {%- when 'wishlist' -%}
+            {%- if customer_settings.wishlist_enabled and b.settings.show_wishlist != false -%}
+            {{ b._editor_block_open }}
+            {%- comment -%} "Show on phones" keeps the heart and its count in the phone bar too (the menu sheet lists the wishlist either way). {%- endcomment -%}
+            <a class="cv-hd__icon{% if b.settings.show_on_phones == false %} cv-hd__icon--desk{% else %} cv-hd__icon--phone{% endif %} cv-hd__wish" href="{{ routes.wishlist_url }}">
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+              <span class="cv-sr">{{ 'header.wishlist' | t }}</span>
+              <span data-tf-refresh="{{ cv_refresh }}">{% if wishlist.item_count > 0 %}<span class="cv-hd__count" aria-hidden="true">{% if wishlist.item_count > 99 %}99+{% else %}{{ wishlist.item_count }}{% endif %}</span>{% endif %}</span>
+            </a>
+            {{ b._editor_block_close }}
+            {%- endif -%}
+          {%- when 'cart' -%}
+            {%- if b.settings.show == false -%}{%- continue -%}{%- endif -%}
+            {{ b._editor_block_open }}
+            <a class="cv-hd__icon cv-hd__cart" href="{{ routes.cart_url }}" data-cv-cart-link data-cart-type="{{ theme.settings.cart_type }}">
+              <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+              <span class="cv-sr">{{ 'header.cart' | t }}</span>
+              <span data-tf-refresh="{{ cv_refresh }}">{% if cart.item_count > 0 %}<span class="cv-hd__count" aria-label="{{ 'header.cart_count' | t: count: cart.item_count }}">{% if cart.item_count > 99 %}99+{% else %}{{ cart.item_count }}{% endif %}</span>{% endif %}</span>
+            </a>
+            {{ b._editor_block_close }}
+          {%- when 'localization' -%}
+            {%- assign cv_loc_c = false -%}{%- assign cv_loc_l = false -%}
+            {%- if b.settings.show_country != false and localization.available_countries.size > 1 -%}{%- assign cv_loc_c = true -%}{%- endif -%}
+            {%- if b.settings.show_language != false and localization.available_languages.size > 1 -%}{%- assign cv_loc_l = true -%}{%- endif -%}
+            {%- if cv_loc_c or cv_loc_l -%}
+            {{ b._editor_block_open }}
+            <div class="cv-hd__loc cv-hd__icon--desk">
+              {%- assign cv_loc_id = 'hd-' | append: b.id -%}{%- assign cv_loc_pick = b.settings.picker_style | default: 'pill' -%}
+              {%- comment -%}partial:loc-picker{%- endcomment -%}
+{%- comment -%} Country and language picker. Inputs: cv_loc_id (unique on the page), cv_loc_pick (the placement's style: "theme" for the theme
+  setting, or a style), cv_loc_c / cv_loc_l (offer the country / the language choice). Styles: dropdown (native selects), links (inline
+  text buttons), pill (country code and currency code; opens a short list beside it), modal (country codes with names in a centred dialog), sheet (a side
+  sheet with search; every list is a bottom sheet on phones). Theme settings choose flags, how currencies show and language names or codes.
+  Every choice posts localization_set; the list styles' dialog is a <dialog>, which keeps focus inside it and closes on Escape. Over ten
+  countries or languages, that list gets a search (the sheet always searches countries); up to ten languages show as chips, more as a list.
+  Without script the dialog cannot open, so the trigger becomes a disclosure with the same choices. {%- endcomment -%}
+{%- assign cv_loc_style = cv_loc_pick | default: 'theme' -%}
+{%- if cv_loc_style == 'theme' -%}{%- assign cv_loc_style = theme.settings.loc_style | default: 'dropdown' -%}{%- endif -%}
+{%- assign cv_loc_flags = true -%}{%- if theme.settings.loc_flags == false -%}{%- assign cv_loc_flags = false -%}{%- endif -%}
+{%- assign cv_loc_cur = theme.settings.loc_currency | default: 'code_symbol' -%}
+{%- assign cv_loc_lang = theme.settings.loc_language | default: 'name' -%}
+{%- comment -%} Currencies show only when choosing a country changes it. {%- endcomment -%}
+{%- assign cv_loc_cur0 = localization.available_countries.first.currency_code -%}
+{%- assign cv_loc_multi = false -%}
+{%- for c in localization.available_countries -%}{%- if c.currency_code != cv_loc_cur0 -%}{%- assign cv_loc_multi = true -%}{%- break -%}{%- endif -%}{%- endfor -%}
+{%- unless cv_loc_multi -%}{%- assign cv_loc_cur = 'none' -%}{%- endunless -%}
+{%- assign cv_loc_now = localization.country -%}
+{%- for c in localization.available_countries -%}{%- if c.selected -%}{%- assign cv_loc_now = c -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_loc_now_cur = '' -%}
+{%- case cv_loc_cur -%}
+  {%- when 'code' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_code -%}
+  {%- when 'symbol' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_symbol | default: cv_loc_now.currency_code -%}
+  {%- when 'code_symbol' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_code -%}{%- if cv_loc_now.currency_symbol != blank and cv_loc_now.currency_symbol != cv_loc_now.currency_code -%}{%- assign cv_loc_now_cur = cv_loc_now_cur | append: ' ' | append: cv_loc_now.currency_symbol -%}{%- endif -%}
+{%- endcase -%}
+{%- assign cv_loc_now_lang = '' -%}
+{%- for l in localization.available_languages -%}{%- if l.selected -%}{%- if cv_loc_lang == 'code' -%}{%- assign cv_loc_now_lang = l.iso_code | upcase -%}{%- else -%}{%- assign cv_loc_now_lang = l.native_name | default: l.name -%}{%- endif -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_loc_title = 'localization.title' | t -%}
+{%- unless cv_loc_l -%}{%- assign cv_loc_title = 'localization.country' | t -%}{%- endunless -%}
+{%- unless cv_loc_c -%}{%- assign cv_loc_title = 'localization.language' | t -%}{%- endunless -%}
+<div class="cv-loc cv-loc--{{ cv_loc_style }}">
+{%- case cv_loc_style -%}
+{%- when 'links' -%}
+  {%- if cv_loc_c -%}
+  {% form 'localization_set', class: 'cv-loc__links' %}
+    <span class="cv-sr">{{ 'localization.country' | t }}</span>
+    {%- for c in localization.available_countries -%}
+      <button class="cv-loc__link" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>{% if cv_loc_flags and c.iso_code != blank %}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{% endif %}<span dir="auto">{{ c.name }}</span></button>
+    {%- endfor -%}
+  {% endform %}
+  {%- endif -%}
+  {%- if cv_loc_l -%}
+  {% form 'localization_set', class: 'cv-loc__links' %}
+    <span class="cv-sr">{{ 'localization.language' | t }}</span>
+    {%- for l in localization.available_languages -%}
+      <button class="cv-loc__link" type="submit" name="locale" value="{{ l.iso_code }}" lang="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>{% if cv_loc_lang == 'code' %}<abbr title="{{ l.native_name | default: l.name }}">{{ l.iso_code | upcase }}</abbr>{% else %}{{ l.native_name | default: l.name }}{% endif %}</button>
+    {%- endfor -%}
+  {% endform %}
+  {%- endif -%}
+{%- when 'pill', 'modal', 'sheet' -%}
+  <button class="cv-loc__trigger cv-loc__trigger--{{ cv_loc_style }}" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-loc-{{ cv_loc_id }}" data-cv-loc-open="cv-loc-{{ cv_loc_id }}">
+    <span class="cv-sr">{{ cv_loc_title }}:</span>
+    {%- if cv_loc_c -%}
+      {%- if cv_loc_flags and cv_loc_now.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ cv_loc_now.iso_code }}</span>{%- endif -%}
+      {%- if cv_loc_style == 'pill' -%}
+        <span class="cv-sr">{{ cv_loc_now.name }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ cv_loc_now.currency_code | default: cv_loc_now.iso_code }}</span>
+      {%- else -%}
+        <span class="cv-loc__tname" dir="auto">{{ cv_loc_now.name }}</span>{%- if cv_loc_now_cur != blank -%}<span class="cv-loc__tmeta" dir="ltr">{{ cv_loc_now_cur }}</span>{%- endif -%}
+      {%- endif -%}
+    {%- endif -%}
+    {%- if cv_loc_l -%}
+      {%- if cv_loc_c -%}<span class="cv-loc__sep" aria-hidden="true"></span>{%- endif -%}
+      {%- if cv_loc_style == 'pill' -%}
+        {%- for l in localization.available_languages -%}{%- if l.selected -%}<span class="cv-sr">{{ l.native_name | default: l.name }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ l.iso_code | upcase }}</span>{%- endif -%}{%- endfor -%}
+      {%- else -%}
+        <span class="cv-loc__tname">{{ cv_loc_now_lang }}</span>
+      {%- endif -%}
+    {%- endif -%}
+    <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+  <dialog class="cv-loc-dlg cv-loc-dlg--{{ cv_loc_style }}" id="cv-loc-{{ cv_loc_id }}" aria-labelledby="cv-loc-{{ cv_loc_id }}-t" data-cv-loc-dlg>
+    <span class="cv-loc-dlg__handle" aria-hidden="true"></span>
+    <div class="cv-loc-dlg__head">
+      <h2 class="cv-loc-dlg__title" id="cv-loc-{{ cv_loc_id }}-t">{{ cv_loc_title }}</h2>
+      <button class="cv-loc-dlg__close" type="button" data-cv-loc-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+    </div>
+    <div class="cv-loc-dlg__body">
+      {%- if cv_loc_c -%}
+      <div class="cv-loc-dlg__group">
+        {%- if cv_loc_l -%}<h3 class="cv-loc-dlg__sub">{{ 'localization.country' | t }}</h3>{%- endif -%}
+        {%- if cv_loc_style == 'sheet' or localization.available_countries.size > 10 -%}
+        <label class="cv-loc-dlg__search cv-shell">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="cv-sr">{{ 'localization.search' | t }}</span>
+          <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.search' | t }}" aria-controls="cv-loc-{{ cv_loc_id }}-list" data-cv-loc-search>
+        </label>
+        {%- endif -%}
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__list cv-loc-dlg__list--{{ cv_loc_style }}" id="cv-loc-{{ cv_loc_id }}-list" role="list">
+            {%- for c in localization.available_countries -%}
+              {%- assign cv_loc_c_cur = '' -%}
+              {%- case cv_loc_cur -%}
+                {%- when 'code' -%}{%- assign cv_loc_c_cur = c.currency_code -%}
+                {%- when 'symbol' -%}{%- assign cv_loc_c_cur = c.currency_symbol | default: c.currency_code -%}
+                {%- when 'code_symbol' -%}{%- assign cv_loc_c_cur = c.currency_code -%}{%- if c.currency_symbol != blank and c.currency_symbol != c.currency_code -%}{%- assign cv_loc_c_cur = cv_loc_c_cur | append: ' ' | append: c.currency_symbol -%}{%- endif -%}
+              {%- endcase -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ c.name | downcase }} {{ c.iso_code | downcase }} {{ c.currency_code | downcase }} {{ c.currency_name | downcase }}">
+                <button class="cv-loc-dlg__opt" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>
+                  {%- if cv_loc_flags and c.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{%- endif -%}
+                  <span class="cv-loc-dlg__name"><bdi>{{ c.name }}</bdi></span>
+                  {%- if cv_loc_c_cur != blank -%}<span class="cv-loc-dlg__meta" dir="ltr">{{ cv_loc_c_cur }}</span>{%- endif -%}
+                  {%- if c.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.no_results' | t }}</p>
+        {% endform %}
+      </div>
+      {%- endif -%}
+      {%- if cv_loc_l -%}
+      <div class="cv-loc-dlg__group">
+        {%- if cv_loc_c -%}<h3 class="cv-loc-dlg__sub">{{ 'localization.language' | t }}</h3>{%- endif -%}
+        {%- if localization.available_languages.size > 10 -%}
+        <label class="cv-loc-dlg__search cv-shell">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="cv-sr">{{ 'localization.lang_search' | t }}</span>
+          <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.lang_search' | t }}" aria-controls="cv-loc-{{ cv_loc_id }}-langs" data-cv-loc-search>
+        </label>
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__list cv-loc-dlg__list--langs" id="cv-loc-{{ cv_loc_id }}-langs" role="list">
+            {%- for l in localization.available_languages -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ l.native_name | downcase }} {{ l.name | downcase }} {{ l.iso_code | downcase }}">
+                <button class="cv-loc-dlg__opt" type="submit" name="locale" value="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>
+                  <span class="cv-loc-dlg__name"><bdi lang="{{ l.iso_code }}">{{ l.native_name | default: l.name }}</bdi></span>
+                  {%- if cv_loc_lang == 'code' or l.name != l.native_name -%}<span class="cv-loc-dlg__meta">{% if cv_loc_lang == 'code' %}{{ l.iso_code | upcase }}{% else %}{{ l.name }}{% endif %}</span>{%- endif -%}
+                  {%- if l.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.lang_none' | t }}</p>
+        {% endform %}
+        {%- else -%}
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__langs" role="list">
+            {%- for l in localization.available_languages -%}
+              <li><button class="cv-loc-dlg__chip" type="submit" name="locale" value="{{ l.iso_code }}" lang="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>{% if cv_loc_lang == 'code' %}<abbr title="{{ l.native_name | default: l.name }}">{{ l.iso_code | upcase }}</abbr>{% else %}{{ l.native_name | default: l.name }}{% endif %}</button></li>
+            {%- endfor -%}
+          </ul>
+        {% endform %}
+        {%- endif -%}
+      </div>
+      {%- endif -%}
+    </div>
+  </dialog>
+  {%- comment -%} Without script: the same choices in a disclosure, which opens without it. {%- endcomment -%}
+  <noscript>
+    <style>.cv-loc > .cv-loc__trigger[data-cv-loc-open] { display: none; }</style>
+    <details class="cv-loc__nojs">
+      <summary class="cv-loc__trigger cv-loc__trigger--{{ cv_loc_style }}">
+        <span class="cv-sr">{{ cv_loc_title }}:</span>
+        {%- if cv_loc_c -%}{%- if cv_loc_flags and cv_loc_now.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ cv_loc_now.iso_code }}</span>{%- endif -%}<span class="cv-loc__tname" dir="auto">{% if cv_loc_style == 'pill' %}{{ cv_loc_now.currency_code | default: cv_loc_now.iso_code }}{% else %}{{ cv_loc_now.name }}{% endif %}</span>{%- endif -%}
+        {%- if cv_loc_l -%}{%- if cv_loc_c -%}<span class="cv-loc__sep" aria-hidden="true"></span>{%- endif -%}<span class="cv-loc__tname">{% if cv_loc_style == 'pill' %}{%- for l in localization.available_languages -%}{%- if l.selected -%}{{ l.iso_code | upcase }}{%- endif -%}{%- endfor -%}{% else %}{{ cv_loc_now_lang }}{% endif %}</span>{%- endif -%}
+        <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <div class="cv-loc__nojs-panel">
+        {%- if cv_loc_c -%}
+        {% form 'localization_set', class: 'cv-loc__nojs-form' %}
+          {%- if cv_loc_l -%}<p class="cv-loc-dlg__sub">{{ 'localization.country' | t }}</p>{%- endif -%}
+          {%- for c in localization.available_countries -%}
+          <button class="cv-loc-dlg__opt" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>{%- if cv_loc_flags and c.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{%- endif -%}<span class="cv-loc-dlg__name"><bdi>{{ c.name }}</bdi></span>{%- if cv_loc_cur != 'none' -%}<span class="cv-loc-dlg__meta" dir="ltr">{{ c.currency_code }}</span>{%- endif -%}</button>
+          {%- endfor -%}
+        {% endform %}
+        {%- endif -%}
+        {%- if cv_loc_l -%}
+        {% form 'localization_set', class: 'cv-loc__nojs-form' %}
+          {%- if cv_loc_c -%}<p class="cv-loc-dlg__sub">{{ 'localization.language' | t }}</p>{%- endif -%}
+          {%- for l in localization.available_languages -%}
+          <button class="cv-loc-dlg__opt" type="submit" name="locale" value="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}><span class="cv-loc-dlg__name"><bdi lang="{{ l.iso_code }}">{{ l.native_name | default: l.name }}</bdi></span></button>
+          {%- endfor -%}
+        {% endform %}
+        {%- endif -%}
+      </div>
+    </details>
+  </noscript>
+{%- else -%}
+  {%- if cv_loc_c -%}
+  {% form 'localization_set', class: 'cv-loc__form' %}
+    <label class="cv-sr" for="cv-loc-{{ cv_loc_id }}-c">{{ 'localization.country' | t }}</label>
+    <select class="cv-loc__select cv-shell" id="cv-loc-{{ cv_loc_id }}-c" name="country_code" data-cv-autosubmit>
+      {%- for c in localization.available_countries -%}
+        {%- assign cv_loc_c_cur = '' -%}
+        {%- case cv_loc_cur -%}
+          {%- when 'code' -%}{%- assign cv_loc_c_cur = c.currency_code -%}
+          {%- when 'symbol' -%}{%- assign cv_loc_c_cur = c.currency_symbol | default: c.currency_code -%}
+          {%- when 'code_symbol' -%}{%- assign cv_loc_c_cur = c.currency_code -%}{%- if c.currency_symbol != blank and c.currency_symbol != c.currency_code -%}{%- assign cv_loc_c_cur = cv_loc_c_cur | append: ' ' | append: c.currency_symbol -%}{%- endif -%}
+        {%- endcase -%}
+        <option value="{{ c.iso_code }}"{% if c.selected %} selected{% endif %}>{{ c.name }}{% if cv_loc_c_cur != blank %} ({{ cv_loc_c_cur }}){% endif %}</option>
+      {%- endfor -%}
+    </select>
+    <noscript><button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'general.update' | t }}</button></noscript>
+  {% endform %}
+  {%- endif -%}
+  {%- if cv_loc_l -%}
+  {% form 'localization_set', class: 'cv-loc__form' %}
+    <label class="cv-sr" for="cv-loc-{{ cv_loc_id }}-l">{{ 'localization.language' | t }}</label>
+    <select class="cv-loc__select cv-shell" id="cv-loc-{{ cv_loc_id }}-l" name="locale" data-cv-autosubmit>
+      {%- for l in localization.available_languages -%}
+        <option value="{{ l.iso_code }}"{% if l.selected %} selected{% endif %}>{% if cv_loc_lang == 'code' %}{{ l.iso_code | upcase }}{% else %}{{ l.native_name | default: l.name }}{% endif %}</option>
+      {%- endfor -%}
+    </select>
+    <noscript><button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'general.update' | t }}</button></noscript>
+  {% endform %}
+  {%- endif -%}
+{%- endcase -%}
+</div>
+{%- comment -%}/partial:loc-picker{%- endcomment -%}
+            </div>
+            {{ b._editor_block_close }}
+            {%- endif -%}
+          {%- when 'link' -%}
+            {%- if b.settings.label != blank and b.settings.link != blank or b.settings.label != blank and design_mode -%}
+            {{ b._editor_block_open }}
+            <a dir="auto" class="cv-hd__link cv-hd__icon--desk" data-tf-field="label"{% if b.settings.link != blank %} href="{{ b.settings.link }}"{% endif %}>{{ b.settings.label }}</a>
+            {{ b._editor_block_close }}
+            {%- endif -%}
+        {%- endcase -%}
+      {%- endfor -%}
+{%- comment -%}/partial:header-actions{%- endcomment -%}
+    </div>
+  </div>
+
+  {% if cv_search_on %}
+  <div class="cv-hd__search" id="cv-search" hidden data-cv-search>
+    <div class="cv-wrap">
+      <form class="cv-hd__sform cv-shell" action="{{ routes.search_url }}" method="get" role="search">
+        <label class="cv-sr" for="cv-search-q">{{ 'header.search' | t }}</label>
+        <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input class="cv-hd__sinput" id="cv-search-q" type="search" name="q" placeholder="{{ 'header.search_placeholder' | t }}"
+               role="combobox" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-autocomplete="list" aria-expanded="false" aria-controls="cv-suggest" data-cv-suggest-input>
+        <button class="cv-hd__icon" type="button" data-cv-close="cv-search">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          <span class="cv-sr">{{ 'general.close' | t }}</span>
+        </button>
+      </form>
+{%- assign cv_sg_id = 'cv-suggest' -%}
+{%- comment -%}partial:header-suggest{%- endcomment -%}
+      <div class="cv-hd__suggest" id="{{ cv_sg_id }}" role="listbox" data-cv-suggest
+           data-search-url="{{ routes.search_url }}" data-suggest-url="{{ routes.search_suggest_url }}" data-label-for="{{ 'header.search_for' | t: query: '__q__' }}" data-label-empty="{{ 'header.search_empty' | t }}"
+           data-group-labels='{"product":"{{ 'search.group_products' | t }}","collection":"{{ 'search.group_collections' | t }}","category":"{{ 'search.group_categories' | t }}","page":"{{ 'search.group_pages' | t }}","blog_post":"{{ 'search.group_articles' | t }}","blog_category":"{{ 'search.group_articles' | t }}","vendor":"{{ 'search.group_vendors' | t }}","brand":"{{ 'search.group_brands' | t }}","policy":"{{ 'search.group_policies' | t }}"}'></div>
+{%- comment -%}/partial:header-suggest{%- endcomment -%}
+    </div>
+  </div>
+  {% endif %}
+
+{%- comment -%}partial:header-mnav{%- endcomment -%}
+  {% if cv_menu.items.size > 0 %}
+  <div class="cv-mnav" id="cv-mnav" hidden data-cv-drawer>
+    <div class="cv-mnav__backdrop" data-cv-close="cv-mnav"></div>
+    <div class="cv-mnav__panel tf-scheme-{{ settings.color_scheme }}" role="dialog" aria-modal="true" aria-label="{{ 'header.menu' | t }}">
+      <div class="cv-mnav__top">
+        <span class="cv-hd__name cv-hd__name--sm">{{ shop.name }}</span>
+        <button class="cv-hd__icon" type="button" data-cv-close="cv-mnav">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          <span class="cv-sr">{{ 'general.close' | t }}</span>
+        </button>
+      </div>
+      {%- comment -%} Phones: the delivery or pickup choice heads the menu sheet (the last tag keeps the line break before the list, as without pickup). {%- endcomment -%}
+      {%- if shopping.pickup_available -%}
+        {%- if theme.settings.pickup_chip != false -%}
+        <button class="cv-mnav__pk" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-pickup" data-cv-pk-open>
+          {%- if shopping.pickup_location -%}
+          <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20"/></svg><span class="cv-mnav__pk-text"><span>{{ 'pickup.pickup' | t }} · <span dir="auto">{{ shopping.pickup_location.name }}</span></span><small>{{ shopping.pickup_location.ready_in_label }}</small></span>
+          {%- else -%}
+          <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 6.5h11v10h-11zM13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6.5" cy="17.5" r="1.75"/><circle cx="16.5" cy="17.5" r="1.75"/></svg><span class="cv-mnav__pk-text"><span>{{ 'pickup.delivery' | t }}</span><small>{{ 'pickup.or_pick_up' | t }}</small></span>
+          {%- endif -%}
+          <span class="cv-sr">{{ 'pickup.change' | t }}</span>
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        </button>
+        {%- endif -%}
+      {%- elsif design_mode and theme.settings.pickup_chip != false -%}
+        <p class="cv-editor-hint cv-pk-hint">{{ 'pickup.editor_off' | t }}</p>
+      {%- endif %}
+      <nav class="cv-mnav__list" aria-label="{{ 'header.main_navigation' | t }}">
+        {% for item in cv_menu.items %}
+          {% if item.children.size > 0 %}
+            <details class="cv-mnav__group">
+              <summary class="cv-mnav__row">{{ item.title }}<svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+              <div class="cv-mnav__children">
+                {% if item.url != blank %}<a class="cv-mnav__child" href="{{ item.url }}"{% if item.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ 'header.view_all' | t: title: item.title }}</a>{% endif %}
+                {% for child in item.children %}
+                  {% if child.url != blank %}<a class="cv-mnav__child" href="{{ child.url }}"{% if child.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ child.title }}</a>{% else %}<span class="cv-mnav__child">{{ child.title }}</span>{% endif %}
+                  {% for grand in child.children %}
+                    {% if grand.url != blank %}<a class="cv-mnav__child cv-mnav__child--deep" href="{{ grand.url }}"{% if grand.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ grand.title }}</a>{% else %}<span class="cv-mnav__child cv-mnav__child--deep">{{ grand.title }}</span>{% endif %}
+                  {% endfor %}
+                {% endfor %}
+              </div>
+            </details>
+          {% else %}
+            {% if item.url != blank %}<a class="cv-mnav__row" href="{{ item.url }}"{% if item.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ item.title }}</a>{% else %}<span class="cv-mnav__row">{{ item.title }}</span>{% endif %}
+          {% endif %}
+        {% endfor %}
+      </nav>
+      <div class="cv-mnav__foot">
+        {% if cv_account_on %}
+          <a class="cv-mnav__util" href="{% if customer.logged_in %}{{ routes.account_url }}{% else %}{{ routes.login_url }}{% endif %}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+            {% if customer.logged_in %}{{ 'header.account' | t }}{% else %}{{ 'header.sign_in' | t }}{% endif %}
+          </a>
+        {% endif %}
+        {% if customer_settings.wishlist_enabled and cv_wish_on %}
+          <a class="cv-mnav__util" href="{{ routes.wishlist_url }}">
+            <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>
+            {{ 'header.wishlist' | t }}
+            <span data-tf-refresh="{{ cv_refresh }}">{% if wishlist.item_count > 0 %}<span class="cv-mnav__badge">{{ wishlist.item_count }}</span>{% endif %}</span>
+          </a>
+        {% endif %}
+        {%- comment -%} The header's country and language picker sits here on phones (the bar keeps it on wider screens). {%- endcomment -%}
+        {%- if cv_loc_b -%}
+          {%- assign cv_loc_c = false -%}{%- assign cv_loc_l = false -%}
+          {%- if cv_loc_b.settings.show_country != false and localization.available_countries.size > 1 -%}{%- assign cv_loc_c = true -%}{%- endif -%}
+          {%- if cv_loc_b.settings.show_language != false and localization.available_languages.size > 1 -%}{%- assign cv_loc_l = true -%}{%- endif -%}
+          {%- if cv_loc_c or cv_loc_l -%}
+          <div class="cv-mnav__loc">
+            {%- assign cv_loc_id = 'mnav' -%}{%- assign cv_loc_pick = cv_loc_b.settings.picker_style | default: 'pill' -%}
+            {%- comment -%}partial:loc-picker{%- endcomment -%}
+{%- comment -%} Country and language picker. Inputs: cv_loc_id (unique on the page), cv_loc_pick (the placement's style: "theme" for the theme
+  setting, or a style), cv_loc_c / cv_loc_l (offer the country / the language choice). Styles: dropdown (native selects), links (inline
+  text buttons), pill (country code and currency code; opens a short list beside it), modal (country codes with names in a centred dialog), sheet (a side
+  sheet with search; every list is a bottom sheet on phones). Theme settings choose flags, how currencies show and language names or codes.
+  Every choice posts localization_set; the list styles' dialog is a <dialog>, which keeps focus inside it and closes on Escape. Over ten
+  countries or languages, that list gets a search (the sheet always searches countries); up to ten languages show as chips, more as a list.
+  Without script the dialog cannot open, so the trigger becomes a disclosure with the same choices. {%- endcomment -%}
+{%- assign cv_loc_style = cv_loc_pick | default: 'theme' -%}
+{%- if cv_loc_style == 'theme' -%}{%- assign cv_loc_style = theme.settings.loc_style | default: 'dropdown' -%}{%- endif -%}
+{%- assign cv_loc_flags = true -%}{%- if theme.settings.loc_flags == false -%}{%- assign cv_loc_flags = false -%}{%- endif -%}
+{%- assign cv_loc_cur = theme.settings.loc_currency | default: 'code_symbol' -%}
+{%- assign cv_loc_lang = theme.settings.loc_language | default: 'name' -%}
+{%- comment -%} Currencies show only when choosing a country changes it. {%- endcomment -%}
+{%- assign cv_loc_cur0 = localization.available_countries.first.currency_code -%}
+{%- assign cv_loc_multi = false -%}
+{%- for c in localization.available_countries -%}{%- if c.currency_code != cv_loc_cur0 -%}{%- assign cv_loc_multi = true -%}{%- break -%}{%- endif -%}{%- endfor -%}
+{%- unless cv_loc_multi -%}{%- assign cv_loc_cur = 'none' -%}{%- endunless -%}
+{%- assign cv_loc_now = localization.country -%}
+{%- for c in localization.available_countries -%}{%- if c.selected -%}{%- assign cv_loc_now = c -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_loc_now_cur = '' -%}
+{%- case cv_loc_cur -%}
+  {%- when 'code' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_code -%}
+  {%- when 'symbol' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_symbol | default: cv_loc_now.currency_code -%}
+  {%- when 'code_symbol' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_code -%}{%- if cv_loc_now.currency_symbol != blank and cv_loc_now.currency_symbol != cv_loc_now.currency_code -%}{%- assign cv_loc_now_cur = cv_loc_now_cur | append: ' ' | append: cv_loc_now.currency_symbol -%}{%- endif -%}
+{%- endcase -%}
+{%- assign cv_loc_now_lang = '' -%}
+{%- for l in localization.available_languages -%}{%- if l.selected -%}{%- if cv_loc_lang == 'code' -%}{%- assign cv_loc_now_lang = l.iso_code | upcase -%}{%- else -%}{%- assign cv_loc_now_lang = l.native_name | default: l.name -%}{%- endif -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_loc_title = 'localization.title' | t -%}
+{%- unless cv_loc_l -%}{%- assign cv_loc_title = 'localization.country' | t -%}{%- endunless -%}
+{%- unless cv_loc_c -%}{%- assign cv_loc_title = 'localization.language' | t -%}{%- endunless -%}
+<div class="cv-loc cv-loc--{{ cv_loc_style }}">
+{%- case cv_loc_style -%}
+{%- when 'links' -%}
+  {%- if cv_loc_c -%}
+  {% form 'localization_set', class: 'cv-loc__links' %}
+    <span class="cv-sr">{{ 'localization.country' | t }}</span>
+    {%- for c in localization.available_countries -%}
+      <button class="cv-loc__link" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>{% if cv_loc_flags and c.iso_code != blank %}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{% endif %}<span dir="auto">{{ c.name }}</span></button>
+    {%- endfor -%}
+  {% endform %}
+  {%- endif -%}
+  {%- if cv_loc_l -%}
+  {% form 'localization_set', class: 'cv-loc__links' %}
+    <span class="cv-sr">{{ 'localization.language' | t }}</span>
+    {%- for l in localization.available_languages -%}
+      <button class="cv-loc__link" type="submit" name="locale" value="{{ l.iso_code }}" lang="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>{% if cv_loc_lang == 'code' %}<abbr title="{{ l.native_name | default: l.name }}">{{ l.iso_code | upcase }}</abbr>{% else %}{{ l.native_name | default: l.name }}{% endif %}</button>
+    {%- endfor -%}
+  {% endform %}
+  {%- endif -%}
+{%- when 'pill', 'modal', 'sheet' -%}
+  <button class="cv-loc__trigger cv-loc__trigger--{{ cv_loc_style }}" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-loc-{{ cv_loc_id }}" data-cv-loc-open="cv-loc-{{ cv_loc_id }}">
+    <span class="cv-sr">{{ cv_loc_title }}:</span>
+    {%- if cv_loc_c -%}
+      {%- if cv_loc_flags and cv_loc_now.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ cv_loc_now.iso_code }}</span>{%- endif -%}
+      {%- if cv_loc_style == 'pill' -%}
+        <span class="cv-sr">{{ cv_loc_now.name }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ cv_loc_now.currency_code | default: cv_loc_now.iso_code }}</span>
+      {%- else -%}
+        <span class="cv-loc__tname" dir="auto">{{ cv_loc_now.name }}</span>{%- if cv_loc_now_cur != blank -%}<span class="cv-loc__tmeta" dir="ltr">{{ cv_loc_now_cur }}</span>{%- endif -%}
+      {%- endif -%}
+    {%- endif -%}
+    {%- if cv_loc_l -%}
+      {%- if cv_loc_c -%}<span class="cv-loc__sep" aria-hidden="true"></span>{%- endif -%}
+      {%- if cv_loc_style == 'pill' -%}
+        {%- for l in localization.available_languages -%}{%- if l.selected -%}<span class="cv-sr">{{ l.native_name | default: l.name }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ l.iso_code | upcase }}</span>{%- endif -%}{%- endfor -%}
+      {%- else -%}
+        <span class="cv-loc__tname">{{ cv_loc_now_lang }}</span>
+      {%- endif -%}
+    {%- endif -%}
+    <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+  <dialog class="cv-loc-dlg cv-loc-dlg--{{ cv_loc_style }}" id="cv-loc-{{ cv_loc_id }}" aria-labelledby="cv-loc-{{ cv_loc_id }}-t" data-cv-loc-dlg>
+    <span class="cv-loc-dlg__handle" aria-hidden="true"></span>
+    <div class="cv-loc-dlg__head">
+      <h2 class="cv-loc-dlg__title" id="cv-loc-{{ cv_loc_id }}-t">{{ cv_loc_title }}</h2>
+      <button class="cv-loc-dlg__close" type="button" data-cv-loc-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+    </div>
+    <div class="cv-loc-dlg__body">
+      {%- if cv_loc_c -%}
+      <div class="cv-loc-dlg__group">
+        {%- if cv_loc_l -%}<h3 class="cv-loc-dlg__sub">{{ 'localization.country' | t }}</h3>{%- endif -%}
+        {%- if cv_loc_style == 'sheet' or localization.available_countries.size > 10 -%}
+        <label class="cv-loc-dlg__search cv-shell">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="cv-sr">{{ 'localization.search' | t }}</span>
+          <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.search' | t }}" aria-controls="cv-loc-{{ cv_loc_id }}-list" data-cv-loc-search>
+        </label>
+        {%- endif -%}
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__list cv-loc-dlg__list--{{ cv_loc_style }}" id="cv-loc-{{ cv_loc_id }}-list" role="list">
+            {%- for c in localization.available_countries -%}
+              {%- assign cv_loc_c_cur = '' -%}
+              {%- case cv_loc_cur -%}
+                {%- when 'code' -%}{%- assign cv_loc_c_cur = c.currency_code -%}
+                {%- when 'symbol' -%}{%- assign cv_loc_c_cur = c.currency_symbol | default: c.currency_code -%}
+                {%- when 'code_symbol' -%}{%- assign cv_loc_c_cur = c.currency_code -%}{%- if c.currency_symbol != blank and c.currency_symbol != c.currency_code -%}{%- assign cv_loc_c_cur = cv_loc_c_cur | append: ' ' | append: c.currency_symbol -%}{%- endif -%}
+              {%- endcase -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ c.name | downcase }} {{ c.iso_code | downcase }} {{ c.currency_code | downcase }} {{ c.currency_name | downcase }}">
+                <button class="cv-loc-dlg__opt" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>
+                  {%- if cv_loc_flags and c.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{%- endif -%}
+                  <span class="cv-loc-dlg__name"><bdi>{{ c.name }}</bdi></span>
+                  {%- if cv_loc_c_cur != blank -%}<span class="cv-loc-dlg__meta" dir="ltr">{{ cv_loc_c_cur }}</span>{%- endif -%}
+                  {%- if c.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.no_results' | t }}</p>
+        {% endform %}
+      </div>
+      {%- endif -%}
+      {%- if cv_loc_l -%}
+      <div class="cv-loc-dlg__group">
+        {%- if cv_loc_c -%}<h3 class="cv-loc-dlg__sub">{{ 'localization.language' | t }}</h3>{%- endif -%}
+        {%- if localization.available_languages.size > 10 -%}
+        <label class="cv-loc-dlg__search cv-shell">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="cv-sr">{{ 'localization.lang_search' | t }}</span>
+          <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.lang_search' | t }}" aria-controls="cv-loc-{{ cv_loc_id }}-langs" data-cv-loc-search>
+        </label>
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__list cv-loc-dlg__list--langs" id="cv-loc-{{ cv_loc_id }}-langs" role="list">
+            {%- for l in localization.available_languages -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ l.native_name | downcase }} {{ l.name | downcase }} {{ l.iso_code | downcase }}">
+                <button class="cv-loc-dlg__opt" type="submit" name="locale" value="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>
+                  <span class="cv-loc-dlg__name"><bdi lang="{{ l.iso_code }}">{{ l.native_name | default: l.name }}</bdi></span>
+                  {%- if cv_loc_lang == 'code' or l.name != l.native_name -%}<span class="cv-loc-dlg__meta">{% if cv_loc_lang == 'code' %}{{ l.iso_code | upcase }}{% else %}{{ l.name }}{% endif %}</span>{%- endif -%}
+                  {%- if l.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.lang_none' | t }}</p>
+        {% endform %}
+        {%- else -%}
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__langs" role="list">
+            {%- for l in localization.available_languages -%}
+              <li><button class="cv-loc-dlg__chip" type="submit" name="locale" value="{{ l.iso_code }}" lang="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>{% if cv_loc_lang == 'code' %}<abbr title="{{ l.native_name | default: l.name }}">{{ l.iso_code | upcase }}</abbr>{% else %}{{ l.native_name | default: l.name }}{% endif %}</button></li>
+            {%- endfor -%}
+          </ul>
+        {% endform %}
+        {%- endif -%}
+      </div>
+      {%- endif -%}
+    </div>
+  </dialog>
+  {%- comment -%} Without script: the same choices in a disclosure, which opens without it. {%- endcomment -%}
+  <noscript>
+    <style>.cv-loc > .cv-loc__trigger[data-cv-loc-open] { display: none; }</style>
+    <details class="cv-loc__nojs">
+      <summary class="cv-loc__trigger cv-loc__trigger--{{ cv_loc_style }}">
+        <span class="cv-sr">{{ cv_loc_title }}:</span>
+        {%- if cv_loc_c -%}{%- if cv_loc_flags and cv_loc_now.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ cv_loc_now.iso_code }}</span>{%- endif -%}<span class="cv-loc__tname" dir="auto">{% if cv_loc_style == 'pill' %}{{ cv_loc_now.currency_code | default: cv_loc_now.iso_code }}{% else %}{{ cv_loc_now.name }}{% endif %}</span>{%- endif -%}
+        {%- if cv_loc_l -%}{%- if cv_loc_c -%}<span class="cv-loc__sep" aria-hidden="true"></span>{%- endif -%}<span class="cv-loc__tname">{% if cv_loc_style == 'pill' %}{%- for l in localization.available_languages -%}{%- if l.selected -%}{{ l.iso_code | upcase }}{%- endif -%}{%- endfor -%}{% else %}{{ cv_loc_now_lang }}{% endif %}</span>{%- endif -%}
+        <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <div class="cv-loc__nojs-panel">
+        {%- if cv_loc_c -%}
+        {% form 'localization_set', class: 'cv-loc__nojs-form' %}
+          {%- if cv_loc_l -%}<p class="cv-loc-dlg__sub">{{ 'localization.country' | t }}</p>{%- endif -%}
+          {%- for c in localization.available_countries -%}
+          <button class="cv-loc-dlg__opt" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>{%- if cv_loc_flags and c.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{%- endif -%}<span class="cv-loc-dlg__name"><bdi>{{ c.name }}</bdi></span>{%- if cv_loc_cur != 'none' -%}<span class="cv-loc-dlg__meta" dir="ltr">{{ c.currency_code }}</span>{%- endif -%}</button>
+          {%- endfor -%}
+        {% endform %}
+        {%- endif -%}
+        {%- if cv_loc_l -%}
+        {% form 'localization_set', class: 'cv-loc__nojs-form' %}
+          {%- if cv_loc_c -%}<p class="cv-loc-dlg__sub">{{ 'localization.language' | t }}</p>{%- endif -%}
+          {%- for l in localization.available_languages -%}
+          <button class="cv-loc-dlg__opt" type="submit" name="locale" value="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}><span class="cv-loc-dlg__name"><bdi lang="{{ l.iso_code }}">{{ l.native_name | default: l.name }}</bdi></span></button>
+          {%- endfor -%}
+        {% endform %}
+        {%- endif -%}
+      </div>
+    </details>
+  </noscript>
+{%- else -%}
+  {%- if cv_loc_c -%}
+  {% form 'localization_set', class: 'cv-loc__form' %}
+    <label class="cv-sr" for="cv-loc-{{ cv_loc_id }}-c">{{ 'localization.country' | t }}</label>
+    <select class="cv-loc__select cv-shell" id="cv-loc-{{ cv_loc_id }}-c" name="country_code" data-cv-autosubmit>
+      {%- for c in localization.available_countries -%}
+        {%- assign cv_loc_c_cur = '' -%}
+        {%- case cv_loc_cur -%}
+          {%- when 'code' -%}{%- assign cv_loc_c_cur = c.currency_code -%}
+          {%- when 'symbol' -%}{%- assign cv_loc_c_cur = c.currency_symbol | default: c.currency_code -%}
+          {%- when 'code_symbol' -%}{%- assign cv_loc_c_cur = c.currency_code -%}{%- if c.currency_symbol != blank and c.currency_symbol != c.currency_code -%}{%- assign cv_loc_c_cur = cv_loc_c_cur | append: ' ' | append: c.currency_symbol -%}{%- endif -%}
+        {%- endcase -%}
+        <option value="{{ c.iso_code }}"{% if c.selected %} selected{% endif %}>{{ c.name }}{% if cv_loc_c_cur != blank %} ({{ cv_loc_c_cur }}){% endif %}</option>
+      {%- endfor -%}
+    </select>
+    <noscript><button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'general.update' | t }}</button></noscript>
+  {% endform %}
+  {%- endif -%}
+  {%- if cv_loc_l -%}
+  {% form 'localization_set', class: 'cv-loc__form' %}
+    <label class="cv-sr" for="cv-loc-{{ cv_loc_id }}-l">{{ 'localization.language' | t }}</label>
+    <select class="cv-loc__select cv-shell" id="cv-loc-{{ cv_loc_id }}-l" name="locale" data-cv-autosubmit>
+      {%- for l in localization.available_languages -%}
+        <option value="{{ l.iso_code }}"{% if l.selected %} selected{% endif %}>{% if cv_loc_lang == 'code' %}{{ l.iso_code | upcase }}{% else %}{{ l.native_name | default: l.name }}{% endif %}</option>
+      {%- endfor -%}
+    </select>
+    <noscript><button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'general.update' | t }}</button></noscript>
+  {% endform %}
+  {%- endif -%}
+{%- endcase -%}
+</div>
+{%- comment -%}/partial:loc-picker{%- endcomment -%}
+          </div>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+{%- comment -%}/partial:header-mnav{%- endcomment -%}
+</header>
+{%- comment -%}partial:header-script{%- endcomment -%}
+{%- comment -%} After a save to the wishlist (Theme settings › Notifications, "Show a message after saving to the wishlist"): the theme's toast,
+  with a link to the wishlist, once a visit. The script fills the text when it shows, so screen readers hear it. {%- endcomment -%}
+{%- if customer_settings.wishlist_enabled and theme.settings.wishlist_toast != false -%}
+<p class="cv cv-notice cv-notice--ok cv-toast cv-toast--{{ theme.settings.notice_position }}{% if theme.settings.notice_scheme != blank %} tf-scheme-{{ theme.settings.notice_scheme }}{% endif %} cv-wish-toast" role="status" hidden data-cv-wish-toast><span data-cv-wish-toast-text data-text="{{ 'wishlist.saved_toast' | t }}"></span> <a class="cv-tbtn" href="{{ routes.wishlist_url }}">{{ 'wishlist.view' | t }}</a></p>
+{%- endif -%}
+<script>
+(function () {
+  // Focus rings show for keyboard use only: a click or tap marks the page, a navigation key clears the mark.
+  if (!window.__cvModality) {
+    window.__cvModality = true;
+    var html = document.documentElement;
+    addEventListener("pointerdown", function () { html.classList.add("cv-pointer"); }, true);
+    addEventListener("keydown", function (e) {
+      if (e.key === "Tab" || e.key === "Escape" || /^Arrow/.test(e.key) || e.key === "Enter" || e.key === " ") html.classList.remove("cv-pointer");
+    }, true);
+  }
+})();
+</script>
+<script>
+(function () {
+  // Product cards' second image loads lazily: start it when a pointer reaches the card, and mark it ready once loaded
+  // so the hover only swaps to an image that is there.
+  if (window.__cvCardImg2) return;
+  window.__cvCardImg2 = true;
+  addEventListener("pointerover", function (e) {
+    var card = e.target.closest && e.target.closest(".cv-card");
+    var img = card && card.querySelector(".cv-card__img2:not(.is-ready)");
+    if (!img) return;
+    if (img.complete && img.naturalWidth) { img.classList.add("is-ready"); return; }
+    img.addEventListener("load", function () { img.classList.add("is-ready"); }, { once: true });
+    img.loading = "eager";
+  }, { passive: true });
+})();
+</script>
+{%- comment -%}partial:suggest-script{%- endcomment -%}
+<script>
+(function () {
+  // Predictive search, one implementation for every search box that offers suggestions (the header's, the search page's):
+  // window.cvSuggest(input, box, opts). The box carries the platform's suggest URL for this page's language and country
+  // (routes.search_suggest_url, as data-suggest-url) and its labels; markup in partials/header-suggest.html.
+  // Debounced, newest response wins; grouped; arrows move through the options, Enter opens one, Escape closes the list.
+  // opts.dismiss: a click outside the box and its field closes the list (the header's panel closes itself instead).
+  if (window.cvSuggest) return;
+  window.cvSuggest = function (input, box, opts) {
+    if (!input || !box || input.__cvSuggest) return;
+    input.__cvSuggest = true; opts = opts || {};
+    var seq = 0, timer = null, active = -1, idp = (box.id || "cv-suggest") + "-o";
+    var labels = {}; try { labels = JSON.parse(box.getAttribute("data-group-labels") || "{}"); } catch (_) {}
+    var suggestURL = box.getAttribute("data-suggest-url") || "/search/suggest";
+    input.setAttribute("aria-expanded", "false");
+    function mark(el, text, q) {
+      var i = text.toLowerCase().indexOf(q.toLowerCase());
+      if (i < 0) { el.textContent = text; return; }
+      el.appendChild(document.createTextNode(text.slice(0, i)));
+      var m = document.createElement("mark"); m.textContent = text.slice(i, i + q.length); el.appendChild(m);
+      el.appendChild(document.createTextNode(text.slice(i + q.length)));
+    }
+    function options() { return Array.prototype.slice.call(box.querySelectorAll("[role=option]")); }
+    function setActive(i) {
+      var o = options(); if (!o.length) return;
+      active = (i + o.length) % o.length;
+      o.forEach(function (x, k) { x.classList.toggle("is-active", k === active); x.setAttribute("aria-selected", k === active ? "true" : "false"); });
+      input.setAttribute("aria-activedescendant", o[active].id); o[active].scrollIntoView({ block: "nearest" });
+    }
+    function close() {
+      clearTimeout(timer); seq++; active = -1;
+      box.replaceChildren(); box.classList.remove("is-loading");
+      input.removeAttribute("aria-activedescendant"); input.setAttribute("aria-expanded", "false");
+    }
+    function run() {
+      clearTimeout(timer);
+      var q = input.value.trim();
+      active = -1; input.removeAttribute("aria-activedescendant");
+      if (!q) { close(); return; }
+      box.classList.add("is-loading");
+      timer = setTimeout(function () {
+        var mine = ++seq;
+        fetch(suggestURL + (suggestURL.indexOf("?") < 0 ? "?" : "&") + "q=" + encodeURIComponent(q), { headers: { "Accept": "application/json" }, credentials: "same-origin" })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (mine !== seq) return;
+            box.classList.remove("is-loading");
+            box.replaceChildren();
+            if (!data) { input.setAttribute("aria-expanded", "false"); return; }
+            var n = 0;
+            var top = document.createElement("a");
+            top.className = "cv-hd__sall"; top.id = idp + (n++); top.setAttribute("role", "option");
+            top.href = data.search_url || (box.getAttribute("data-search-url") + "?q=" + encodeURIComponent(q));
+            top.textContent = (box.getAttribute("data-label-for") || "").replace("__q__", q);
+            box.appendChild(top);
+            (data.groups || []).forEach(function (g) {
+              if (!g.items || !g.items.length) return;
+              var sec = document.createElement("div"); sec.className = "cv-hd__sgroup";
+              var h = document.createElement("p"); h.className = "cv-hd__shead"; h.textContent = labels[g.type] || g.type; sec.appendChild(h);
+              var list = document.createElement("div"); list.className = "cv-hd__slist" + (g.type === "product" ? " cv-hd__slist--grid" : "");
+              g.items.forEach(function (it) {
+                var a = document.createElement("a");
+                a.className = "cv-hd__sitem"; a.href = it.url; a.setAttribute("role", "option"); a.id = idp + (n++);
+                if (g.type === "product" || it.image) {
+                  var f = document.createElement("span"); f.className = "cv-hd__sthumb";
+                  if (it.image) { var img = document.createElement("img"); img.src = it.image; img.alt = ""; img.loading = "lazy"; f.appendChild(img); }
+                  a.appendChild(f);
+                }
+                var s = document.createElement("span"); s.className = "cv-hd__stitle"; mark(s, it.title || "", q); a.appendChild(s);
+                if (it.price) { var pr = document.createElement("span"); pr.className = "cv-hd__sprice"; pr.textContent = it.price; a.appendChild(pr); }
+                list.appendChild(a);
+              });
+              sec.appendChild(list); box.appendChild(sec);
+            });
+            if (!box.querySelector(".cv-hd__sgroup")) {
+              var none = document.createElement("p"); none.className = "cv-hd__snone"; none.textContent = box.getAttribute("data-label-empty"); box.appendChild(none);
+            }
+            input.setAttribute("aria-expanded", "true");
+          })
+          .catch(function () { if (mine === seq) box.classList.remove("is-loading"); });
+      }, 220);
+    }
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowDown") { e.preventDefault(); setActive(active + 1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); setActive(active - 1); }
+      else if (e.key === "Enter" && active >= 0) { var o = options()[active]; if (o) { e.preventDefault(); window.location.href = o.href; } }
+      // Escape closes an open list and stops there; with the list closed it reaches the header (which closes its search panel).
+      else if (e.key === "Escape" && box.firstChild) { e.preventDefault(); e.stopPropagation(); close(); }
+    });
+    input.addEventListener("input", run);
+    // Coming back to a field that still holds a query shows its suggestions again.
+    input.addEventListener("focus", function () { if (input.value.trim() && !box.firstChild) run(); });
+    if (opts.dismiss) {
+      document.addEventListener("pointerdown", function (e) {
+        if (!input.isConnected) return;
+        if (box.firstChild && !box.contains(e.target) && e.target !== input) close();
+      });
+      // Tabbing out of the field and the list closes it too.
+      document.addEventListener("focusin", function (e) {
+        if (input.isConnected && box.firstChild && e.target !== input && !box.contains(e.target)) close();
+      });
+    }
+  };
+})();
+</script>
+{%- comment -%}/partial:suggest-script{%- endcomment -%}
+<script>
+(function () {
+  // The editor preview swaps the page body and runs this again: bind each new header once, and register
+  // page-wide listeners only on the first run (they look up the current header when they fire).
+  var root = document.querySelector("[data-cv-header]");
+  if (!root || root.__cvBound) return; root.__cvBound = true;
+  var once = !window.__cvHeader; window.__cvHeader = true;
+  function cur() { return document.querySelector("[data-cv-header]") || root; }
+  // The skip link moves to the very start of the page, so it is the first Tab stop (ahead of the announcement bar).
+  // A re-rendered header brings a fresh one; the old copy goes.
+  function liftSkip() {
+    var skip = cur().querySelector("[data-cv-skip]");
+    if (!skip || !document.body) return;
+    document.querySelectorAll("body > [data-cv-skip]").forEach(function (s) { s.remove(); });
+    document.body.insertBefore(skip, document.body.firstChild);
+  }
+  liftSkip();
+  // A refresh after a cart or wishlist action patches the header in place and brings its skip link back inside.
+  if (!window.__cvSkipLift) { window.__cvSkipLift = true; document.addEventListener("tf:section-rendered", liftSkip); }
+  function onDoc(type, fn, opts) { if (once) document.addEventListener(type, fn, opts); }
+  // Shared by every run, so a panel opened from one header copy closes with the right focus target in another.
+  var st = window.__cvHd || (window.__cvHd = { lastFocus: null, openId: null });
+  // An open search panel or menu sheet keeps Tab and Shift+Tab inside it.
+  onDoc("keydown", function (e) {
+    var el = e.key === "Tab" && st.openId && document.getElementById(st.openId);
+    if (!el || el.hidden) return;
+    var f = [].filter.call(el.querySelectorAll("a[href], button, input:not([type=hidden]), select, textarea, summary, [tabindex]:not([tabindex='-1'])"), function (x) { return !x.disabled && x.getClientRects().length; });
+    if (!f.length) return;
+    var a = document.activeElement;
+    if (!el.contains(a)) { e.preventDefault(); f[0].focus(); }
+    else if (e.shiftKey && a === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+  function open(id, trigger) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    st.lastFocus = trigger || document.activeElement;
+    clearTimeout(el.__cvClosing); st.openId = id;
+    el.hidden = false;
+    document.querySelectorAll('[aria-controls="' + id + '"]').forEach(function (b) { b.setAttribute("aria-expanded", "true"); });
+    if (el.hasAttribute("data-cv-drawer")) { document.documentElement.style.overflow = "hidden"; requestAnimationFrame(function () { el.classList.add("is-open"); }); }
+    var first = el.querySelector("input, a, button");
+    if (first) first.focus();
+  }
+  function close(id) {
+    var el = document.getElementById(id);
+    if (!el || el.hidden) return;
+    if (st.openId === id) st.openId = null;
+    document.querySelectorAll('[aria-controls="' + id + '"]').forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
+    if (el.hasAttribute("data-cv-drawer")) {
+      el.classList.remove("is-open"); document.documentElement.style.overflow = "";
+      clearTimeout(el.__cvClosing); el.__cvClosing = setTimeout(function () { if (!el.classList.contains("is-open")) el.hidden = true; }, 220);
+    } else { el.hidden = true; }
+    if (st.lastFocus && st.lastFocus.focus) st.lastFocus.focus();
+  }
+  root.addEventListener("click", function (e) {
+    var o = e.target.closest("[data-cv-open]");
+    if (o) { e.preventDefault(); open(o.getAttribute("data-cv-open"), o); return; }
+    var c = e.target.closest("[data-cv-close]");
+    if (c) { e.preventDefault(); close(c.getAttribute("data-cv-close")); }
+  });
+  // Editor: selecting the search block opens the search panel; selecting the menu block on a phone-width preview opens the menu sheet.
+  // Every Canvas header layout (header, header-split, header-mega) runs this script and names itself in data-cv-type.
+  function isHeader(type) { return !!type && type === cur().getAttribute("data-cv-type"); }
+  function editorPanel(d) {
+    if (!d || !isHeader(d.section_type)) return null;
+    if (d.type === "search") return "cv-search";
+    if (d.type === "menu" && (matchMedia("(max-width: 989px)").matches || cur().classList.contains("cv-hd--logo-minimal"))) return "cv-mnav";
+    return null;
+  }
+  onDoc("tf:block-selected", function (e) { var id = editorPanel(e.detail); if (id) open(id); });
+  onDoc("tf:block-deselected", function (e) { var id = editorPanel(e.detail); if (id) close(id); });
+  onDoc("tf:section-deselected", function (e) {
+    if (e.detail && isHeader(e.detail.type)) { close("cv-search"); close("cv-mnav"); }
+  });
+  onDoc("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    close("cv-search"); close("cv-mnav");
+    cur().querySelectorAll("details[data-cv-dd][open]").forEach(function (d) { d.open = false; });
+  });
+  // One desktop dropdown at a time; close on outside click.
+  root.querySelectorAll("details[data-cv-dd]").forEach(function (d) {
+    d.addEventListener("toggle", function () {
+      if (!d.open) return;
+      root.querySelectorAll("details[data-cv-dd][open]").forEach(function (o) { if (o !== d) o.open = false; });
+    });
+  });
+  onDoc("click", function (e) {
+    if (e.target.closest("details[data-cv-dd]")) return;
+    cur().querySelectorAll("details[data-cv-dd][open]").forEach(function (d) { d.open = false; });
+  });
+  // Available discounts open in the cart's side sheet; applying one closes it while the cart updates.
+  onDoc("click", function (e) {
+    var o = e.target.closest("[data-cv-offers-open]");
+    if (o) { var sh = o.parentElement.querySelector("[data-cv-offers-sheet]"); if (sh) sh.showModal(); return; }
+    var c = e.target.closest("[data-cv-offers-close]");
+    if (c) { c.closest("dialog").close(); return; }
+    if (e.target.matches("[data-cv-offers-sheet]")) e.target.close();
+  });
+  onDoc("submit", function (e) { var sh = e.target.closest("[data-cv-offers-sheet]"); if (sh && sh.open) sh.close(); });
+  // The cart note's Save shows once the note is edited.
+  onDoc("input", function (e) {
+    if (!e.target.matches || !e.target.matches("[data-cv-note-input]")) return;
+    var f = e.target.form; if (f) f.classList.toggle("is-edited", e.target.value !== e.target.defaultValue);
+  });
+  // Destructive buttons ask first, in the theme's own dialog: the question, Cancel, and the button's own label to go ahead.
+  function askConfirm(msg, yesLabel, then) {
+    var d = document.querySelector("[data-cv-confirm-dialog]");
+    if (!d) {
+      d = document.createElement("dialog"); d.setAttribute("data-cv-confirm-dialog", "");
+      d.innerHTML = '<p class="cv-confirm__msg"></p><div class="cv-confirm__acts"><button type="button" class="cv-btn cv-btn--outline cv-btn--sm" data-cv-confirm-no></button><button type="button" class="cv-btn cv-btn--sm" data-cv-confirm-yes></button></div>';
+      d.addEventListener("click", function (ev) { if (ev.target === d) d.close(); });
+      document.body.appendChild(d);
+    }
+    var scheme = (cur().getAttribute("data-notice-class") || "").match(/tf-scheme-\S+/);
+    d.className = "cv cv-confirm" + (scheme ? " " + scheme[0] : "");
+    d.querySelector(".cv-confirm__msg").textContent = msg;
+    var no = d.querySelector("[data-cv-confirm-no]"), yes = d.querySelector("[data-cv-confirm-yes]");
+    no.textContent = cur().getAttribute("data-cancel-label"); yes.textContent = yesLabel;
+    no.onclick = function () { d.close(); };
+    yes.onclick = function () { d.close(); then(); };
+    d.showModal(); no.focus();
+  }
+  onDoc("submit", function (e) {
+    var b = e.submitter, f = e.target, msg = b && b.getAttribute("data-cv-confirm");
+    if (!msg) return;
+    if (f.__cvConfirmed) { f.__cvConfirmed = false; return; }
+    e.preventDefault(); e.stopImmediatePropagation();
+    askConfirm(msg, (b.textContent || "").trim(), function () { f.__cvConfirmed = true; f.requestSubmit(b); });
+  }, true);
+  // Card option picker: choose a variant on the card, then add without leaving the grid. The inline
+  // picker (data-cv-pick-inline) stays in the card and fills the card's own quick-add form and price.
+  function pickState(pick) {
+    var inline = pick.hasAttribute("data-cv-pick-inline"), scope = inline ? (pick.closest(".cv-card") || pick) : pick;
+    var rows = []; try { rows = JSON.parse(pick.getAttribute("data-matrix") || "[]"); } catch (_) {}
+    var sel = {};
+    pick.querySelectorAll("[data-cv-pick-attr]").forEach(function (g) {
+      var on = g.querySelector('[aria-pressed="true"]'); if (on) sel[g.getAttribute("data-cv-pick-attr")] = on.getAttribute("data-cv-pick-val");
+    });
+    var groups = pick.querySelectorAll("[data-cv-pick-attr]");
+    groups.forEach(function (g) {
+      var attr = g.getAttribute("data-cv-pick-attr");
+      g.querySelectorAll("[data-cv-pick-val]").forEach(function (b) {
+        var val = b.getAttribute("data-cv-pick-val");
+        var ok = rows.some(function (r) {
+          if (!r.available_for_sale || !r.options || r.options[attr] !== val) return false;
+          for (var k in sel) { if (k !== attr && r.options[k] !== sel[k]) return false; }
+          return true;
+        });
+        b.classList.toggle("is-off", !ok);
+      });
+    });
+    var match = null;
+    if (Object.keys(sel).length === groups.length) {
+      match = rows.filter(function (r) { for (var k in sel) { if (!r.options || r.options[k] !== sel[k]) return false; } return true; })[0] || null;
+    }
+    var out = scope.querySelector("[data-cv-pick-variant]"); if (out) out.value = match ? match.id : "";
+    var btn = scope.querySelector("[data-cv-pick-submit]");
+    if (btn) btn.disabled = inline ? !!(match && !match.available_for_sale) : !(match && match.available_for_sale);
+    var px = match && pick.querySelector('[data-cv-pick-px="' + match.id + '"]');
+    var price = scope.querySelector("[data-cv-pick-price]");
+    if (price) price.textContent = match ? (match.available_for_sale ? (px ? px.textContent : match.price_str || "") : pick.getAttribute("data-unavailable")) : "";
+    if (inline) {
+      var base = scope.querySelector("[data-cv-pick-base]");
+      if (price) price.hidden = !match; if (base) base.hidden = !!match;
+      if (match) { pick.classList.remove("is-missing"); var hint = pick.querySelector("[data-cv-pick-hint]"); if (hint) hint.hidden = true; }
+    }
+  }
+  // Quick add from a card with an inline picker waits for a complete choice: it points to what is missing instead.
+  onDoc("submit", function (e) {
+    var f = e.target, v = f && f.querySelector && f.querySelector("[data-cv-pick-variant]");
+    var card = v && f.closest(".cv-card"), pick = card && card.querySelector("[data-cv-pick-inline]");
+    if (!pick || v.value) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    pick.classList.add("is-missing");
+    var hint = pick.querySelector("[data-cv-pick-hint]"); if (hint) hint.hidden = false;
+    var gap = [].filter.call(pick.querySelectorAll("[data-cv-pick-attr]"), function (g) { return !g.querySelector('[aria-pressed="true"]'); })[0];
+    var first = gap && gap.querySelector("[data-cv-pick-val]:not(.is-off)") || gap && gap.querySelector("[data-cv-pick-val]");
+    if (first) first.focus();
+  }, true);
+  function closePicks(except) {
+    document.querySelectorAll("[data-cv-pick]:not([hidden]):not([data-cv-pick-inline])").forEach(function (p) {
+      if (p === except) return; p.hidden = true;
+      var o = p.parentNode.querySelector("[data-cv-pick-open]"); if (o) o.setAttribute("aria-expanded", "false");
+    });
+  }
+  onDoc("click", function (e) {
+    var open = e.target.closest && e.target.closest("[data-cv-pick-open]");
+    if (open) {
+      var pick = open.parentNode.querySelector("[data-cv-pick]");
+      closePicks(pick);
+      pick.hidden = !pick.hidden; open.setAttribute("aria-expanded", pick.hidden ? "false" : "true");
+      if (!pick.hidden) {
+        pick.querySelectorAll("[data-cv-pick-attr]").forEach(function (g) {
+          var vals = g.querySelectorAll("[data-cv-pick-val]"); if (vals.length === 1) vals[0].setAttribute("aria-pressed", "true");
+        });
+        pickState(pick);
+      }
+      return;
+    }
+    if (e.target.closest && e.target.closest("[data-cv-pick-close]")) { closePicks(null); return; }
+    var val = e.target.closest && e.target.closest("[data-cv-pick-val]");
+    if (val) {
+      var g = val.closest("[data-cv-pick-attr]"), was = val.getAttribute("aria-pressed") === "true";
+      g.querySelectorAll("[data-cv-pick-val]").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+      if (!was) val.setAttribute("aria-pressed", "true");
+      pickState(val.closest("[data-cv-pick]"));
+      return;
+    }
+    if (!(e.target.closest && e.target.closest("[data-cv-pick]"))) closePicks(null);
+  });
+  onDoc("tf:action-done", function (e) {
+    var f = e.detail && e.detail.form; var pick = f && f.closest && f.closest("[data-cv-pick]");
+    if (pick) setTimeout(function () { closePicks(null); }, 900);
+  });
+  onDoc("keydown", function (e) { if (e.key === "Escape") closePicks(null); });
+  // Button feedback for hosted forms: spinner while sending, a short confirmation after.
+  var lastSubmit = null;
+  onDoc("click", function (e) {
+    var b = e.target.closest && e.target.closest("form [type=submit]");
+    if (b) lastSubmit = b;
+  }, true);
+  function buttonFor(form) {
+    if (lastSubmit && lastSubmit.form === form) return lastSubmit;
+    return form && form.querySelector("[type=submit]");
+  }
+  var busy = new WeakMap();
+  onDoc("tf:action-start", function (e) {
+    var form = e.detail && e.detail.form, b = buttonFor(form);
+    if (!b || !b.classList.contains("cv-btn")) return;
+    busy.set(form, b); b.classList.add("is-loading"); b.setAttribute("aria-busy", "true");
+  });
+  function finish(e, ok) {
+    var form = e.detail && e.detail.form, b = form && busy.get(form);
+    if (!b) return;
+    busy.delete(form); b.classList.remove("is-loading"); b.removeAttribute("aria-busy");
+    if (!ok || e.detail.action !== "cart_add" || !b.isConnected) return;
+    var label = [].slice.call(b.childNodes), ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg"), path = document.createElementNS(ns, "path");
+    svg.setAttribute("class", "cv-icon"); svg.setAttribute("viewBox", "0 0 24 24"); svg.setAttribute("aria-hidden", "true"); path.setAttribute("d", "m5 12 5 5L20 7"); svg.appendChild(path);
+    b.classList.add("is-done");
+    b.replaceChildren(svg, document.createTextNode(cur().getAttribute("data-added-label") || ""));
+    setTimeout(function () { if (b.isConnected) { b.replaceChildren.apply(b, label); b.classList.remove("is-done"); } }, 1600);
+  }
+  // Wishlist limit: the header carries the saved count and the store's maximum. When the wishlist
+  // is full, hearts that would add are marked and explain why instead of sending a save the platform
+  // refuses; a refusal the platform does send (its limit message included) shows at the button.
+  function wishState() {
+    var h = cur(), max = parseInt(h.getAttribute("data-cv-wish-max"), 10) || 0, n = parseInt(h.getAttribute("data-cv-wish-count"), 10) || 0;
+    return { full: max > 0 && n >= max };
+  }
+  function wishMark() {
+    var full = wishState().full;
+    document.querySelectorAll("[data-cv-wish]").forEach(function (b) {
+      var off = full && b.getAttribute("aria-pressed") !== "true";
+      b.classList.toggle("is-full", off);
+      if (off) b.setAttribute("aria-disabled", "true"); else b.removeAttribute("aria-disabled");
+    });
+  }
+  function wishSay(form, msg) {
+    if (!form || !msg) return;
+    var host = form.closest(".cv-card__media") || form, m = host.querySelector("[data-cv-wishmsg]");
+    if (!m) { m = document.createElement("p"); m.className = "cv-wishmsg"; m.setAttribute("data-cv-wishmsg", ""); m.setAttribute("role", "alert"); host.appendChild(m); }
+    m.textContent = msg; m.hidden = false;
+    clearTimeout(m.__cvT); m.__cvT = setTimeout(function () { m.hidden = true; }, 5000);
+  }
+  onDoc("submit", function (e) {
+    var f = e.target, b = f && f.querySelector && f.querySelector("[data-cv-wish]");
+    if (!b || b.getAttribute("aria-pressed") === "true" || !wishState().full) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    wishMark(); wishSay(f, cur().getAttribute("data-cv-wish-full"));
+  }, true);
+  onDoc("tf:action-error", function (e) {
+    var d = e.detail || {}, errs = d.result && d.result.user_errors;
+    if (!d.form || !/^wishlist_(toggle|add)$/.test(d.action || "") || !errs || !errs.length) return;
+    var msg = errs.map(function (u) { return u.message; }).filter(Boolean).join(" ");
+    if (!msg) return;
+    e.preventDefault(); wishSay(d.form, msg);
+  });
+  if (once) {
+    var wishT = 0;
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wishMark); else wishMark();
+    // Cards arrive later too (filters, more products, refreshed sections).
+    new MutationObserver(function () { cancelAnimationFrame(wishT); wishT = requestAnimationFrame(wishMark); }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+  // Wishlist toggles keep their section (the bridge does not re-render it), so
+  // the button reflects the saved state the action returns, and so does every other
+  // heart for the same product and variant (the product page's button and its sticky bar's).
+  function wishKey(f) {
+    var p = f && f.querySelector('[name="product_id"]'), v = f && f.querySelector('[name="variant_id"]');
+    return p ? p.value + ":" + (v ? v.value : "") : null;
+  }
+  onDoc("tf:action-success", function (e) {
+    var d = e.detail || {}, form = d.form;
+    if (!form || !/^wishlist_(toggle|add|remove)$/.test(d.action || "")) return;
+    var wl = d.result && d.result.wishlist;
+    if (wl && typeof wl.item_count === "number") { cur().setAttribute("data-cv-wish-count", String(wl.item_count)); requestAnimationFrame(wishMark); }
+    var state = d.result && d.result.product_session_state;
+    var s = state && (state.variant || state.product);
+    if (!s || !s.wishlist) return;
+    var saved = !!s.wishlist.direct_saved, key = wishKey(form);
+    document.querySelectorAll("[data-cv-wish]").forEach(function (b) {
+      var f = b.closest("form");
+      if (f !== form && (!key || wishKey(f) !== key)) return;
+      b.setAttribute("aria-pressed", saved ? "true" : "false");
+      var label = b.querySelector("[data-cv-wish-label]");
+      var text = b.getAttribute(saved ? "data-label-saved" : "data-label-add");
+      if (label && text) label.textContent = text;
+    });
+    if (saved && d.action !== "wishlist_remove") wishToast();
+  });
+  // The first save of a visit shows the theme's toast with a link to the wishlist (Theme settings ›
+  // Notifications); later saves only fill the heart.
+  function wishToast() {
+    var n = document.querySelector("[data-cv-wish-toast]"), text = n && n.querySelector("[data-cv-wish-toast-text]");
+    if (!text) return;
+    try { if (sessionStorage.getItem("cv-wish-toast")) return; sessionStorage.setItem("cv-wish-toast", "1"); } catch (err) {}
+    text.textContent = text.getAttribute("data-text");
+    n.hidden = false; toastLater(n, true);
+  }
+  // Forms in a [data-cv-notice-host] show the platform's own message inline, where a
+  // submission without JavaScript shows form_notice. A host the bridge re-renders
+  // (data-tf-refresh) gets the message after its refresh.
+  var inlineSkip = /^(cart_(?!notify_me$)|wishlist_|discount_code_|auth_code_send$|login$|register$|logout$|localization_set$|consent_)/;
+  var pendingNotice = new WeakMap();
+  function noticeIn(host, ok, msg) {
+    var n = host && host.querySelector("[data-cv-notice]");
+    if (!n || !msg) return false;
+    n.textContent = msg; n.hidden = false;
+    // A message inside a folded section (the cart line's Notify me) opens it, so it is seen.
+    var fold = n.closest("details"); if (fold) fold.open = true;
+    n.className = n.className.replace(/\bcv-notice--(ok|error)\b/g, "").replace(/\s+/g, " ").trim() + (ok ? " cv-notice--ok" : " cv-notice--error");
+    n.setAttribute("role", ok ? "status" : "alert");
+    if (n.classList.contains("cv-toast")) { toastLater(n, ok); return true; }
+    var r = n.getBoundingClientRect();
+    if (r.top < 0 || r.bottom > window.innerHeight) n.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    return true;
+  }
+  // A toast hides itself: a confirmation after 4 seconds, an error after 8.
+  function toastLater(n, ok) {
+    clearTimeout(n.__cvToast);
+    var ms = +cur().getAttribute("data-notice-ms") || 4000;
+    n.__cvToast = setTimeout(function () { n.hidden = true; }, ok ? ms : ms * 2);
+  }
+  // A toast the server rendered (a submission without the bridge) hides the same way.
+  document.querySelectorAll(".cv-toast:not([hidden])").forEach(function (n) { toastLater(n, !n.matches(".cv-notice--error")); });
+  onDoc("tf:action-success", function (e) {
+    var d = e.detail || {}, form = d.form, host = form && form.closest && form.closest("[data-cv-notice-host]");
+    if (!host || inlineSkip.test(d.action || "")) return;
+    var msg = d.result && d.result.response && d.result.response.message;
+    var refreshed = host.closest("[data-tf-refresh]");
+    pendingNotice.set(form, { refresh: refreshed && refreshed.getAttribute("data-tf-refresh"), host: host, key: host.getAttribute("data-cv-notice-host"), msg: msg, keep: /_update$/.test(d.action || "") });
+  });
+  onDoc("tf:action-done", function (e) {
+    var form = e.detail && e.detail.form, p = form && pendingNotice.get(form);
+    if (!p) return;
+    pendingNotice.delete(form);
+    var host = p.host.isConnected ? p.host : p.refresh && document.querySelector('[data-tf-refresh="' + p.refresh + '"]');
+    // After a refresh, the same form's host is found by its key (each cart
+    // line's Notify me has its own), not the section's first host.
+    if (host && !host.hasAttribute("data-cv-notice-host")) {
+      var keyed = p.key && host.querySelector('[data-cv-notice-host="' + (window.CSS && CSS.escape ? CSS.escape(p.key) : p.key) + '"]');
+      host = keyed || host.querySelector("[data-cv-notice-host]") || host;
+    }
+    noticeIn(host, true, p.msg);
+    if (form.isConnected && !p.keep) form.reset();
+  });
+  onDoc("tf:action-error", function (e) {
+    var d = e.detail || {}, form = d.form, host = form && form.closest && form.closest("[data-cv-notice-host]");
+    if (!host || inlineSkip.test(d.action || "")) return;
+    var errs = d.result && d.result.user_errors;
+    var msg = errs && errs.length ? errs.map(function (u) { return u.message; }).join(" ") : "";
+    if (noticeIn(host, false, msg)) e.preventDefault();
+  });
+  onDoc("tf:action-done", function (e) { finish(e, true); });
+  onDoc("tf:action-error", function (e) { finish(e, false); });
+  // Back-in-stock forms (partials/notify-me): Email or Text message shows, requires and sends only the chosen
+  // contact field; a sent form is reset back to Email; the phone goes as + and digits only.
+  function notifySync(form) {
+    var k = form.querySelector("[data-cv-notify-kind]:checked"); if (!k) return;
+    // A field is an input, or a phone field's wrapper whose number and sent value switch together.
+    form.querySelectorAll("[data-cv-notify-field]").forEach(function (f) {
+      var on = f.getAttribute("data-cv-notify-field") === k.value;
+      f.hidden = !on;
+      (f.matches("input") ? [f] : [].slice.call(f.querySelectorAll("[data-cv-phone-num], [data-cv-phone-out]"))).forEach(function (i) {
+        i.disabled = !on; if (i.type !== "hidden") i.required = on;
+      });
+    });
+  }
+  onDoc("change", function (e) { if (e.target.matches && e.target.matches("[data-cv-notify-kind]")) notifySync(e.target.form); });
+  onDoc("reset", function (e) { var f = e.target; if (f.querySelector && f.querySelector("[data-cv-notify-kind]")) setTimeout(function () { notifySync(f); }); }, true);
+  if (once) addEventListener("submit", function (e) {
+    var ph = e.target.querySelector && e.target.querySelector('[data-cv-notify-field="sms"] [name="phone"]:not(:disabled)');
+    if (ph) ph.value = ph.value.replace(/[^\d+]/g, "");
+  }, true);
+  // Sticky behaviour.
+  var mode = root.getAttribute("data-sticky");
+  window.addEventListener("scroll", function onScroll1() {
+    if (!root.isConnected) { window.removeEventListener("scroll", onScroll1); return; }
+    root.classList.toggle("is-scrolled", window.scrollY > 4); }, { passive: true });
+  if (mode === "always" || mode === "scroll-up") {
+    root.classList.add("is-sticky");
+    if (mode === "scroll-up") {
+      var lastY = window.scrollY;
+      window.addEventListener("scroll", function onScroll2() {
+        if (!root.isConnected) { window.removeEventListener("scroll", onScroll2); return; }
+        var y = window.scrollY;
+        // A search panel that is open (or an always-shown search field the shopper is typing in) keeps the header in view.
+        var sp = root.querySelector("[data-cv-search]");
+        var hide = y > lastY && y > root.offsetHeight * 2 && sp && (sp.hasAttribute("data-cv-search-inline") ? !sp.contains(document.activeElement) : sp.hidden !== false);
+        root.classList.toggle("is-hidden", !!hide);
+        lastY = y;
+      }, { passive: true });
+    }
+  }
+  // Predictive search (partials/suggest-script.html, shared with the search page).
+  window.cvSuggest(root.querySelector("[data-cv-suggest-input]"), root.querySelector("[data-cv-suggest]"));
+})();
+</script>
+{%- comment -%}partial:loc-script{%- endcomment -%}
+<script>
+(function () {
+  if (window.__cvLoc) return; window.__cvLoc = true;
+  // Dropdown pickers submit on change.
+  if (!window.__cvAutosubmit) {
+    window.__cvAutosubmit = true;
+    document.addEventListener("change", function (e) {
+      var s = e.target.closest && e.target.closest("select[data-cv-autosubmit]");
+      if (s && s.form) s.form.requestSubmit ? s.form.requestSubmit() : s.form.submit();
+    });
+  }
+  // Focus rings follow the last input: a click or a tap opens a list with focus on the current choice but no ring (Safari otherwise rings
+  // focus moved by script after a tap); a key brings the ring back. Pages without the header (the gate pages) get the page-wide cv-pointer
+  // switch from here.
+  var kbd = false, html = document.documentElement;
+  addEventListener("pointerdown", function () { kbd = false; html.classList.add("cv-pointer"); }, true);
+  addEventListener("keydown", function (e) {
+    if (e.key !== "Tab" && e.key !== "Escape" && !/^Arrow/.test(e.key) && e.key !== "Enter" && e.key !== " ") return;
+    kbd = true; html.classList.remove("cv-pointer");
+    document.querySelectorAll("dialog[data-cv-loc-dlg].is-pointer").forEach(function (d) { d.classList.remove("is-pointer"); });
+  }, true);
+  // List pickers: the trigger opens its <dialog> (modal, so focus stays in it and Escape closes it). The pill's list sits under the pill on
+  // wider screens, lined up with it on the page grid; every list is a bottom sheet on phones.
+  var wide = window.matchMedia("(min-width: 750px)");
+  function place(d, t) {
+    if (!d.classList.contains("cv-loc-dlg--pill")) return;
+    if (!wide.matches) { ["--cv-loc-y", "--cv-loc-x", "--cv-loc-b", "--cv-loc-w"].forEach(function (p) { d.style.removeProperty(p); }); return; }
+    var r = t.getBoundingClientRect(), vw = html.clientWidth, vh = window.innerHeight;
+    // The grid: the content box of the row the trigger sits in (the header bar, the gate's top row), else 16px in from the window.
+    var g = t.closest(".cv-wrap, .cv-gate__top"), lo = 16, hi = vw - 16;
+    if (g) {
+      var gr = g.getBoundingClientRect(), gs = getComputedStyle(g);
+      lo = Math.max(lo, gr.left + parseFloat(gs.paddingLeft)); hi = Math.min(hi, gr.right - parseFloat(gs.paddingRight));
+    }
+    var w = Math.min(340, hi - lo);
+    // The list's edge meets the trigger's: the right edges when the trigger is in the right half of the row, else the left edges.
+    var left = (r.left + r.right) / 2 > (lo + hi) / 2 ? r.right - w : r.left;
+    left = Math.max(lo, Math.min(left, hi - w));
+    var rtl = getComputedStyle(d).direction === "rtl";
+    d.style.setProperty("--cv-loc-w", w + "px");
+    d.style.setProperty("--cv-loc-x", (rtl ? vw - left - w : left) + "px");
+    var below = vh - r.bottom, y = below > 280 || below > r.top ? r.bottom + 8 : null;
+    if (y === null) { d.style.setProperty("--cv-loc-y", "auto"); d.style.setProperty("--cv-loc-b", (vh - r.top + 8) + "px"); }
+    else { d.style.setProperty("--cv-loc-y", y + "px"); d.style.removeProperty("--cv-loc-b"); }
+  }
+  function open(t) {
+    var d = document.getElementById(t.getAttribute("data-cv-loc-open"));
+    if (!d || d.open || !d.showModal) return;
+    place(d, t);
+    d.classList.toggle("is-pointer", !kbd);
+    d.showModal();
+    t.setAttribute("aria-expanded", "true");
+    d.__cvTrigger = t;
+    // Wider screens start in the first list's search, if it has one; otherwise (and on phones, where it would raise the keyboard) on the
+    // current choice.
+    var search = wide.matches && d.querySelector(".cv-loc-dlg__group:first-child [data-cv-loc-search]");
+    var cur = d.querySelector('.cv-loc-dlg__opt[aria-current="true"], .cv-loc-dlg__chip[aria-current="true"]');
+    var focus = search || cur;
+    if (focus) focus.focus({ preventScroll: true, focusVisible: kbd });
+    if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest" });
+  }
+  function norm(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function filter(input) {
+    // Each list (countries, languages) has its own search.
+    var d = input.closest(".cv-loc-dlg__group") || input.closest("dialog"), q = norm(input.value.trim()), shown = 0;
+    d.querySelectorAll("[data-cv-loc-item]").forEach(function (li) {
+      var hit = !q || norm(li.getAttribute("data-cv-loc-q")).indexOf(q) !== -1 || norm(li.textContent).indexOf(q) !== -1;
+      li.hidden = !hit; if (hit) shown++;
+    });
+    var none = d.querySelector("[data-cv-loc-none]"); if (none) none.hidden = shown > 0;
+  }
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest) return;
+    var t = e.target.closest("[data-cv-loc-open]");
+    if (t) { open(t); return; }
+    var x = e.target.closest("[data-cv-loc-close]");
+    if (x) { x.closest("dialog").close(); return; }
+    // A click on the backdrop (the dialog element itself, outside its content) closes it.
+    if (e.target.matches && e.target.matches("dialog[data-cv-loc-dlg]")) {
+      var r = e.target.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
+    }
+  });
+  document.addEventListener("input", function (e) { if (e.target.matches && e.target.matches("[data-cv-loc-search]")) filter(e.target); });
+  document.addEventListener("close", function (e) {
+    var d = e.target;
+    if (!d.matches || !d.matches("dialog[data-cv-loc-dlg]")) return;
+    if (d.__cvTrigger) d.__cvTrigger.setAttribute("aria-expanded", "false");
+    d.querySelectorAll("[data-cv-loc-search]").forEach(function (s) { if (s.value) { s.value = ""; filter(s); } });
+  }, true);
+  window.addEventListener("resize", function () {
+    document.querySelectorAll("dialog[data-cv-loc-dlg][open]").forEach(function (d) { if (d.__cvTrigger) place(d, d.__cvTrigger); });
+  });
+})();
+</script>
+{%- comment -%}/partial:loc-script{%- endcomment -%}
+{%- comment -%}partial:pickup-sheet{%- endcomment -%}
+{%- comment -%} Delivery or pickup (ctx.shopping, shop.pickup_locations). Every header renders this after its script: the sheet the header chip,
+  the menu sheet's row, the product page and the cart open (any [data-cv-pk-open]), and the styles and script every pickup surface uses.
+  It renders only while the store offers pickup to this shopper (shopping.pickup_available), so a store without pickup gets nothing; in the
+  editor it brings the style of the hints that say where pickup turns on. Choosing posts shopping_mode_set (a plain form without script);
+  with the bridge the page reloads, since every stock figure on it changes with the mode. The sheet is a modal <dialog>: focus stays in it,
+  Escape closes it, and both keys stop here so a cart drawer or quick view under it stays open. {%- endcomment -%}
+{%- comment -%} The platform's word on the pickup choice: shopping.notice when it reset a pickup store the shopper's market no longer offers to
+  delivery, or a refused shopping_mode_set (form_notice after a plain post; the script fills it after a bridge call). {%- endcomment -%}
+{%- assign cv_pk_msg = shopping.notice -%}
+{%- if cv_pk_msg == blank and form_notice.success == false -%}{%- if form_notice.code contains 'SHOPPING_MODE' or form_notice.code contains 'PICKUP_LOCATION' -%}{%- assign cv_pk_msg = form_notice.message -%}{%- endif -%}{%- endif -%}
+{%- if shopping.pickup_available or cv_pk_msg != blank -%}
+<style>
+  .cv-pk-toast { position: fixed; z-index: 90; inset-inline: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: flex-start; gap: 10px;
+    max-width: 440px; margin-inline: auto; padding: 12px 12px 12px 16px; font-size: 14px; line-height: 1.45; color: var(--text); background: var(--bg); border-radius: 14px;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 18px 50px -18px rgb(0 0 0 / 0.4); }
+  .cv-pk-toast[hidden] { display: none; }
+  .cv-pk-toast p { flex: 1; min-width: 0; margin: 0; }
+  .cv-pk-toast button { flex: none; width: 28px; height: 28px; padding: 0; font: inherit; font-size: 18px; line-height: 1; color: var(--text-muted); background: none; border: 0; border-radius: 50%; cursor: pointer; }
+  .cv-pk-toast button:hover { background: var(--cv-soft); }
+</style>
+<div class="cv-pk-toast" role="status" data-cv-pk-toast{% if cv_pk_msg == blank %} hidden{% endif %}><p dir="auto" data-cv-pk-toast-text>{{ cv_pk_msg }}</p><button type="button" aria-label="{{ 'general.close' | t | escape }}" onclick="this.parentNode.hidden=true">×</button></div>
+{%- endif -%}
+{%- if shopping.pickup_available -%}
+{%- assign cv_pk_here = shopping.pickup_location -%}
+<style>
+  /* Header chip: flat in the bar like the country picker. */
+  /* Listing pages: the store the catalog shows, above the grid. */
+  .cv-pk-cat { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; margin: 0 0 16px; padding: 10px 14px; font-size: 14px; background: var(--cv-soft); border-radius: 12px; }
+  .cv-pk-cat .cv-pk-ico { width: 16px; height: 16px; }
+  .cv-pk-chip { display: inline-flex; align-items: center; gap: 7px; min-width: 0; max-width: 240px; height: 36px; padding: 0 10px 0 12px; font: inherit; font-size: 13.5px; font-weight: 500;
+    color: inherit; background: transparent; border: 0; border-radius: 999px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color 0.2s var(--cv-ease); }
+  .cv-pk-chip:hover { background: var(--cv-soft); }
+  .cv-pk-chip .cv-pk-ico { width: 16px; height: 16px; }
+  .cv-pk-chip__text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-pk-chip__chev { flex: none; width: 14px; height: 14px; opacity: 0.6; }
+  @media (max-width: 749px) {
+    .cv-pk-chip { max-width: 44vw; height: 44px; }
+    /* Phones: the menu sheet carries the choice; "Icon only" keeps a compact chip in the bar as well. */
+    .cv-pk-chip--text.cv-pk-chip--has-mnav { display: none; }
+    .cv-pk-chip--icon { width: 44px; padding: 0; justify-content: center; }
+    .cv-pk-chip--icon :is(.cv-pk-chip__text, .cv-pk-chip__chev) { display: none; }
+  }
+  .cv-mnav__pk { display: flex; align-items: center; gap: 12px; width: calc(100% - 28px); margin: 6px 14px 0; padding: 12px 14px; font: inherit; font-size: 15px; color: var(--text); text-align: start;
+    background: var(--cv-soft); border: 0; border-radius: 14px; cursor: pointer; }
+  .cv-mnav__pk .cv-pk-ico { width: 20px; height: 20px; }
+  .cv-mnav__pk-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+  .cv-mnav__pk-text small { font-size: 12.5px; color: var(--text-muted); }
+  .cv-mnav__pk .cv-icon { width: 18px; height: 18px; flex: none; color: var(--text-muted); }
+  [dir="rtl"] .cv-mnav__pk .cv-icon { transform: scaleX(-1); }
+  /* The sheet: a side panel from the end edge; a bottom sheet on phones (like the filters and the country picker). */
+  .cv-pk-dlg { box-sizing: border-box; flex-direction: column; width: min(440px, calc(100vw - 20px)); max-width: none; height: calc(100% - 20px); max-height: none;
+    margin-block: 10px; margin-inline: auto 10px; padding: 0; overflow: hidden; color: var(--text); background: var(--bg); border: 0; border-radius: 22px;
+    box-shadow: 0 0 0 1px var(--cv-line), 0 30px 80px -24px rgb(0 0 0 / 0.45); }
+  .cv-pk-dlg[open] { display: flex; }
+  .cv-pk-dlg::backdrop { background: rgb(0 0 0 / 0.28); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .cv-pk-dlg__handle { display: none; }
+  .cv-pk-dlg__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px 6px; padding-inline: 22px 16px; }
+  .cv-pk-dlg__title { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+  .cv-pk-dlg__close { display: grid; place-items: center; flex: none; width: 40px; height: 40px; padding: 0; color: var(--text); background: transparent; border: 0; border-radius: 50%; cursor: pointer; }
+  .cv-pk-dlg__close:hover { background: var(--cv-soft); }
+  .cv-pk-dlg__body { flex: 1; min-height: 0; display: grid; align-content: start; gap: 10px; padding: 8px 14px 18px; overflow-y: auto; overscroll-behavior: contain; }
+  .cv-pk-dlg__form { display: grid; gap: 8px; margin: 0; }
+  .cv-pk-dlg__sub { margin: 10px 0 0; padding-inline: 8px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .cv-pk-dlg__search { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 10px; padding-inline: 16px 8px; background: var(--cv-soft); border-radius: var(--cv-field-radius, 14px); }
+  .cv-pk-dlg__search .cv-icon { flex: none; color: var(--text-muted); }
+  .cv-pk-dlg__search .cv-input { min-height: 46px; padding-inline: 0; background: transparent; border: 0; }
+  .cv-pk-dlg__search .cv-input:is(:hover, :focus) { background: transparent; }
+  .cv-pk-dlg__list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .cv-pk-dlg__list [hidden] { display: none; }
+  .cv-pk-dlg__none { margin: 0; padding: 10px 14px; font-size: 14px; color: var(--text-muted); }
+  .cv-pk-opt { position: relative; display: flex; align-items: flex-start; gap: 14px; width: 100%; padding: 14px 16px; font: inherit; font-size: 14px; line-height: 1.45; color: var(--text);
+    text-align: start; background: var(--bg); border: 0; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--cv-line); cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: box-shadow 0.15s var(--cv-ease), background-color 0.15s var(--cv-ease); }
+  .cv-pk-opt:hover { background: var(--cv-soft); }
+  .cv-pk-opt[aria-current="true"] { box-shadow: inset 0 0 0 2px var(--text); }
+  .cv-pk-opt[aria-busy="true"] { opacity: 0.6; cursor: progress; }
+  .cv-pk-opt > .cv-pk-ico { flex: none; width: 22px; height: 22px; margin-top: 1px; }
+  .cv-pk-opt__main { flex: 1; min-width: 0; display: grid; gap: 3px; }
+  .cv-pk-opt__name { font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; }
+  .cv-pk-opt__line { display: block; color: var(--text-muted); }
+  .cv-pk-opt__ready { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-weight: 500; color: var(--text); }
+  .cv-pk-opt__ready::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--status-ready); }
+  .cv-pk-opt__note { display: block; margin-top: 4px; font-size: 13px; color: var(--text-muted); }
+  .cv-pk-opt__tick { flex: none; width: 20px; height: 20px; }
+  /* Product page and cart. */
+  .cv-pk-line { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 14px 0 0; font-size: 14px; line-height: 1.5; }
+  .cv-pk-line .cv-pk-ico { width: 17px; height: 17px; }
+  .cv-pk-line__text { min-width: 0; }
+  .cv-pk-line__ready { color: var(--text-muted); }
+  .cv-pk-link { padding: 0; font: inherit; color: inherit; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; background: none; border: 0; cursor: pointer; }
+  .cv-pk-link:hover { text-decoration-thickness: 2px; }
+  .cv-pk-box { display: grid; gap: 10px; margin-top: 14px; padding: 14px 16px; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--cv-line); }
+  .cv-pk-box .cv-pk-line { margin: 0; }
+  .cv-pk-off { font-weight: 600; }
+  .cv-pk-sub { margin: 0; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .cv-pk-avail { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+  .cv-pk-avail li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; min-height: 44px; }
+  .cv-pk-avail__name { flex: 1; min-width: 0; font-size: 14px; font-weight: 500; }
+  .cv-pk-avail__stock { font-size: 13px; color: var(--text-muted); }
+  .cv-pk-avail__stock::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-inline-end: 6px; border-radius: 50%; background: var(--status-ready); vertical-align: 1px; }
+  .cv-pk-avail__stock--low::before { background: var(--status-low); }
+  .cv-pk-avail form, .cv-pk-acts form { display: contents; }
+  .cv-pk-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+  .cv-pk-cart { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 12px 16px; font-size: 14px; line-height: 1.45; background: var(--cv-soft); border-radius: 16px; }
+  .cv-pk-cart .cv-pk-ico { flex: none; width: 20px; height: 20px; }
+  .cv-pk-cart__text { flex: 1; min-width: 0; }
+  .cv-pk-cart__text strong { font-weight: 600; }
+  .cv-pk-cart .cv-tbtn { flex: none; }
+  .cv-pk-lwarn { display: grid; gap: 4px; }
+  .cv-pk-lwarn .cv-line__warn { margin: 0; }
+  @media (max-width: 749px) {
+    .cv-pk-dlg { position: fixed; inset: auto 0 0; width: 100%; height: auto; max-height: 88svh; margin: 0;
+      border-radius: calc(var(--cv-radius, 16px) * 1.5) calc(var(--cv-radius, 16px) * 1.5) 0 0; box-shadow: 0 -20px 60px -20px rgb(0 0 0 / 0.35); }
+    .cv-pk-dlg__handle { display: block; width: 40px; height: 5px; margin: 9px auto 0; border-radius: 5px; background: color-mix(in srgb, var(--text) 22%, transparent); }
+    .cv-pk-dlg__head { padding-top: 8px; }
+    .cv-pk-dlg__body { padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+    .cv-pk-dlg__close { width: 44px; height: 44px; }
+    .cv-pk-avail .cv-tbtn, .cv-pk-acts .cv-tbtn, .cv-pk-cart .cv-tbtn, .cv-pk-lwarn .cv-tbtn { min-height: 44px; }
+  }
+  html:has(.cv-pk-dlg[open]) { overflow: hidden; }
+  @media (prefers-reduced-motion: no-preference) {
+    .cv-pk-dlg[open] { animation: cv-pk-side 0.36s var(--cv-ease); }
+    [dir="rtl"] .cv-pk-dlg[open] { animation-name: cv-pk-side-rtl; }
+    .cv-pk-dlg[open]::backdrop { animation: cv-pk-fade 0.3s ease-out; }
+    @keyframes cv-pk-side { from { transform: translateX(calc(100% + 12px)); } }
+    @keyframes cv-pk-side-rtl { from { transform: translateX(calc(-100% - 12px)); } }
+    @keyframes cv-pk-fade { from { opacity: 0; } }
+    @media (max-width: 749px) { .cv-pk-dlg[open], [dir="rtl"] .cv-pk-dlg[open] { animation: cv-pk-up 0.42s var(--cv-ease); } @keyframes cv-pk-up { from { transform: translateY(105%); } } }
+  }
+</style>
+<dialog class="cv cv-pk-dlg tf-scheme-{{ settings.color_scheme }}" id="cv-pickup" aria-labelledby="cv-pickup-t" data-cv-pk-dlg>
+  <span class="cv-pk-dlg__handle" aria-hidden="true"></span>
+  <div class="cv-pk-dlg__head">
+    <h2 class="cv-pk-dlg__title" id="cv-pickup-t">{{ 'pickup.title' | t }}</h2>
+    <button class="cv-pk-dlg__close" type="button" data-cv-pk-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+  </div>
+  <div class="cv-pk-dlg__body">
+    {% form 'shopping_mode_set', class: 'cv-pk-dlg__form' %}
+      <button class="cv-pk-opt" type="submit" name="mode" value="delivery"{% if cv_pk_here == nil %} aria-current="true"{% endif %}>
+        <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 6.5h11v10h-11zM13.5 9.5h4l3 3.5v3.5h-7"/><circle cx="6.5" cy="17.5" r="1.75"/><circle cx="16.5" cy="17.5" r="1.75"/></svg>
+        <span class="cv-pk-opt__main"><span class="cv-pk-opt__name">{{ 'pickup.delivery' | t }}</span><span class="cv-pk-opt__line">{{ 'pickup.delivery_note' | t }}</span></span>
+        {%- if cv_pk_here == nil -%}<svg class="cv-icon cv-pk-opt__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+      </button>
+    {% endform %}
+    <h3 class="cv-pk-dlg__sub">{{ 'pickup.pick_up_in_store' | t }}</h3>
+    {%- if shop.pickup_locations.size > 6 -%}
+    <label class="cv-pk-dlg__search cv-shell">
+      <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span class="cv-sr">{{ 'pickup.search' | t }}</span>
+      <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'pickup.search' | t }}" aria-controls="cv-pickup-list" data-cv-pk-search>
+    </label>
+    {%- endif -%}
+    {% form 'shopping_mode_set', class: 'cv-pk-dlg__form' %}
+      <input type="hidden" name="mode" value="pickup">
+      <ul class="cv-pk-dlg__list" id="cv-pickup-list" role="list">
+        {%- for l in shop.pickup_locations -%}
+        <li data-cv-pk-item data-cv-pk-q="{{ l.name | downcase }} {{ l.city | downcase }} {{ l.address_lines | join: ' ' | downcase }}">
+          <button class="cv-pk-opt" type="submit" name="location_id" value="{{ l.id }}"{% if l.selected %} aria-current="true"{% endif %}>
+            <svg class="cv-icon cv-pk-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5 5.5 4h13L20 9.5M4 9.5h16M4 9.5a2.67 2.67 0 0 0 5.33 0 2.67 2.67 0 0 0 5.34 0 2.67 2.67 0 0 0 5.33 0M5.5 12.5V20h13v-7.5M10 20v-4.5h4V20"/></svg>
+            <span class="cv-pk-opt__main">
+              <span class="cv-pk-opt__name" dir="auto">{{ l.name }}</span>
+              <span class="cv-pk-opt__line" dir="auto">{{ l.address_lines | join: ', ' }}</span>
+              {%- if l.ready_in_label != blank -%}<span class="cv-pk-opt__ready">{{ l.ready_in_label }}</span>{%- endif -%}
+              {%- if l.hours != blank -%}<span class="cv-pk-opt__note" dir="auto">{{ l.hours }}</span>{%- endif -%}
+              {%- if l.instructions != blank -%}<span class="cv-pk-opt__note" dir="auto">{{ l.instructions }}</span>{%- endif -%}
+            </span>
+            {%- if l.selected -%}<svg class="cv-icon cv-pk-opt__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="cv-sr">{{ 'pickup.selected' | t }}</span>{%- endif -%}
+          </button>
+        </li>
+        {%- endfor -%}
+      </ul>
+      <p class="cv-pk-dlg__none" role="status" data-cv-pk-none hidden>{{ 'pickup.no_results' | t }}</p>
+    {% endform %}
+  </div>
+</dialog>
+<script>
+(function () {
+  if (window.__cvPk) return; window.__cvPk = true;
+  function dlg() { return document.getElementById("cv-pickup"); }
+  function focusables(d) { return [].filter.call(d.querySelectorAll("a[href], button, input:not([type=hidden]), select, textarea, [tabindex]:not([tabindex='-1'])"), function (x) { return !x.disabled && x.getClientRects().length; }); }
+  function open(t) {
+    var d = dlg(); if (!d || d.open || !d.showModal) return;
+    // From the menu sheet: close it first; focus then returns to the menu button.
+    var back = t;
+    var sheet = t.closest("#cv-mnav");
+    if (sheet) { var x = sheet.querySelector('[data-cv-close="cv-mnav"]'); if (x) x.click(); back = document.querySelector('[aria-controls="cv-mnav"]') || t; }
+    d.__cvBack = back;
+    document.querySelectorAll("[data-cv-pk-open]").forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
+    d.showModal();
+    if (t.isConnected) t.setAttribute("aria-expanded", "true");
+    var focus = d.querySelector('.cv-pk-opt[aria-current="true"]') || d.querySelector(".cv-pk-opt");
+    if (focus) { focus.focus({ preventScroll: true }); if (focus.scrollIntoView) focus.scrollIntoView({ block: "nearest" }); }
+  }
+  function norm(s) { return (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function filter(input) {
+    var d = input.closest("dialog"), q = norm(input.value.trim()), shown = 0;
+    d.querySelectorAll("[data-cv-pk-item]").forEach(function (li) {
+      var hit = !q || norm(li.getAttribute("data-cv-pk-q")).indexOf(q) !== -1 || norm(li.textContent).indexOf(q) !== -1;
+      li.hidden = !hit; if (hit) shown++;
+    });
+    var none = d.querySelector("[data-cv-pk-none]"); if (none) none.hidden = shown > 0;
+  }
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest) return;
+    var t = e.target.closest("[data-cv-pk-open]");
+    if (t) { e.preventDefault(); open(t); return; }
+    if (e.target.closest("[data-cv-pk-close]")) { dlg().close(); return; }
+    // A click on the backdrop (the dialog itself, outside its box) closes it.
+    if (e.target.matches("dialog[data-cv-pk-dlg]")) {
+      var r = e.target.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) e.target.close();
+    }
+  });
+  document.addEventListener("input", function (e) { if (e.target.matches && e.target.matches("[data-cv-pk-search]")) filter(e.target); });
+  // Inside the sheet, Tab cycles through it and Escape closes only the sheet: the keys stop here, before the
+  // document-level handlers of a cart drawer, quick view or menu sheet underneath.
+  document.addEventListener("keydown", function (e) {
+    var d = dlg();
+    if (!d || !d.open || !d.contains(e.target)) return;
+    if (e.key === "Escape") {
+      // A typed search clears first; otherwise the sheet closes (done here, the same in every browser).
+      e.stopPropagation(); e.preventDefault();
+      var s = e.target.matches("[data-cv-pk-search]") && e.target;
+      if (s && s.value) { s.value = ""; filter(s); } else d.close();
+      return;
+    }
+    if (e.key !== "Tab") return;
+    e.stopPropagation();
+    var f = focusables(d); if (!f.length) return;
+    var a = document.activeElement;
+    if (e.shiftKey && a === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  }, true);
+  document.addEventListener("close", function (e) {
+    var d = e.target;
+    if (!d.matches || !d.matches("dialog[data-cv-pk-dlg]")) return;
+    document.querySelectorAll("[data-cv-pk-open]").forEach(function (b) { b.setAttribute("aria-expanded", "false"); });
+    var s = d.querySelector("[data-cv-pk-search]"); if (s && s.value) { s.value = ""; filter(s); }
+    var back = d.__cvBack; d.__cvBack = null;
+    if (back && back.isConnected && back.focus) back.focus({ preventScroll: true });
+  }, true);
+  // Every stock figure on the page follows the mode, so a change reloads it. A refusal keeps the page and shows the platform's message.
+  function isMode(e) { return e.detail && e.detail.action === "shopping_mode_set"; }
+  document.addEventListener("tf:action-start", function (e) {
+    if (!isMode(e) || !e.detail.form) return;
+    var b = e.detail.form.querySelector("button[type=submit]:focus") || document.activeElement;
+    if (b && b.closest && b.closest("form") === e.detail.form) b.setAttribute("aria-busy", "true");
+  });
+  document.addEventListener("tf:action-success", function (e) { if (isMode(e)) window.location.reload(); });
+  document.addEventListener("tf:action-error", function (e) {
+    if (!isMode(e) || !e.detail.form) return;
+    e.detail.form.querySelectorAll('[aria-busy="true"]').forEach(function (b) { b.removeAttribute("aria-busy"); });
+    var errs = e.detail.result && e.detail.result.user_errors, m = errs && errs[0] && errs[0].message, box = document.querySelector("[data-cv-pk-toast]");
+    if (m && box) { box.querySelector("[data-cv-pk-toast-text]").textContent = m; box.hidden = false; }
+  });
+})();
+</script>
+{%- elsif design_mode -%}
+<style>
+  /* Editor only: where the pickup choice would be while the store offers no pickup. */
+  .cv-pk-hint { margin: 14px 0 0; max-width: none; text-align: start; }
+  .cv-hd__actions .cv-pk-hint { max-width: 300px; margin: 0 6px; padding: 6px 10px; overflow: hidden; font-size: 12px; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-mnav .cv-pk-hint { margin: 6px 14px 0; }
+  .cv-cart .cv-pk-hint, .cv-drawer .cv-pk-hint { margin: 0 0 16px; }
+</style>
+{%- endif -%}
+{%- comment -%}/partial:pickup-sheet{%- endcomment -%}
+{%- comment -%}/partial:header-script{%- endcomment -%}
+{%- comment -%}partial:quick-view{%- endcomment -%}
+{%- comment -%} Quick view (theme setting "Choose options opens": Quick view). Any link marked data-cv-qv (a card's Choose options, Shop the look,
+  the hero's pins, Featured product) opens its product over the page: a side drawer on wider screens, a bottom sheet on phones.
+  The content is the product page's own buy box, rendered by the platform for this product and this shopper (?_sections=main-product on
+  the product's address, so the language, market and prices are the page's): media, title, price, options, quantity, Add to cart and
+  Buy it now. Picking an option renders it again for the new choice. Add to cart posts through the platform like on the product page;
+  after an add the drawer closes and the cart behaves as "After adding to cart" says. When the product cannot be shown (an alternative
+  product template without the Product section, a network error) the link opens the product page instead. {%- endcomment -%}
+{%- if theme.settings.card_choose_opens != 'product_page' -%}
+<div class="cv cv-qv" hidden data-cv-qv-root>
+  <div class="cv-qv__backdrop" data-cv-qv-close></div>
+  <div class="cv-qv__panel" role="dialog" aria-modal="true" aria-label="{{ 'products.quick_view' | t }}" data-label="{{ 'products.quick_view' | t }}" tabindex="-1" data-cv-qv-panel>
+    <span class="cv-qv__handle" aria-hidden="true"></span>
+    <button class="cv-qv__close" type="button" data-cv-qv-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+    <div class="cv-qv__body" data-cv-qv-body></div>
+    <template data-cv-qv-wait>
+      <div class="cv-qv__grid cv-qv__wait" role="status">
+        <div class="cv-qv__media"><div class="cv-qv__ph cv-qv__ph--media"></div></div>
+        <div class="cv-qv__info"><div class="cv-qv__ph cv-qv__ph--title"></div><div class="cv-qv__ph cv-qv__ph--line"></div><div class="cv-qv__ph cv-qv__ph--opts"></div><div class="cv-qv__ph cv-qv__ph--btn"></div></div>
+        <span class="cv-sr">{{ 'general.loading' | t }}</span>
+      </div>
+    </template>
+    <template data-cv-qv-details><a class="cv-tbtn cv-qv__details" href="">{{ 'products.view_full_details' | t }}<svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></template>
+  </div>
+</div>
+<script>
+(function () {
+  if (window.__cvQv) return; window.__cvQv = true;
+  var SECTION = "main-product";
+  var st = { seq: 0, open: false, back: null, seen: {} };
+  // The header carries the drawer, but a sticky header is a containing block for fixed elements: the drawer lives on <body>.
+  // A re-rendered header brings a new copy; the one on <body> stays and the copy is dropped.
+  function root() {
+    var r = document.querySelector("body > [data-cv-qv-root]");
+    document.querySelectorAll("[data-cv-qv-root]").forEach(function (x) {
+      if (x === r) return;
+      if (!r) { r = x; document.body.appendChild(x); } else x.remove();
+    });
+    return r;
+  }
+  function part(r, name) { return r.querySelector("[data-cv-qv-" + name + "]"); }
+  function isOpen(r) { return st.open && !!r && !r.hidden; }
+  // The product page's styles come with its HTML. They are scoped to the drawer, rule by rule (every selector under
+  // :where(.cv-qv), which adds no weight), so they style the buy box as on the product page and nothing else on this page.
+  function splitList(sel) {
+    var out = [], depth = 0, from = 0;
+    for (var i = 0; i < sel.length; i++) {
+      var ch = sel.charAt(i);
+      if (ch === "(" || ch === "[") depth++;
+      else if (ch === ")" || ch === "]") depth--;
+      else if (ch === "," && !depth) { out.push(sel.slice(from, i)); from = i + 1; }
+    }
+    out.push(sel.slice(from));
+    return out;
+  }
+  function scopeSelector(sel) {
+    return splitList(sel).map(function (one) {
+      one = one.trim();
+      // Page-level conditions (the document's direction, html classes) stay in front of the scope.
+      var lead = /^(?:(?::root|html|body)(?:\[[^\]]*\]|[.:][\w-]+(?:\([^)]*\))?)*|\[dir[^\]]*\])(?=\s|$)/.exec(one);
+      if (lead) return lead[0] + " :where(.cv-qv)" + one.slice(lead[0].length);
+      return ":where(.cv-qv) " + one;
+    }).join(", ");
+  }
+  function scopeRules(rules) {
+    var css = "";
+    for (var i = 0; i < rules.length; i++) {
+      var r = rules[i];
+      if (r.selectorText !== undefined && r.style) css += scopeSelector(r.selectorText) + " { " + r.style.cssText + " }\n";
+      else if (r.cssRules && r.media) css += "@media " + r.media.mediaText + " {\n" + scopeRules(r.cssRules) + "}\n";
+      else if (r.cssRules && r.conditionText !== undefined && !r.name) css += "@supports " + r.conditionText + " {\n" + scopeRules(r.cssRules) + "}\n";
+      else css += r.cssText + "\n";
+    }
+    return css;
+  }
+  var parser = null;
+  function scopeCSS(text) {
+    parser = parser || document.implementation.createHTMLDocument("");
+    var el = parser.createElement("style"); el.textContent = text; parser.head.appendChild(el);
+    var css = el.sheet ? scopeRules(el.sheet.cssRules) : "";
+    el.remove();
+    return css;
+  }
+  // Each script runs once: they bind to the whole document, guarded against a second run.
+  function adopt(frag) {
+    frag.querySelectorAll("style").forEach(function (s) {
+      var key = "s:" + (s.getAttribute("data-tf-css") || s.textContent.length + ":" + s.textContent.slice(0, 80));
+      if (!st.seen[key]) {
+        st.seen[key] = true;
+        var el = document.createElement("style");
+        el.setAttribute("data-cv-qv-css", "");
+        el.textContent = scopeCSS(s.textContent);
+        document.head.appendChild(el);
+      }
+      s.remove();
+    });
+    frag.querySelectorAll("script").forEach(function (s) {
+      var type = (s.getAttribute("type") || "").toLowerCase();
+      if (!s.src && (type === "" || type === "text/javascript" || type === "module")) {
+        var key = "j:" + s.textContent.length + ":" + s.textContent.slice(0, 160);
+        if (!st.seen[key]) {
+          st.seen[key] = true;
+          var el = document.createElement("script");
+          if (type) el.type = type;
+          el.textContent = s.textContent;
+          document.body.appendChild(el);
+        }
+      }
+      s.remove();
+    });
+  }
+  function absolute(a, base) { a.setAttribute("href", new URL(a.getAttribute("href") || "", base).toString()); }
+  // The photos a gallery shows, in order, without the width each one was rendered at.
+  function mediaKey(el) {
+    return [].map.call(el.querySelectorAll("[data-cv-slide] img"), function (i) { return (i.getAttribute("src") || "").split("?")[0]; }).join("|");
+  }
+  // From the product section: the gallery, and from the details the vendor, title, rating, price, stock, options and buy box.
+  function build(r, sec, href) {
+    var panel = part(r, "panel"), body = part(r, "body");
+    var info = sec.querySelector(".cv-pdp__info") || sec;
+    function pick(sel) { return info.querySelector(sel) || sec.querySelector(sel); }
+    var title = pick(".cv-pdp__title"), buy = pick(".cv-pdp__buy");
+    if (!title || !buy) return false;
+    var details = new URL(href, location.href); details.searchParams.delete("_sections");
+    var grid = document.createElement("div"); grid.className = "cv-qv__grid";
+    var media = document.createElement("div"); media.className = "cv-qv__media";
+    var gallery = sec.querySelector("[data-cv-gallery]");
+    // Picking an option re-renders the section; the photos are the same unless the variant brings its own.
+    // Keep the gallery already on screen when they match, so nothing reloads or flashes.
+    var shown = body.querySelector(".cv-qv__media");
+    if (gallery && shown && mediaKey(shown) === mediaKey(gallery)) {
+      media = shown;
+    } else if (gallery) {
+      gallery.querySelectorAll("[data-cv-gallery-step]").forEach(function (b) { b.remove(); });
+      // Sized for the drawer, not the product page.
+      gallery.querySelectorAll("img[sizes]").forEach(function (i) { i.setAttribute("sizes", "(min-width: 990px) 520px, 100vw"); });
+      media.appendChild(gallery);
+    }
+    var col = document.createElement("div"); col.className = "cv-qv__info"; col.setAttribute("data-cv-notice-host", "");
+    var notice = pick("[data-cv-notice]");
+    if (notice) { notice.hidden = true; notice.textContent = ""; col.appendChild(notice); }
+    var vendor = info.querySelector(".cv-eyebrow"); if (vendor) col.appendChild(vendor);
+    var h = document.createElement("h2"); h.className = "cv-h2 cv-pdp__title cv-qv__title"; h.dir = "auto";
+    var link = document.createElement("a"); link.href = details.toString(); link.textContent = title.textContent.trim(); h.appendChild(link);
+    col.appendChild(h);
+    var rating = pick(".cv-pdp__rating");
+    if (rating) { rating.setAttribute("href", details.toString().split("#")[0] + "#cv-reviews"); col.appendChild(rating); }
+    [".cv-pdp__price-wrap", ".cv-pdp__stock", ".cv-pdp__options"].forEach(function (sel) { var el = pick(sel); if (el) col.appendChild(el); });
+    col.appendChild(buy);
+    var more = part(r, "details").content.firstElementChild.cloneNode(true); more.href = details.toString(); col.appendChild(more);
+    // Option links are written for the product page ("?size=m"): they resolve against the product's address.
+    col.querySelectorAll(".cv-pdp__value[href]").forEach(function (a) { absolute(a, details); a.setAttribute("data-cv-qv-option", ""); });
+    grid.appendChild(media); grid.appendChild(col);
+    // The product page's colour scheme.
+    panel.className = panel.className.replace(/\s*\btf-scheme-\S+/g, "");
+    var scheme = (sec.className.match(/\btf-scheme-\S+/) || [])[0]; if (scheme) panel.classList.add(scheme);
+    panel.setAttribute("aria-label", link.textContent || panel.getAttribute("data-label"));
+    body.replaceChildren(grid);
+    return true;
+  }
+  // Fetch the product section for href and show it. Resolves false when there is nothing to show (the caller opens the page).
+  function load(r, href, keepQty) {
+    var mine = ++st.seq, panel = part(r, "panel"), body = part(r, "body");
+    var qty = keepQty && body.querySelector("input[data-cv-qty]"), q = qty && qty.value;
+    var u = new URL(href, location.href); u.hash = ""; u.searchParams.set("_sections", SECTION);
+    panel.setAttribute("aria-busy", "true"); body.classList.add("is-busy");
+    return fetch(u.toString(), { headers: { "Accept": "application/json" }, credentials: "same-origin" })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        if (mine !== st.seq) return true;
+        var html = data && data.success && data.sections && data.sections[SECTION];
+        if (!html) return false;
+        var t = document.createElement("template"); t.innerHTML = html;
+        var sec = t.content.querySelector('[data-tf-soft-nav="' + SECTION + '"]') || t.content.querySelector(".cv-pdp");
+        if (!sec) return false;
+        adopt(t.content);
+        if (!build(r, sec, href)) return false;
+        var nq = q && body.querySelector("input[data-cv-qty]"); if (nq) nq.value = nq.defaultValue = q;
+        return true;
+      })
+      .catch(function () { return mine !== st.seq; })
+      .then(function (ok) {
+        if (mine === st.seq) { panel.removeAttribute("aria-busy"); body.classList.remove("is-busy"); }
+        return ok;
+      });
+  }
+  function open(trigger, href) {
+    var r = root(); if (!r) return false;
+    st.back = trigger || document.activeElement;
+    part(r, "body").replaceChildren(part(r, "wait").content.cloneNode(true));
+    clearTimeout(r.__cvClosing);
+    st.open = true; r.hidden = false; document.documentElement.style.overflow = "hidden";
+    requestAnimationFrame(function () { if (!st.open) return; r.classList.add("is-open"); r.querySelector(".cv-qv__close").focus(); });
+    load(r, href, false).then(function (ok) { if (!ok && isOpen(r)) { close(false); window.location.href = href; } });
+    return true;
+  }
+  function close(restore) {
+    var r = root(); if (!r || r.hidden) return;
+    st.seq++; st.open = false;
+    r.classList.remove("is-open"); document.documentElement.style.overflow = "";
+    clearTimeout(r.__cvClosing); r.__cvClosing = setTimeout(function () { if (!r.classList.contains("is-open")) r.hidden = true; }, 420);
+    if (restore && st.back && st.back.isConnected && st.back.focus) st.back.focus();
+  }
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var t = e.target.closest && e.target.closest("a[data-cv-qv]");
+    if (t) { if (open(t, t.href)) e.preventDefault(); return; }
+    var r = document.querySelector("body > [data-cv-qv-root]");
+    if (!r || !r.contains(e.target)) return;
+    if (e.target.closest("[data-cv-qv-close]")) { close(true); return; }
+    var o = e.target.closest("a[data-cv-qv-option]");
+    if (o) {
+      e.preventDefault();
+      if (o.classList.contains("is-selected")) return;
+      var href = o.href;
+      load(r, href, true).then(function (ok) {
+        if (!ok && isOpen(r)) { close(false); window.location.href = href; return; }
+        // Focus stays on the chosen value in the new render.
+        var same = [].filter.call(r.querySelectorAll("a[data-cv-qv-option]"), function (a) { return a.href === href; })[0];
+        if (same) same.focus();
+      });
+    }
+  });
+  document.addEventListener("keydown", function (e) {
+    var r = document.querySelector("body > [data-cv-qv-root]");
+    if (!isOpen(r)) return;
+    if (e.key === "Escape") { close(true); return; }
+    // The open drawer is modal: Tab and Shift+Tab cycle inside it.
+    if (e.key !== "Tab") return;
+    var panel = part(r, "panel");
+    var f = [].filter.call(panel.querySelectorAll("a[href], button, input:not([type=hidden]), select, textarea, summary, [tabindex]:not([tabindex='-1'])"), function (x) { return !x.disabled && x.getClientRects().length; });
+    if (!f.length) return;
+    var a = document.activeElement;
+    if (!panel.contains(a) || a === panel) { e.preventDefault(); f[e.shiftKey ? f.length - 1 : 0].focus(); }
+    else if (e.shiftKey && a === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && a === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+  // An add from the drawer closes it before the cart drawer, notice or cart page follows ("After adding to cart").
+  // A refused add keeps it open with the platform's message.
+  document.addEventListener("tf:action-success", function (e) {
+    var d = e.detail || {}, r = document.querySelector("body > [data-cv-qv-root]");
+    if (d.action === "cart_add" && d.form && r && r.contains(d.form)) close(true);
+  });
+  // Coming back to the page (the back button) never shows a drawer left open.
+  addEventListener("pageshow", function (e) { if (e.persisted) close(false); });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", root); else root();
+})();
+</script>
+{%- endif -%}
+{%- comment -%}/partial:quick-view{%- endcomment -%}

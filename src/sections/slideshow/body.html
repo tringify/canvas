@@ -1,0 +1,93 @@
+{%- comment -%} Slideshow: one slide per block. Slide blocks hold the image and the slide's content blocks (heading, text, buttons…). {%- endcomment -%}
+{%- assign cv_live = 0 -%}
+{%- for b in settings.blocks -%}{%- unless b.disabled -%}{%- assign cv_live = cv_live | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+<section class="cv cv-ss cv-ss--{{ settings.height }} tf-scheme-{{ settings.color_scheme }}" data-cv-ss data-autoplay="{{ settings.autoplay }}" data-speed="{{ settings.speed }}" aria-roledescription="{{ 'slideshow.carousel' | t }}" aria-label="{{ 'slideshow.label' | t }}">
+  <div class="cv-ss__track" data-cv-ss-track>
+    {%- assign cv_i = 0 -%}
+    {%- for b in settings.blocks -%}
+      {%- unless b.disabled -%}
+      {%- assign cv_i = cv_i | plus: 1 -%}
+      {%- comment -%} Each block is a slide. A slide without the merchant's image takes the theme photo picked for its place (passed to it as --cv-fb); with No photo
+        the text sits on the colour scheme. {%- endcomment -%}
+      {%- assign cv_fb = blank -%}
+      {%- if b.settings.image == blank -%}
+      {%- assign cv_photo = b.settings.fallback_photo -%}{%- assign cv_photo_i = cv_i -%}{%- assign cv_photo_wide = true -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+      {%- endif -%}
+      <div class="cv-ss__slide{% if b.settings.image == blank and cv_fb == blank %} cv-ss__slide--plain{% endif %}" role="group" aria-roledescription="{{ 'slideshow.slide' | t }}" aria-label="{{ cv_i }} / {{ cv_live }}" data-cv-ss-slide{% if cv_fb != blank %} style="--cv-fb: url('{{ cv_fb | asset_url }}')"{% endif %}>
+        {% blocks b %}
+      </div>
+      {%- endunless -%}
+    {%- endfor -%}
+  </div>
+  {%- if cv_live > 1 -%}
+  <div class="cv-wrap cv-ss__controls">
+    <button class="cv-ss__btn" type="button" data-cv-ss-step="-1"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg><span class="cv-sr">{{ 'general.previous' | t }}</span></button>
+    <div class="cv-ss__dots">
+      {%- for i in (1..cv_live) -%}<button class="cv-ss__dot" type="button" data-cv-ss-go="{{ i | minus: 1 }}"><span class="cv-sr">{{ 'slideshow.go_to' | t: n: i }}</span></button>{%- endfor -%}
+    </div>
+    <button class="cv-ss__btn" type="button" data-cv-ss-step="1"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg><span class="cv-sr">{{ 'general.next' | t }}</span></button>
+  </div>
+  {%- endif -%}
+</section>
+<script>
+(function () {
+  document.querySelectorAll("[data-cv-ss]:not([data-ready])").forEach(function (root) {
+    root.setAttribute("data-ready", "");
+    var track = root.querySelector("[data-cv-ss-track]"), slides = root.querySelectorAll("[data-cv-ss-slide]"), dots = root.querySelectorAll("[data-cv-ss-go]");
+    if (slides.length < 2) return;
+    var i = 0, timer;
+    function mark() { dots.forEach(function (d, n) { d.setAttribute("aria-current", n === i ? "true" : "false"); }); }
+    function go(n) { i = (n + slides.length) % slides.length; track.scrollTo({ left: slides[i].offsetLeft, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); mark(); }
+    track.addEventListener("scroll", function () { var n = Math.round(track.scrollLeft / track.clientWidth); if (n !== i && n >= 0 && n < slides.length) { i = n; mark(); } }, { passive: true });
+    root.addEventListener("click", function (e) {
+      var s = e.target.closest("[data-cv-ss-step]"), g = e.target.closest("[data-cv-ss-go]");
+      if (s) go(i + Number(s.getAttribute("data-cv-ss-step"))); else if (g) go(Number(g.getAttribute("data-cv-ss-go"))); else return;
+      start();
+    });
+    function start() { clearInterval(timer); if (root.getAttribute("data-autoplay") === "true" && !matchMedia("(prefers-reduced-motion: reduce)").matches) timer = setInterval(function () { if (!gone()) go(i + 1); }, (Number(root.getAttribute("data-speed")) || 6) * 1000); }
+    root.addEventListener("mouseenter", function () { clearInterval(timer); });
+    root.addEventListener("mouseleave", start);
+    // Editor: selecting a slide block scrolls to it and pauses autoplay until it is deselected.
+    // A re-rendered slideshow replaces this one: the old one drops its timer and these listeners.
+    function gone() { if (root.isConnected) return false; clearInterval(timer); document.removeEventListener("tf:block-selected", onSel); document.removeEventListener("tf:block-deselected", onDesel); return true; }
+    function onSel(e) {
+      if (gone()) return;
+      var el = e.detail && e.detail.element, sl = el && el.closest && (el.closest("[data-cv-ss-slide]") || el.querySelector("[data-cv-ss-slide]"));
+      var n = Array.prototype.indexOf.call(slides, sl);
+      if (n >= 0) { clearInterval(timer); go(n); }
+    }
+    function onDesel(e) { if (!gone() && e.detail && e.detail.section_type === "slideshow") start(); }
+    document.addEventListener("tf:block-selected", onSel);
+    document.addEventListener("tf:block-deselected", onDesel);
+    mark(); start();
+  });
+})();
+</script>

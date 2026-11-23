@@ -1,0 +1,46 @@
+  .cv-hd { position: relative; z-index: 40; color: var(--text); padding: 0; background: transparent; isolation: isolate; transition: transform 0.35s var(--cv-ease), box-shadow 0.3s; }
+  .cv-hd::before { content: ""; position: absolute; inset: 0; z-index: -1; background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: saturate(1.8) blur(18px); -webkit-backdrop-filter: saturate(1.8) blur(18px); }
+  .cv-hd--border, .cv-hd.is-scrolled { box-shadow: 0 1px 0 var(--cv-line); }
+  .cv-hd.is-sticky { position: sticky; top: 0; }
+  .cv-hd.is-hidden { transform: translateY(-100%); }
+  .cv-hd__bar { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; min-height: 64px; }
+  .cv-hd__logo { display: inline-flex; align-items: center; text-decoration: none; color: var(--text); }
+  .cv-hd__logo img { height: auto; max-height: 72px; object-fit: contain; }
+  .cv-hd__name { font-family: var(--tf-font-heading_font, inherit); font-size: 21px; font-weight: 600; letter-spacing: -0.04em; }
+  .cv-hd__name--sm { font-size: 18px; }
+  .cv-hd__nav { min-width: 0; }
+  .cv-hd__menu { display: flex; flex-wrap: wrap; gap: 4px 6px; list-style: none; margin: 0; padding: 0; }
+  .cv-hd__link { display: inline-flex; align-items: center; gap: 4px; padding: 8px 14px; font-size: 14.5px; font-weight: 450; color: var(--text);
+    text-decoration: none; cursor: pointer; list-style: none; border-radius: 999px; transition: background 0.2s; }
+  .cv-hd__link::-webkit-details-marker { display: none; }
+  .cv-hd__link:hover, .cv-hd__dd[open] > .cv-hd__link { background: var(--cv-soft); }
+  .cv-hd__caret { width: 16px; height: 16px; transition: transform 0.2s var(--cv-ease); }
+  .cv-hd__dd { position: relative; }
+  .cv-hd__dd[open] .cv-hd__caret { transform: rotate(180deg); }
+  .cv-hd__panel { position: absolute; top: calc(100% + 10px); inset-inline-start: 0; min-width: 260px; padding: 8px; background: var(--bg);
+    border-radius: 18px; box-shadow: 0 0 0 1px var(--cv-line), 0 24px 48px -16px rgb(0 0 0 / 0.22); animation: cv-drop 0.25s var(--cv-ease); }
+  @keyframes cv-drop { from { opacity: 0; transform: translateY(-6px); } }
+  .cv-hd__sub, .cv-hd__sub3 { list-style: none; margin: 0; padding: 0; }
+  .cv-hd__sublink, .cv-hd__sub3 a { display: block; padding: 9px 14px; font-size: 14.5px; color: var(--text); text-decoration: none; border-radius: 10px; }
+  .cv-hd__sublink--all { font-weight: 600; }
+  .cv-hd__sub3 a { padding-inline-start: 26px; font-size: 14px; color: var(--text-muted); }
+  .cv-hd__sublink:hover, .cv-hd__sub3 a:hover { background: var(--cv-soft); }
+  .cv-hd__actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+  .cv-hd__icon { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px;
+    color: var(--text); background: none; border: 0; cursor: pointer; text-decoration: none; border-radius: 50%; }
+  .cv-hd__icon:hover { background: var(--cv-soft); }
+  .cv-hd__icon .cv-icon { width: 22px; height: 22px; }
+  .cv-hd__count { position: absolute; top: 5px; inset-inline-end: 3px; min-width: 17px; height: 17px; padding: 0 4px; display: grid; place-items: center;
+    font-size: 10.5px; font-weight: 600; line-height: 1; color: var(--btn-text); background: var(--btn); border-radius: 999px; box-shadow: 0 0 0 2px var(--bg); }
+  .cv-hd__burger { display: none; }
+  .cv-skip { position: fixed; top: 8px; inset-inline-start: 8px; z-index: 1000; padding: 12px 18px; font-size: 14px; font-weight: 500; color: var(--text); background: var(--bg);
+    border-radius: 999px; text-decoration: none; transform: translateY(calc(-100% - 24px)); }
+  .cv-skip:focus { transform: none; box-shadow: 0 0 0 1px var(--cv-line), 0 12px 32px -12px rgb(0 0 0 / 0.3); }
+  /* The wishlist toast (partials/header-script): the theme's toast with its link in the toast's own colours. */
+  .cv-wish-toast { display: flex; align-items: center; justify-content: space-between; gap: 12px; --cv-tbtn: color-mix(in srgb, var(--btn-text) 72%, transparent); --cv-tbtn-hover: var(--btn-text); }
+  .cv-wish-toast[hidden] { display: none; }
+  .cv-wish-toast .cv-tbtn { flex: none; }
+  /* Phones with the wishlist heart in the bar: below 520px the account icon leaves the bar for the menu sheet (cv-hd__icon--in-menu),
+     so the menu button and the icons still balance around the logo. */
+  @media (max-width: 519px) { .cv-hd__icon--in-menu { display: none; } }

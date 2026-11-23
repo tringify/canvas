@@ -1,0 +1,126 @@
+{%- comment -%} Sign-in / registration by one-time code. Input: cv_auth_page ('login' or 'register'). {%- endcomment -%}
+{%- assign cv_af = auth_form -%}
+{%- assign cv_step = cv_af.otp_step | default: 'identify' -%}
+{%- assign cv_purpose = cv_af.purpose | default: cv_auth_page -%}
+{%- assign cv_email_on = customer_settings.email_login_available -%}
+{%- assign cv_phone_on = customer_settings.phone_login_available -%}
+{%- if cv_auth_page == 'register' -%}{%- assign cv_phone_on = customer_settings.phone_registration_available -%}{%- endif -%}
+{%- assign cv_tab = cv_af.provider | default: customer_settings.preferred_auth_method -%}
+{%- if cv_email_on != true -%}{%- assign cv_tab = 'phone' -%}{%- endif -%}
+{%- if cv_phone_on != true -%}{%- assign cv_tab = 'email' -%}{%- endif -%}
+<div class="cv-auth" data-cv-auth>
+  <p class="cv-notice cv-notice--ok" role="status" data-cv-auth-notice{% if auth_notice.message == blank %} hidden{% endif %}>{{ auth_notice.message }}</p>
+  {%- if form_error and form_error.message != blank -%}<p class="cv-notice cv-notice--error" role="alert">{{ form_error.message }}</p>{%- endif -%}
+
+  {%- comment -%} Both steps are always in the page: without JavaScript the server renders the
+  verify step after a code is sent; with it, the bridge reports the send and the script below
+  moves to the verify step with the identity, mode and message the platform returned. {%- endcomment -%}
+  {%- assign cv_to = cv_af.email | default: cv_af.phone_number -%}
+  <span hidden data-cv-auth-sent-template>{{ 'auth.code_sent_to' | t: to: '__TO__' }}</span>
+  <div data-cv-auth-step="verify"{% if cv_step != 'verify' %} hidden{% endif %}>
+    <p class="cv-muted" data-cv-auth-sent>{%- if cv_step == 'verify' -%}{{ 'auth.code_sent_to' | t: to: cv_to }}{%- endif -%}</p>
+    <div data-cv-auth-mode="register"{% if cv_purpose != 'register' %} hidden{% endif %}>
+      {% form 'register', class: 'cv-auth__form' %}
+        <input type="hidden" name="provider" value="{{ cv_af.provider }}" data-cv-auth-provider>
+        <input type="hidden" name="email" value="{{ cv_af.email }}" data-cv-auth-email{% if cv_af.provider == 'phone' %} disabled{% endif %}>
+        <input type="hidden" name="phone_number" value="{{ cv_af.phone_number }}" data-cv-auth-phone{% if cv_af.provider != 'phone' %} disabled{% endif %}>
+        <label class="cv-field"><span class="cv-label">{{ 'auth.code' | t }}</span>
+          <input class="cv-input cv-auth__code" name="code" required inputmode="numeric" autocomplete="one-time-code" maxlength="8"></label>
+        {%- assign cv_first_shown = true -%}{%- assign cv_first_req = false -%}{%- assign cv_last_shown = true -%}{%- assign cv_last_req = false -%}
+        {%- for f in customer_settings.registration_fields -%}
+          {%- if f.field == 'first_name' -%}{%- assign cv_first_shown = f.shown -%}{%- assign cv_first_req = f.required -%}{%- endif -%}
+          {%- if f.field == 'last_name' -%}{%- assign cv_last_shown = f.shown -%}{%- assign cv_last_req = f.required -%}{%- endif -%}
+        {%- endfor -%}
+        <div class="cv-auth__two">
+          {%- if cv_first_shown -%}<label class="cv-field"><span class="cv-label">{{ 'forms.first_name' | t }}</span><input class="cv-input" name="first_name" autocomplete="given-name" maxlength="100"{% if cv_first_req %} required{% endif %}></label>{%- endif -%}
+          {%- if cv_last_shown -%}<label class="cv-field"><span class="cv-label">{{ 'forms.last_name' | t }}</span><input class="cv-input" name="last_name" autocomplete="family-name" maxlength="100"{% if cv_last_req %} required{% endif %}></label>{%- endif -%}
+        </div>
+        {%- if customer_settings.collect_marketing_consent -%}
+          <label class="cv-check"><input type="checkbox" name="accepts_marketing" value="1"> {{ 'auth.marketing' | t }}</label>
+        {%- endif -%}
+        <button class="cv-btn cv-btn--block" type="submit">{{ 'auth.create_account' | t }}</button>
+      {% endform %}
+    </div>
+    <div data-cv-auth-mode="login"{% if cv_purpose == 'register' %} hidden{% endif %}>
+      {% form 'login', class: 'cv-auth__form' %}
+        <input type="hidden" name="provider" value="{{ cv_af.provider }}" data-cv-auth-provider>
+        <input type="hidden" name="email" value="{{ cv_af.email }}" data-cv-auth-email{% if cv_af.provider == 'phone' %} disabled{% endif %}>
+        <input type="hidden" name="phone_number" value="{{ cv_af.phone_number }}" data-cv-auth-phone{% if cv_af.provider != 'phone' %} disabled{% endif %}>
+        <label class="cv-field"><span class="cv-label">{{ 'auth.code' | t }}</span>
+          <input class="cv-input cv-auth__code" name="code" required inputmode="numeric" autocomplete="one-time-code" maxlength="8"></label>
+        <button class="cv-btn cv-btn--block" type="submit">{{ 'auth.sign_in' | t }}</button>
+      {% endform %}
+    </div>
+    <div class="cv-auth__alt">
+      {% form 'auth_code_send', class: 'cv-auth__resend' %}
+        <input type="hidden" name="provider" value="{{ cv_af.provider }}" data-cv-auth-provider>
+        <input type="hidden" name="email" value="{{ cv_af.email }}" data-cv-auth-email{% if cv_af.provider == 'phone' %} disabled{% endif %}>
+        <input type="hidden" name="phone_number" value="{{ cv_af.phone_number }}" data-cv-auth-phone{% if cv_af.provider != 'phone' %} disabled{% endif %}>
+        <button class="cv-tbtn" type="submit">{{ 'auth.resend' | t }}</button>
+      {% endform %}
+      <a class="cv-tbtn" href="{% if cv_auth_page == 'register' %}{{ customer_settings.register_url }}{% else %}{{ customer_settings.login_url }}{% endif %}" data-cv-auth-restart>{{ 'auth.use_different' | t }}</a>
+    </div>
+  </div>
+  <div data-cv-auth-step="identify"{% if cv_step == 'verify' %} hidden{% endif %}>
+    {%- if cv_email_on and cv_phone_on -%}
+      <div class="cv-auth__tabs" role="tablist">
+        <button type="button" role="tab" class="cv-auth__tab" data-cv-auth-tab="email" aria-selected="{% if cv_tab == 'email' %}true{% else %}false{% endif %}">{{ 'forms.email' | t }}</button>
+        <button type="button" role="tab" class="cv-auth__tab" data-cv-auth-tab="phone" aria-selected="{% if cv_tab == 'phone' %}true{% else %}false{% endif %}">{{ 'forms.phone' | t }}</button>
+      </div>
+    {%- endif -%}
+    {%- if cv_email_on -%}
+      {% form 'auth_code_send', class: 'cv-auth__form' %}
+        <fieldset class="cv-auth__panel" data-cv-auth-panel="email"{% if cv_tab != 'email' %} hidden{% endif %}>
+          <input type="hidden" name="provider" value="email">
+          <label class="cv-field"><span class="cv-label">{{ 'forms.email' | t }}</span>
+            <input class="cv-input" type="email" name="email" required autocomplete="email" value="{{ cv_af.email }}"></label>
+          <button class="cv-btn cv-btn--block" type="submit">{{ 'auth.continue' | t }}</button>
+        </fieldset>
+      {% endform %}
+    {%- endif -%}
+    {%- if cv_phone_on -%}
+      {%- assign cv_dial = '' -%}
+      {%- for pc in phone_countries -%}{%- if pc.iso_code == customer_settings.default_phone_country -%}{%- assign cv_dial = pc.dial_code -%}{%- endif -%}{%- endfor -%}
+      {% form 'auth_code_send', class: 'cv-auth__form' %}
+        <fieldset class="cv-auth__panel" data-cv-auth-panel="phone"{% if cv_tab != 'phone' %} hidden{% endif %}>
+          <input type="hidden" name="provider" value="phone">
+          {%- assign cv_ph_id = 'cv-auth-phone-' | append: cv_auth_page -%}{%- assign cv_ph_name = 'phone_number' -%}{%- assign cv_ph_value = cv_af.phone_number | default: cv_dial -%}
+          {%- assign cv_ph_label = 'forms.phone' | t -%}{%- assign cv_ph_required = true -%}{%- assign cv_ph_country = '' -%}
+          {%- assign cv_ph_disabled = false -%}{%- assign cv_ph_describedby = '' -%}{%- assign cv_ph_auto = '' -%}
+{%- comment -%}partial:phone-field{%- endcomment -%}
+{%- comment -%}/partial:phone-field{%- endcomment -%}
+          <button class="cv-btn cv-btn--block" type="submit">{{ 'auth.continue' | t }}</button>
+        </fieldset>
+      {% endform %}
+    {%- endif -%}
+    {%- if cv_email_on != true and cv_phone_on != true -%}<p class="cv-muted">{{ 'auth.unavailable' | t }}</p>{%- endif -%}
+  </div>
+</div>
+<script>
+(function () {
+  if (window.__cvAuthSteps) return; window.__cvAuthSteps = true;
+  // A sent code moves this form to its verify step: same identity, the mode the
+  // platform derived (sign in or create account), and the platform's message.
+  document.addEventListener("tf:action-success", function (e) {
+    var d = e.detail || {}, form = d.form, root = form && form.closest && form.closest("[data-cv-auth]");
+    if (!root || d.action !== "auth_code_send") return;
+    var provider = (form.querySelector("[name=provider]") || {}).value || "email";
+    var field = form.querySelector(provider === "phone" ? "[name=phone_number]" : "[name=email]");
+    var identity = field ? field.value.trim() : "";
+    var mode = d.result && d.result.mode === "register" ? "register" : "login";
+    root.querySelectorAll("[data-cv-auth-provider]").forEach(function (i) { i.value = provider; });
+    root.querySelectorAll("[data-cv-auth-email]").forEach(function (i) { i.value = provider === "phone" ? "" : identity; i.disabled = provider === "phone"; });
+    root.querySelectorAll("[data-cv-auth-phone]").forEach(function (i) { i.value = provider === "phone" ? identity : ""; i.disabled = provider !== "phone"; });
+    root.querySelectorAll("[data-cv-auth-mode]").forEach(function (m) { m.hidden = m.getAttribute("data-cv-auth-mode") !== mode; });
+    var tpl = root.querySelector("[data-cv-auth-sent-template]"), sent = root.querySelector("[data-cv-auth-sent]");
+    if (tpl && sent) sent.textContent = tpl.textContent.replace("__TO__", identity);
+    var notice = root.querySelector("[data-cv-auth-notice]"), msg = d.result && d.result.response && d.result.response.message;
+    if (notice) { notice.textContent = msg || ""; notice.hidden = !msg; }
+    root.querySelectorAll("[data-cv-auth-step]").forEach(function (s) { s.hidden = s.getAttribute("data-cv-auth-step") !== "verify"; });
+    var code = root.querySelector("[data-cv-auth-mode=" + mode + "] [name=code]");
+    if (code) { code.value = ""; code.focus(); }
+  });
+})();
+</script>
+{%- comment -%}partial:phone-script{%- endcomment -%}
+{%- comment -%}/partial:phone-script{%- endcomment -%}

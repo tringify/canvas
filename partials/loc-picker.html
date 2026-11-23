@@ -1,0 +1,207 @@
+{%- comment -%} Country and language picker. Inputs: cv_loc_id (unique on the page), cv_loc_pick (the placement's style: "theme" for the theme
+  setting, or a style), cv_loc_c / cv_loc_l (offer the country / the language choice). Styles: dropdown (native selects), links (inline
+  text buttons), pill (country code and currency code; opens a short list beside it), modal (country codes with names in a centred dialog), sheet (a side
+  sheet with search; every list is a bottom sheet on phones). Theme settings choose flags, how currencies show and language names or codes.
+  Every choice posts localization_set; the list styles' dialog is a <dialog>, which keeps focus inside it and closes on Escape. Over ten
+  countries or languages, that list gets a search (the sheet always searches countries); up to ten languages show as chips, more as a list.
+  Without script the dialog cannot open, so the trigger becomes a disclosure with the same choices. {%- endcomment -%}
+{%- assign cv_loc_style = cv_loc_pick | default: 'theme' -%}
+{%- if cv_loc_style == 'theme' -%}{%- assign cv_loc_style = theme.settings.loc_style | default: 'dropdown' -%}{%- endif -%}
+{%- assign cv_loc_flags = true -%}{%- if theme.settings.loc_flags == false -%}{%- assign cv_loc_flags = false -%}{%- endif -%}
+{%- assign cv_loc_cur = theme.settings.loc_currency | default: 'code_symbol' -%}
+{%- assign cv_loc_lang = theme.settings.loc_language | default: 'name' -%}
+{%- comment -%} Currencies show only when choosing a country changes it. {%- endcomment -%}
+{%- assign cv_loc_cur0 = localization.available_countries.first.currency_code -%}
+{%- assign cv_loc_multi = false -%}
+{%- for c in localization.available_countries -%}{%- if c.currency_code != cv_loc_cur0 -%}{%- assign cv_loc_multi = true -%}{%- break -%}{%- endif -%}{%- endfor -%}
+{%- unless cv_loc_multi -%}{%- assign cv_loc_cur = 'none' -%}{%- endunless -%}
+{%- assign cv_loc_now = localization.country -%}
+{%- for c in localization.available_countries -%}{%- if c.selected -%}{%- assign cv_loc_now = c -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_loc_now_cur = '' -%}
+{%- case cv_loc_cur -%}
+  {%- when 'code' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_code -%}
+  {%- when 'symbol' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_symbol | default: cv_loc_now.currency_code -%}
+  {%- when 'code_symbol' -%}{%- assign cv_loc_now_cur = cv_loc_now.currency_code -%}{%- if cv_loc_now.currency_symbol != blank and cv_loc_now.currency_symbol != cv_loc_now.currency_code -%}{%- assign cv_loc_now_cur = cv_loc_now_cur | append: ' ' | append: cv_loc_now.currency_symbol -%}{%- endif -%}
+{%- endcase -%}
+{%- assign cv_loc_now_lang = '' -%}
+{%- for l in localization.available_languages -%}{%- if l.selected -%}{%- if cv_loc_lang == 'code' -%}{%- assign cv_loc_now_lang = l.iso_code | upcase -%}{%- else -%}{%- assign cv_loc_now_lang = l.native_name | default: l.name -%}{%- endif -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_loc_title = 'localization.title' | t -%}
+{%- unless cv_loc_l -%}{%- assign cv_loc_title = 'localization.country' | t -%}{%- endunless -%}
+{%- unless cv_loc_c -%}{%- assign cv_loc_title = 'localization.language' | t -%}{%- endunless -%}
+<div class="cv-loc cv-loc--{{ cv_loc_style }}">
+{%- case cv_loc_style -%}
+{%- when 'links' -%}
+  {%- if cv_loc_c -%}
+  {% form 'localization_set', class: 'cv-loc__links' %}
+    <span class="cv-sr">{{ 'localization.country' | t }}</span>
+    {%- for c in localization.available_countries -%}
+      <button class="cv-loc__link" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>{% if cv_loc_flags and c.iso_code != blank %}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{% endif %}<span dir="auto">{{ c.name }}</span></button>
+    {%- endfor -%}
+  {% endform %}
+  {%- endif -%}
+  {%- if cv_loc_l -%}
+  {% form 'localization_set', class: 'cv-loc__links' %}
+    <span class="cv-sr">{{ 'localization.language' | t }}</span>
+    {%- for l in localization.available_languages -%}
+      <button class="cv-loc__link" type="submit" name="locale" value="{{ l.iso_code }}" lang="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>{% if cv_loc_lang == 'code' %}<abbr title="{{ l.native_name | default: l.name }}">{{ l.iso_code | upcase }}</abbr>{% else %}{{ l.native_name | default: l.name }}{% endif %}</button>
+    {%- endfor -%}
+  {% endform %}
+  {%- endif -%}
+{%- when 'pill', 'modal', 'sheet' -%}
+  <button class="cv-loc__trigger cv-loc__trigger--{{ cv_loc_style }}" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cv-loc-{{ cv_loc_id }}" data-cv-loc-open="cv-loc-{{ cv_loc_id }}">
+    <span class="cv-sr">{{ cv_loc_title }}:</span>
+    {%- if cv_loc_c -%}
+      {%- if cv_loc_flags and cv_loc_now.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ cv_loc_now.iso_code }}</span>{%- endif -%}
+      {%- if cv_loc_style == 'pill' -%}
+        <span class="cv-sr">{{ cv_loc_now.name }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ cv_loc_now.currency_code | default: cv_loc_now.iso_code }}</span>
+      {%- else -%}
+        <span class="cv-loc__tname" dir="auto">{{ cv_loc_now.name }}</span>{%- if cv_loc_now_cur != blank -%}<span class="cv-loc__tmeta" dir="ltr">{{ cv_loc_now_cur }}</span>{%- endif -%}
+      {%- endif -%}
+    {%- endif -%}
+    {%- if cv_loc_l -%}
+      {%- if cv_loc_c -%}<span class="cv-loc__sep" aria-hidden="true"></span>{%- endif -%}
+      {%- if cv_loc_style == 'pill' -%}
+        {%- for l in localization.available_languages -%}{%- if l.selected -%}<span class="cv-sr">{{ l.native_name | default: l.name }}</span><span class="cv-loc__code" dir="ltr" aria-hidden="true">{{ l.iso_code | upcase }}</span>{%- endif -%}{%- endfor -%}
+      {%- else -%}
+        <span class="cv-loc__tname">{{ cv_loc_now_lang }}</span>
+      {%- endif -%}
+    {%- endif -%}
+    <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+  <dialog class="cv-loc-dlg cv-loc-dlg--{{ cv_loc_style }}" id="cv-loc-{{ cv_loc_id }}" aria-labelledby="cv-loc-{{ cv_loc_id }}-t" data-cv-loc-dlg>
+    <span class="cv-loc-dlg__handle" aria-hidden="true"></span>
+    <div class="cv-loc-dlg__head">
+      <h2 class="cv-loc-dlg__title" id="cv-loc-{{ cv_loc_id }}-t">{{ cv_loc_title }}</h2>
+      <button class="cv-loc-dlg__close" type="button" data-cv-loc-close><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg><span class="cv-sr">{{ 'general.close' | t }}</span></button>
+    </div>
+    <div class="cv-loc-dlg__body">
+      {%- if cv_loc_c -%}
+      <div class="cv-loc-dlg__group">
+        {%- if cv_loc_l -%}<h3 class="cv-loc-dlg__sub">{{ 'localization.country' | t }}</h3>{%- endif -%}
+        {%- if cv_loc_style == 'sheet' or localization.available_countries.size > 10 -%}
+        <label class="cv-loc-dlg__search cv-shell">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="cv-sr">{{ 'localization.search' | t }}</span>
+          <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.search' | t }}" aria-controls="cv-loc-{{ cv_loc_id }}-list" data-cv-loc-search>
+        </label>
+        {%- endif -%}
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__list cv-loc-dlg__list--{{ cv_loc_style }}" id="cv-loc-{{ cv_loc_id }}-list" role="list">
+            {%- for c in localization.available_countries -%}
+              {%- assign cv_loc_c_cur = '' -%}
+              {%- case cv_loc_cur -%}
+                {%- when 'code' -%}{%- assign cv_loc_c_cur = c.currency_code -%}
+                {%- when 'symbol' -%}{%- assign cv_loc_c_cur = c.currency_symbol | default: c.currency_code -%}
+                {%- when 'code_symbol' -%}{%- assign cv_loc_c_cur = c.currency_code -%}{%- if c.currency_symbol != blank and c.currency_symbol != c.currency_code -%}{%- assign cv_loc_c_cur = cv_loc_c_cur | append: ' ' | append: c.currency_symbol -%}{%- endif -%}
+              {%- endcase -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ c.name | downcase }} {{ c.iso_code | downcase }} {{ c.currency_code | downcase }} {{ c.currency_name | downcase }}">
+                <button class="cv-loc-dlg__opt" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>
+                  {%- if cv_loc_flags and c.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{%- endif -%}
+                  <span class="cv-loc-dlg__name"><bdi>{{ c.name }}</bdi></span>
+                  {%- if cv_loc_c_cur != blank -%}<span class="cv-loc-dlg__meta" dir="ltr">{{ cv_loc_c_cur }}</span>{%- endif -%}
+                  {%- if c.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.no_results' | t }}</p>
+        {% endform %}
+      </div>
+      {%- endif -%}
+      {%- if cv_loc_l -%}
+      <div class="cv-loc-dlg__group">
+        {%- if cv_loc_c -%}<h3 class="cv-loc-dlg__sub">{{ 'localization.language' | t }}</h3>{%- endif -%}
+        {%- if localization.available_languages.size > 10 -%}
+        <label class="cv-loc-dlg__search cv-shell">
+          <svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="cv-sr">{{ 'localization.lang_search' | t }}</span>
+          <input class="cv-input" type="search" autocomplete="off" placeholder="{{ 'localization.lang_search' | t }}" aria-controls="cv-loc-{{ cv_loc_id }}-langs" data-cv-loc-search>
+        </label>
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__list cv-loc-dlg__list--langs" id="cv-loc-{{ cv_loc_id }}-langs" role="list">
+            {%- for l in localization.available_languages -%}
+              <li data-cv-loc-item data-cv-loc-q="{{ l.native_name | downcase }} {{ l.name | downcase }} {{ l.iso_code | downcase }}">
+                <button class="cv-loc-dlg__opt" type="submit" name="locale" value="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>
+                  <span class="cv-loc-dlg__name"><bdi lang="{{ l.iso_code }}">{{ l.native_name | default: l.name }}</bdi></span>
+                  {%- if cv_loc_lang == 'code' or l.name != l.native_name -%}<span class="cv-loc-dlg__meta">{% if cv_loc_lang == 'code' %}{{ l.iso_code | upcase }}{% else %}{{ l.name }}{% endif %}</span>{%- endif -%}
+                  {%- if l.selected -%}<svg class="cv-icon cv-loc-dlg__tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>{%- endif -%}
+                </button>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <p class="cv-loc-dlg__none" role="status" data-cv-loc-none hidden>{{ 'localization.lang_none' | t }}</p>
+        {% endform %}
+        {%- else -%}
+        {% form 'localization_set', class: 'cv-loc-dlg__form' %}
+          <ul class="cv-loc-dlg__langs" role="list">
+            {%- for l in localization.available_languages -%}
+              <li><button class="cv-loc-dlg__chip" type="submit" name="locale" value="{{ l.iso_code }}" lang="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}>{% if cv_loc_lang == 'code' %}<abbr title="{{ l.native_name | default: l.name }}">{{ l.iso_code | upcase }}</abbr>{% else %}{{ l.native_name | default: l.name }}{% endif %}</button></li>
+            {%- endfor -%}
+          </ul>
+        {% endform %}
+        {%- endif -%}
+      </div>
+      {%- endif -%}
+    </div>
+  </dialog>
+  {%- comment -%} Without script: the same choices in a disclosure, which opens without it. {%- endcomment -%}
+  <noscript>
+    <style>.cv-loc > .cv-loc__trigger[data-cv-loc-open] { display: none; }</style>
+    <details class="cv-loc__nojs">
+      <summary class="cv-loc__trigger cv-loc__trigger--{{ cv_loc_style }}">
+        <span class="cv-sr">{{ cv_loc_title }}:</span>
+        {%- if cv_loc_c -%}{%- if cv_loc_flags and cv_loc_now.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ cv_loc_now.iso_code }}</span>{%- endif -%}<span class="cv-loc__tname" dir="auto">{% if cv_loc_style == 'pill' %}{{ cv_loc_now.currency_code | default: cv_loc_now.iso_code }}{% else %}{{ cv_loc_now.name }}{% endif %}</span>{%- endif -%}
+        {%- if cv_loc_l -%}{%- if cv_loc_c -%}<span class="cv-loc__sep" aria-hidden="true"></span>{%- endif -%}<span class="cv-loc__tname">{% if cv_loc_style == 'pill' %}{%- for l in localization.available_languages -%}{%- if l.selected -%}{{ l.iso_code | upcase }}{%- endif -%}{%- endfor -%}{% else %}{{ cv_loc_now_lang }}{% endif %}</span>{%- endif -%}
+        <svg class="cv-icon cv-loc__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </summary>
+      <div class="cv-loc__nojs-panel">
+        {%- if cv_loc_c -%}
+        {% form 'localization_set', class: 'cv-loc__nojs-form' %}
+          {%- if cv_loc_l -%}<p class="cv-loc-dlg__sub">{{ 'localization.country' | t }}</p>{%- endif -%}
+          {%- for c in localization.available_countries -%}
+          <button class="cv-loc-dlg__opt" type="submit" name="country_code" value="{{ c.iso_code }}"{% if c.selected %} aria-current="true"{% endif %}>{%- if cv_loc_flags and c.iso_code != blank -%}<span class="cv-loc__flag" aria-hidden="true">{{ c.iso_code }}</span>{%- endif -%}<span class="cv-loc-dlg__name"><bdi>{{ c.name }}</bdi></span>{%- if cv_loc_cur != 'none' -%}<span class="cv-loc-dlg__meta" dir="ltr">{{ c.currency_code }}</span>{%- endif -%}</button>
+          {%- endfor -%}
+        {% endform %}
+        {%- endif -%}
+        {%- if cv_loc_l -%}
+        {% form 'localization_set', class: 'cv-loc__nojs-form' %}
+          {%- if cv_loc_c -%}<p class="cv-loc-dlg__sub">{{ 'localization.language' | t }}</p>{%- endif -%}
+          {%- for l in localization.available_languages -%}
+          <button class="cv-loc-dlg__opt" type="submit" name="locale" value="{{ l.iso_code }}"{% if l.selected %} aria-current="true"{% endif %}><span class="cv-loc-dlg__name"><bdi lang="{{ l.iso_code }}">{{ l.native_name | default: l.name }}</bdi></span></button>
+          {%- endfor -%}
+        {% endform %}
+        {%- endif -%}
+      </div>
+    </details>
+  </noscript>
+{%- else -%}
+  {%- if cv_loc_c -%}
+  {% form 'localization_set', class: 'cv-loc__form' %}
+    <label class="cv-sr" for="cv-loc-{{ cv_loc_id }}-c">{{ 'localization.country' | t }}</label>
+    <select class="cv-loc__select cv-shell" id="cv-loc-{{ cv_loc_id }}-c" name="country_code" data-cv-autosubmit>
+      {%- for c in localization.available_countries -%}
+        {%- assign cv_loc_c_cur = '' -%}
+        {%- case cv_loc_cur -%}
+          {%- when 'code' -%}{%- assign cv_loc_c_cur = c.currency_code -%}
+          {%- when 'symbol' -%}{%- assign cv_loc_c_cur = c.currency_symbol | default: c.currency_code -%}
+          {%- when 'code_symbol' -%}{%- assign cv_loc_c_cur = c.currency_code -%}{%- if c.currency_symbol != blank and c.currency_symbol != c.currency_code -%}{%- assign cv_loc_c_cur = cv_loc_c_cur | append: ' ' | append: c.currency_symbol -%}{%- endif -%}
+        {%- endcase -%}
+        <option value="{{ c.iso_code }}"{% if c.selected %} selected{% endif %}>{{ c.name }}{% if cv_loc_c_cur != blank %} ({{ cv_loc_c_cur }}){% endif %}</option>
+      {%- endfor -%}
+    </select>
+    <noscript><button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'general.update' | t }}</button></noscript>
+  {% endform %}
+  {%- endif -%}
+  {%- if cv_loc_l -%}
+  {% form 'localization_set', class: 'cv-loc__form' %}
+    <label class="cv-sr" for="cv-loc-{{ cv_loc_id }}-l">{{ 'localization.language' | t }}</label>
+    <select class="cv-loc__select cv-shell" id="cv-loc-{{ cv_loc_id }}-l" name="locale" data-cv-autosubmit>
+      {%- for l in localization.available_languages -%}
+        <option value="{{ l.iso_code }}"{% if l.selected %} selected{% endif %}>{% if cv_loc_lang == 'code' %}{{ l.iso_code | upcase }}{% else %}{{ l.native_name | default: l.name }}{% endif %}</option>
+      {%- endfor -%}
+    </select>
+    <noscript><button class="cv-btn cv-btn--sm cv-btn--outline" type="submit">{{ 'general.update' | t }}</button></noscript>
+  {% endform %}
+  {%- endif -%}
+{%- endcase -%}
+</div>

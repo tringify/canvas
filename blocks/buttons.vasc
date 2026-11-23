@@ -1,0 +1,157 @@
+{%- comment -%} Buttons: up to two, side by side. The first goes to the shop until it has a link; the second shows once it has somewhere to go (always in the editor).
+  Section's size is the size the section gives its buttons (a slide's, a tile's). {%- endcomment -%}
+{%- assign cv_bsize = settings.size | default: 'auto' -%}
+{%- assign cv_b2 = false -%}{%- if settings.button2_label != blank -%}{%- if settings.button2_link != blank or design_mode -%}{%- assign cv_b2 = true -%}{%- endif -%}{%- endif -%}
+{%- if settings.button_label != blank or cv_b2 -%}
+<div class="cv-blk-buttons cv-blk-buttons--{{ cv_bsize }}">
+  {%- if settings.button_label != blank -%}<a dir="auto" class="cv-btn cv-blk-btn{% case cv_bsize %}{% when 'sm' %} cv-btn--sm{% when 'lg' %} cv-btn--lg{% endcase %}{% case settings.button_style %}{% when 'outline' %} cv-btn--outline{% when 'ghost' %} cv-btn--ghost{% when 'link' %} cv-btn--link{% endcase %}{% if settings.button_scheme != blank %} tf-scheme-{{ settings.button_scheme }}{% endif %}" href="{{ settings.button_link | default: routes.shop_url }}" data-tf-field="button_label">{{ settings.button_label }}</a>{%- endif -%}
+  {%- if cv_b2 -%}<a dir="auto" class="cv-btn cv-blk-btn{% case cv_bsize %}{% when 'sm' %} cv-btn--sm{% when 'lg' %} cv-btn--lg{% endcase %}{% case settings.button2_style %}{% when 'outline' %} cv-btn--outline{% when 'ghost' %} cv-btn--ghost{% when 'link' %} cv-btn--link{% endcase %}{% if settings.button2_scheme != blank %} tf-scheme-{{ settings.button2_scheme }}{% endif %}"{% if settings.button2_link != blank %} href="{{ settings.button2_link }}"{% endif %} data-tf-field="button2_label">{{ settings.button2_label }}</a>{%- endif -%}
+</div>
+{%- elsif design_mode -%}<p class="cv-editor-hint cv-blk-hint">{{ 'sections.editor_empty_block' | t }}</p>
+{%- endif -%}
+{% schema %}
+{
+  "name": "buttons",
+  "kind": "block",
+  "icon": "rectangle-horizontal",
+  "ctx_needs": [
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "button_label",
+      "type": "text",
+      "default": "@t:sections.slideshow.slide.button_label",
+      "editor": {
+        "label": "button_label",
+        "group": "content"
+      }
+    },
+    {
+      "id": "button_link",
+      "type": "url",
+      "editor": {
+        "label": "button_link",
+        "group": "content"
+      }
+    },
+    {
+      "id": "button_style",
+      "type": "select",
+      "default": "solid",
+      "options": [
+        {
+          "value": "solid",
+          "label": "opt_solid"
+        },
+        {
+          "value": "outline",
+          "label": "opt_soft"
+        },
+        {
+          "value": "ghost",
+          "label": "opt_bordered"
+        },
+        {
+          "value": "link",
+          "label": "opt_text_link"
+        }
+      ],
+      "editor": {
+        "label": "button_style",
+        "group": "design"
+      }
+    },
+    {
+      "id": "button_scheme",
+      "type": "color_scheme",
+      "default": "",
+      "editor": {
+        "label": "button_scheme",
+        "group": "design"
+      }
+    },
+    {
+      "id": "button2_label",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "button2_label",
+        "group": "content"
+      }
+    },
+    {
+      "id": "button2_link",
+      "type": "url",
+      "editor": {
+        "label": "button2_link",
+        "group": "content"
+      }
+    },
+    {
+      "id": "button2_style",
+      "type": "select",
+      "default": "outline",
+      "options": [
+        {
+          "value": "solid",
+          "label": "opt_solid"
+        },
+        {
+          "value": "outline",
+          "label": "opt_soft"
+        },
+        {
+          "value": "ghost",
+          "label": "opt_bordered"
+        },
+        {
+          "value": "link",
+          "label": "opt_text_link"
+        }
+      ],
+      "editor": {
+        "label": "button2_style",
+        "group": "design"
+      }
+    },
+    {
+      "id": "button2_scheme",
+      "type": "color_scheme",
+      "default": "",
+      "editor": {
+        "label": "button2_scheme",
+        "group": "design"
+      }
+    },
+    {
+      "id": "size",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "opt_size_section"
+        },
+        {
+          "value": "sm",
+          "label": "opt_small"
+        },
+        {
+          "value": "md",
+          "label": "opt_medium"
+        },
+        {
+          "value": "lg",
+          "label": "opt_large"
+        }
+      ],
+      "editor": {
+        "label": "button_size",
+        "group": "design"
+      }
+    }
+  ]
+}
+{% endschema %}

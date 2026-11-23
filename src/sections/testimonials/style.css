@@ -1,0 +1,3 @@
+  .cv-tm__item { display: grid; gap: 14px; align-content: start; margin: 0; padding: clamp(20px, 3vw, 32px); border: 1px solid var(--border); border-radius: var(--cv-radius, 0px); }
+  .cv-tm__quote { margin: 0; font-size: 17px; line-height: 1.6; }
+  .cv-tm__author { font-size: 14px; font-weight: 500; }

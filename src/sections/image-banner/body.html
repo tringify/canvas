@@ -1,0 +1,273 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%}
+  Hero. Six compositions (Style): room — a full-bleed photo with the headline split across it and the products in the picture pinned as cards;
+  overlay — text over the photo; text — the headline on the colour scheme, no photo; split — photo beside the text; stacked — a huge headline above a wide photo; video — a full-screen muted film behind the text.
+  Products pinned with Product hotspot blocks show as cards on the photo (room, overlay, stacked) or as a list beside the text (split); a phone shows them in a row under the photo.
+  Without the merchant's photo the section uses the default photo chosen in Photo until you add your own (or none: the headline on the colour scheme); a video plays muted only while visible, never with reduced motion or Save-Data, and shows its poster instead.
+{%- endcomment -%}
+{%- assign cv_style = settings.hero_style | default: 'overlay' -%}
+{%- assign cv_img = settings.image -%}
+{%- assign cv_video = settings.video -%}
+{%- if cv_style == 'video' and cv_video == blank and design_mode != true -%}{%- assign cv_style = 'overlay' -%}{%- endif -%}
+{%- assign cv_spots = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled != true and b.type == 'hotspot' -%}{%- if b.settings.product or design_mode -%}{%- assign cv_spots = cv_spots | plus: 1 -%}{%- endif -%}{%- endif -%}{%- endfor -%}
+{%- assign cv_ratio = settings.media_ratio | default: 'auto' -%}
+{%- case settings.fallback_photo -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'none' -%}{%- assign cv_fb = '' -%}
+  {%- else -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+{%- endcase -%}
+{%- if cv_style == 'split' and settings.fallback_photo == 'table' -%}
+  {%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+{%- elsif cv_style == 'stacked' and settings.fallback_photo == 'shelf' -%}
+  {%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endif -%}
+{%- comment -%} "No photo" and no photo of the merchant's: the headline sits on the colour scheme (a video still plays behind it). {%- endcomment -%}
+{%- if cv_img == blank and cv_fb == blank and cv_video == blank -%}{%- unless design_mode and cv_style == 'video' -%}{%- assign cv_style = 'text' -%}{%- endunless -%}{%- endif -%}
+<section class="cv cv-banner cv-banner--{{ cv_style }} cv-banner--{{ settings.height }} cv-banner--{{ settings.layout }} cv-banner--x-{{ settings.align_x }} cv-banner--y-{{ settings.align_y }} cv-banner--w-{{ settings.content_width | default: 'medium' }} cv-banner--t-{{ settings.heading_size | default: 'large' }}{% if settings.media_position == 'right' %} cv-banner--media-right{% endif %}{% if cv_spots > 0 %} cv-banner--spots{% endif %} tf-scheme-{{ settings.color_scheme }}"
+  data-cv-banner{% if cv_ratio != 'auto' %} style="--cv-banner-ratio: {{ cv_ratio }}"{% endif %}>
+  <div class="cv-banner__frame">
+    {%- unless cv_style == 'text' -%}
+    {%- comment -%} Focal points (the platform's point picker on each image) keep the subject in frame wherever the image is cropped; the phone image has its own. {%- endcomment -%}
+    {%- assign cv_fx = settings.image_focus.x -%}{%- if cv_fx == nil -%}{%- assign cv_fx = 50 -%}{%- endif -%}
+    {%- assign cv_fy = settings.image_focus.y -%}{%- if cv_fy == nil -%}{%- assign cv_fy = 50 -%}{%- endif -%}
+    {%- assign cv_mfx = settings.image_mobile_focus.x -%}{%- if cv_mfx == nil -%}{%- assign cv_mfx = 50 -%}{%- endif -%}
+    {%- assign cv_mfy = settings.image_mobile_focus.y -%}{%- if cv_mfy == nil -%}{%- assign cv_mfy = 50 -%}{%- endif -%}
+    <div dir="auto" class="cv-banner__media" data-tf-field="image"{% if cv_img %} style="--cv-focus-x: {{ cv_fx }}%; --cv-focus-y: {{ cv_fy }}%{% if settings.image_mobile %}; --cv-mfocus-x: {{ cv_mfx }}%; --cv-mfocus-y: {{ cv_mfy }}%{% endif %}"{% endif %}>
+      {%- if cv_img -%}
+        <picture>
+          {%- if settings.image_mobile -%}<source data-tf-field="image_mobile" media="(max-width: 749px)" srcset="{{ settings.image_mobile | image_srcset: max: 1080 }}">{%- endif -%}
+          <img data-tf-field="image_alt" src="{{ cv_img | image_url: width: 1600 }}" srcset="{{ cv_img | image_srcset: max: 2400 }}" sizes="{% if cv_style == 'split' %}(min-width: 990px) 55vw, {% endif %}100vw" alt="{{ settings.image_alt }}" fetchpriority="high">
+        </picture>
+      {%- elsif cv_fb != blank -%}
+        <img src="{{ cv_fb | asset_url }}" alt="" fetchpriority="high" width="{{ cv_fbw }}" height="{{ cv_fbh }}">
+      {%- endif -%}
+      {%- if cv_video != blank -%}
+        <video class="cv-banner__video" data-cv-bgvideo data-src="{{ cv_video }}" muted loop playsinline preload="none" aria-hidden="true"
+          {% if cv_img %}poster="{{ cv_img | image_url: width: 1600 }}"{% elsif cv_fb != blank %}poster="{{ cv_fb | asset_url }}"{% endif %}></video>
+        <button class="cv-banner__vtoggle" type="button" data-cv-bgvideo-toggle aria-pressed="false" hidden>
+          <svg class="cv-icon cv-banner__vpause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg>
+          <svg class="cv-icon cv-banner__vplay" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <span class="cv-sr">{{ 'sections.video_pause' | t }}</span>
+        </button>
+      {%- elsif design_mode and cv_style == 'video' -%}
+        {%- comment -%} Editor sample: the same deferred player as an uploaded video. {%- endcomment -%}
+        <video class="cv-banner__video" data-cv-bgvideo data-src="{{ 'reel-1' | placeholder_video }}" muted loop playsinline preload="none" aria-hidden="true"></video>
+        <button class="cv-banner__vtoggle" type="button" data-cv-bgvideo-toggle aria-pressed="false" hidden>
+          <svg class="cv-icon cv-banner__vpause" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg>
+          <svg class="cv-icon cv-banner__vplay" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          <span class="cv-sr">{{ 'sections.video_pause' | t }}</span>
+        </button>
+      {%- endif -%}
+      <span class="cv-banner__scrim" style="--cv-scrim: {{ settings.overlay | divided_by: 100.0 }}"></span>
+      {%- if cv_spots > 0 and cv_style != 'split' -%}
+        {%- comment -%} The pins sit on a layer cropped exactly like the photo (object-fit: cover), so a pin stays on its object at every screen shape. {%- endcomment -%}
+        <div class="cv-banner__pins" data-cv-pins data-tf-point-area{% if cv_img == blank and cv_fb != blank %} style="--cv-ar: {{ cv_fbw | times: 1.0 | divided_by: cv_fbh }}"{% endif %}>
+        {%- assign cv_n = 0 -%}
+        {%- for b in settings.blocks -%}
+          {%- if b.disabled or b.type != 'hotspot' -%}{%- continue -%}{%- endif -%}
+          {%- assign cv_p = b.settings.product -%}
+          {%- if cv_p == blank and design_mode != true -%}{%- continue -%}{%- endif -%}
+          {%- assign cv_n = cv_n | plus: 1 -%}
+          {{ b._editor_block_open }}
+          <div class="cv-pin{% if b.settings.position.x > 58 %} cv-pin--flip{% endif %}{% if b.settings.position.y > 62 %} cv-pin--up{% endif %}" style="--x: {{ b.settings.position.x }}%; --y: {{ b.settings.position.y }}%; --i: {{ cv_n }}" data-cv-pin="{{ cv_n }}" data-tf-point="position">
+            <button class="cv-pin__dot" type="button" aria-expanded="false" data-cv-pin-dot aria-label="{% if cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}"><span>{{ cv_n }}</span></button>
+            <div class="cv-pin__card">
+              {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+              <a class="cv-pin__thumb" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}" tabindex="-1" aria-hidden="true">
+                {%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 200 }}" alt="" loading="lazy" width="100" height="100">{%- elsif design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}
+              </a>
+              <div class="cv-pin__info">
+                <a class="cv-pin__title" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}">{% if b.settings.label != blank %}{{ b.settings.label }}{% elsif cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}</a>
+                {%- if cv_p.price -%}<span class="cv-pin__price">{%- if cv_p.price_range.has_range -%}{{ 'products.from' | t }} {% endif -%}{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}
+              </div>
+              {%- if cv_p and cv_p.available_for_sale -%}
+                {%- if cv_p.options.size == 0 or cv_p.variant_matrix.size == 1 -%}
+                  {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+                  {% form 'cart_add', class: 'cv-pin__form' %}
+                    <input type="hidden" name="product_id" value="{{ cv_p.id }}">{%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}<input type="hidden" name="quantity" value="1">
+                    <button class="cv-btn cv-pin__add" type="submit" aria-label="{{ 'products.add_to_cart' | t }}: {{ cv_p.title }}"><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+                  {% endform %}
+                {%- else -%}
+                  <a class="cv-btn cv-pin__add" href="{{ cv_p.url }}"{% if theme.settings.card_choose_opens != 'product_page' %} data-cv-qv aria-haspopup="dialog"{% endif %} aria-label="{{ 'products.choose_options' | t }}: {{ cv_p.title }}"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+                {%- endif -%}
+              {%- endif -%}
+            </div>
+          </div>
+          {{ b._editor_block_close }}
+        {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+    {%- endunless -%}
+    <div class="cv-banner__content">
+      <div class="cv-banner__box">
+        {%- for b in settings.blocks -%}
+          {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+          {%- case b.type -%}
+            {%- when 'eyebrow' -%}
+              {%- if b.settings.eyebrow != blank -%}{{ b._editor_block_open }}<p dir="auto" class="cv-eyebrow cv-banner__eyebrow" data-tf-field="eyebrow">{{ b.settings.eyebrow }}</p>{{ b._editor_block_close }}{%- endif -%}
+            {%- when 'heading' -%}
+              {%- if b.settings.heading != blank -%}
+                {{ b._editor_block_open }}
+                {%- if cv_style == 'room' -%}
+                  {%- comment -%} Room: the headline breaks in two, the first half high on the left, the rest low on the right, across the photo. {%- endcomment -%}
+                  {%- assign cv_w = b.settings.heading | split: ' ' -%}
+                  {%- assign cv_half = cv_w.size | plus: 1 | divided_by: 2 -%}
+                  <h2 dir="auto" class="cv-h1 cv-banner__heading cv-room-title" data-tf-field="heading">
+                    <span class="cv-room-title__a">{%- for w in cv_w limit: cv_half -%}{{ w }}{% unless forloop.last %}{{ ' ' }}{% endunless %}{%- endfor -%}</span>
+                    {%- if cv_w.size > 1 -%}{{ ' ' }}<span class="cv-room-title__b">{%- for w in cv_w offset: cv_half -%}{{ w }}{% unless forloop.last %}{{ ' ' }}{% endunless %}{%- endfor -%}</span>{%- endif -%}
+                  </h2>
+                {%- else -%}
+                  <h2 dir="auto" class="cv-h1 cv-banner__heading" data-tf-field="heading">{{ b.settings.heading }}</h2>
+                {%- endif -%}
+                {{ b._editor_block_close }}
+              {%- endif -%}
+            {%- when 'text' -%}
+              {%- if b.settings.text != blank -%}{{ b._editor_block_open }}<div dir="auto" class="cv-banner__text cv-rte" data-tf-field="text">{{ b.settings.text }}</div>{{ b._editor_block_close }}{%- endif -%}
+            {%- when 'buttons' -%}
+              {%- comment -%} The first button goes to the shop when it has no link; the second shows once it has somewhere to go. {%- endcomment -%}
+              {%- assign cv_b2 = false -%}
+              {%- if b.settings.button2_label != blank -%}{%- if b.settings.button2_link != blank or design_mode -%}{%- assign cv_b2 = true -%}{%- endif -%}{%- endif -%}
+              {%- if b.settings.button_label != blank or cv_b2 -%}
+                {{ b._editor_block_open }}
+                <div class="cv-banner__buttons">
+                  {%- if b.settings.button_label != blank -%}<a dir="auto" class="cv-btn cv-btn--lg{% case b.settings.button_style %}{% when 'outline' %} cv-btn--outline{% when 'ghost' %} cv-btn--ghost{% when 'link' %} cv-btn--link{% endcase %}{% if b.settings.button_scheme != blank %} tf-scheme-{{ b.settings.button_scheme }}{% endif %}" href="{{ b.settings.button_link | default: routes.shop_url }}" data-tf-field="button_label">{{ b.settings.button_label }}</a>{%- endif -%}
+                  {%- if cv_b2 -%}<a dir="auto" class="cv-btn cv-btn--lg cv-banner__btn2{% case b.settings.button2_style %}{% when 'outline' %} cv-btn--outline{% when 'ghost' %} cv-btn--ghost{% when 'link' %} cv-btn--link{% endcase %}{% if b.settings.button2_scheme != blank %} tf-scheme-{{ b.settings.button2_scheme }}{% endif %}"{% if b.settings.button2_link != blank %} href="{{ b.settings.button2_link }}"{% endif %} data-tf-field="button2_label">{{ b.settings.button2_label }}</a>{%- endif -%}
+                </div>
+                {{ b._editor_block_close }}
+              {%- endif -%}
+          {%- endcase -%}
+        {%- endfor -%}
+        {%- if cv_spots > 0 -%}{%- if cv_style == 'split' or cv_style == 'text' -%}
+          {%- comment -%} Split: the pinned products sit under the text as a short shopping list. {%- endcomment -%}
+          <ul class="cv-banner__list" role="list">
+            {%- for b in settings.blocks -%}
+              {%- if b.disabled or b.type != 'hotspot' -%}{%- continue -%}{%- endif -%}
+              {%- assign cv_p = b.settings.product -%}
+              {%- if cv_p == blank and design_mode != true -%}{%- continue -%}{%- endif -%}
+              {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+              <li>{{ b._editor_block_open }}<a class="cv-banner__item" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}">
+                <span class="cv-banner__ithumb cv-media">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 160 }}" alt="" loading="lazy">{%- elsif design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}</span>
+                <span class="cv-banner__iname">{% if b.settings.label != blank %}{{ b.settings.label }}{% elsif cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}</span>
+                {%- if cv_p.price -%}<span class="cv-banner__iprice">{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}
+              </a>{{ b._editor_block_close }}</li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}{%- endif -%}
+      </div>
+    </div>
+  </div>
+  {%- if cv_spots > 0 and cv_style != 'split' and cv_style != 'text' -%}
+    {%- comment -%} Phones: the pinned products as a numbered row under the photo. {%- endcomment -%}
+    {%- comment -%} An inset hero leaves the page showing around it, so the row under the photo takes the page's colours. {%- endcomment -%}
+    <ol class="cv-banner__rail{% if settings.layout == 'inset' %} tf-scheme-default{% endif %}" role="list">
+      {%- assign cv_n = 0 -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled or b.type != 'hotspot' -%}{%- continue -%}{%- endif -%}
+        {%- assign cv_p = b.settings.product -%}
+        {%- if cv_p == blank and design_mode != true -%}{%- continue -%}{%- endif -%}
+        {%- assign cv_n = cv_n | plus: 1 -%}
+        {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+        <li class="cv-banner__ritem" data-cv-rail="{{ cv_n }}"><a href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}">
+          <span class="cv-banner__rnum">{{ cv_n }}</span>
+          <span class="cv-banner__ithumb cv-media">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 160 }}" alt="" loading="lazy">{%- elsif design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}</span>
+          <span class="cv-banner__rtext"><span class="cv-banner__iname">{% if b.settings.label != blank %}{{ b.settings.label }}{% elsif cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}</span>
+          {%- if cv_p.price -%}<span class="cv-banner__iprice">{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}</span>
+        </a></li>
+      {%- endfor -%}
+    </ol>
+  {%- endif -%}
+</section>
+<script>
+(function () {
+  // Later runs (another instance, or the editor re-running scripts after a re-render) only wire what is new.
+  if (window.__cvBanner) { window.__cvBanner(); return; }
+  // Background video: loads and plays only while on screen, never with reduced motion or Save-Data; the poster stays otherwise.
+  var calm = matchMedia("(prefers-reduced-motion: reduce)").matches || (navigator.connection && (navigator.connection.saveData || /2g/.test(navigator.connection.effectiveType || "")));
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      var v = e.target;
+      if (e.isIntersecting && !v.hasAttribute("data-paused")) {
+        if (!v.src && v.getAttribute("data-src")) v.src = v.getAttribute("data-src");
+        var p = v.play(); if (p && p.catch) p.catch(function () {});
+      } else if (!e.isIntersecting) v.pause();
+    });
+  }, { threshold: 0.15 }) : null;
+  var watched = [];
+  // A pin whose object is cropped out of the frame (a narrow phone) steps aside rather than sitting half off the edge; the row under the photo still lists it.
+  function fit(l) {
+    var f = l.parentNode.getBoundingClientRect(), m = 22, w = l.getBoundingClientRect().width, xs = [];
+    // A frame narrower than the photo (a phone) slides the crop to centre on the pins, so the pinned objects stay in the picture.
+    l.querySelectorAll(".cv-pin").forEach(function (pin) { xs.push(parseFloat(pin.style.getPropertyValue("--x")) / 100); });
+    var v = w ? f.width / w : 1;
+    // A focal point the merchant moved wins over the pins (pins left outside the crop step aside, as below); the phone image has its own.
+    var cs = getComputedStyle(l.parentNode), ph = matchMedia("(max-width: 749px)").matches && cs.getPropertyValue("--cv-mfocus-x").trim() !== "";
+    var fx = parseFloat(cs.getPropertyValue(ph ? "--cv-mfocus-x" : "--cv-focus-x")), fy = parseFloat(cs.getPropertyValue(ph ? "--cv-mfocus-y" : "--cv-focus-y"));
+    var focal = !isNaN(fx) && !isNaN(fy) && (fx !== 50 || fy !== 50);
+    if (focal) l.parentNode.style.setProperty("--cv-fy", (fy / 100).toFixed(3)); else l.parentNode.style.removeProperty("--cv-fy");
+    if (focal) l.parentNode.style.setProperty("--cv-fx", (fx / 100).toFixed(3));
+    else if (xs.length && v < 0.98) {
+      var c = (Math.min.apply(null, xs) + Math.max.apply(null, xs)) / 2;
+      l.parentNode.style.setProperty("--cv-fx", Math.min(1, Math.max(0, (c - v / 2) / (1 - v))).toFixed(3));
+    } else l.parentNode.style.removeProperty("--cv-fx");
+    l.querySelectorAll(".cv-pin").forEach(function (pin) {
+      pin.classList.remove("is-out");
+      var r = pin.getBoundingClientRect();
+      pin.classList.toggle("is-out", r.left < f.left + m || r.left > f.right - m || r.top < f.top + m || r.top > f.bottom - m);
+    });
+  }
+  var fitT; addEventListener("resize", function () { clearTimeout(fitT); fitT = setTimeout(function () { document.querySelectorAll("[data-cv-pins]").forEach(fit); }, 150); });
+  function sweep() { watched = watched.filter(function (v) { if (v.isConnected) return true; if (io) io.unobserve(v); return false; }); }
+  function wire(root) {
+    // The pin layer takes the photo's own shape (the merchant's photo is measured once it loads).
+    (root || document).querySelectorAll("[data-cv-pins]").forEach(function (l) {
+      var img = l.parentNode.querySelector("picture img, :scope > img");
+      if (!img || l.__cv) return; l.__cv = true;
+      var set = function () { if (img.naturalWidth && img.naturalHeight) l.style.setProperty("--cv-ar", (img.naturalWidth / img.naturalHeight).toFixed(4)); fit(l); };
+      if (img.complete) set(); else img.addEventListener("load", set, { once: true });
+      fit(l);
+    });
+    (root || document).querySelectorAll("[data-cv-bgvideo]").forEach(function (v) {
+      if (v.__cv) return; v.__cv = true;
+      // Reduced motion, Save-Data or no observer: the poster stays and the button starts the film on request.
+      if (calm || !io) v.setAttribute("data-paused", "");
+      if (io) io.observe(v); watched.push(v);
+      var t = v.parentNode.querySelector("[data-cv-bgvideo-toggle]");
+      if (t) { t.hidden = false; t.setAttribute("aria-pressed", v.hasAttribute("data-paused") ? "true" : "false"); t.addEventListener("click", function () {
+        var paused = v.toggleAttribute("data-paused");
+        t.setAttribute("aria-pressed", paused ? "true" : "false");
+        if (paused) v.pause(); else { if (!v.src) v.src = v.getAttribute("data-src"); v.play(); }
+      }); }
+    });
+  }
+  window.__cvBanner = function () { sweep(); wire(document); };
+  wire();
+  document.addEventListener("tf:section:load", function (e) { wire(e.target); });
+  // Pins (this hero's only; Shop the look handles its own): on touch a tap opens the card; on a phone it also brings the matching row item into view.
+  function closeAll(except) { document.querySelectorAll("[data-cv-banner] .cv-pin.is-open").forEach(function (p) { if (p !== except) { p.classList.remove("is-open"); p.querySelector("[data-cv-pin-dot]").setAttribute("aria-expanded", "false"); } }); }
+  document.addEventListener("click", function (e) {
+    var dot = e.target.closest && e.target.closest("[data-cv-banner] [data-cv-pin-dot]");
+    if (!dot) { if (!(e.target.closest && e.target.closest("[data-cv-banner] .cv-pin__card"))) closeAll(null); return; }
+    var pin = dot.closest(".cv-pin"); closeAll(pin);
+    var open = pin.classList.toggle("is-open"); dot.setAttribute("aria-expanded", open ? "true" : "false");
+    var sec = pin.closest("[data-cv-banner]"), item = sec && sec.querySelector('[data-cv-rail="' + pin.getAttribute("data-cv-pin") + '"]');
+    if (item && getComputedStyle(item.parentNode).display !== "none") {
+      sec.querySelectorAll(".cv-banner__ritem.is-on").forEach(function (i) { i.classList.remove("is-on"); });
+      item.classList.add("is-on"); item.parentNode.scrollTo({ left: item.offsetLeft - 16, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    }
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeAll(null); });
+  // Editor: selecting a hotspot block opens its card.
+  document.addEventListener("tf:block-selected", function (e) {
+    var el = e.detail && e.detail.element, pin = el && el.querySelector && el.querySelector("[data-cv-banner] .cv-pin");
+    if (pin) { closeAll(pin); pin.classList.add("is-open"); }
+  });
+  document.addEventListener("tf:block-deselected", function (e) {
+    var el = e.detail && e.detail.element, pin = el && el.querySelector && el.querySelector("[data-cv-banner] .cv-pin");
+    if (pin) pin.classList.remove("is-open");
+  });
+})();
+</script>

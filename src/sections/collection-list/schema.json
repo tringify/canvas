@@ -1,0 +1,220 @@
+{
+  "name": "collection-list",
+  "icon": "layout-grid",
+  "ctx_needs": [
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.collection_list.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "collections",
+      "type": "collection_list",
+      "max": 12,
+      "editor": {
+        "label": "collections",
+        "group": "content"
+      }
+    },
+    {
+      "id": "fallback_photo",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "opt_photo_auto"
+        },
+        {
+          "value": "room",
+          "label": "opt_photo_room"
+        },
+        {
+          "value": "table",
+          "label": "opt_photo_table"
+        },
+        {
+          "value": "shelf",
+          "label": "opt_photo_shelf"
+        },
+        {
+          "value": "corner",
+          "label": "opt_photo_corner"
+        },
+        {
+          "value": "parcel",
+          "label": "opt_photo_parcel"
+        },
+        {
+          "value": "linen",
+          "label": "opt_photo_linen"
+        },
+        {
+          "value": "bedroom",
+          "label": "opt_photo_bedroom"
+        },
+        {
+          "value": "bench",
+          "label": "opt_photo_bench"
+        },
+        {
+          "value": "evening",
+          "label": "opt_photo_evening"
+        },
+        {
+          "value": "off",
+          "label": "opt_photo_none"
+        }
+      ],
+      "editor": {
+        "label": "fallback_photo_collections",
+        "group": "content"
+      }
+    },
+    {
+      "id": "link_label",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "link_label",
+        "group": "content"
+      }
+    },
+    {
+      "id": "show_count",
+      "type": "checkbox",
+      "default": false,
+      "editor": {
+        "label": "show_product_count",
+        "group": "content"
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "grid",
+      "options": [
+        {
+          "value": "grid",
+          "label": "opt_grid"
+        },
+        {
+          "value": "row",
+          "label": "opt_scroll_row"
+        },
+        {
+          "value": "list",
+          "label": "opt_index_list"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "image_ratio",
+      "type": "select",
+      "default": "portrait",
+      "options": [
+        {
+          "value": "square",
+          "label": "opt_square"
+        },
+        {
+          "value": "portrait",
+          "label": "opt_portrait"
+        },
+        {
+          "value": "landscape",
+          "label": "opt_landscape"
+        }
+      ],
+      "editor": {
+        "label": "image_ratio",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 3,
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "columns_mobile",
+      "type": "select",
+      "default": "1",
+      "options": [
+        {
+          "value": "1",
+          "label": "opt_one_column"
+        },
+        {
+          "value": "2",
+          "label": "opt_two_columns"
+        }
+      ],
+      "editor": {
+        "label": "columns_mobile",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "collection-list",
+      "category": "collections"
+    }
+  ]
+}

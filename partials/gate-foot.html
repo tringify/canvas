@@ -1,0 +1,16 @@
+{%- comment -%} Gate pages: the hairline row (social profiles from Theme settings > Social media, Powered by) and the store's name set as a
+  wordmark across the foot of the page, in one of footer-wordmark's styles. Input: cv_gate_band ("solid", "image", "outline", "tint").
+  The script sizes it so its longest line fills the width (CSS gives the same size without script, on one line). {%- endcomment -%}
+<footer class="cv-gate__foot">
+  {%- assign cv_soc_style = 'icons' -%}
+{%- comment -%}partial:social-icons{%- endcomment -%}{%- comment -%}/partial:social-icons{%- endcomment -%}
+  <p class="cv-gate__powered"><a href="https://tringify.com" target="_blank" rel="noopener">{{ 'footer.powered_by' | t }}</a></p>
+</footer>
+<div class="cv-gate__band cv-gate__band--{{ cv_gate_band }}" aria-hidden="true">
+  <p class="cv-gate__mark" dir="auto" data-cv-gate-fit data-name="{{ shop.name }}" style="--cv-chars: {{ shop.name | size }}">
+    <span class="cv-gate__line"><span class="cv-gate__ink" data-t="{{ shop.name }}"><span class="cv-gate__o">{{ shop.name }}</span></span></span>
+  </p>
+</div>
+{%- if cv_gate_band == 'outline' -%}
+<svg class="cv-gate__defs" width="0" height="0" aria-hidden="true" focusable="false"><filter id="cv-gate-outline" x="-5%" y="-5%" width="110%" height="110%"><feMorphology id="cv-gate-dilate" in="SourceGraphic" operator="dilate" radius="2" result="d"/><feComposite in="d" in2="SourceGraphic" operator="out"/></filter></svg>
+{%- endif -%}

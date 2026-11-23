@@ -1,0 +1,12 @@
+{
+  "page_type": "account",
+  "sections": [
+    {
+      "type": "main-account",
+      "position": 1,
+      "settings": {
+        "blocks": []
+      }
+    }
+  ]
+}

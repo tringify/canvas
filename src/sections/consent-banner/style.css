@@ -1,0 +1,71 @@
+  /* Cookie banner layouts: a card in a corner (the default), a bar along the bottom, a centred dialog over a dimmed page, or a side
+     panel. On phones every layout but the dialog sits along the bottom edge. */
+  .cv-consent { position: fixed; z-index: 140; display: flex; pointer-events: none; background: transparent; }
+  .cv-consent__box { box-sizing: border-box; display: grid; gap: 12px; width: 100%; padding: 20px; pointer-events: auto; color: var(--text); background: var(--bg);
+    border-radius: calc(var(--cv-radius, 16px) * 1.1); box-shadow: 0 0 0 1px var(--cv-line), 0 24px 60px -20px rgb(0 0 0 / 0.35); font-size: 14px; }
+  .cv-consent--corner { inset: auto 16px 16px; justify-content: flex-start; }
+  .cv-consent--corner.cv-consent--end { justify-content: flex-end; }
+  .cv-consent--corner .cv-consent__box { width: min(100%, 440px); max-height: calc(100vh - 32px); overflow-y: auto; }
+  .cv-consent--bar { inset: auto 0 0; }
+  .cv-consent--bar .cv-consent__box { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 32px; max-height: 70vh; overflow-y: auto;
+    padding: 18px var(--cv-pad-x, 24px) calc(18px + env(safe-area-inset-bottom)); border-radius: 0; box-shadow: 0 -1px 0 var(--cv-line), 0 -16px 40px -24px rgb(0 0 0 / 0.3); }
+  .cv-consent--bar .cv-consent__box > * { grid-column: 1; }
+  .cv-consent--bar .cv-consent__box > .cv-consent__actions { grid-column: 2; grid-row: 1 / span 3; align-self: center; }
+  .cv-consent--bar .cv-consent__box > .cv-consent__form--detailed { grid-column: 1 / -1; }
+  .cv-consent--modal { inset: 0; place-items: center; display: grid; padding: 16px; pointer-events: auto; background: rgb(0 0 0 / 0.4);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .cv-consent--modal .cv-consent__box { width: min(100%, 520px); max-height: calc(100vh - 32px); overflow-y: auto; padding: 28px; gap: 14px; }
+  .cv-consent--modal .cv-consent__title { font-size: 19px; }
+  .cv-consent--side { inset-block: 10px; inset-inline: auto 10px; width: min(400px, calc(100vw - 20px)); }
+  .cv-consent--side.cv-consent--start { inset-inline: 10px auto; }
+  .cv-consent--side .cv-consent__box { align-content: start; height: 100%; overflow-y: auto; padding: 26px 24px; gap: 14px; }
+  html.cv-consent-lock { overflow: hidden; }
+  .cv-consent__box p { margin: 0; }
+  .cv-consent__title { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+  .cv-consent__text { color: var(--text-muted); }
+  .cv-consent__links { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .cv-consent__links a { color: var(--text); text-underline-offset: 3px; }
+  .cv-consent__prefs summary .cv-icon { width: 16px; height: 16px; transition: transform 0.2s var(--cv-ease); }
+  .cv-consent__prefs[open] summary .cv-icon { transform: rotate(180deg); }
+  .cv-consent__form { display: grid; gap: 8px; margin-top: 10px; }
+  .cv-consent__form .cv-btn { justify-self: start; }
+  .cv-consent__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cv-consent__actions form { flex: 1 1 auto; display: grid; }
+  .cv-consent--side .cv-consent__actions, .cv-consent--modal .cv-consent__actions { gap: 10px; }
+  .cv-consent--side .cv-consent__actions :is(form, .cv-btn), .cv-consent--modal .cv-consent__actions :is(form, .cv-btn) { flex: 1 1 160px; min-height: 46px; }
+  .cv-consent__withdraw { margin-top: 4px; }
+  .cv-consent__withdraw .cv-tbtn, .cv-consent__only .cv-tbtn { font-size: 13px; }
+  .cv-consent__only { justify-self: start; }
+  /* Detailed categories: each with what it is for and a switch. */
+  .cv-consent__form--detailed { gap: 14px; margin-top: 0; }
+  .cv-consent__cats { display: grid; margin: 0; padding: 0; list-style: none; border-block: 1px solid var(--cv-line); }
+  .cv-consent__cat { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+  .cv-consent__cat + .cv-consent__cat { border-top: 1px solid var(--cv-line); }
+  .cv-consent__cat-text { display: grid; gap: 2px; min-width: 0; cursor: pointer; }
+  .cv-consent__cat-name { font-weight: 500; color: var(--text); }
+  .cv-consent__cat-desc { font-size: 13px; line-height: 1.45; color: var(--text-muted); }
+  .cv-consent__always { flex: none; font-size: 12.5px; font-weight: 500; color: var(--text-muted); }
+  .cv-switch { position: relative; flex: none; display: inline-flex; width: 40px; height: 24px; }
+  .cv-switch input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .cv-switch span { position: absolute; inset: 0; border-radius: 999px; background: color-mix(in srgb, var(--text) 18%, var(--bg)); transition: background-color 0.2s var(--cv-ease); }
+  .cv-switch span::after { content: ""; position: absolute; top: 3px; inset-inline-start: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--bg);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.2); transition: transform 0.2s var(--cv-ease); }
+  .cv-switch input:checked + span { background: var(--text); }
+  .cv-switch input:checked + span::after { transform: translateX(16px); }
+  [dir="rtl"] .cv-switch input:checked + span::after { transform: translateX(-16px); }
+  .cv-switch input:focus-visible + span { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }
+  .cv-consent__hint { margin: 0; }
+  @media (max-width: 749px) {
+    .cv-consent--corner, .cv-consent--side, .cv-consent--side.cv-consent--start { inset: auto 8px 8px; width: auto; }
+    .cv-consent--side .cv-consent__box { height: auto; max-height: 80vh; }
+    .cv-consent--corner .cv-consent__box { width: 100%; }
+    .cv-consent--bar .cv-consent__box { grid-template-columns: minmax(0, 1fr); }
+    .cv-consent--bar .cv-consent__box > .cv-consent__actions { grid-column: 1; grid-row: auto; }
+    .cv-consent__actions :is(form, .cv-btn) { flex: 1 1 140px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .cv-consent:not([hidden]) .cv-consent__box { animation: cv-consent-in 0.4s var(--cv-ease); }
+    .cv-consent--modal:not([hidden]) { animation: cv-consent-fade 0.3s ease-out; }
+    @keyframes cv-consent-in { from { opacity: 0; transform: translateY(12px); } }
+    @keyframes cv-consent-fade { from { opacity: 0; } }
+  }

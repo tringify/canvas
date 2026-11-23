@@ -1,0 +1,4 @@
+  .cv-nf__wrap { display: grid; gap: 16px; justify-items: center; max-width: 560px; padding-block: clamp(32px, 6vw, 80px); text-align: center; }
+  .cv-nf__wrap p { margin: 0; }
+  .cv-nf__search { display: flex; gap: 8px; width: 100%; }
+  .cv-nf__search .cv-input { flex: 1; min-width: 0; }

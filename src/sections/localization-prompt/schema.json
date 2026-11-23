@@ -1,0 +1,110 @@
+{
+  "name": "localization-prompt",
+  "kind": "embed",
+  "target": "global_overlay",
+  "icon": "globe",
+  "ctx_needs": [
+    "localization",
+    "localization_prompt",
+    "csrf_token",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "modal",
+      "options": [
+        {
+          "value": "modal",
+          "label": "opt_centered_dialog"
+        },
+        {
+          "value": "sheet",
+          "label": "opt_bottom_sheet"
+        },
+        {
+          "value": "bar",
+          "label": "opt_top_bar"
+        },
+        {
+          "value": "corner",
+          "label": "opt_corner_card"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "design"
+      }
+    },
+    {
+      "id": "position",
+      "type": "select",
+      "default": "end",
+      "options": [
+        {
+          "value": "start",
+          "label": "opt_start"
+        },
+        {
+          "value": "end",
+          "label": "opt_end"
+        }
+      ],
+      "editor": {
+        "label": "position",
+        "group": "design"
+      },
+      "visible_if": {
+        "setting": "layout",
+        "values": [
+          "corner"
+        ]
+      }
+    },
+    {
+      "id": "picker_style",
+      "type": "select",
+      "default": "sheet",
+      "options": [
+        {
+          "value": "theme",
+          "label": "opt_loc_theme"
+        },
+        {
+          "value": "dropdown",
+          "label": "opt_loc_dropdown"
+        },
+        {
+          "value": "pill",
+          "label": "opt_loc_pill"
+        },
+        {
+          "value": "modal",
+          "label": "opt_loc_modal"
+        },
+        {
+          "value": "sheet",
+          "label": "opt_loc_sheet"
+        },
+        {
+          "value": "links",
+          "label": "opt_loc_links"
+        }
+      ],
+      "editor": {
+        "label": "picker_style_other",
+        "group": "content"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "page_type": "collection",
+  "sections": [
+    {
+      "type": "main-collection",
+      "settings": {
+        "filter_layout": "sidebar",
+        "product_layout": "grid",
+        "columns": 3,
+        "columns_mobile": "2",
+        "blocks": [
+          {
+            "id": "canvas-white-collection__breadcrumbs",
+            "type": "breadcrumbs",
+            "settings": {}
+          },
+          {
+            "id": "canvas-white-collection__banner",
+            "type": "banner",
+            "settings": {
+              "show_image": true
+            }
+          },
+          {
+            "id": "canvas-white-collection__toolbar",
+            "type": "toolbar",
+            "settings": {}
+          }
+        ]
+      },
+      "position": 1
+    }
+  ]
+}

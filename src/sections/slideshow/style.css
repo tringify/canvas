@@ -1,0 +1,31 @@
+  .cv-ss { position: relative; }
+  .cv-ss__track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .cv-ss__track::-webkit-scrollbar { display: none; }
+  .cv-ss__slide { position: relative; flex: 0 0 100%; display: grid; scroll-snap-align: start; }
+  .cv-ss--small .cv-ss__slide { min-height: clamp(300px, 40vw, 440px); }
+  .cv-ss--medium .cv-ss__slide { min-height: clamp(400px, 55vw, 640px); }
+  .cv-ss--large .cv-ss__slide { min-height: clamp(500px, 75vw, 820px); }
+  .cv-slide { display: grid; min-width: 0; }
+  .cv-ss__media, .cv-ss__content { grid-area: 1 / 1; }
+  .cv-ss__media { position: relative; background: var(--surface); }
+  .cv-ss__media > img, .cv-ss__media > picture, .cv-ss__media > picture img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cv-ss__media > picture img { object-position: var(--cv-focus-x, 50%) var(--cv-focus-y, 50%); }
+  @media (max-width: 749px) { .cv-ss__media > picture img { object-position: var(--cv-mfocus-x, var(--cv-focus-x, 50%)) var(--cv-mfocus-y, var(--cv-focus-y, 50%)); } }
+  .cv-ss__fb { position: absolute; inset: 0; background: var(--cv-fb) center / cover no-repeat; }
+  .cv-ss__overlay { position: absolute; inset: 0; background: var(--media-backdrop); }
+  .cv-ss__content { position: relative; z-index: 1; display: flex; align-items: center; padding-block: 48px 72px; }
+  .cv-ss--x-left .cv-ss__content { justify-content: flex-start; }
+  .cv-ss--x-center .cv-ss__content { justify-content: center; text-align: center; }
+  .cv-ss--x-right .cv-ss__content { justify-content: flex-end; text-align: end; }
+  .cv-ss__box { display: grid; gap: 16px; max-width: 640px; }
+  .cv-ss__box .cv-blk-heading--auto { font-size: calc(clamp(40px, 6.4vw, 88px) * var(--cv-heading-scale, 1)); }
+  .cv-ss__box .cv-blk-text--auto { font-size: 17px; }
+  .cv-ss--x-center .cv-blk-buttons { justify-content: center; }
+  .cv-ss--x-right .cv-blk-buttons { justify-content: flex-end; }
+  .cv-ss__controls { position: absolute; inset: auto 0 16px; display: flex; align-items: center; justify-content: center; gap: 12px; z-index: 2; }
+  .cv-ss__btn { display: inline-flex; padding: 8px; color: var(--text); background: none; border: 0; cursor: pointer; }
+  .cv-ss__dots { display: flex; gap: 8px; }
+  .cv-ss__dot { width: 8px; height: 8px; padding: 0; border: 1px solid var(--text); border-radius: 50%; background: transparent; cursor: pointer; }
+  .cv-ss__dot[aria-current="true"] { background: var(--text); }
+  /* A slide without an image is text on the scheme's background; the editor shows the placeholder art beside it, untouched. */
+  .cv-ss__slide--plain .cv-ss__media { background: var(--bg); }

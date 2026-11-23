@@ -1,0 +1,275 @@
+{
+  "name": "image-with-text",
+  "icon": "image-plus",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "image"
+      }
+    },
+    {
+      "id": "image_alt",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "image_alt",
+        "group": "image"
+      }
+    },
+    {
+      "id": "fallback_photo",
+      "type": "select",
+      "default": "table",
+      "options": [
+        {
+          "value": "table",
+          "label": "opt_photo_table"
+        },
+        {
+          "value": "room",
+          "label": "opt_photo_room"
+        },
+        {
+          "value": "shelf",
+          "label": "opt_photo_shelf"
+        },
+        {
+          "value": "corner",
+          "label": "opt_photo_corner"
+        },
+        {
+          "value": "parcel",
+          "label": "opt_photo_parcel"
+        },
+        {
+          "value": "linen",
+          "label": "opt_photo_linen"
+        },
+        {
+          "value": "bedroom",
+          "label": "opt_photo_bedroom"
+        },
+        {
+          "value": "bench",
+          "label": "opt_photo_bench"
+        },
+        {
+          "value": "evening",
+          "label": "opt_photo_evening"
+        },
+        {
+          "value": "none",
+          "label": "opt_photo_none"
+        }
+      ],
+      "editor": {
+        "label": "fallback_photo",
+        "group": "image"
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "side",
+      "options": [
+        {
+          "value": "side",
+          "label": "opt_side_by_side"
+        },
+        {
+          "value": "overlap",
+          "label": "opt_overlap"
+        },
+        {
+          "value": "cover",
+          "label": "opt_cover"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "image_position",
+      "type": "select",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "opt_image_first"
+        },
+        {
+          "value": "right",
+          "label": "opt_image_second"
+        }
+      ],
+      "editor": {
+        "label": "image_position",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "image_width",
+      "type": "select",
+      "default": "half",
+      "options": [
+        {
+          "value": "small",
+          "label": "opt_small"
+        },
+        {
+          "value": "half",
+          "label": "opt_medium"
+        },
+        {
+          "value": "large",
+          "label": "opt_large"
+        }
+      ],
+      "editor": {
+        "label": "image_width",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "image_ratio",
+      "type": "select",
+      "default": "adapt",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "opt_landscape"
+        },
+        {
+          "value": "square",
+          "label": "opt_square"
+        },
+        {
+          "value": "portrait",
+          "label": "opt_portrait"
+        }
+      ],
+      "editor": {
+        "label": "image_ratio",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "image-with-text",
+      "category": "image",
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "@t:sections.image_with_text.heading"
+          }
+        },
+        {
+          "type": "theme:text"
+        }
+      ]
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "custom-vascula"
+    ],
+    "max": 12
+  },
+  "migrations": [
+    {
+      "id": "image-with-text-copy-to-blocks",
+      "op": "settings_to_blocks",
+      "blocks": [
+        {
+          "type": "theme:eyebrow",
+          "settings": {
+            "text": "eyebrow"
+          }
+        },
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "text"
+          }
+        },
+        {
+          "type": "theme:buttons",
+          "settings": {
+            "button_label": "button_label",
+            "button_link": "button_link",
+            "button_style": "button_style",
+            "button_scheme": "button_scheme"
+          },
+          "when": [
+            "button_label",
+            "button_link"
+          ]
+        }
+      ],
+      "source_defaults": {
+        "heading": "@t:sections.image_with_text.heading",
+        "button_style": "outline",
+        "button_label": "@t:sections.image_with_text.button_label"
+      }
+    }
+  ]
+}

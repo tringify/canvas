@@ -1,0 +1,158 @@
+{
+  "name": "main-list",
+  "icon": "layout-list",
+  "ctx_needs": [
+    "list",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "title",
+      "type": "text",
+      "default": "@t:sections.main_list.title",
+      "editor": {
+        "label": "title_fallback",
+        "group": "content"
+      }
+    },
+    {
+      "id": "show_count",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "show_product_count",
+        "group": "content"
+      }
+    },
+    {
+      "id": "fallback_photo",
+      "type": "select",
+      "default": "auto",
+      "options": [
+        {
+          "value": "auto",
+          "label": "opt_photo_auto"
+        },
+        {
+          "value": "room",
+          "label": "opt_photo_room"
+        },
+        {
+          "value": "table",
+          "label": "opt_photo_table"
+        },
+        {
+          "value": "shelf",
+          "label": "opt_photo_shelf"
+        },
+        {
+          "value": "corner",
+          "label": "opt_photo_corner"
+        },
+        {
+          "value": "parcel",
+          "label": "opt_photo_parcel"
+        },
+        {
+          "value": "linen",
+          "label": "opt_photo_linen"
+        },
+        {
+          "value": "bedroom",
+          "label": "opt_photo_bedroom"
+        },
+        {
+          "value": "bench",
+          "label": "opt_photo_bench"
+        },
+        {
+          "value": "evening",
+          "label": "opt_photo_evening"
+        },
+        {
+          "value": "off",
+          "label": "opt_photo_none"
+        }
+      ],
+      "editor": {
+        "label": "fallback_photo",
+        "group": "content"
+      }
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4,
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "columns_mobile",
+      "type": "select",
+      "default": "2",
+      "options": [
+        {
+          "value": "1",
+          "label": "opt_one_column"
+        },
+        {
+          "value": "2",
+          "label": "opt_two_columns"
+        }
+      ],
+      "editor": {
+        "label": "columns_mobile",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "page_size",
+      "type": "range",
+      "min": 8,
+      "max": 60,
+      "step": 4,
+      "default": 24,
+      "editor": {
+        "label": "items_per_page",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "paging",
+      "type": "select",
+      "default": "numbered",
+      "options": [
+        {
+          "value": "numbered",
+          "label": "opt_numbered"
+        },
+        {
+          "value": "load_more",
+          "label": "opt_load_more"
+        },
+        {
+          "value": "infinite",
+          "label": "opt_infinite_scroll"
+        }
+      ],
+      "editor": {
+        "label": "paging",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ]
+}

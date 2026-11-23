@@ -1,0 +1,77 @@
+{%- comment -%} The footer's bottom bar: its own blocks (copyright, policy links, country and language, social links, payment methods,
+  a note, Powered by Tringify) in the merchant's order. Each can be hidden or removed; a part with nothing to show for shoppers explains
+  itself in the editor. {%- endcomment -%}
+{%- assign cv_bar_n = 0 -%}
+{%- for b in settings.blocks -%}{%- unless b.type contains ':' -%}{%- assign cv_bar_n = cv_bar_n | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+{%- if cv_bar_n > 0 -%}
+{%- assign cv_year = 'now' | date: '%Y' -%}
+<div class="cv-ft__bar cv-ft__bar--{{ settings.bar_align | default: 'spread' }}{% if settings.divider != false %} cv-ft__bar--line{% endif %}">
+  {%- for b in settings.blocks -%}
+    {%- if b.type contains ':' -%}{%- continue -%}{%- endif -%}
+    {%- case b.type -%}
+      {%- when 'copyright' -%}
+        {{ b._editor_block_open }}
+        <p class="cv-ft__part cv-ft__copy" dir="auto" data-tf-field="copyright">&copy; {% if b.settings.copyright != blank %}{{ b.settings.copyright | replace: '{year}', cv_year | replace: '{store}', shop.name }}{% else %}{{ shop.name }}{% endif %}</p>
+        {{ b._editor_block_close }}
+      {%- when 'policies' -%}
+        {%- assign cv_pol = false -%}{%- if b.settings.show_policies != false and policies.size > 0 -%}{%- assign cv_pol = true -%}{%- endif -%}
+        {%- assign cv_cons = false -%}{%- if b.settings.show_consent != false and consent.required -%}{%- assign cv_cons = true -%}{%- endif -%}
+        {%- assign cv_priv = false -%}{%- if b.settings.show_privacy_request != false and customer_settings.privacy_request_url != blank -%}{%- assign cv_priv = true -%}{%- endif -%}
+        {%- if cv_pol or cv_cons or cv_priv -%}
+        {{ b._editor_block_open }}
+        <ul class="cv-ft__part cv-ft__policies" role="list">
+          {%- if cv_pol -%}{%- for p in policies -%}<li><a dir="auto" href="{{ p.url }}">{{ p.title }}</a></li>{%- endfor -%}{%- endif -%}
+          {%- if cv_priv -%}<li><a dir="auto" href="{{ customer_settings.privacy_request_url }}">{{ 'footer.privacy_request' | t }}</a></li>{%- endif -%}
+          {%- if cv_cons -%}<li><button class="cv-ft__consent" type="button" data-cv-consent-open>{{ 'consent.preferences' | t }}</button></li>{%- endif -%}
+        </ul>
+        {{ b._editor_block_close }}
+        {%- elsif design_mode -%}
+        {{ b._editor_block_open }}<p class="cv-ft__part cv-editor-hint cv-blk-hint">{{ 'footer.policies_hint' | t }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'localization' -%}
+        {%- assign cv_loc_c = false -%}{%- assign cv_loc_l = false -%}
+        {%- if b.settings.show_localization != false -%}
+          {%- if localization.available_countries.size > 1 -%}{%- assign cv_loc_c = true -%}{%- endif -%}
+          {%- if localization.available_languages.size > 1 -%}{%- assign cv_loc_l = true -%}{%- endif -%}
+        {%- endif -%}
+        {%- if cv_loc_c or cv_loc_l -%}
+        {{ b._editor_block_open }}
+        <div class="cv-ft__part cv-ft__loc">
+          {%- assign cv_loc_id = 'ft-' | append: b.id -%}{%- assign cv_loc_pick = b.settings.picker_style -%}
+{%- comment -%}partial:loc-picker{%- endcomment -%}{%- comment -%}/partial:loc-picker{%- endcomment -%}
+        </div>
+        {{ b._editor_block_close }}
+        {%- elsif design_mode -%}
+        {{ b._editor_block_open }}<p class="cv-ft__part cv-editor-hint cv-blk-hint">{{ 'footer.localization_hint' | t }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'social' -%}
+        {%- assign cv_soc_style = b.settings.style -%}
+        {%- if b.settings.show_social != false -%}
+        {{ b._editor_block_open }}
+        <div class="cv-ft__part cv-ft__social">
+{%- comment -%}partial:social-icons{%- endcomment -%}{%- comment -%}/partial:social-icons{%- endcomment -%}
+        {%- if cv_has_social == false and design_mode -%}<p class="cv-editor-hint cv-blk-hint">{{ 'footer.social_hint' | t }}</p>{%- endif -%}
+        </div>
+        {{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'payment' -%}
+        {{ b._editor_block_open }}
+        <div class="cv-ft__part cv-ft__pay">
+        {%- assign cv_pay_list = b.settings.payment_methods -%}
+{%- comment -%}partial:payment-list{%- endcomment -%}{%- comment -%}/partial:payment-list{%- endcomment -%}
+        </div>
+        {{ b._editor_block_close }}
+      {%- when 'note' -%}
+        {%- if b.settings.text != blank -%}
+        {{ b._editor_block_open }}<div class="cv-ft__part cv-ft__note cv-rte" dir="auto" data-tf-field="text">{{ b.settings.text }}</div>{{ b._editor_block_close }}
+        {%- elsif design_mode -%}
+        {{ b._editor_block_open }}<p class="cv-ft__part cv-editor-hint cv-blk-hint">{{ 'sections.editor_empty_block' | t }}</p>{{ b._editor_block_close }}
+        {%- endif -%}
+      {%- when 'powered_by' -%}
+        {%- if b.settings.show_powered_by != false -%}
+        {{ b._editor_block_open }}<a class="cv-ft__part cv-ft__powered" href="https://tringify.com" target="_blank" rel="noopener">{{ 'footer.powered_by' | t }}</a>{{ b._editor_block_close }}
+        {%- endif -%}
+    {%- endcase -%}
+  {%- endfor -%}
+</div>
+{%- endif -%}

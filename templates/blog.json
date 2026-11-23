@@ -1,0 +1,12 @@
+{
+  "page_type": "blog",
+  "sections": [
+    {
+      "type": "main-article",
+      "position": 1,
+      "settings": {
+        "blocks": []
+      }
+    }
+  ]
+}

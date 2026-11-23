@@ -1,0 +1,13 @@
+{%- comment -%} Breadcrumbs: the platform's home crumb (the store, named as the store is named), then its trail (ctx.breadcrumbs, declared in the section's ctx_needs), the current page last as
+  plain text. The platform gives a trail on product, category, collection, vendor and brand pages and writes the matching BreadcrumbList JSON-LD
+  itself, so the theme adds none. {%- endcomment -%}
+{%- if breadcrumbs.items.size > 0 -%}
+  <nav class="cv-crumbs" aria-label="{{ 'general.breadcrumbs' | t }}">
+    <ol class="cv-crumbs__list">
+      {%- if breadcrumbs.home -%}<li class="cv-crumbs__item"><a dir="auto" href="{{ breadcrumbs.home.url }}">{{ breadcrumbs.home.title }}</a></li>{%- endif -%}
+      {%- for c in breadcrumbs.items -%}
+        <li class="cv-crumbs__item"><span class="cv-crumbs__sep" aria-hidden="true">›</span>{%- if c.current or forloop.last -%}<span dir="auto" aria-current="page">{{ c.title }}</span>{%- else -%}<a dir="auto" href="{{ c.url }}">{{ c.title }}</a>{%- endif -%}</li>
+      {%- endfor -%}
+    </ol>
+  </nav>
+{%- endif -%}

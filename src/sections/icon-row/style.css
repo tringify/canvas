@@ -1,0 +1,17 @@
+  .cv-icons.cv-section { padding-block: clamp(32px, 4vw, 56px); }
+  .cv-icons__list { display: grid; gap: clamp(16px, 2vw, 24px); grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); list-style: none; margin: 0; padding: 0; }
+  .cv-icons__item { display: flex; align-items: flex-start; gap: 14px; }
+  .cv-icons--center .cv-icons__item { flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+  .cv-icons--cards .cv-icons__item { padding: clamp(20px, 2.4vw, 28px); background: var(--cv-soft); border-radius: calc(var(--cv-radius, 16px) * 1.25); }
+  .cv-icons__icon { display: grid; place-items: center; flex: none; width: 48px; height: 48px; background: var(--cv-soft); border-radius: 50%; }
+  .cv-icons--cards .cv-icons__icon { background: var(--bg); }
+  .cv-icons__icon .cv-icon { width: 22px; height: 22px; }
+  .cv-icons__text p { margin: 0; }
+  .cv-icons__title { font-weight: 500; }
+  .cv-icons__desc { margin-top: 4px !important; font-size: 14px; text-wrap: pretty; }
+  @media (max-width: 749px) {
+    .cv-icons__list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .cv-icons--cards .cv-icons__item { padding: 18px 14px; }
+    .cv-icons:not(.cv-icons--center):not(.cv-icons--cards) .cv-icons__item { flex-direction: column; gap: 10px; }
+    .cv-icons__desc { font-size: 13px; }
+  }

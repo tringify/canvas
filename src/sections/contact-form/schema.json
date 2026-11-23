@@ -1,0 +1,99 @@
+{
+  "name": "contact-form",
+  "icon": "mail",
+  "ctx_needs": [
+    "forms",
+    "form_notice",
+    "customer",
+    "csrf_token",
+    "phone_countries",
+    "customer_settings",
+    "localization"
+  ],
+  "settings": [
+    {
+      "id": "show_phone",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "show_phone_field",
+        "group": "content"
+      }
+    },
+    {
+      "id": "show_subject",
+      "type": "checkbox",
+      "default": false,
+      "editor": {
+        "label": "show_subject_field",
+        "group": "content"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "contact-form",
+      "category": "forms",
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "@t:sections.contact_form.heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "@t:sections.contact_form.text"
+          }
+        }
+      ]
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "custom-vascula"
+    ],
+    "max": 8
+  },
+  "migrations": [
+    {
+      "id": "contact-form-copy-to-blocks",
+      "op": "settings_to_blocks",
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "text"
+          }
+        }
+      ],
+      "source_defaults": {
+        "heading": "@t:sections.contact_form.heading",
+        "text": "@t:sections.contact_form.text"
+      }
+    }
+  ]
+}

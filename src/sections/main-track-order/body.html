@@ -1,0 +1,31 @@
+<section data-cv-notice-host class="cv cv-section cv-tr tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-wrap cv-tr__wrap">
+    <h1 class="cv-h2">{{ 'track.title' | t }}</h1>
+    <p class="cv-muted">{{ 'track.intro' | t }}</p>
+    <p class="cv-notice {% if form_notice.success %}cv-notice--ok{% else %}cv-notice--error{% endif %}" role="status" data-cv-notice{% if form_notice.message == blank %} hidden{% endif %}>{{ form_notice.message }}</p>
+    {%- if form_error and form_error.message != blank -%}<p class="cv-notice cv-notice--error" role="alert">{{ form_error.message }}</p>{%- endif -%}
+    {% form 'order_track_request', class: 'cv-tr__form' %}
+      <label class="cv-field"><span class="cv-label">{{ 'track.order_number' | t }}</span><input class="cv-input" name="order_number" required autocomplete="off" data-cv-track="order"></label>
+      <label class="cv-field"><span class="cv-label">{{ 'track.contact' | t }}</span><input class="cv-input" name="contact" required autocomplete="email" data-cv-track="contact"></label>
+      <input class="cv-hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="cv-btn" type="submit">{{ 'track.send_code' | t }}</button>
+    {% endform %}
+    <details class="cv-tr__verify"{% if form_notice.success %} open{% endif %}>
+      <summary>{{ 'track.have_code' | t }}</summary>
+      {% form 'order_track_verify', class: 'cv-tr__form' %}
+        <label class="cv-field"><span class="cv-label">{{ 'track.order_number' | t }}</span><input class="cv-input" name="order_number" required autocomplete="off" data-cv-track-fill="order"></label>
+        <label class="cv-field"><span class="cv-label">{{ 'track.contact' | t }}</span><input class="cv-input" name="contact" required autocomplete="email" data-cv-track-fill="contact"></label>
+        <label class="cv-field"><span class="cv-label">{{ 'auth.code' | t }}</span><input class="cv-input" name="code" required inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
+        <button class="cv-btn" type="submit">{{ 'track.view_order' | t }}</button>
+      {% endform %}
+    </details>
+  </div>
+</section>
+<script>
+(function () {
+  try {
+    document.querySelectorAll("[data-cv-track]").forEach(function (i) { i.addEventListener("change", function () { sessionStorage.setItem("cv-track-" + i.getAttribute("data-cv-track"), i.value); }); });
+    document.querySelectorAll("[data-cv-track-fill]").forEach(function (i) { var v = sessionStorage.getItem("cv-track-" + i.getAttribute("data-cv-track-fill")); if (v && !i.value) i.value = v; });
+  } catch (e) {}
+})();
+</script>

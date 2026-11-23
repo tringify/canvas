@@ -1,0 +1,11 @@
+{%- comment -%} Rich text: the merchant's content blocks (eyebrow, heading, text, buttons, image, spacer) in one centred or left-aligned column. {%- endcomment -%}
+{%- assign cv_n = 0 -%}
+{%- for b in settings.blocks -%}{%- unless b.disabled -%}{%- assign cv_n = cv_n | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+{%- if cv_n > 0 or design_mode -%}
+<section class="cv cv-section cv-rich tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}">
+  <div class="cv-wrap cv-rich__inner cv-rich--{{ settings.align }}" style="max-width: min(var(--cv-width, 1400px), {{ settings.width }}px)">
+    {%- if design_mode and cv_n == 0 -%}<p class="cv-editor-hint">{{ 'sections.editor_add_content' | t }}</p>{%- endif -%}
+    {% blocks %}
+  </div>
+</section>
+{%- endif -%}

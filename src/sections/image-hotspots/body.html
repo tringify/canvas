@@ -1,0 +1,137 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Shop the look: the merchant's photo with its products pinned (the hero's room, once more down the page).
+  Pins: numbered dots that open a product card; Beside a list: the photo with the same numbered products listed next to it, each with Add to cart.
+  Without the merchant's photo it uses the theme photo picked in Photo until you add your own; with No photo the products show as a list without a picture. Without product picks it shows only in the editor. {%- endcomment -%}
+{%- assign cv_hs_picks = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled != true and b.settings.product -%}{%- assign cv_hs_picks = cv_hs_picks | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_hs_picks > 0 or design_mode -%}
+{%- assign cv_lay = settings.layout | default: 'pins' -%}
+{%- assign cv_photo = settings.fallback_photo | default: 'corner' -%}{%- assign cv_photo_i = 1 -%}{%- assign cv_photo_wide = false -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+{%- assign cv_stage = true -%}
+{%- if settings.image == blank and cv_fb == blank -%}{%- assign cv_stage = false -%}{%- assign cv_lay = 'side' -%}{%- endif -%}
+<section class="cv cv-section cv-hs cv-hs--{{ cv_lay }}{% unless cv_stage %} cv-hs--nostage{% endunless %} cv-pad--{{ settings.padding | default: 'default' }} tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-wrap">
+    {%- if settings.heading != blank or settings.text != blank -%}<div class="cv-head"><div>
+      {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+      {%- if settings.text != blank -%}<p dir="auto" class="cv-muted" data-tf-field="text">{{ settings.text }}</p>{%- endif -%}
+    </div></div>{%- endif -%}
+    <div class="cv-hs__grid">
+      {%- assign cv_n = 0 -%}
+      {%- if cv_stage -%}
+      <div dir="auto" class="cv-hs__stage cv-media" style="aspect-ratio: {{ settings.ratio }}" data-tf-field="image" data-tf-point-area>
+        {%- if settings.image -%}<img src="{{ settings.image | image_url: width: 1600 }}" srcset="{{ settings.image | image_srcset: max: 2400 }}" sizes="(min-width: 990px) 66vw, 100vw" alt="" loading="lazy">
+        {%- else -%}<img src="{{ cv_fb | asset_url }}" alt="" loading="lazy" width="{{ cv_fbw }}" height="{{ cv_fbh }}">{%- endif -%}
+        {%- for b in settings.blocks -%}
+          {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+          {%- assign cv_p = b.settings.product -%}
+          {%- if cv_p == blank and design_mode != true -%}{%- continue -%}{%- endif -%}
+          {%- assign cv_n = cv_n | plus: 1 -%}
+          {{ b._editor_block_open }}
+          <div class="cv-pin{% if b.settings.position.x > 58 %} cv-pin--flip{% endif %}{% if b.settings.position.y > 62 %} cv-pin--up{% endif %}" style="--x: {{ b.settings.position.x }}%; --y: {{ b.settings.position.y }}%; --i: {{ cv_n }}" data-cv-pin="{{ cv_n }}" data-tf-point="position">
+            <button class="cv-pin__dot" type="button" aria-expanded="false" data-cv-pin-dot aria-label="{% if cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}"><span>{{ cv_n }}</span></button>
+            {%- if cv_lay == 'pins' -%}
+            <div class="cv-pin__card">
+              {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+              <a class="cv-pin__thumb" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}" tabindex="-1" aria-hidden="true">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 200 }}" alt="" loading="lazy">{%- elsif design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}</a>
+              <div class="cv-pin__info">
+                <a class="cv-pin__title" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}">{% if cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}</a>
+                {%- if cv_p.price -%}<span class="cv-pin__price">{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}
+              </div>
+              <a class="cv-btn cv-pin__add" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}" aria-label="{{ 'products.view_product' | t }}"><svg class="cv-icon cv-icon--dir" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            </div>
+            {%- endif -%}
+          </div>
+          {{ b._editor_block_close }}
+        {%- endfor -%}
+      </div>
+      {%- endif -%}
+      {%- if cv_lay == 'side' and cv_n > 0 or cv_stage == false -%}
+        <ol class="cv-hs__list" role="list">
+          {%- assign cv_m = 0 -%}
+          {%- for b in settings.blocks -%}
+            {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+            {%- assign cv_p = b.settings.product -%}
+            {%- if cv_p == blank and design_mode != true -%}{%- continue -%}{%- endif -%}
+            {%- assign cv_m = cv_m | plus: 1 -%}
+            {%- assign cv_pimg = cv_p.featured_image -%}{%- if cv_pimg.media_type and cv_pimg.media_type != 'image' -%}{%- assign cv_pimg = cv_pimg.preview_image -%}{%- endif -%}
+            <li class="cv-hs__item" data-cv-rail="{{ cv_m }}">
+              <span class="cv-hs__num">{{ cv_m }}</span>
+              <a class="cv-hs__thumb cv-media" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}" tabindex="-1" aria-hidden="true">{%- if cv_pimg.url -%}<img src="{{ cv_pimg.url | image_url: width: 240 }}" alt="" loading="lazy">{%- elsif design_mode -%}{{ 'product-1' | placeholder_svg }}{%- endif -%}</a>
+              <div class="cv-hs__info">
+                <a class="cv-hs__title" href="{% if cv_p %}{{ cv_p.url }}{% else %}{{ routes.shop_url }}{% endif %}">{% if cv_p %}{{ cv_p.title }}{% else %}{{ 'sections.product_placeholder' | t }}{% endif %}</a>
+                {%- if cv_p.price -%}<span class="cv-hs__price">{{ cv_p.price.current | money: isolate: true, trim_zeros: cv_tz }}</span>{%- endif -%}
+              </div>
+              {%- if cv_p and cv_p.available_for_sale -%}
+                {%- if cv_p.options.size == 0 or cv_p.variant_matrix.size == 1 -%}
+                  {%- assign cv_vid = cv_p.selected_variant.id | default: cv_p.display_variant.id -%}
+                  {% form 'cart_add', class: 'cv-hs__form' %}
+                    <input type="hidden" name="product_id" value="{{ cv_p.id }}">{%- if cv_vid -%}<input type="hidden" name="variant_id" value="{{ cv_vid }}">{%- endif -%}<input type="hidden" name="quantity" value="1">
+                    <button class="cv-btn cv-btn--sm" type="submit">{{ 'products.add_to_cart' | t }}</button>
+                  {% endform %}
+                {%- else -%}
+                  <a class="cv-btn cv-btn--sm cv-btn--outline" href="{{ cv_p.url }}"{% if theme.settings.card_choose_opens != 'product_page' %} data-cv-qv aria-haspopup="dialog"{% endif %}>{{ 'products.choose_options' | t }}</a>
+                {%- endif -%}
+              {%- elsif cv_p -%}<span class="cv-hs__sold">{%- if cv_p.availability_reason != blank -%}{{ cv_p.availability_reason_label }}{%- else -%}{{ 'products.sold_out' | t }}{%- endif -%}</span>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ol>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+{%- endif -%}
+<script>
+(function () {
+  if (window.__cvHotspots) return; window.__cvHotspots = true;
+  function closeAll(except) { document.querySelectorAll(".cv-hs .cv-pin.is-open").forEach(function (p) { if (p !== except) { p.classList.remove("is-open"); p.querySelector("[data-cv-pin-dot]").setAttribute("aria-expanded", "false"); } }); }
+  document.addEventListener("click", function (e) {
+    var dot = e.target.closest && e.target.closest(".cv-hs [data-cv-pin-dot]");
+    if (!dot) { if (!(e.target.closest && e.target.closest(".cv-pin__card"))) closeAll(null); return; }
+    var pin = dot.closest(".cv-pin"); closeAll(pin);
+    var open = pin.classList.toggle("is-open"); dot.setAttribute("aria-expanded", open ? "true" : "false");
+    // Beside a list: the dot highlights its row.
+    var sec = pin.closest(".cv-hs"), row = sec.querySelector('.cv-hs__item[data-cv-rail="' + pin.getAttribute("data-cv-pin") + '"]');
+    sec.querySelectorAll(".cv-hs__item.is-on").forEach(function (r) { r.classList.remove("is-on"); });
+    if (row) { row.classList.add("is-on"); if (matchMedia("(max-width: 989px)").matches) row.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" }); }
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeAll(null); });
+  // Editor: selecting a hotspot block opens its card.
+  document.addEventListener("tf:block-selected", function (e) {
+    var el = e.detail && e.detail.element, spot = el && el.querySelector && el.querySelector(".cv-hs .cv-pin");
+    if (spot) { closeAll(spot); spot.classList.add("is-open"); }
+  });
+  document.addEventListener("tf:block-deselected", function (e) {
+    var el = e.detail && e.detail.element, spot = el && el.querySelector && el.querySelector(".cv-hs .cv-pin");
+    if (spot) spot.classList.remove("is-open");
+  });
+})();
+</script>

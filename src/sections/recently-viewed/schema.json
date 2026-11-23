@@ -1,0 +1,61 @@
+{
+  "name": "recently-viewed",
+  "icon": "history",
+  "ctx_needs": [
+    "recently_viewed",
+    "routes",
+    "csrf_token",
+    "customer_settings",
+    "design_mode", "shopping"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "default": "@t:sections.recently_viewed.heading",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      }
+    },
+    {
+      "id": "limit",
+      "type": "range",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4,
+      "editor": {
+        "label": "products_to_show",
+        "group": "content"
+      }
+    },
+    {
+      "id": "columns",
+      "type": "range",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4,
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "recently-viewed",
+      "category": "products"
+    }
+  ]
+}

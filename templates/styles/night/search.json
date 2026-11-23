@@ -1,0 +1,14 @@
+{
+  "page_type": "search",
+  "sections": [
+    {
+      "type": "main-search",
+      "settings": {
+        "filter_layout": "horizontal",
+        "product_layout": "grid",
+        "columns": 4
+      },
+      "position": 1
+    }
+  ]
+}

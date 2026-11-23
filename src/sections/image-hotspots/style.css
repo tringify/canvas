@@ -1,0 +1,72 @@
+  .cv-hs__stage { position: relative; overflow: visible; border-radius: calc(var(--cv-radius, 16px) * 1.25); }
+  .cv-hs__stage > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+  .cv-hs__grid { display: grid; gap: clamp(20px, 3vw, 48px); align-items: center; }
+  /* Side: the photo on the left; the heading hangs from the photo's top edge and the numbered list sits on its bottom edge, so the column is framed by the photo rather than trailing off. */
+  @media (min-width: 990px) {
+    /* Beside a list: the heading and the list stay together as one group, centred against the photo (the outer rows take the spare height). */
+    .cv-hs--side .cv-wrap { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); grid-template-rows: 1fr auto auto 1fr; column-gap: clamp(40px, 5vw, 88px); }
+    .cv-hs--side .cv-head { grid-column: 2; grid-row: 2; margin-bottom: clamp(20px, 2.4vw, 32px); }
+    .cv-hs--side .cv-hs__grid { display: contents; }
+    .cv-hs--side .cv-hs__stage { grid-column: 1; grid-row: 1 / -1; }
+    .cv-hs--side .cv-hs__list { grid-column: 2; grid-row: 3; align-self: start; }
+    .cv-hs--side .cv-hs__item { grid-template-columns: 26px 104px minmax(0, 1fr) auto; gap: 18px; padding: 18px 0; }
+    .cv-hs--side .cv-hs__thumb { width: 104px; height: 104px; }
+    .cv-hs--side .cv-hs__title { font-family: var(--tf-font-heading_font, inherit); font-size: calc(19px * var(--cv-heading-scale, 1)); font-weight: 400; letter-spacing: -0.015em; line-height: 1.2; }
+  }
+  /* No photo: just the heading and the list, at a reading width. */
+  .cv-hs--nostage .cv-wrap { display: block; max-width: 880px; }
+  .cv-hs--nostage .cv-hs__grid { display: block; }
+  .cv-hs__list { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--cv-line); }
+  .cv-hs__item { display: grid; grid-template-columns: 26px 72px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--cv-line); transition: background-color 0.3s; }
+  .cv-hs__item.is-on { background: var(--cv-soft); }
+  .cv-hs__num { display: grid; place-items: center; width: 26px; height: 26px; font-size: 12px; font-weight: 600; color: var(--bg); background: var(--text); border-radius: 50%; }
+  .cv-hs__thumb { width: 72px; height: 72px; border-radius: calc(var(--cv-radius, 16px) * 0.7); }
+  .cv-hs__info { display: grid; gap: 2px; min-width: 0; }
+  .cv-hs__title { font-weight: 500; color: var(--text); text-decoration: none; }
+  a.cv-hs__title { transition: opacity 0.2s var(--cv-ease); }
+  a.cv-hs__title:hover { opacity: 0.65; }
+  .cv-hs__price { font-size: 14px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .cv-hs__sold { font-size: 13px; color: var(--text-muted); white-space: nowrap; }
+  .cv-hs__form { margin: 0; }
+  .cv-hs--side .cv-pin__dot { cursor: pointer; }
+  @media (max-width: 749px) {
+    .cv-hs .cv-pin__card { display: grid; position: fixed; left: 12px !important; right: 12px !important; top: auto !important; bottom: 12px !important; width: auto; z-index: 60; }
+    .cv-hs .cv-pin:not(.is-open) .cv-pin__card { display: none; }
+    .cv-hs__item { grid-template-columns: 22px 56px minmax(0, 1fr) auto; gap: 12px; padding: 10px 0; }
+    .cv-hs__num { width: 22px; height: 22px; font-size: 11px; }
+    .cv-hs__thumb { width: 56px; height: 56px; }
+  }
+/* partial:pins */
+  /* Pins and their product cards */
+  .cv-pin { position: absolute; z-index: 3; left: var(--x); top: var(--y); width: 0; height: 0; }
+  .cv-pin__dot { position: absolute; left: -17px; top: -17px; display: grid; place-items: center; width: 34px; height: 34px; padding: 0; font: inherit; font-size: 12px; font-weight: 600; color: var(--media-ink-dark);
+    background: var(--media-ink-light); border: 0; border-radius: 50%; cursor: pointer; box-shadow: 0 6px 20px rgb(0 0 0 / 0.28); transition: transform 0.3s var(--cv-ease); }
+  .cv-pin__dot::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 1.5px solid rgb(255 255 255 / 0.75); animation: cv-pin-pulse 2.4s var(--cv-ease) infinite; animation-delay: calc(var(--i) * 0.4s); }
+  .cv-pin__dot:hover, .cv-pin.is-open .cv-pin__dot { transform: scale(1.12); }
+  @keyframes cv-pin-pulse { 0% { transform: scale(0.7); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+  .cv-pin__card { position: absolute; left: 30px; top: -38px; display: grid; grid-template-columns: 60px minmax(0, 1fr) auto; align-items: center; gap: 12px; width: 280px; padding: 8px 10px 8px 8px;
+    color: var(--media-ink-dark); background: rgb(255 255 255 / 0.94); border-radius: calc(var(--cv-radius, 16px) * 1.05); box-shadow: 0 24px 50px -16px rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4);
+    opacity: 0; visibility: hidden; transform: translateY(8px) scale(0.98); transform-origin: left center; transition: opacity 0.3s var(--cv-ease), transform 0.4s var(--cv-ease), visibility 0s 0.3s; }
+  .cv-pin--flip .cv-pin__card { left: auto; right: 30px; transform-origin: right center; }
+  .cv-pin--up .cv-pin__card { top: auto; bottom: -38px; }
+  .cv-pin.is-open .cv-pin__card, .cv-pin:hover .cv-pin__card, .cv-pin:focus-within .cv-pin__card { opacity: 1; visibility: visible; transform: none; transition: opacity 0.3s var(--cv-ease), transform 0.4s var(--cv-ease); }
+  .cv-pin.is-open, .cv-pin:hover, .cv-pin:focus-within { z-index: 5; }
+  .cv-pin__thumb { display: block; width: 60px; height: 60px; overflow: hidden; border-radius: calc(var(--cv-radius, 16px) * 0.6); background: var(--media-placeholder); }
+  .cv-pin__thumb img, .cv-pin__thumb svg { width: 100%; height: 100%; object-fit: cover; }
+  .cv-pin__info { display: grid; gap: 2px; min-width: 0; }
+  .cv-pin__title { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 14px; font-weight: 500; line-height: 1.25; color: inherit; text-decoration: none; }
+  .cv-pin__title { transition: opacity 0.2s var(--cv-ease); }
+  .cv-pin__title:hover { opacity: 0.65; }
+  .cv-pin__price { font-size: 13px; color: var(--media-ink-muted); font-variant-numeric: tabular-nums; }
+  .cv-pin__form { margin: 0; }
+  .cv-pin__add.cv-btn { width: 42px; min-height: 42px; height: 42px; padding: 0; color: var(--media-ink-light); background: var(--media-ink-dark); border-radius: 50%; }
+  .cv-pin__add .cv-icon { width: 18px; height: 18px; stroke-width: 2; }
+  /* The card is always light, whatever the section's colours: ring in the card's own ink. */
+  .cv-pin__card :focus-visible { outline-color: var(--media-ink-dark); }
+
+  @media (max-width: 749px) { .cv-pin__dot::before { content: ""; position: absolute; inset: -8px; } }
+/* /partial:pins */
+
+  /* Phones: a 44px tap height that does not push the price away (the padding is given back with a negative margin). */
+  @media (max-width: 749px) { .cv-hs__title { min-height: 44px; padding-block: 11px; margin-block: -11px; } }

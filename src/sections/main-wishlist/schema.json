@@ -1,0 +1,152 @@
+{
+  "name": "main-wishlist",
+  "icon": "heart",
+  "ctx_needs": [
+    "wishlist",
+    "customer.logged_in",
+    "customer_settings",
+    "routes",
+    "csrf_token", "shopping",
+    "restock_notifications"
+  ],
+  "settings": [
+    {
+      "id": "columns_desktop",
+      "type": "range",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4,
+      "editor": {
+        "label": "columns_desktop",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "columns_tablet",
+      "type": "range",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3,
+      "editor": {
+        "label": "columns_tablet",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "columns_mobile",
+      "type": "range",
+      "min": 1,
+      "max": 2,
+      "step": 1,
+      "default": 2,
+      "editor": {
+        "label": "columns_mobile",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "show_saved_variant",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "show_saved_variant",
+        "group": "product_cards"
+      }
+    },
+    {
+      "id": "remove_style",
+      "type": "select",
+      "default": "link",
+      "options": [
+        {
+          "value": "link",
+          "label": "opt_text_link"
+        },
+        {
+          "value": "icon",
+          "label": "opt_icon_button"
+        }
+      ],
+      "editor": {
+        "label": "remove_style",
+        "group": "product_cards"
+      }
+    },
+    {
+      "id": "remove_after_move",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "remove_after_move",
+        "group": "product_cards"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    },
+    {
+      "id": "card_color_scheme",
+      "type": "color_scheme",
+      "default": "",
+      "editor": {
+        "label": "card_color_scheme",
+        "group": "design"
+      }
+    },
+    {
+      "id": "empty_heading",
+      "type": "text",
+      "default": "@t:wishlist.empty",
+      "editor": {
+        "label": "heading",
+        "group": "empty_state"
+      }
+    },
+    {
+      "id": "empty_text",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "text",
+        "group": "empty_state"
+      }
+    },
+    {
+      "id": "empty_button_label",
+      "type": "text",
+      "default": "@t:general.continue_shopping",
+      "editor": {
+        "label": "button_label",
+        "group": "empty_state"
+      }
+    },
+    {
+      "id": "empty_button_link",
+      "type": "url",
+      "editor": {
+        "label": "link",
+        "group": "empty_state"
+      }
+    }
+  ],
+  "migrations": [
+    {
+      "id": "columns-to-columns-desktop",
+      "op": "rename_setting",
+      "from": {
+        "setting": "columns"
+      },
+      "to": {
+        "setting": "columns_desktop"
+      }
+    }
+  ]
+}

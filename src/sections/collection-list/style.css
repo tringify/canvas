@@ -1,0 +1,47 @@
+  .cv-cl__item { position: relative; display: block; color: var(--media-ink-light); text-decoration: none; border-radius: calc(var(--cv-radius, 16px) * 1.25); overflow: hidden; isolation: isolate; }
+  .cv-cl__media { aspect-ratio: 4 / 5; border-radius: 0; }
+  .cv-cl__media--square { aspect-ratio: 1 / 1; }
+  .cv-cl__media--landscape { aspect-ratio: 4 / 3; }
+  .cv-cl__media > img { transition: transform 1s var(--cv-ease); }
+  .cv-cl__item:hover .cv-cl__media > img { transform: scale(1.05); }
+  .cv-cl__item::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to top, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0) 46%); }
+  /* No photo: a quiet text card in the scheme's colours instead of white text on a dark wash. */
+  .cv-cl__item--plain { color: var(--text); background: var(--cv-soft); }
+  .cv-cl:not(.cv-cl--list) .cv-cl__item--plain { min-height: clamp(150px, 15vw, 210px); }
+  .cv-cl__item--plain::after { content: none; }
+  .cv-cl__item--plain .cv-cl__go { background: var(--text); color: var(--bg); }
+  .cv-cl__label { position: absolute; inset-inline-start: clamp(16px, 2vw, 24px); bottom: clamp(16px, 2vw, 22px); z-index: 2; display: grid; gap: 2px; }
+  .cv-cl__name { font-family: var(--tf-font-heading_font, inherit); font-size: clamp(20px, 2vw, 28px); font-weight: 500; letter-spacing: -0.03em; line-height: 1.1; }
+  .cv-cl__count { font-size: 13px; opacity: 0.85; }
+  .cv-cl__go { position: absolute; inset-inline-end: 16px; bottom: 16px; z-index: 2; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+    background: rgb(255 255 255 / 0.92); color: var(--media-ink-dark); transform: scale(0.85); opacity: 0; transition: transform 0.4s var(--cv-ease), opacity 0.3s; }
+  .cv-cl__item:hover .cv-cl__go { transform: none; opacity: 1; }
+  @media (hover: none) { .cv-cl__go { opacity: 1; transform: none; } }
+  .cv-cl__num { display: none; }
+  /* One column on a phone: a landscape card, so three collections don't fill three screens. */
+  @media (max-width: 749px) { .cv-cl--grid .cv-cl__grid[style*="--cv-cols-m: 1"] .cv-cl__media:not(.cv-cl__media--square) { aspect-ratio: 4 / 3; } }
+  /* Row: a scrolling row of tall cards. */
+  .cv-cl--row .cv-cl__grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: calc(var(--cv-pad-x) * -1); padding-inline: var(--cv-pad-x); scroll-padding-inline: var(--cv-pad-x); scrollbar-width: none; }
+  .cv-cl--row .cv-cl__grid::-webkit-scrollbar { display: none; }
+  .cv-cl--row .cv-cl__item { flex: 1 0 clamp(220px, 26vw, 340px); max-width: 480px; scroll-snap-align: start; }
+  /* Index: the collections as a list of large names; the photo follows the pointer's row. */
+  .cv-cl--list .cv-cl__grid { display: block; border-top: 1px solid var(--cv-line); }
+  .cv-cl--list .cv-cl__item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: clamp(16px, 3vw, 40px); padding: clamp(18px, 2.4vw, 30px) 4px;
+    overflow: visible; color: var(--text); background: none; border-radius: 0; border-bottom: 1px solid var(--cv-line); isolation: auto; }
+  .cv-cl--list .cv-cl__item::after { content: none; }
+  .cv-cl--list .cv-cl__label { position: static; display: contents; }
+  .cv-cl--list .cv-cl__num { display: block; grid-column: 1; grid-row: 1; font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .cv-cl--list .cv-cl__name { grid-column: 2; grid-row: 1; font-size: calc(clamp(30px, 5.2vw, 76px) * var(--cv-heading-scale, 1)); letter-spacing: -0.045em; line-height: 1; transition: transform 0.5s var(--cv-ease); }
+  .cv-cl--list .cv-cl__count { grid-column: 3; grid-row: 1; font-size: 14px; color: var(--text-muted); opacity: 1; }
+  .cv-cl--list .cv-cl__go { position: static; grid-column: 3; grid-row: 1; justify-self: end; opacity: 1; transform: none; color: var(--bg); background: var(--text); }
+  .cv-cl--list .cv-cl__item:has(.cv-cl__count) .cv-cl__go { display: none; }
+  .cv-cl--list .cv-cl__media { position: absolute; z-index: 3; inset-inline-end: 18%; top: 50%; width: clamp(160px, 18vw, 260px); aspect-ratio: 4 / 5; border-radius: calc(var(--cv-radius, 16px) * 0.9);
+    opacity: 0; transform: translateY(-50%) rotate(-3deg) scale(0.9); pointer-events: none; transition: opacity 0.35s var(--cv-ease), transform 0.5s var(--cv-ease); box-shadow: 0 30px 60px -24px rgb(0 0 0 / 0.45); }
+  .cv-cl--list .cv-cl__item { position: relative; }
+  .cv-cl--list .cv-cl__item:hover .cv-cl__media { opacity: 1; transform: translateY(-50%) rotate(-3deg); }
+  .cv-cl--list .cv-cl__item:hover .cv-cl__name { transform: translateX(12px); }
+  @media (hover: none), (max-width: 749px) {
+    .cv-cl--list .cv-cl__item { grid-template-columns: auto minmax(0, 1fr) 72px; }
+    .cv-cl--list .cv-cl__media { position: static; grid-column: 3; grid-row: 1; width: 72px; opacity: 1; transform: none; box-shadow: none; }
+    .cv-cl--list .cv-cl__go, .cv-cl--list .cv-cl__count { display: none; }
+  }

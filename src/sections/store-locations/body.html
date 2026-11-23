@@ -1,0 +1,92 @@
+{%- comment -%} Store addresses with opening hours and contact details. "Get directions" opens the map link, or a map search for the address when there is none; no map is embedded. A location shows once it has a name or an address (the section stays hidden until one does); its picture is the merchant's image, else the theme photo picked in Photo until you add your own. {%- endcomment -%}
+{%- assign cv_n = 0 -%}
+{%- for b in settings.blocks -%}{%- if b.disabled -%}{%- continue -%}{%- endif -%}{%- if b.settings.name != blank or b.settings.address != blank -%}{%- assign cv_n = cv_n | plus: 1 -%}{%- endif -%}{%- endfor -%}
+{%- if cv_n > 0 or design_mode -%}
+{%- assign cv_cols = settings.columns -%}{%- if cv_n > 0 and cv_n < cv_cols -%}{%- assign cv_cols = cv_n -%}{%- endif -%}
+{%- assign cv_cols_t = cv_cols -%}{%- if cv_cols > 2 -%}{%- assign cv_cols_t = 2 -%}{%- endif -%}
+{%- comment -%} A line break, to turn the address lines into one search line. {%- endcomment -%}
+{% capture cv_nl %}
+{% endcapture %}
+<section class="cv cv-section cv-loc tf-scheme-{{ settings.color_scheme }} cv-pad--{{ settings.padding | default: 'default' }}" style="--cv-loc-cols: {{ cv_cols }}; --cv-loc-cols-t: {{ cv_cols_t }}">
+  {%- if design_mode and cv_n == 0 -%}<p class="cv-editor-hint">{{ 'sections.editor_add_content' | t }}</p>{%- endif -%}
+  <div class="cv-wrap">
+    {%- if settings.heading != blank or settings.text != blank -%}
+    <div class="cv-head">
+      <div>
+        {%- if settings.heading != blank -%}<h2 dir="auto" class="cv-h2" data-tf-field="heading">{{ settings.heading }}</h2>{%- endif -%}
+        {%- if settings.text != blank -%}<p dir="auto" class="cv-muted" data-tf-field="text">{{ settings.text }}</p>{%- endif -%}
+      </div>
+    </div>
+    {%- endif -%}
+    <ul class="cv-loc__list" role="list">
+      {%- assign cv_li = 0 -%}
+      {%- for b in settings.blocks -%}
+        {%- if b.disabled -%}{%- continue -%}{%- endif -%}
+        {%- assign cv_has = false -%}{%- if b.settings.name != blank or b.settings.address != blank -%}{%- assign cv_has = true -%}{%- endif -%}
+        {%- unless cv_has -%}{%- continue -%}{%- endunless -%}
+        {%- assign cv_li = cv_li | plus: 1 -%}
+        {%- assign cv_photo = b.settings.fallback_photo -%}{%- assign cv_photo_i = cv_li -%}{%- assign cv_photo_wide = true -%}
+{%- comment -%}partial:photo{%- endcomment -%}
+{%- comment -%} Theme photo for a slot's "Photo until you add your own". Input: cv_photo (the setting's value), cv_photo_i (the slot's position, from 1), cv_photo_wide (true for a wide slot).
+  "auto", a blank and "none" (some slots store Theme's pick as "none") pick a photo by position: portrait photos for tiles, wide ones for wide slots; "off" is No photo.
+  Output: cv_fb (asset file, blank for none), cv_fbw, cv_fbh. {%- endcomment -%}
+{%- assign cv_fb = blank -%}{%- assign cv_fbw = 720 -%}{%- assign cv_fbh = 900 -%}
+{%- assign cv_pk = cv_photo | default: 'auto' -%}
+{%- if cv_pk == 'auto' or cv_pk == 'none' -%}
+  {%- assign cv_pn = cv_photo_i | default: 1 | minus: 1 -%}
+  {%- if cv_photo_wide -%}
+    {%- assign cv_pn = cv_pn | modulo: 4 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'bench' -%}{%- when 1 -%}{%- assign cv_pk = 'bedroom' -%}{%- when 2 -%}{%- assign cv_pk = 'room' -%}{%- else -%}{%- assign cv_pk = 'evening' -%}{%- endcase -%}
+  {%- else -%}
+    {%- assign cv_pn = cv_pn | modulo: 5 -%}
+    {%- case cv_pn -%}{%- when 0 -%}{%- assign cv_pk = 'shelf' -%}{%- when 1 -%}{%- assign cv_pk = 'corner' -%}{%- when 2 -%}{%- assign cv_pk = 'parcel' -%}{%- when 3 -%}{%- assign cv_pk = 'table' -%}{%- else -%}{%- assign cv_pk = 'linen' -%}{%- endcase -%}
+  {%- endif -%}
+{%- endif -%}
+{%- case cv_pk -%}
+  {%- when 'room' -%}{%- assign cv_fb = 'canvas-default-hero.webp' -%}{%- assign cv_fbw = 1672 -%}{%- assign cv_fbh = 941 -%}
+  {%- when 'table' -%}{%- assign cv_fb = 'canvas-default-image-with-text.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'shelf' -%}{%- assign cv_fb = 'canvas-default-tile-1.webp' -%}
+  {%- when 'corner' -%}{%- assign cv_fb = 'canvas-default-tile-2.webp' -%}
+  {%- when 'parcel' -%}{%- assign cv_fb = 'canvas-default-tile-3.webp' -%}
+  {%- when 'linen' -%}{%- assign cv_fb = 'canvas-editorial-hero.webp' -%}{%- assign cv_fbw = 1122 -%}{%- assign cv_fbh = 1402 -%}
+  {%- when 'bedroom' -%}{%- assign cv_fb = 'canvas-slide-2.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'bench' -%}{%- assign cv_fb = 'canvas-hero.webp' -%}{%- assign cv_fbw = 1600 -%}{%- assign cv_fbh = 900 -%}
+  {%- when 'evening' -%}{%- assign cv_fb = 'canvas-night-hero.webp' -%}{%- assign cv_fbw = 1916 -%}{%- assign cv_fbh = 821 -%}
+{%- endcase -%}
+{%- comment -%}/partial:photo{%- endcomment -%}
+        {%- assign cv_map = b.settings.map_link -%}
+        {%- if cv_map == blank and b.settings.address != blank -%}{%- assign cv_q = b.settings.address | replace: cv_nl, ', ' | strip_newlines | url_encode -%}{%- assign cv_map = 'https://www.google.com/maps/search/?api=1&query=' | append: cv_q -%}{%- endif -%}
+        <li class="cv-loc__item cv-reveal">
+          {{ b._editor_block_open }}
+          <article class="cv-loc__card">
+            {%- if b.settings.image -%}<div class="cv-loc__img cv-media"><img src="{{ b.settings.image | image_url: width: 900 }}" srcset="{{ b.settings.image | image_srcset: max: 1400 }}" sizes="(min-width: 990px) 33vw, 100vw" alt="{{ b.settings.image.alt_text }}" loading="lazy" data-tf-field="image"></div>
+            {%- elsif cv_fb != blank -%}<div class="cv-loc__img cv-media"><img src="{{ cv_fb | asset_url }}" alt="" width="{{ cv_fbw }}" height="{{ cv_fbh }}" loading="lazy"></div>{%- endif -%}
+            <div class="cv-loc__body">
+              {%- if b.settings.name != blank -%}<h3 dir="auto" class="cv-h3 cv-loc__name" data-tf-field="name">{{ b.settings.name }}</h3>{%- endif -%}
+              <dl class="cv-loc__facts">
+                {%- if b.settings.address != blank -%}
+                  <div class="cv-loc__fact"><dt><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><span class="cv-sr">{{ 'sections.store_locations.address' | t }}</span></dt><dd dir="auto"><address class="cv-loc__addr" data-tf-field="address">{{ b.settings.address }}</address></dd></div>
+                {%- endif -%}
+                {%- if b.settings.hours != blank -%}
+                  <div class="cv-loc__fact"><dt><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span class="cv-sr">{{ 'sections.store_locations.hours' | t }}</span></dt><dd dir="auto" class="cv-loc__hours" data-tf-field="hours">{{ b.settings.hours }}</dd></div>
+                {%- endif -%}
+                {%- if b.settings.phone != blank -%}
+                  {%- assign cv_tel = b.settings.phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | remove: '.' -%}
+                  <div class="cv-loc__fact"><dt><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h3l1.5 4.5-2 1.5a11 11 0 0 0 5.5 5.5l1.5-2 4.5 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z"/></svg><span class="cv-sr">{{ 'sections.store_locations.phone' | t }}</span></dt><dd><a dir="ltr" href="tel:{{ cv_tel }}" data-tf-field="phone">{{ b.settings.phone }}</a></dd></div>
+                {%- endif -%}
+                {%- if b.settings.email != blank -%}
+                  <div class="cv-loc__fact"><dt><svg class="cv-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="m4 7 8 6 8-6"/></svg><span class="cv-sr">{{ 'forms.email' | t }}</span></dt><dd><a href="mailto:{{ b.settings.email | strip }}" data-tf-field="email">{{ b.settings.email }}</a></dd></div>
+                {%- endif -%}
+              </dl>
+              {%- if cv_map != blank and settings.map_label != blank -%}
+                <a dir="auto" class="cv-btn cv-btn--link cv-loc__map" href="{{ cv_map }}" target="_blank" rel="noopener" data-tf-field="map_label">{{ settings.map_label }}<span class="cv-sr">{%- if b.settings.name != blank -%}: {{ b.settings.name }}{%- endif -%} ({{ 'general.new_tab' | t }})</span></a>
+              {%- endif -%}
+            </div>
+          </article>
+          {{ b._editor_block_close }}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+{%- endif -%}

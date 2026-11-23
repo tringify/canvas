@@ -1,0 +1,8 @@
+  .cv-li__title { margin-bottom: 28px; }
+  .cv-li__item { display: grid; gap: 10px; color: var(--text); text-decoration: none; }
+  .cv-li__media { aspect-ratio: 1 / 1; }
+  .cv-li__media > img { transition: transform 0.5s var(--cv-ease); }
+  .cv-li__item:hover .cv-li__media > img { transform: scale(1.03); }
+  .cv-li__name { font-size: 16px; font-weight: 500; }
+  .cv-li__count { font-size: 13px; margin-top: -6px; }
+  .cv-pager { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 40px; font-size: 14px; }

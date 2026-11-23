@@ -1,0 +1,22 @@
+{
+  "name": "main-gift-card",
+  "icon": "gift",
+  "ctx_needs": [
+    "gift_card",
+    "forms",
+    "form_error",
+    "csrf_token",
+    "routes"
+  ],
+  "settings": [
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+    <p class="cv-notice {% if form_notice.success %}cv-notice--ok{% else %}cv-notice--error{% endif %} cv-ft__notice" role="status" data-cv-notice{% if form_notice.message == blank or form_notice.code contains 'NEWSLETTER' %} hidden{% endif %}>{% unless form_notice.code contains 'NEWSLETTER' %}{{ form_notice.message }}{% endunless %}</p>

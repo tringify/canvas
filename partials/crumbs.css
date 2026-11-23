@@ -1,0 +1,7 @@
+  .cv-crumbs { margin-bottom: 16px; font-size: 13px; color: var(--text-muted); }
+  .cv-crumbs__list { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0; padding: 0; list-style: none; }
+  .cv-crumbs__item { display: inline-flex; align-items: baseline; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
+  .cv-crumbs__sep { display: inline-block; }
+  [dir="rtl"] .cv-crumbs__sep { transform: scaleX(-1); }
+  .cv-crumbs a { color: inherit; text-decoration: none; }
+  .cv-crumbs a:hover { color: var(--text); }

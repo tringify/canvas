@@ -1,0 +1,19 @@
+  /* Back-in-stock request: a soft panel under the sold-out button; Email / Text message as a segmented choice */
+  .cv-notify { display: grid; gap: 12px; padding: 18px; background: var(--cv-soft); border-radius: 18px; }
+  .cv-notify__title { margin: 0; font-weight: 500; }
+  .cv-notify__note { margin: 0; font-size: 13px; color: var(--text-muted); overflow-wrap: anywhere; }
+  .cv-notify__form { display: grid; gap: 10px; }
+  .cv-notify__by { min-width: 0; margin: 0; padding: 0; border: 0; }
+  .cv-notify__row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cv-notify__row > .cv-input, .cv-notify__phone { flex: 999 1 200px; min-width: 0; }
+  .cv-notify__row .cv-input, .cv-notify .cv-phone__cc { background: var(--bg); }
+  .cv-notify__row .cv-btn { flex: 1 0 auto; }
+  .cv-notify__row .cv-input[hidden], .cv-notify__phone[hidden] { display: none; }
+  /* In the one-line row the number is labelled like the email: for screen readers, with the example as its placeholder. */
+  .cv-notify__phone .cv-phone { gap: 0; }
+  .cv-notify__phone .cv-phone > .cv-label, .cv-notify__phone .cv-phone__hint { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .cv-seg { display: inline-flex; justify-self: start; padding: 3px; background: var(--bg); border-radius: 999px; box-shadow: inset 0 0 0 1px var(--cv-line); }
+  .cv-seg label { position: relative; padding: 7px 14px; font-size: 13px; border-radius: 999px; cursor: pointer; }
+  .cv-seg input { position: absolute; opacity: 0; pointer-events: none; }
+  .cv-seg label:has(input:checked) { color: var(--btn-text); background: var(--btn); }
+  .cv-seg label:has(input:focus-visible) { outline: var(--cv-ring); outline-offset: var(--cv-ring-offset); }

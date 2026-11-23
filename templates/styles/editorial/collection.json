@@ -1,0 +1,34 @@
+{
+  "page_type": "collection",
+  "sections": [
+    {
+      "type": "main-collection",
+      "settings": {
+        "filter_layout": "drawer",
+        "product_layout": "editorial",
+        "columns": 3,
+        "columns_mobile": "2",
+        "blocks": [
+          {
+            "id": "canvas-editorial-collection__breadcrumbs",
+            "type": "breadcrumbs",
+            "settings": {}
+          },
+          {
+            "id": "canvas-editorial-collection__banner",
+            "type": "banner",
+            "settings": {
+              "show_image": true
+            }
+          },
+          {
+            "id": "canvas-editorial-collection__toolbar",
+            "type": "toolbar",
+            "settings": {}
+          }
+        ]
+      },
+      "position": 1
+    }
+  ]
+}

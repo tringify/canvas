@@ -1,0 +1,113 @@
+{%- comment -%} Header mega menu promotion: an image (the theme's photo stands in, in the editor only) above the promotion's content blocks, in the panel
+  of the menu item it names (the header places it). With a link the whole promotion is a pointer target; its heading and button blocks carry the link
+  for keyboards and screen readers. {%- endcomment -%}
+<div class="cv-hm__promo">
+  <span class="cv-hm__pimg cv-media" data-tf-field="image">
+    {%- if settings.image -%}<img src="{{ settings.image | image_url: width: 720 }}" srcset="{{ settings.image | image_srcset: max: 960 }}" sizes="(min-width: 990px) 320px, 100vw" alt="{{ settings.image_alt }}" loading="lazy">
+    {%- elsif design_mode -%}<img src="{{ 'canvas-default-tile-2.webp' | asset_url }}" alt="" loading="lazy" width="720" height="900">{%- endif -%}
+  </span>
+  {%- if settings.link != blank -%}<a class="cv-tile-link" href="{{ settings.link }}" tabindex="-1" aria-hidden="true" data-tf-field="link"></a>{%- endif -%}
+  <div class="cv-hm__ptext cv-tile-over">{% blocks %}</div>
+</div>
+{% schema %}
+{
+  "name": "mega-promo",
+  "kind": "block",
+  "icon": "megaphone",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "menu_item",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "promo_menu_item",
+        "group": "content"
+      }
+    },
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "content"
+      }
+    },
+    {
+      "id": "image_alt",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "image_alt",
+        "group": "content"
+      }
+    },
+    {
+      "id": "link",
+      "type": "url",
+      "editor": {
+        "label": "link",
+        "group": "content"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "spacer",
+      "custom-vascula"
+    ],
+    "max": 5
+  },
+  "migrations": [
+    {
+      "id": "mega-promo-copy-to-blocks",
+      "op": "settings_to_blocks",
+      "blocks": [
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "heading"
+          },
+          "copy": {
+            "link": "link"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "text"
+          }
+        },
+        {
+          "type": "theme:buttons",
+          "settings": {
+            "button_label": "link_label"
+          },
+          "copy": {
+            "button_link": "link"
+          },
+          "values": {
+            "button_style": "link"
+          },
+          "when": [
+            "link_label",
+            "link"
+          ]
+        }
+      ],
+      "source_defaults": {
+        "heading": "@t:sections.header_mega.promo.heading",
+        "text": "@t:sections.header_mega.promo.text",
+        "link_label": "@t:sections.header_mega.promo.link_label"
+      }
+    }
+  ]
+}
+{% endschema %}

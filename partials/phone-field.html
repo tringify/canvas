@@ -1,0 +1,39 @@
+{%- comment -%} Phone field with a searchable country picker (country code, name and dial code from ctx.phone_countries; the section needs
+phone_countries and customer_settings in ctx_needs). Set every input before each use, since assigns carry over:
+cv_ph_id (unique id), cv_ph_name (the field the action takes), cv_ph_value (saved number, E.164), cv_ph_label,
+cv_ph_required and cv_ph_disabled (true/false), cv_ph_country (ISO code to start from when it is a phone country; then the store's
+default_phone_country, then the first country), cv_ph_describedby (extra hint id or blank), cv_ph_auto (autocomplete, blank: tel).
+The script sends one E.164 number (+ and digits) under cv_ph_name. Without it, the number field itself is sent and asks for a
++ number; the hint shows the starting country's example in international form. {%- endcomment -%}
+{%- assign cv_ph_start = phone_countries.first -%}
+{%- for pc in phone_countries -%}{%- if pc.iso_code == customer_settings.default_phone_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}
+{%- if cv_ph_country != blank -%}{%- for pc in phone_countries -%}{%- if pc.iso_code == cv_ph_country -%}{%- assign cv_ph_start = pc -%}{%- endif -%}{%- endfor -%}{%- endif -%}
+{%- assign cv_ph_ex = '' -%}{%- if cv_ph_start.example != blank -%}{%- assign cv_ph_ex = cv_ph_start.dial_code | append: ' ' | append: cv_ph_start.example -%}{%- endif -%}
+{%- assign cv_ph_desc = cv_ph_id | append: '-hint' -%}{%- if cv_ph_describedby != blank -%}{%- assign cv_ph_desc = cv_ph_desc | append: ' ' | append: cv_ph_describedby -%}{%- endif -%}
+{%- assign cv_ph_ac = cv_ph_auto | default: 'tel' -%}
+<div class="cv-field cv-phone" data-cv-phone data-default="{{ cv_ph_start.iso_code }}" data-countries="{{ phone_countries | json | escape }}"
+     data-label-selected="{{ 'phone.selected' | t: country: '__C__' }}" data-label-example="{{ 'phone.example' | t: example: '__EX__' }}">
+  <label class="cv-label" for="{{ cv_ph_id }}">{{ cv_ph_label }}</label>
+  <div class="cv-phone__row" data-cv-phone-row>
+    <button class="cv-phone__cc" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="{{ cv_ph_id }}-pop" hidden data-cv-phone-cc>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <svg class="cv-phone__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </button>
+    <span class="cv-phone__cc cv-phone__cc--fixed" id="{{ cv_ph_id }}-cc" hidden data-cv-phone-fixed>
+      <span class="cv-phone__flag" aria-hidden="true" data-cv-phone-flag></span><bdi class="cv-phone__dial" dir="ltr" data-cv-phone-dial></bdi>
+      <span class="cv-sr" data-cv-phone-cc-label></span>
+    </span>
+    <input class="cv-input cv-phone__num" id="{{ cv_ph_id }}" type="tel" name="{{ cv_ph_name }}" value="{{ cv_ph_value }}" autocomplete="{{ cv_ph_ac }}" inputmode="tel" dir="ltr" maxlength="24"
+      pattern="[+][1-9][\d \(\)\-\.]{5,22}" title="{{ 'products.gift_phone_plus' | t }}"{% if cv_ph_ex != blank %} placeholder="{{ cv_ph_ex }}"{% endif %} aria-describedby="{{ cv_ph_desc }}"{% if cv_ph_required %} required{% endif %}{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-num>
+    <input type="hidden" value="{{ cv_ph_value }}" data-name="{{ cv_ph_name }}"{% if cv_ph_disabled %} disabled{% endif %} data-cv-phone-out>
+  </div>
+  <p class="cv-sr cv-phone__hint" id="{{ cv_ph_id }}-hint" data-cv-phone-hint{% if cv_ph_ex == blank %} hidden{% endif %}>{%- if cv_ph_ex != blank -%}{{ 'phone.example' | t: example: cv_ph_ex }}{%- endif -%}</p>
+  <div class="cv-phone__pop" id="{{ cv_ph_id }}-pop" hidden data-cv-phone-pop>
+    <input class="cv-input cv-phone__search" type="search" role="combobox" aria-expanded="true" aria-controls="{{ cv_ph_id }}-list" aria-autocomplete="list"
+           autocomplete="off" spellcheck="false" placeholder="{{ 'phone.search' | t }}" aria-label="{{ 'phone.search' | t }}" data-cv-phone-q>
+    <ul class="cv-phone__list" id="{{ cv_ph_id }}-list" role="listbox" aria-label="{{ 'phone.country' | t }}" data-cv-phone-list></ul>
+    <p class="cv-muted cv-phone__none" role="status" data-cv-phone-none></p>
+    <span hidden data-cv-phone-none-text>{{ 'phone.no_results' | t }}</span>
+  </div>
+</div>

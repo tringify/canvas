@@ -1,0 +1,298 @@
+  /* The gate pages share one frame (partials/gate.css) and Canvas's language picker for stores with six or more languages. */
+/* partial:gate */
+  /* ── Gate pages (coming soon · password · maintenance) ──────────────────────────────────────────────────────────────
+     One frame for all three: a status line and languages on top, the message and its one action on a 12-column grid,
+     a hairline row, and the store's name set as a wordmark across the foot of the page. Each page shows the wordmark in
+     one of footer-wordmark's own styles: solid (coming soon), outline (password, filled in on the way in), tint (maintenance,
+     brought back up to solid when the store is back). */
+  .cv-gate { display: grid; grid-template-rows: auto 1fr auto auto; min-height: 100svh; padding: 0; text-align: start; overflow-x: clip; }
+  .cv-gate :where(p, h1, ul) { margin: 0; }
+
+  .cv-gate__top { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; min-height: 72px;
+    padding: 14px var(--cv-pad-x); }
+  .cv-gate__id { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .cv-gate__logo { display: block; width: auto; height: var(--cv-gate-logo-h, 30px); max-width: 160px; object-fit: contain; }
+  .cv-gate__status { color: var(--text); white-space: nowrap; }
+  .cv-gate__dot { display: none; }
+  .cv-gate--maintenance .cv-gate__dot { display: block; position: relative; width: 7px; height: 7px; flex: none; border-radius: 50%; background: currentColor; }
+  .cv-gate--maintenance .cv-gate__dot { color: var(--text-muted); }
+  .cv-gate--maintenance .cv-gate__dot::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid currentColor; opacity: 0; }
+  .cv-gate.is-back .cv-gate__dot { color: var(--status-ok); }
+  .tf-scheme-inverse .cv-gate.is-back .cv-gate__dot, .cv-gate.tf-scheme-inverse.is-back .cv-gate__dot { color: var(--status-ok-inverse); }
+
+  .cv-gate__langs ul { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 2px; padding: 0; list-style: none; }
+  .cv-gate__langs a { display: inline-flex; align-items: center; min-height: 32px; padding: 0 7px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none; color: var(--text-muted); border-radius: 6px; transition: color 0.2s var(--cv-ease); }
+  .cv-gate__langs a:hover { color: var(--text); }
+  .cv-gate__langs a[aria-current] { color: var(--text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
+  /* Six or more languages: Canvas's header picker (partials/loc-picker.css), whose list rows are links here; without script, its disclosure. */
+  .cv-gate__pick { flex: none; position: relative; }
+
+  .cv-gate__main { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--cv-grid-gap-x, clamp(12px, 1.6vw, 24px));
+    row-gap: 32px; align-content: end; padding: clamp(48px, 7vw, 112px) var(--cv-pad-x) clamp(32px, 3.6vw, 52px); }
+  .cv-gate__copy { grid-column: 1 / span 6; }
+  .cv-gate__act { grid-column: 8 / span 5; align-self: end; display: grid; }
+  .cv-gate__act > * { grid-area: 1 / 1; }
+  .cv-gate__title { max-width: 16ch; }
+  .cv-gate__text { max-width: 42ch; margin-top: 18px; font-size: 17px; line-height: 1.5; color: var(--text-muted); text-wrap: pretty; }
+
+  /* The field: Canvas's one-shell newsletter pill (field + button), a size up. */
+  .cv-gate__form { display: grid; gap: 14px; }
+  .cv-gate__field { display: flex; align-items: center; gap: 6px; padding: 5px; background: var(--bg); border-radius: var(--cv-btn-radius, 999px);
+    box-shadow: 0 0 0 1px var(--cv-line), 0 1px 2px rgb(0 0 0 / 0.04); transition: box-shadow 0.2s var(--cv-ease); }
+  .cv-gate__field:focus-within { box-shadow: 0 0 0 1.5px var(--text); }
+  .cv-gate__field .cv-input { flex: 1 1 auto; min-width: 0; min-height: 48px; padding: 0 8px 0 20px; font-size: 16px; background: transparent; border: 0; border-radius: inherit; }
+  [dir="rtl"] .cv-gate__field .cv-input { padding: 0 20px 0 8px; }
+  .cv-gate__field .cv-input:hover, .cv-gate__field .cv-input:focus { background: transparent; }
+  .cv-gate__field .cv-btn { flex: none; min-height: 48px; padding: 0 24px; border-radius: calc(var(--cv-btn-radius, 999px) - 2px); }
+  .cv-gate__field .cv-btn .cv-icon { width: 18px; height: 18px; }
+  .cv-gate__field.is-invalid { box-shadow: 0 0 0 1.5px var(--accent); }
+  .cv-gate__field:has(.cv-input[readonly]) .cv-input { color: var(--text-muted); }
+  .cv-gate .cv-gate__peek[hidden] { display: none; }
+  .cv-gate .cv-gate__peek { flex: none; min-height: 40px; margin: 0; padding: 0 10px; font-size: 13px; }
+  .cv-gate__consent { align-items: flex-start; font-size: 13.5px; line-height: 1.45; color: var(--text-muted); text-align: start; }
+  .cv-gate__consent input { flex: none; margin: 1px 0 0; }
+  .cv-gate__consent.is-invalid { color: color-mix(in srgb, var(--accent) 75%, var(--text)); }
+  .cv-gate__consent.is-invalid input { outline: 1.5px solid var(--accent); outline-offset: 1px; border-radius: 4px; }
+
+  /* Messages sit under the control they are about, in the error colours of cv-notice--error, without its box. */
+  .cv-gate__msg { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; line-height: 1.45; color: color-mix(in srgb, var(--accent) 78%, var(--text)); }
+  .cv-gate__msg .cv-icon { width: 16px; height: 16px; margin-top: 2px; stroke-width: 1.8; }
+  .cv-gate__msg[hidden] { display: none; }
+
+  /* Done: takes the form's place in the same grid cell, so nothing below it moves. */
+  .cv-gate__done { display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; align-content: end; outline: none; }
+  .cv-gate__done[hidden] { display: none; }
+  .cv-gate__tick { grid-row: span 2; width: 40px; height: 40px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--cv-line); display: grid; place-items: center; color: var(--text); }
+  .cv-gate__tick svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .cv-gate__tick path { stroke-dasharray: 24; stroke-dashoffset: 0; }
+  .cv-gate__done-text { font-size: 17px; line-height: 1.45; color: var(--text); padding-top: 8px; text-wrap: pretty; }
+  .cv-gate__done .cv-tbtn { grid-column: 2; justify-self: start; font-size: 14px; margin-top: 6px; }
+  .cv-gate__done:focus-visible { outline: none; }
+  .cv-gate__form.is-gone { visibility: hidden; }
+
+  /* Maintenance: the next check, honest about what it is (not a progress bar). */
+  .cv-gate__watch { display: grid; gap: 10px; align-content: end; }
+  .cv-gate__watch-line { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+  .cv-gate__ring { width: 18px; height: 18px; flex: none; transform: rotate(-90deg); }
+  [dir="rtl"] .cv-gate__ring { transform: rotate(-90deg) scaleY(-1); }
+  .cv-gate__ring circle { fill: none; stroke-width: 1.6; }
+  .cv-gate__ring .bg { stroke: var(--cv-line); }
+  .cv-gate__ring .fg { stroke: var(--text); stroke-linecap: round; stroke-dasharray: 44; stroke-dashoffset: var(--cv-left, 0); }
+  .cv-gate__watch-line.is-checking .cv-gate__ring { animation: cv-spin 0.9s linear infinite; }
+  .cv-gate__watch-line.is-checking .fg { stroke-dashoffset: 30; }
+  .cv-gate__watch-note { max-width: 40ch; font-size: 14px; line-height: 1.5; color: var(--text-muted); }
+  .cv-gate__watch[hidden], .cv-gate__recheck[hidden] { display: none; }
+  .cv-gate__recheck { justify-self: start; align-self: end; font-size: 15px; }
+  .cv-gate__back { display: grid; gap: 18px; justify-items: start; align-content: end; outline: none; }
+  .cv-gate__back[hidden] { display: none; }
+  .cv-gate__back .cv-h3 { font-weight: 500; }
+
+  .cv-gate__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; min-height: 52px; margin-inline: var(--cv-pad-x);
+    border-top: 1px solid var(--cv-line); font-size: 13px; color: var(--text-muted); }
+  .cv-gate__foot .cv-social { display: flex; gap: 4px; margin: 0 0 0 -10px; padding: 0; list-style: none; }
+  [dir="rtl"] .cv-gate__foot .cv-social { margin: 0 -10px 0 0; }
+  .cv-gate__foot .cv-social a { display: grid; place-items: center; width: 40px; height: 40px; color: var(--text-muted); text-decoration: none; border-radius: 50%; transition: color 0.2s var(--cv-ease); }
+  .cv-gate__foot .cv-social a:hover { color: var(--text); }
+  .cv-gate__foot .cv-social .cv-icon { width: 18px; height: 18px; }
+  .cv-gate__powered { margin-inline-start: auto; }
+  .cv-gate__powered a { color: inherit; text-decoration: none; }
+  .cv-gate__powered a:hover { color: var(--text); }
+
+  /* The wordmark. Aligned to the content grid, nudged by its side bearing; sized by script so its longest line fills the width,
+     and broken onto more lines (at word breaks) only when one line would be too small to read as a name. */
+  .cv-gate__band { container-type: inline-size; padding: clamp(10px, 1.4vw, 20px) var(--cv-pad-x) clamp(10px, 1.6vw, 24px); user-select: none; }
+  .cv-gate__mark { display: block; font-family: var(--tf-font-heading_font, inherit); font-weight: 600; letter-spacing: var(--cv-gate-track, -0.055em); line-height: 0.86;
+    text-transform: var(--cv-heading-case, none); white-space: nowrap; margin-inline-start: -0.045em;
+    font-size: min(calc(100cqi / (var(--cv-chars, 8) * 0.56)), 34svh); }
+  .cv-gate__line { display: block; width: max-content; overflow: hidden; padding: 0.04em 0.06em 0.12em 0; margin-bottom: -0.1em; }
+  .cv-gate__ink { display: block; }
+  .cv-gate__band--solid .cv-gate__ink { color: var(--text); }
+  .cv-gate__band--tint .cv-gate__ink { color: color-mix(in srgb, var(--text) 11%, var(--bg)); transition: color 1.2s var(--cv-ease); }
+  .cv-gate.is-back .cv-gate__band--tint .cv-gate__ink { color: var(--text); }
+  /* Outline: an SVG knock-out of the letters' silhouette (text-stroke would draw the font's overlapping contours), with a solid copy
+     on top that is clipped away until the store opens. */
+  .cv-gate__band--outline { --cv-gate-track: 0em; }
+  .cv-gate__band--outline .cv-gate__ink { position: relative; color: var(--text); }
+  .cv-gate__band--outline .cv-gate__o { transition: opacity 0.3s 0.8s; }
+  .cv-gate.is-open .cv-gate__band--outline .cv-gate__o { opacity: 0; }
+  .cv-gate__band--outline .cv-gate__o { filter: url(#cv-gate-outline); }
+  .cv-gate__defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .cv-gate__band--outline .cv-gate__ink::after { content: attr(data-t); position: absolute; inset: 0; color: var(--text); clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.9s var(--cv-ease); }
+  [dir="rtl"] .cv-gate__mark .cv-gate__ink::after { clip-path: inset(0 0 0 100%); }
+  .cv-gate.is-open .cv-gate__band--outline .cv-gate__ink::after { clip-path: inset(0); }
+  /* Coming soon with the merchant's image: the picture shows through the letters. */
+  .cv-gate__band--image .cv-gate__ink { color: transparent; background: var(--cv-gate-img) center 40% / cover no-repeat; -webkit-background-clip: text; background-clip: text; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cv-gate.is-arriving .cv-gate__ink { animation: cv-gate-rise 1.1s var(--cv-ease) both; animation-delay: calc(var(--i, 0) * 90ms + 120ms); }
+    .cv-gate.is-arriving .cv-gate__copy, .cv-gate.is-arriving .cv-gate__act { animation: cv-gate-in 0.8s var(--cv-ease) both 0.35s; }
+    .cv-gate.is-arriving .cv-gate__act { animation-delay: 0.45s; }
+    @keyframes cv-gate-rise { from { transform: translateY(105%); } }
+    @keyframes cv-gate-in { from { opacity: 0; transform: translateY(10px); } }
+    .cv-gate__field.is-shake { animation: cv-gate-shake 0.42s var(--cv-ease); }
+    @keyframes cv-gate-shake { 20% { transform: translateX(-6px); } 45% { transform: translateX(5px); } 70% { transform: translateX(-3px); } 90% { transform: translateX(1px); } }
+    .cv-gate__done:not([hidden]) .cv-gate__tick path { animation: cv-gate-tick 0.5s var(--cv-ease) both 0.1s; }
+    @keyframes cv-gate-tick { from { stroke-dashoffset: 24; } }
+    .cv-gate__done:not([hidden]) .cv-gate__done-text, .cv-gate__back:not([hidden]) { animation: cv-gate-in 0.5s var(--cv-ease) both; }
+    .cv-gate--maintenance:not(.is-back) .cv-gate__dot::after { animation: cv-gate-pulse 2.4s ease-out infinite; }
+    @keyframes cv-gate-pulse { 0% { opacity: 0.6; transform: scale(0.6); } 70%, 100% { opacity: 0; transform: scale(1.6); } }
+  }
+
+  @media (max-width: 989px) {
+    .cv-gate__copy, .cv-gate__act { grid-column: 1 / -1; }
+    .cv-gate__act { max-width: 560px; }
+  }
+  @media (max-width: 749px) {
+    .cv-gate__top { min-height: 60px; padding-block: 8px; }
+    .cv-gate__langs a { min-height: 44px; padding: 0 6px; }
+    .cv-gate__main { row-gap: 28px; padding-top: 40px; }
+    .cv-gate__text { font-size: 16px; margin-top: 14px; }
+    .cv-gate__foot { min-height: 48px; }
+  }
+  /* Phones: the pill opens into a field and a full-width button, as in Canvas's footer signup. The field's parts join the form's grid
+     so a message sits right under the field it is about, above the button (it is not focusable, so focus order is unchanged). */
+  @media (max-width: 479px) {
+    .cv-gate__form { position: relative; gap: 10px; }
+    .cv-gate__field { display: contents; }
+    .cv-gate__field .cv-input { order: 1; min-height: 52px; padding: 0 18px; background: var(--cv-soft); border: 1px solid transparent; border-radius: var(--cv-field-radius, 14px); }
+    [dir="rtl"] .cv-gate__field .cv-input { padding: 0 18px; }
+    .cv-gate__form > .cv-gate__msg:first-of-type { order: 2; }
+    .cv-gate__field .cv-btn { order: 3; min-height: 52px; margin-top: 4px; border-radius: var(--cv-btn-radius, 999px); }
+    .cv-gate__consent { order: 4; margin-top: 6px; }
+    .cv-gate__form > #cv-gate-cmsg { order: 5; }
+    .cv-gate__field .cv-input:focus { background: var(--bg); border-color: var(--text); }
+    .cv-gate__field.is-invalid .cv-input { border-color: var(--accent); background: var(--bg); }
+    .cv-gate__field--pw .cv-input { padding-inline-end: 96px; }
+    .cv-gate .cv-gate__peek { position: absolute; inset-inline-end: 8px; top: 6px; z-index: 1; }
+    .cv-gate__field.is-shake .cv-input { animation: inherit; }
+  }
+/* /partial:gate */
+/* partial:loc-picker */
+  /* Country and language picker (partials/loc-picker.html). The trigger styles open a list dialog: under the pill (lined up with it, on the
+     page grid), centred (country codes with names), or a side sheet with search; a bottom sheet on phones, like the quick view and the filters.
+     The list sits on a raised surface (the scheme's background lifted towards white, so it reads in dark schemes too) with a hairline and a
+     shadow and scrim that deepen as the scheme darkens. Surfaces start 14px in and text 28px in, from the title to the last row. */
+  .cv-loc { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+  .cv-loc__form { display: inline-flex; }
+  .cv-loc__flag { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 26px; height: 18px; padding: 0 5px; border-radius: 5px; box-shadow: inset 0 0 0 1px var(--cv-line); background: var(--cv-soft); font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .cv-loc__select { min-height: 40px; max-width: 260px; padding: 0 38px 0 16px; font: inherit; font-size: 13.5px; color: var(--text); background-color: var(--bg);
+    border: 0; border-radius: 999px; box-shadow: 0 0 0 1px var(--cv-line); cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23777' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center; }
+  [dir="rtl"] .cv-loc__select { padding: 0 16px 0 38px; background-position: left 14px center; }
+  .cv-loc__links { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
+  .cv-loc__link { display: inline-flex; align-items: center; gap: 6px; padding: 0; font: inherit; font-size: 13.5px; color: var(--text-muted); background: none; border: 0; cursor: pointer;
+    transition: color 0.2s var(--cv-ease); }
+  .cv-loc__link:hover { color: var(--text); }
+  .cv-loc__link[aria-current="true"] { color: var(--text); font-weight: 600; }
+  .cv-loc abbr, .cv-loc-dlg abbr { text-decoration: none; }
+  .cv-loc__trigger { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; max-width: 100%; padding: 0 12px 0 14px; font: inherit; font-size: 13.5px; color: var(--text);
+    background: var(--bg); border: 0; border-radius: 999px; box-shadow: 0 0 0 1px var(--cv-line); cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.2s var(--cv-ease), box-shadow 0.2s var(--cv-ease); }
+  .cv-loc__trigger:hover { background: var(--cv-soft); }
+  .cv-loc__trigger--pill { min-height: 36px; padding: 0 10px 0 12px; gap: 6px; font-weight: 500; letter-spacing: 0.01em; font-variant-numeric: tabular-nums; }
+  .cv-loc__tname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-loc__tmeta { color: var(--text-muted); white-space: nowrap; }
+  .cv-loc__sep { width: 1px; height: 14px; background: var(--cv-line); }
+  .cv-loc__chev { width: 14px; height: 14px; color: var(--text-muted); }
+
+  .cv-loc-dlg, .cv-loc__nojs-panel { --cv-loc-bg: color-mix(in srgb, var(--lift) 7%, var(--bg)); --cv-soft: color-mix(in srgb, var(--text) 7%, var(--cv-loc-bg));
+    --cv-loc-edge: color-mix(in srgb, var(--text) 16%, transparent); --cv-loc-shade: rgb(0 0 0 / 0.42); --cv-loc-scrim: rgb(0 0 0 / 0.4); }
+  @supports (color: rgb(from red r g b)) {
+    .cv-loc-dlg, .cv-loc__nojs-panel { --cv-loc-shade: rgb(from var(--bg) 0 0 0 / calc(0.66 - (r + g + b) / 2550));
+      --cv-loc-scrim: rgb(from var(--bg) 0 0 0 / calc(0.6 - (r + g + b) / 2550)); }
+  }
+  .cv-loc-dlg { box-sizing: border-box; flex-direction: column; width: min(560px, calc(100vw - 32px)); max-width: none; max-height: min(82vh, 720px); margin: auto; padding: 0;
+    overflow: hidden; color: var(--text); background: var(--cv-loc-bg); border: 0; border-radius: 22px;
+    box-shadow: 0 0 0 1px var(--cv-loc-edge), inset 0 1px 0 rgb(255 255 255 / 0.05), 0 30px 80px -24px var(--cv-loc-shade); }
+  .cv-loc-dlg[open] { display: flex; }
+  .cv-loc-dlg::backdrop { background: var(--cv-loc-scrim); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .cv-loc-dlg--sheet { width: min(440px, calc(100vw - 20px)); height: calc(100% - 20px); max-height: none; margin-block: 10px; margin-inline: auto 10px; }
+  .cv-loc-dlg--pill { position: fixed; inset: auto; inset-block: var(--cv-loc-y, 72px) var(--cv-loc-b, auto); inset-inline-start: var(--cv-loc-x, 16px);
+    width: var(--cv-loc-w, min(340px, calc(100vw - 32px))); max-height: min(440px, calc(100vh - 32px)); margin: 0; border-radius: 18px;
+    box-shadow: 0 0 0 1px var(--cv-loc-edge), inset 0 1px 0 rgb(255 255 255 / 0.05), 0 24px 60px -18px var(--cv-loc-shade); }
+  .cv-loc-dlg--pill::backdrop { background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .cv-loc-dlg__handle { display: none; }
+  .cv-loc-dlg__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 18px 10px; padding-inline: 28px 12px; }
+  .cv-loc-dlg--pill .cv-loc-dlg__head { padding-block: 12px 4px; }
+  .cv-loc-dlg__title { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+  .cv-loc-dlg--pill .cv-loc-dlg__title { font-size: 15px; }
+  .cv-loc-dlg__close { display: grid; place-items: center; flex: none; width: 40px; height: 40px; padding: 0; color: var(--text); background: transparent; border: 0; border-radius: 50%; cursor: pointer; }
+  .cv-loc-dlg__close:hover { background: var(--cv-soft); }
+  .cv-loc-dlg__body { flex: 1; min-height: 0; display: grid; align-content: start; gap: 20px; padding: 4px 14px 18px; overflow-y: auto; overscroll-behavior: contain; }
+  .cv-loc-dlg__group { display: grid; gap: 8px; }
+  .cv-loc-dlg__sub { margin: 0; padding-inline: 14px; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .cv-loc-dlg__search { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 10px; margin-bottom: 4px; padding-inline: 14px 8px;
+    background: var(--cv-soft); border-radius: var(--cv-field-radius, 14px); box-shadow: 0 -4px 0 var(--cv-loc-bg); }
+  .cv-loc-dlg__search.cv-shell:is(:focus, :has(input:focus)) { box-shadow: 0 -4px 0 var(--cv-loc-bg), 0 0 0 1px var(--text); }
+  .cv-loc-dlg__search .cv-icon { flex: none; color: var(--text-muted); }
+  .cv-loc-dlg__search .cv-input { min-height: 46px; padding-inline: 0; background: transparent; border: 0; }
+  .cv-loc-dlg__search .cv-input:hover, .cv-loc-dlg__search .cv-input:focus { background: transparent; }
+  .cv-loc-dlg__form { display: grid; }
+  .cv-loc-dlg__list { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+  .cv-loc-dlg__list--modal { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 6px; }
+  .cv-loc-dlg--modal .cv-loc-dlg__list--langs { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
+  .cv-loc-dlg__list [hidden] { display: none; }
+  .cv-loc-dlg__opt { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 0 14px; font: inherit; font-size: 15px; color: var(--text); text-align: start;
+    text-decoration: none; background: transparent; border: 0; border-radius: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background-color 0.15s var(--cv-ease); }
+  .cv-loc-dlg__opt:hover { background: var(--cv-soft); }
+  .cv-loc-dlg__opt[aria-current="true"] { font-weight: 600; background: var(--cv-soft); }
+  .cv-loc-dlg__list--modal .cv-loc-dlg__opt { min-height: 52px; box-shadow: inset 0 0 0 1px var(--cv-line); }
+  .cv-loc-dlg__list--modal .cv-loc-dlg__opt[aria-current="true"] { background: transparent; box-shadow: inset 0 0 0 1.5px var(--text); }
+  .cv-loc-dlg__opt .cv-loc__flag { min-width: 30px; height: 20px; font-size: 11px; }
+  /* A name in another script runs in its own direction (<bdi>) but lines up with the others. */
+  .cv-loc-dlg__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cv-loc-dlg__meta { flex: none; font-size: 13.5px; font-weight: 400; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .cv-loc-dlg__tick { width: 18px; height: 18px; flex: none; }
+  .cv-loc-dlg__none { margin: 0; padding: 10px 14px; font-size: 14px; color: var(--text-muted); }
+  .cv-loc-dlg__langs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .cv-loc-dlg__chip { min-height: 40px; padding: 0 14px; font: inherit; font-size: 14px; color: var(--text); background: var(--cv-soft); border: 0; border-radius: 999px; cursor: pointer;
+    transition: background-color 0.15s var(--cv-ease), color 0.15s var(--cv-ease); }
+  .cv-loc-dlg__chip:hover { background: color-mix(in srgb, var(--text) 13%, var(--cv-loc-bg)); }
+  .cv-loc-dlg__chip[aria-current="true"] { color: var(--btn-text); background: var(--btn); }
+  /* Keyboard focus: a ring inside the row (the list scrolls, so an outer ring would be cut off). A list opened by a click or a tap moves
+     focus to the current choice without a ring (the script marks it is-pointer until a key is pressed). */
+  .cv-loc-dlg :is(.cv-loc-dlg__opt, .cv-loc-dlg__chip, .cv-loc-dlg__close):focus-visible, .cv-loc__nojs .cv-loc-dlg__opt:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+  .cv-loc-dlg.is-pointer :focus-visible, html.cv-pointer .cv-loc-dlg :focus-visible { outline: none; }
+  html:has(.cv-loc-dlg[open]:not(.cv-loc-dlg--pill)) { overflow: hidden; }
+  /* Without script: the trigger is a disclosure, with the choices in a panel under it (in the flow in the phone menu and the footer). */
+  .cv-loc__nojs { position: relative; display: inline-block; max-width: 100%; }
+  .cv-loc__nojs > summary { list-style: none; }
+  .cv-loc__nojs > summary::-webkit-details-marker { display: none; }
+  .cv-loc__nojs[open] .cv-loc__chev { transform: rotate(180deg); }
+  .cv-loc__nojs-panel { position: absolute; inset-inline-end: 0; top: calc(100% + 8px); z-index: 30; display: grid; gap: 12px; box-sizing: border-box; width: max-content;
+    min-width: 240px; max-width: min(340px, calc(100vw - 32px)); max-height: min(60vh, 440px); overflow-y: auto; overscroll-behavior: contain; padding: 8px 8px 10px;
+    color: var(--text); text-align: start; background: var(--cv-loc-bg); border-radius: 18px;
+    box-shadow: 0 0 0 1px var(--cv-loc-edge), inset 0 1px 0 rgb(255 255 255 / 0.05), 0 24px 60px -18px var(--cv-loc-shade); }
+  .cv-loc__nojs-panel .cv-loc-dlg__sub { padding: 8px 14px 4px; }
+  .cv-loc__nojs-form { display: grid; gap: 2px; }
+  .cv-mnav__loc .cv-loc__nojs, .cv-ft .cv-loc__nojs { display: block; }
+  .cv-mnav__loc .cv-loc__nojs-panel, .cv-ft .cv-loc__nojs-panel { position: static; width: auto; max-width: none; max-height: 50vh; margin-top: 8px; }
+  @media (max-width: 749px) {
+    .cv-loc-dlg, .cv-loc-dlg--sheet, .cv-loc-dlg--pill { position: fixed; inset: auto 0 0; width: 100%; height: auto; max-height: 88svh; margin: 0;
+      border-radius: calc(var(--cv-radius, 16px) * 1.5) calc(var(--cv-radius, 16px) * 1.5) 0 0;
+      box-shadow: 0 0 0 1px var(--cv-loc-edge), inset 0 1px 0 rgb(255 255 255 / 0.06), 0 -20px 60px -20px var(--cv-loc-shade); }
+    .cv-loc-dlg--pill::backdrop { background: var(--cv-loc-scrim); }
+    .cv-loc-dlg__handle { display: block; flex: none; width: 40px; height: 5px; margin: 9px auto 0; border-radius: 5px; background: color-mix(in srgb, var(--text) 26%, transparent); }
+    .cv-loc-dlg__head { padding-top: 8px; }
+    .cv-loc-dlg__body { padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+    .cv-loc-dlg__close { width: 44px; height: 44px; }
+    .cv-loc__link { min-height: 44px; }
+    .cv-loc__select { min-height: 44px; }
+    .cv-loc__trigger { min-height: 44px; }
+    .cv-loc-dlg__chip { min-height: 44px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .cv-loc-dlg[open] { animation: cv-loc-in 0.32s var(--cv-ease); }
+    .cv-loc-dlg--sheet[open] { animation-name: cv-loc-side; }
+    [dir="rtl"] .cv-loc-dlg--sheet[open] { animation-name: cv-loc-side-rtl; }
+    .cv-loc-dlg[open]::backdrop { animation: cv-loc-fade 0.3s ease-out; }
+    @keyframes cv-loc-in { from { opacity: 0; transform: translateY(10px) scale(0.985); } }
+    @keyframes cv-loc-side { from { transform: translateX(calc(100% + 12px)); } }
+    @keyframes cv-loc-side-rtl { from { transform: translateX(calc(-100% - 12px)); } }
+    @keyframes cv-loc-fade { from { opacity: 0; } }
+    @media (max-width: 749px) { .cv-loc-dlg[open], .cv-loc-dlg--sheet[open], [dir="rtl"] .cv-loc-dlg--sheet[open] { animation: cv-loc-up 0.42s var(--cv-ease); } @keyframes cv-loc-up { from { transform: translateY(105%); } } }
+  }
+/* /partial:loc-picker */

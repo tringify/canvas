@@ -1,0 +1,10 @@
+{
+  "page_type": "blog_category",
+  "sections": [
+    {
+      "type": "main-blog",
+      "position": 1,
+      "settings": {}
+    }
+  ]
+}

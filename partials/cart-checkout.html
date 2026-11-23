@@ -1,0 +1,24 @@
+{%- assign cv_tz = theme.settings.price_trim_zeros | default: false -%}
+{%- comment -%} Cart summary block: the checkout button. Reads cart, routes; cv_ol_ids (partials/cart-summary) names the order limit notices
+  shown. Checkout opens only when the platform says it can take the cart (cart.checkout_ready); outside the market's checkout limits the button
+  points at the notices, or, with none shown, at a reason only screen readers read. {%- endcomment -%}
+{%- assign cv_limits = cart.checkout_limits -%}
+{%- if cv_limits and cv_limits.within_range == false -%}
+  {%- assign cv_co_reason = cv_ol_ids -%}
+  {%- if cv_co_reason == blank -%}
+    {%- assign cv_co_reason = 'cv-ol-reason-' | append: cv_where -%}
+    {%- assign cv_co_msg = '' -%}
+    {%- if cv_limits.below_minimum -%}
+      {%- assign cv_co_msg = 'cart.limit_min_message' | t -%}{%- assign cv_co_amt = cv_limits.shortfall | money: isolate: true, trim_zeros: cv_tz -%}
+    {%- elsif cv_limits.above_maximum -%}
+      {%- assign cv_co_msg = 'cart.limit_max_message' | t -%}{%- assign cv_co_amt = cv_limits.excess | money: isolate: true, trim_zeros: cv_tz -%}
+    {%- endif -%}
+    <span class="cv-sr" id="{{ cv_co_reason }}">{% if cv_co_msg != blank %}{{ cv_co_msg | replace: '{amount}', cv_co_amt }}{% endif %}{% if cv_co_msg != blank and cv_limits.quantity_message != blank %} {% endif %}{{ cv_limits.quantity_message }}</span>
+  {%- endif -%}
+  <button class="cv-btn cv-btn--block" type="button" aria-disabled="true" aria-describedby="{{ cv_co_reason }}">{{ 'cart.checkout' | t }}</button>
+{%- elsif cart.checkout_ready == false and cart.issues.size > 0 -%}
+  <p class="cv-notice cv-notice--error" id="cv-co-issues-{{ cv_where }}">{{ 'cart.fix_to_checkout' | t }}</p>
+  <button class="cv-btn cv-btn--block" type="button" aria-disabled="true" aria-describedby="cv-co-issues-{{ cv_where }}">{{ 'cart.checkout' | t }}</button>
+{%- else -%}
+  <a class="cv-btn cv-btn--block cv-sum__checkout" href="{{ routes.checkout_url }}">{{ 'cart.checkout' | t }}</a>
+{%- endif -%}

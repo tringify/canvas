@@ -1,0 +1,81 @@
+{%- comment -%} Image: the merchant's picture at its own shape or cropped to a ratio, at a share of the column's width. {%- endcomment -%}
+{%- assign cv_ir = settings.ratio | default: 'adapt' -%}
+{%- if settings.image or design_mode -%}
+<div class="cv-blk-image cv-blk-image--{{ cv_ir }}{% if settings.image %} cv-media{% endif %}" style="--cv-blk-w: {{ settings.width | default: 100 }}%">
+  {%- if settings.image -%}<img src="{{ settings.image | image_url: width: 1200 }}" srcset="{{ settings.image | image_srcset: max: 2000 }}" sizes="(min-width: 990px) 50vw, 100vw" alt="{{ settings.image_alt }}" {{ settings.image | image_loading }} data-tf-field="image">
+  {%- else -%}<span class="cv-blk-image__ph" data-tf-field="image">{{ 'image' | placeholder_svg }}</span>{%- endif -%}
+</div>
+{%- endif -%}
+{% schema %}
+{
+  "name": "image",
+  "kind": "block",
+  "icon": "image",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "image",
+      "type": "image",
+      "editor": {
+        "label": "image",
+        "group": "content"
+      }
+    },
+    {
+      "id": "image_alt",
+      "type": "text",
+      "default": "",
+      "visible_if": {
+        "setting": "image",
+        "set": true
+      },
+      "editor": {
+        "label": "image_alt",
+        "group": "content"
+      }
+    },
+    {
+      "id": "ratio",
+      "type": "select",
+      "default": "adapt",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "opt_ratio_auto"
+        },
+        {
+          "value": "square",
+          "label": "opt_square"
+        },
+        {
+          "value": "portrait",
+          "label": "opt_portrait"
+        },
+        {
+          "value": "landscape",
+          "label": "opt_landscape"
+        }
+      ],
+      "editor": {
+        "label": "image_ratio",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "width",
+      "type": "range",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100,
+      "editor": {
+        "label": "image_width",
+        "group": "layout"
+      }
+    }
+  ]
+}
+{% endschema %}

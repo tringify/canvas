@@ -1,0 +1,51 @@
+{%- comment -%} Menu: the top-level items of one menu, as a list or in a row. An item without a link shows as a label. {%- endcomment -%}
+{%- assign cv_m = settings.menu_resolved -%}
+{%- if cv_m.items.size > 0 -%}
+<ul class="cv-blk-menu cv-blk-menu--{{ settings.layout | default: 'list' }}" role="list" data-tf-field="menu">
+  {%- for item in cv_m.items -%}
+    <li>{% if item.url != blank %}<a dir="auto" href="{{ item.url }}"{% if item.open_in_new_tab %} target="_blank" rel="noopener"{% endif %}>{{ item.title }}</a>{% else %}<span dir="auto">{{ item.title }}</span>{% endif %}</li>
+  {%- endfor -%}
+</ul>
+{%- elsif design_mode -%}
+<p class="cv-editor-hint cv-blk-hint" data-tf-field="menu">{{ 'footer.pick_menu' | t }}</p>
+{%- endif -%}
+{% schema %}
+{
+  "name": "menu-links",
+  "kind": "block",
+  "icon": "menu",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "menu",
+      "type": "menu",
+      "default": "footer",
+      "editor": {
+        "label": "menu",
+        "group": "content"
+      }
+    },
+    {
+      "id": "layout",
+      "type": "select",
+      "default": "list",
+      "options": [
+        {
+          "value": "list",
+          "label": "opt_list"
+        },
+        {
+          "value": "inline",
+          "label": "opt_in_a_row"
+        }
+      ],
+      "editor": {
+        "label": "layout",
+        "group": "design"
+      }
+    }
+  ]
+}
+{% endschema %}

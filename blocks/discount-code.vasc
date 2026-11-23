@@ -1,0 +1,66 @@
+{%- comment -%} Discount code: a code the merchant created in Discounts, optionally behind a "Reveal my code" button, with a copy button.
+  Themes see a store's discounts only through the cart (its advertised coupons), so the merchant types the code here; shoppers enter it
+  at checkout. {%- endcomment -%}
+{%- assign cv_code = settings.code | strip -%}
+{%- if cv_code != blank -%}
+<div class="cv-blk-code" data-cv-code>
+  {%- if settings.reveal -%}<button class="cv-btn cv-blk-code__reveal" type="button" data-cv-code-reveal>{{ 'popup.reveal_code' | t }}</button>{%- endif -%}
+  <div class="cv-blk-code__box"{% if settings.reveal %} hidden{% endif %} data-cv-code-box>
+    <span class="cv-blk-code__label">{{ 'popup.your_code' | t }}</span>
+    <code class="cv-blk-code__code" dir="ltr" data-cv-code-value data-tf-field="code">{{ cv_code }}</code>
+    <button class="cv-btn cv-btn--sm cv-btn--outline cv-blk-code__copy" type="button" data-cv-code-copy>{{ 'popup.copy' | t }}</button>
+  </div>
+  <p class="cv-blk-code__done" role="status" data-cv-code-done hidden>{{ 'popup.copied' | t }}</p>
+</div>
+<script>
+(function () {
+  if (window.__cvCode) return; window.__cvCode = true;
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-cv-code-reveal], [data-cv-code-copy]");
+    if (!t) return;
+    var root = t.closest("[data-cv-code]"), box = root.querySelector("[data-cv-code-box]");
+    if (t.hasAttribute("data-cv-code-reveal")) {
+      box.hidden = false; t.hidden = true;
+      var c = box.querySelector("[data-cv-code-copy]"); if (c) c.focus({ preventScroll: true });
+      return;
+    }
+    var code = root.querySelector("[data-cv-code-value]").textContent.trim(), done = root.querySelector("[data-cv-code-done]");
+    var ok = function () { done.hidden = false; clearTimeout(done.__t); done.__t = setTimeout(function () { done.hidden = true; }, 4000); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(ok, function () {});
+    else { var r = document.createRange(); r.selectNodeContents(root.querySelector("[data-cv-code-value]")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+  });
+})();
+</script>
+{%- elsif design_mode -%}
+<p class="cv-editor-hint cv-blk-hint" data-tf-field="code">{{ 'popup.code_hint' | t }}</p>
+{%- endif -%}
+{% schema %}
+{
+  "name": "discount-code",
+  "kind": "block",
+  "icon": "ticket",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "code",
+      "type": "text",
+      "default": "",
+      "editor": {
+        "label": "discount_code",
+        "group": "content"
+      }
+    },
+    {
+      "id": "reveal",
+      "type": "checkbox",
+      "default": true,
+      "editor": {
+        "label": "reveal_code",
+        "group": "content"
+      }
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,313 @@
+{
+  "name": "steps",
+  "icon": "list-ordered",
+  "ctx_needs": [
+    "routes",
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "heading",
+      "type": "text",
+      "editor": {
+        "label": "heading",
+        "group": "content"
+      },
+      "default": "@t:sections.steps.heading"
+    },
+    {
+      "id": "text",
+      "type": "textarea",
+      "editor": {
+        "label": "text",
+        "group": "content"
+      },
+      "default": ""
+    },
+    {
+      "id": "style",
+      "type": "select",
+      "editor": {
+        "label": "style",
+        "group": "design"
+      },
+      "default": "cards",
+      "options": [
+        {
+          "value": "plain",
+          "label": "opt_plain"
+        },
+        {
+          "value": "cards",
+          "label": "opt_cards"
+        }
+      ]
+    },
+    {
+      "id": "show_numbers",
+      "type": "checkbox",
+      "editor": {
+        "label": "show_step_numbers",
+        "group": "design"
+      },
+      "default": true
+    },
+    {
+      "id": "align",
+      "type": "select",
+      "editor": {
+        "label": "alignment",
+        "group": "layout"
+      },
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "opt_left"
+        },
+        {
+          "value": "center",
+          "label": "opt_center"
+        }
+      ]
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "max": 6,
+    "default": [
+      "step",
+      "step",
+      "step"
+    ],
+    "types": [
+      {
+        "type": "step",
+        "editor": {
+          "label": "step"
+        },
+        "settings": [
+          {
+            "id": "icon",
+            "type": "select",
+            "editor": {
+              "label": "icon",
+              "group": "content"
+            },
+            "default": "bag",
+            "options": [
+              {
+                "value": "none",
+                "label": "opt_none"
+              },
+              {
+                "value": "bag",
+                "label": "opt_icon_bag"
+              },
+              {
+                "value": "card",
+                "label": "opt_icon_card"
+              },
+              {
+                "value": "box",
+                "label": "opt_icon_box"
+              },
+              {
+                "value": "truck",
+                "label": "opt_icon_delivery"
+              },
+              {
+                "value": "return",
+                "label": "opt_icon_returns"
+              },
+              {
+                "value": "lock",
+                "label": "opt_icon_secure"
+              },
+              {
+                "value": "chat",
+                "label": "opt_icon_support"
+              },
+              {
+                "value": "gift",
+                "label": "opt_icon_gift"
+              },
+              {
+                "value": "leaf",
+                "label": "opt_icon_sustainable"
+              },
+              {
+                "value": "star",
+                "label": "opt_icon_quality"
+              },
+              {
+                "value": "heart",
+                "label": "opt_icon_care"
+              },
+              {
+                "value": "check",
+                "label": "opt_icon_check"
+              },
+              {
+                "value": "pin",
+                "label": "opt_icon_pin"
+              },
+              {
+                "value": "clock",
+                "label": "opt_icon_clock"
+              }
+            ]
+          },
+          {
+            "id": "image",
+            "type": "image",
+            "editor": {
+              "label": "image_instead_of_icon",
+              "group": "content"
+            }
+          },
+          {
+            "id": "fallback_photo",
+            "type": "select",
+            "default": "auto",
+            "options": [
+              {
+                "value": "auto",
+                "label": "opt_photo_auto"
+              },
+              {
+                "value": "room",
+                "label": "opt_photo_room"
+              },
+              {
+                "value": "table",
+                "label": "opt_photo_table"
+              },
+              {
+                "value": "shelf",
+                "label": "opt_photo_shelf"
+              },
+              {
+                "value": "corner",
+                "label": "opt_photo_corner"
+              },
+              {
+                "value": "parcel",
+                "label": "opt_photo_parcel"
+              },
+              {
+                "value": "linen",
+                "label": "opt_photo_linen"
+              },
+              {
+                "value": "bedroom",
+                "label": "opt_photo_bedroom"
+              },
+              {
+                "value": "bench",
+                "label": "opt_photo_bench"
+              },
+              {
+                "value": "evening",
+                "label": "opt_photo_evening"
+              },
+              {
+                "value": "off",
+                "label": "opt_photo_none"
+              }
+            ],
+            "editor": {
+              "label": "fallback_photo",
+              "group": "content"
+            }
+          },
+          {
+            "id": "title",
+            "type": "text",
+            "editor": {
+              "label": "title",
+              "group": "content"
+            },
+            "default": "@t:sections.steps.step.title"
+          },
+          {
+            "id": "text",
+            "type": "textarea",
+            "editor": {
+              "label": "text",
+              "group": "content"
+            },
+            "default": "@t:sections.steps.step.text"
+          }
+        ]
+      }
+    ]
+  },
+  "presets": [
+    {
+      "name": "steps",
+      "category": "text",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "icon": "bag",
+            "title": "@t:sections.steps.step.title",
+            "text": "@t:sections.steps.step.text"
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "icon": "card",
+            "title": "@t:sections.steps.step2_title",
+            "text": "@t:sections.steps.step2_text"
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "icon": "box",
+            "title": "@t:sections.steps.step3_title",
+            "text": "@t:sections.steps.step3_text"
+          }
+        }
+      ]
+    }
+  ]
+}

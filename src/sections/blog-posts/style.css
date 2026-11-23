@@ -1,0 +1,8 @@
+  .cv-post { position: relative; display: grid; gap: 10px; align-content: start; }
+  .cv-post__media { aspect-ratio: 3 / 2; }
+  .cv-post__media > img { transition: transform 0.5s var(--cv-ease); }
+  .cv-post:hover .cv-post__media > img { transform: scale(1.03); }
+  .cv-post__meta { margin: 6px 0 0; font-size: 13px; }
+  .cv-post__title a { text-decoration: none; }
+  .cv-post__title a::after { content: ""; position: absolute; inset: 0; }
+  .cv-post__excerpt { margin: 0; font-size: 15px; }

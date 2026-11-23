@@ -1,0 +1,146 @@
+{
+  "name": "rich-text",
+  "icon": "text",
+  "ctx_needs": [
+    "design_mode"
+  ],
+  "settings": [
+    {
+      "id": "align",
+      "type": "select",
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "opt_left"
+        },
+        {
+          "value": "center",
+          "label": "opt_center"
+        }
+      ],
+      "editor": {
+        "label": "alignment",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "width",
+      "type": "range",
+      "min": 480,
+      "max": 1200,
+      "step": 40,
+      "unit": "px",
+      "default": 760,
+      "editor": {
+        "label": "content_width",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "padding",
+      "type": "select",
+      "default": "default",
+      "options": [
+        {
+          "value": "default",
+          "label": "opt_spacing_theme"
+        },
+        {
+          "value": "compact",
+          "label": "opt_compact"
+        },
+        {
+          "value": "relaxed",
+          "label": "opt_relaxed"
+        },
+        {
+          "value": "none",
+          "label": "opt_spacing_none"
+        }
+      ],
+      "editor": {
+        "label": "section_padding",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "rich-text",
+      "category": "text",
+      "blocks": [
+        {
+          "type": "theme:heading"
+        },
+        {
+          "type": "theme:text"
+        }
+      ]
+    }
+  ],
+  "blocks": {
+    "accept_theme_blocks": true,
+    "theme_blocks": [
+      "eyebrow",
+      "heading",
+      "text",
+      "buttons",
+      "image",
+      "spacer",
+      "custom-vascula"
+    ],
+    "max": 12
+  },
+  "migrations": [
+    {
+      "id": "rich-text-copy-to-blocks",
+      "op": "settings_to_blocks",
+      "blocks": [
+        {
+          "type": "theme:eyebrow",
+          "settings": {
+            "text": "eyebrow"
+          }
+        },
+        {
+          "type": "theme:heading",
+          "settings": {
+            "heading": "heading"
+          }
+        },
+        {
+          "type": "theme:text",
+          "settings": {
+            "text": "text"
+          }
+        },
+        {
+          "type": "theme:buttons",
+          "settings": {
+            "button_label": "button_label",
+            "button_link": "button_link",
+            "button_style": "button_style",
+            "button_scheme": "button_scheme"
+          },
+          "when": [
+            "button_label"
+          ]
+        }
+      ],
+      "source_defaults": {
+        "heading": "@t:sections.rich_text.heading",
+        "text": "@t:sections.rich_text.text"
+      }
+    }
+  ]
+}
