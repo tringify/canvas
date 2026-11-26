@@ -716,5 +716,7 @@
   "fieldLabel.card_wishlist_display": "Pulsante lista dei desideri",
   "fieldLabel.opt_on_hover_desktop": "Al passaggio del mouse (solo desktop)",
   "fieldLabel.wishlist_toast": "Mostra un messaggio dopo il salvataggio nella lista dei desideri",
-  "fieldLabel.show_privacy_request": "Mostra il link «I tuoi dati»"
+  "fieldLabel.show_privacy_request": "Mostra il link «I tuoi dati»",
+  "sectionName.main-metaobject": "Voce di contenuto personalizzato",
+  "sectionName.main-metaobject-list": "Elenco di contenuti personalizzati"
 }

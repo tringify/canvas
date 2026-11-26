@@ -716,5 +716,7 @@
   "fieldLabel.card_wishlist_display": "Botón de lista de deseos",
   "fieldLabel.opt_on_hover_desktop": "Al pasar el cursor (solo escritorio)",
   "fieldLabel.wishlist_toast": "Mostrar un mensaje al guardar en la lista de deseos",
-  "fieldLabel.show_privacy_request": "Mostrar el enlace «Tus datos»"
+  "fieldLabel.show_privacy_request": "Mostrar el enlace «Tus datos»",
+  "sectionName.main-metaobject": "Entrada de contenido propio",
+  "sectionName.main-metaobject-list": "Lista de contenido propio"
 }

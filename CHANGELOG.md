@@ -2,6 +2,12 @@
 
 All notable changes to Canvas are listed here. Canvas follows [semantic versioning](https://semver.org/).
 
+## 1.20.3 (2026-11-26)
+
+- Blog author and blog tag pages: the blog list shows the author's name and bio, or the tag name, at the top.
+- Custom content pages: each entry shows its name and filled fields (images whole, references as links), and each type lists its entries with page links.
+- Price notes on product pages and in the bag show tax and duties only.
+
 ## 1.20.2 (2026-11-22)
 
 - The blog list heading shows the category name on category pages and the section title everywhere else. It no longer reads the old tag field, which stores no longer provide, so the theme installs and updates again.

@@ -1,0 +1,48 @@
+{%- comment -%} One custom content entry: its name, then each filled field under its field name (rich text as text, images whole, references as links), then any app blocks. {%- endcomment -%}
+{%- assign cv_mo = metaobject -%}
+{%- if cv_mo -%}
+<section class="cv cv-section cv-section--page cv-mo tf-scheme-{{ settings.color_scheme }}">
+  <div class="cv-wrap cv-mo__wrap" style="max-width: min(var(--cv-width, 1400px), {{ settings.width }}px)">
+    <h1 dir="auto" class="cv-h2 cv-page-title">{{ cv_mo.display_name }}</h1>
+    <dl class="cv-mo__fields">
+      {%- for f in cv_mo.fields -%}
+        {%- assign cv_mo_show = false -%}{%- if f.value != blank and f.value != nil -%}{%- assign cv_mo_show = true -%}{%- endif -%}
+        {%- if f.type == 'string' and f.value == cv_mo.display_name -%}{%- assign cv_mo_show = false -%}{%- endif -%}
+        {%- if cv_mo_show -%}
+          <div class="cv-mo__field">
+            <dt class="cv-muted cv-mo__name">{{ f.name }}</dt>
+            <dd dir="auto" class="cv-mo__value">
+              {%- assign v = f.value -%}
+              {%- if f.type == 'rich_text' -%}<div class="cv-rte">{{ v }}</div>
+              {%- elsif f.type == 'boolean' -%}{%- if v -%}✓{%- else -%}–{%- endif -%}
+              {%- elsif f.type == 'url' -%}<a class="cv-link" href="{{ v }}" rel="noopener">{{ v }}</a>
+              {%- elsif f.type contains 'list.' -%}
+                <ul class="cv-mo__list" role="list">{%- for v in f.value -%}<li>
+                  {%- if v.url != blank and v.media_type == 'image' -%}<img class="cv-mo__img" src="{{ v.url | image_url: width: 900 }}" alt="{{ v.alt_text | escape }}"{% if v.width %} width="{{ v.width }}" height="{{ v.height }}"{% endif %} loading="lazy">
+                  {%- elsif v.url != blank and v.filename != blank -%}<a class="cv-link" href="{{ v.url }}">{{ v.filename }}</a>
+                  {%- elsif v.url != blank and v.display_name != blank -%}<a class="cv-link" href="{{ v.url }}">{{ v.display_name }}</a>
+                  {%- elsif v.display_name != blank -%}{{ v.display_name }}
+                  {%- elsif v.url != blank and v.title != blank -%}<a class="cv-link" href="{{ v.url }}">{{ v.title }}</a>
+                  {%- elsif v.url != blank and v.name != blank -%}<a class="cv-link" href="{{ v.url }}">{{ v.name }}</a>
+                  {%- elsif v.title != blank -%}{{ v.title }}
+                  {%- else -%}{{ v }}{%- endif -%}
+                </li>{%- endfor -%}</ul>
+              {%- else -%}
+                  {%- if v.url != blank and v.media_type == 'image' -%}<img class="cv-mo__img" src="{{ v.url | image_url: width: 1200 }}" alt="{{ v.alt_text | escape }}"{% if v.width %} width="{{ v.width }}" height="{{ v.height }}"{% endif %} loading="lazy">
+                  {%- elsif v.url != blank and v.filename != blank -%}<a class="cv-link" href="{{ v.url }}">{{ v.filename }}</a>
+                  {%- elsif v.url != blank and v.display_name != blank -%}<a class="cv-link" href="{{ v.url }}">{{ v.display_name }}</a>
+                  {%- elsif v.display_name != blank -%}{{ v.display_name }}
+                  {%- elsif v.url != blank and v.title != blank -%}<a class="cv-link" href="{{ v.url }}">{{ v.title }}</a>
+                  {%- elsif v.url != blank and v.name != blank -%}<a class="cv-link" href="{{ v.url }}">{{ v.name }}</a>
+                  {%- elsif v.title != blank -%}{{ v.title }}
+                  {%- else -%}{{ v }}{%- endif -%}
+              {%- endif -%}
+            </dd>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </dl>
+    <div class="cv-app-blocks">{%- blocks -%}</div>
+  </div>
+</section>
+{%- endif -%}
