@@ -2361,6 +2361,14 @@ The script sends one E.164 number (+ and digits) under cv_ph_name. Without it, t
       "from": {
         "setting": "show_clear_cart"
       }
+    },
+    {
+      "id": "remove-price_notes-show_shipping",
+      "op": "remove_setting",
+      "from": {
+        "block_type": "price_notes",
+        "setting": "show_shipping"
+      }
     }
   ]
 }
