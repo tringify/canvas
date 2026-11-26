@@ -527,6 +527,14 @@
       "from": {
         "setting": "show_clear_cart"
       }
+    },
+    {
+      "id": "remove-price_notes-show_shipping",
+      "op": "remove_setting",
+      "from": {
+        "block_type": "price_notes",
+        "setting": "show_shipping"
+      }
     }
   ]
 }
