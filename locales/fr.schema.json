@@ -716,5 +716,7 @@
   "fieldLabel.card_wishlist_display": "Bouton liste de souhaits",
   "fieldLabel.opt_on_hover_desktop": "Au survol (ordinateur uniquement)",
   "fieldLabel.wishlist_toast": "Afficher un message après l’ajout à la liste de souhaits",
-  "fieldLabel.show_privacy_request": "Afficher le lien « Vos données »"
+  "fieldLabel.show_privacy_request": "Afficher le lien « Vos données »",
+  "sectionName.main-metaobject": "Entrée de contenu personnalisé",
+  "sectionName.main-metaobject-list": "Liste de contenu personnalisé"
 }

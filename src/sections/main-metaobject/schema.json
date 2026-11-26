@@ -1,0 +1,34 @@
+{
+  "name": "main-metaobject",
+  "icon": "file",
+  "ctx_needs": [
+    "metaobject"
+  ],
+  "settings": [
+    {
+      "id": "width",
+      "type": "range",
+      "min": 560,
+      "max": 1200,
+      "step": 40,
+      "unit": "px",
+      "default": 800,
+      "editor": {
+        "label": "content_width",
+        "group": "layout"
+      }
+    },
+    {
+      "id": "color_scheme",
+      "type": "color_scheme",
+      "default": "default",
+      "editor": {
+        "label": "color_scheme",
+        "group": "design"
+      }
+    }
+  ],
+  "blocks": {
+    "accept_app_blocks": true
+  }
+}

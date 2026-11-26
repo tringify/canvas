@@ -1,0 +1,6 @@
+  .cv-mo__fields { display: grid; gap: 24px; margin: 28px 0 0; }
+  .cv-mo__field { display: grid; gap: 6px; }
+  .cv-mo__name { font-size: 13px; }
+  .cv-mo__value { margin: 0; }
+  .cv-mo__list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .cv-mo__img { display: block; max-width: 100%; height: auto; border-radius: var(--cv-radius, 0); }

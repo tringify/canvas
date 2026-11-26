@@ -3,7 +3,9 @@
   "icon": "newspaper",
   "ctx_needs": [
     "blog",
-    "blog_category"
+    "blog_category",
+    "blog_author",
+    "blog_tag"
   ],
   "settings": [
     {

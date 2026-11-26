@@ -716,5 +716,7 @@
   "fieldLabel.card_wishlist_display": "Wishlist button",
   "fieldLabel.opt_on_hover_desktop": "On hover (desktop only)",
   "fieldLabel.wishlist_toast": "Show a message after saving to the wishlist",
-  "fieldLabel.show_privacy_request": "Show “Your data” link"
+  "fieldLabel.show_privacy_request": "Show “Your data” link",
+  "sectionName.main-metaobject": "Custom content entry",
+  "sectionName.main-metaobject-list": "Custom content list"
 }

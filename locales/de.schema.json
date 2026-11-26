@@ -716,5 +716,7 @@
   "fieldLabel.card_wishlist_display": "Wunschlisten-Button",
   "fieldLabel.opt_on_hover_desktop": "Beim Darüberfahren (nur Desktop)",
   "fieldLabel.wishlist_toast": "Nach dem Speichern auf der Wunschliste eine Meldung anzeigen",
-  "fieldLabel.show_privacy_request": "Link „Ihre Daten“ anzeigen"
+  "fieldLabel.show_privacy_request": "Link „Ihre Daten“ anzeigen",
+  "sectionName.main-metaobject": "Eintrag mit eigenen Inhalten",
+  "sectionName.main-metaobject-list": "Liste mit eigenen Inhalten"
 }
