@@ -468,15 +468,6 @@
             }
           },
           {
-            "id": "show_shipping",
-            "type": "checkbox",
-            "default": false,
-            "editor": {
-              "label": "price_notes_shipping",
-              "group": "content"
-            }
-          },
-          {
             "id": "show_duty",
             "type": "checkbox",
             "default": true,

@@ -689,7 +689,6 @@
   "fieldLabel.cart_lines": "Artikel",
   "fieldLabel.price_notes": "Preishinweise",
   "fieldLabel.price_notes_tax": "Steuerhinweis",
-  "fieldLabel.price_notes_shipping": "Versandhinweis",
   "fieldLabel.price_notes_duty": "Zollhinweis",
   "fieldLabel.cart_note": "Kundennotiz",
   "fieldLabel.cart_shipping_estimate": "Versandschätzung",
