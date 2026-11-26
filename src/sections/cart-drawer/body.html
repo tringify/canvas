@@ -491,15 +491,13 @@ The script sends one E.164 number (+ and digits) under cv_ph_name. Without it, t
 {%- comment -%} Price notes block (product page, cart page, cart drawer): the market's tax, shipping and duty notes (ctx price_notes), the ones the
   merchant ticked, printed as given. The text is the market's (Markets › Tax, Shipping and Duties); a note that does not apply or that the merchant
   emptied is null and prints nothing. Input: cv_pn (product.price_notes or cart.price_notes), cv_bs (the block's settings), cv_pn_cls (the class). {%- endcomment -%}
-{%- assign cv_pn_t = nil -%}{%- assign cv_pn_s = nil -%}{%- assign cv_pn_d = nil -%}
+{%- assign cv_pn_t = nil -%}{%- assign cv_pn_d = nil -%}
 {%- if cv_bs.show_tax -%}{%- assign cv_pn_t = cv_pn.tax -%}{%- endif -%}
-{%- if cv_bs.show_shipping -%}{%- assign cv_pn_s = cv_pn.shipping -%}{%- endif -%}
 {%- if cv_bs.show_duty -%}{%- assign cv_pn_d = cv_pn.duty -%}{%- endif -%}
-{%- if cv_pn_t or cv_pn_s or cv_pn_d -%}
+{%- if cv_pn_t or cv_pn_d -%}
 <p dir="auto" class="cv-notes {{ cv_pn_cls }} cv-muted">
   {%- if cv_pn_t -%}<span>{{ cv_pn_t }}</span>{%- endif -%}
-  {%- if cv_pn_s -%}{% if cv_pn_t %}&#32;{% endif %}<span>{{ cv_pn_s }}</span>{%- endif -%}
-  {%- if cv_pn_d -%}{% if cv_pn_t or cv_pn_s %}&#32;{% endif %}<span>{{ cv_pn_d }}</span>{%- endif -%}
+  {%- if cv_pn_d -%}{% if cv_pn_t %}&#32;{% endif %}<span>{{ cv_pn_d }}</span>{%- endif -%}
 </p>
 {%- elsif design_mode -%}
 <p class="cv-editor-hint cv-notes-hint">{{ 'price_notes.editor_empty' | t }}</p>
