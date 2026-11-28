@@ -2,6 +2,10 @@
 
 All notable changes to Canvas are listed here. Canvas follows [semantic versioning](https://semver.org/).
 
+## 1.20.4 (2026-11-28)
+
+- Order pages no longer show a Return items button.
+
 ## 1.20.3 (2026-11-26)
 
 - Blog author and blog tag pages: the blog list shows the author's name and bio, or the tag name, at the top.

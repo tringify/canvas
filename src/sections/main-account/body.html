@@ -146,7 +146,7 @@
             <input type="hidden" name="order_id" value="{{ o.id }}">
             <button class="cv-btn cv-btn--outline cv-btn--sm" type="submit" data-cv-confirm="{{ 'account.cancel_confirm' | t }}">{{ 'account.cancel_order' | t }}</button>
           {% endform %}
-        {%- endif -%}{%- if o.return_url -%}<a class="cv-btn cv-btn--outline cv-btn--sm" href="{{ o.return_url }}">{{ 'account.return_items' | t }}</a>{%- endif -%}
+        {%- endif -%}
       </article>
     {%- else -%}
       <section class="cv-ac__panel" data-cv-panel="orders">
